@@ -188,3 +188,113 @@ jobs:
             examples/example.pdf
             examples/preview.png
           make_latest: 'true'
+
+  # When release-please cuts a new tag, automatically open a PR on
+  # typst/packages submitting altacv:<version> to Typst Universe. The
+  # PR is created from a maintainer-owned fork (smur89/packages),
+  # branched off the current typst/packages main so the diff is just
+  # the new package directory.
+  #
+  # Prerequisites (one-time setup):
+  #   1. Fork github.com/typst/packages to smur89/packages.
+  #   2. Create a fine-grained PAT at github.com/settings/personal-access-tokens
+  #      scoped to smur89/packages, with:
+  #        - Contents: Read and write    (push the branch)
+  #        - Pull requests: Read and write  (open the cross-repo PR)
+  #      Cross-repo PRs into public typst/packages do not require any
+  #      permission on typst/packages itself — read is implicit.
+  #   3. Store the PAT as a repository secret named TYPST_UNIVERSE_TOKEN
+  #      on smur89/alta-typst.
+  #
+  # The job is idempotent: re-running for an already-submitted version
+  # detects the existing PR and exits cleanly. To re-submit after a
+  # maintainer rejection, close the previous PR first.
+  submit-to-typst-universe:
+    needs: [release-please, attach-release-artifacts]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.release-please.outputs.version }}
+      TAG: ${{ needs.release-please.outputs.tag_name }}
+      FORK_REPO: smur89/packages
+      UPSTREAM_REPO: typst/packages
+      GH_TOKEN: ${{ secrets.TYPST_UNIVERSE_TOKEN }}
+    steps:
+      - name: Skip if a PR for this version is already open
+        id: check
+        run: |
+          existing=$(gh pr list \
+            --repo "$UPSTREAM_REPO" \
+            --search "altacv:${VERSION} in:title is:open" \
+            --json url --jq '.[0].url // empty')
+          if [ -n "$existing" ]; then
+            echo "PR already open: $existing — skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure git
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          gh auth setup-git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone fork, fetch upstream, branch off upstream/main
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          gh repo clone "$FORK_REPO" pkg -- --no-tags
+          cd pkg
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch upstream main --depth=1
+          git checkout -b "altacv-${VERSION}" upstream/main
+
+      - name: Add package files from the release tarball
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          cd pkg
+          PKG_DIR="packages/preview/altacv/${VERSION}"
+          mkdir -p "$PKG_DIR"
+          curl -sSfL \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/altacv-${VERSION}.tar.gz" \
+            | tar xz -C "$PKG_DIR"
+          git add "$PKG_DIR"
+          git commit -m "altacv:${VERSION}"
+
+      - name: Push branch to fork
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          cd pkg
+          git push origin "altacv-${VERSION}"
+
+      - name: Open PR upstream
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          cd pkg
+          gh pr create \
+            --repo "$UPSTREAM_REPO" \
+            --base main \
+            --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
+            --title "altacv:${VERSION}" \
+            --body "$(cat <<EOF
+          altacv ${VERSION} — see https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG} for the release notes, source tag, and bundled artefacts.
+
+          ## Package metadata
+
+          - **Source repository:** https://github.com/${GITHUB_REPOSITORY}
+          - **Release:** https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}
+          - **License:** MIT
+          - **Category:** \`cv\`
+
+          ## Submission checklist
+
+          - [x] Package compiles without errors.
+          - [x] Name follows the [naming rules](https://github.com/typst/packages/blob/main/docs/manifest.md#naming-rules).
+          - [x] README documents the public API, schema, and configuration, with examples pinned to ${VERSION}.
+          - [x] Manifest's \`license\` field matches the contents of \`LICENSE\`.
+          - [x] Bundle excludes generated artefacts — only \`typst.toml\`, \`lib.typ\`, \`icons/\`, \`LICENSE\`, and \`README.md\` are included.
+          - [x] Submission opened automatically by alta-typst's release pipeline.
+          EOF
+          )"
