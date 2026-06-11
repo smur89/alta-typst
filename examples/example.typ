@@ -1,11 +1,9 @@
-// Minimal demonstration of the altacv template. Renders a fictional
-// CV that exercises every section the template supports.
+// Demonstration of the altacv template. Renders a one-page fictional
+// CV exercising the main sections. The publications section is
+// covered by tests/publication_types.typ.
 //
 // Build locally with:
 //   typst compile --root .. example.typ example.pdf
-//
-// Or, after installing the package as @local/altacv:0.1.0:
-//   #import "@local/altacv:0.1.0": alta
 
 #import "../lib.typ": alta
 
@@ -22,8 +20,9 @@
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
     profiles: (
-      (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
-      (network: "Medium",   username: "janedoe", url: "https://medium.com/@janedoe"),
+      (network: "LinkedIn", username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
+      (network: "GitHub",   username: "janedoe",     url: "https://github.com/janedoe"),
+      (network: "Website",  username: "janedoe.dev", url: "https://janedoe.dev"),
     ),
   ),
 
@@ -63,7 +62,7 @@
       ),
     ),
     (
-      name: "ShamrockTech",
+      name: "Grand Canal Systems",
       position: "Software Engineer",
       location: "Dublin, Ireland",
       startDate: "Aug 2017",
@@ -74,18 +73,29 @@
           deployments on Kubernetes.],
       ),
     ),
+    (
+      name: "Pembroke Software",
+      position: "Software Engineering Intern",
+      location: "Dublin, Ireland",
+      startDate: "May 2016",
+      endDate: "Jul 2017",
+      highlights: (
+        [Maintained a legacy reporting service serving daily
+          extracts to enterprise customers across two pricing tiers.],
+        [Automated a manual release process previously taking half
+          a day, freeing the team for higher-leverage work.],
+      ),
+    ),
   ),
 
   skills: (
     (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go")),
     (name: "Infra",     keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes")),
-    (name: "Databases", keywords: ("PostgreSQL", "Redis", "Elasticsearch")),
   ),
 
   languages: (
     (language: "English", fluency: "Native"),
     (language: "Irish",   fluency: "Professional Working"),
-    (language: "German",  fluency: "Elementary"),
   ),
 
   education: (
@@ -105,8 +115,7 @@
   ),
 
   certificates: (
-    (name: "AWS Certified Solutions Architect — Professional", issuer: "Amazon Web Services"),
-    (name: "Certified Kubernetes Administrator",               issuer: "CNCF"),
+    (name: "Certified Kubernetes Administrator", issuer: "CNCF"),
   ),
 
   publications: (
@@ -115,12 +124,6 @@
       publisher: "Personal Blog",
       releaseDate: "Jun 2024",
       url: "https://example.com/posts/event-sourcing",
-    ),
-    (
-      name: "Functional Patterns for Distributed Systems",
-      publisher: "Personal Blog",
-      releaseDate: "Nov 2023",
-      url: "https://example.com/posts/fp-distributed",
     ),
   ),
 )
