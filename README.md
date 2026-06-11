@@ -6,7 +6,7 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
      each GitHub Release. The link below resolves to the latest
      release's `preview.png` asset. Until the first release is cut
      by release-please, this image will 404. -->
-![Preview](https://github.com/smur89/alta-typst/releases/latest/download/preview.png)
+![Two-column CV rendered by the altacv template — left column shows experience; right column shows areas of focus, skills, languages, education, certifications, and publications](https://github.com/smur89/alta-typst/releases/latest/download/preview.png)
 
 ## Installation
 
@@ -59,7 +59,7 @@ Available on [Typst Universe](https://typst.app/universe/package/altacv):
 #alta(cv)
 ```
 
-See [`examples/example.typ`](examples/example.typ) for a one-page CV covering the main sections. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under [`tests/`](tests/).
+See `examples/example.typ` in the [source repository](https://github.com/smur89/alta-typst) for a one-page CV covering the main sections. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
