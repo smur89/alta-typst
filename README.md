@@ -8,42 +8,18 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
      by release-please, this image will 404. -->
 ![Preview](https://github.com/smur89/alta-typst/releases/latest/download/preview.png)
 
-> **Forked from** [`GeorgeHoneywood/alta-typst`](https://github.com/GeorgeHoneywood/alta-typst). The grid layout, pill tags, and half-fill skill dots originate there. This fork has been rewritten around a single `cv` data dict (JSON Resume schema), a `preferences` extension point for theme + behaviour toggles, and a `labels` extension point for i18n / localisation. See [Credits](#credits).
-
 ## Installation
 
-### From Typst Universe (planned)
-
-Once published to [Typst Universe](https://typst.app/universe/):
+Available on [Typst Universe](https://typst.app/universe/package/altacv):
 
 ```typst
 #import "@preview/altacv:0.2.0": alta // x-release-please-version
 ```
 
-### As a local package (today)
-
-Symlink the repo into Typst's local packages directory:
-
-```sh
-# macOS
-mkdir -p "$HOME/Library/Application Support/typst/packages/local/altacv"
-ln -s "$PWD" "$HOME/Library/Application Support/typst/packages/local/altacv/0.2.0" # x-release-please-version
-
-# Linux
-mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv"
-ln -s "$PWD" "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv/0.2.0" # x-release-please-version
-```
-
-Then in your document:
-
-```typst
-#import "@local/altacv:0.2.0": alta // x-release-please-version
-```
-
 ## Quick start
 
 ```typst
-#import "@local/altacv:0.2.0": alta // x-release-please-version
+#import "@preview/altacv:0.2.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -54,7 +30,9 @@ Then in your document:
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
     profiles: (
-      (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
+      (network: "LinkedIn", username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
+      (network: "GitHub",   username: "janedoe",     url: "https://github.com/janedoe"),
+      (network: "Website",  username: "janedoe.dev", url: "https://janedoe.dev"),
     ),
   ),
   work: (
@@ -81,7 +59,7 @@ Then in your document:
 #alta(cv)
 ```
 
-See [`examples/example.typ`](examples/example.typ) for a complete CV that exercises every section.
+See [`examples/example.typ`](examples/example.typ) for a one-page CV covering the main sections. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under [`tests/`](tests/).
 
 ## Data schema
 
@@ -94,6 +72,10 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `publications`. Any section with empty input is skipped — no orphan headings.
+
+### Profile networks
+
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter`, `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_icon_sources` in `lib.typ`.
 
 ## Configuration
 
@@ -165,7 +147,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 The template also exports lower-level helpers (`icon`, `name`, `term`, `skill`, `tag`, `divider`, `styled-link`) for callers who want to compose custom layouts:
 
 ```typst
-#import "@local/altacv:0.2.0": tag, divider // x-release-please-version
+#import "@preview/altacv:0.2.0": tag, divider // x-release-please-version
 ```
 
 ## Building the example
@@ -184,9 +166,7 @@ mv examples/preview-1.png examples/preview.png && rm examples/preview-*.png
 ## Credits
 
 - **[LianTze Lim — AltaCV](https://github.com/liantze/AltaCV)** (LPPL). The visual ancestor: the two-column layout, accent palette, and section structure originate in LianTze's LaTeX class.
-- **[George Honeywood — alta-typst](https://github.com/GeorgeHoneywood/alta-typst)** (MIT, © 2023). The starting point for this fork. The grid implementation, pill tags, and half-fill skill dots were ported from George's work.
-
-If you're looking for a closer Typst port of AltaCV, use George's [`alta`](https://typst.app/universe/package/alta) package. This fork diverges by leaning into a structured data model (JSON Resume) and a configuration surface (`preferences`, `labels`).
+- **[George Honeywood — alta-typst](https://github.com/GeorgeHoneywood/alta-typst)** (MIT, © 2023). Prior Typst implementation; the grid layout, pill tags, and half-fill skill dots originate there.
 
 ## License
 
