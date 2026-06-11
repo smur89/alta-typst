@@ -421,7 +421,7 @@
           panic(
             "Unknown profile network: " + repr(profile.network)
               + ". Supported: " + _profile_networks.join(", ")
-              + ". To add another, vendor its SVG into icons/ and register it in _icon_sources + _profile_networks.",
+              + ". To add another, vendor its SVG into icons/ and register it in _icon_sources.",
           )
         }
         entries.push((
