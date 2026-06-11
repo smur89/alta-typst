@@ -4,11 +4,12 @@ Thanks for taking the time to look. This project is small enough that almost any
 
 ## Development loop
 
-Install Typst at the version CI uses (currently `0.14.2` — see `TYPST_VERSION` in `.github/workflows/build.yml`). The `Lato` font must be installed for the example to render correctly.
+Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. The `Lato` font must be installed for the example to render correctly.
 
 Compile the example and the fixtures locally:
 
 ```sh
+set -e
 typst compile --root . examples/example.typ examples/example.pdf
 for f in tests/*.typ; do typst compile --root . "$f" /dev/null; done
 ```

@@ -1,6 +1,6 @@
 name: Bug report
 description: Something the template renders, panics on, or accepts wrongly
-title: "bug: "
+title: "fix: "
 labels: ["bug"]
 body:
   - type: input
