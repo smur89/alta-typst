@@ -242,6 +242,16 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # Sparse-checkout the single PR-body template; full checkout
+      # would pull lib.typ and icons we don't need in this job.
+      - name: Checkout PR body template
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/typst-universe-pr-body.md
+          sparse-checkout-cone-mode: false
+
       - name: Configure git
         if: steps.check.outputs.skip != 'true'
         run: |
@@ -276,32 +286,18 @@ jobs:
           cd pkg
           git push origin "altacv-${VERSION}"
 
+      # envsubst is restricted to the expected variable names so any
+      # incidental $-references in the template (e.g. a stray $PATH)
+      # are not silently expanded.
       - name: Open PR upstream
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          gh pr create \
-            --repo "$UPSTREAM_REPO" \
-            --base main \
-            --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
-            --title "altacv:${VERSION}" \
-            --body "$(cat <<EOF
-          altacv ${VERSION} — see https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG} for the release notes, source tag, and bundled artefacts.
-
-          ## Package metadata
-
-          - **Source repository:** https://github.com/${GITHUB_REPOSITORY}
-          - **Release:** https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}
-          - **License:** MIT
-          - **Category:** \`cv\`
-
-          ## Submission checklist
-
-          - [x] Package compiles without errors.
-          - [x] Name follows the [naming rules](https://github.com/typst/packages/blob/main/docs/manifest.md#naming-rules).
-          - [x] README documents the public API, schema, and configuration, with examples pinned to ${VERSION}.
-          - [x] Manifest's \`license\` field matches the contents of \`LICENSE\`.
-          - [x] Bundle excludes generated artefacts — only \`typst.toml\`, \`lib.typ\`, \`icons/\`, \`LICENSE\`, and \`README.md\` are included.
-          - [x] Submission opened automatically by alta-typst's release pipeline.
-          EOF
-          )"
+          envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
+            < "$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md" \
+            | gh pr create \
+                --repo "$UPSTREAM_REPO" \
+                --base main \
+                --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
+                --title "altacv:${VERSION}" \
+                --body-file -
