@@ -284,11 +284,17 @@ jobs:
           git add "$PKG_DIR"
           git commit -m "altacv:${VERSION}"
 
+      # `--force` because the branch is auto-generated per version and
+      # only this workflow ever pushes to it — overwriting stale state
+      # from a partially-failed prior run (branch pushed, PR creation
+      # later failed) is the desired behaviour. Without it, re-runs
+      # fail with "fetch first" once any previous attempt got past the
+      # push step.
       - name: Push branch to fork
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          git push origin "altacv-${VERSION}"
+          git push --force origin "altacv-${VERSION}"
 
       # envsubst is restricted to the expected variable names so any
       # incidental $-references in the template (e.g. a stray $PATH)
