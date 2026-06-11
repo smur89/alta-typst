@@ -26,7 +26,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -63,7 +63,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -89,7 +89,7 @@ jobs:
           rm -f examples/preview-*.png
 
       - name: Upload example.pdf
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: example-pdf
           path: examples/example.pdf
@@ -97,7 +97,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload preview.png
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: preview-png
           path: examples/preview.png
@@ -124,7 +124,7 @@ jobs:
       tag_name: ${{ steps.rp.outputs.tag_name }}
       version: ${{ steps.rp.outputs.version }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         id: rp
         with:
           config-file: release-please-config.json
@@ -144,7 +144,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
@@ -180,7 +180,7 @@ jobs:
             typst.toml lib.typ icons/ LICENSE README.md
 
       - name: Attach assets to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
@@ -246,7 +246,7 @@ jobs:
       # would pull lib.typ and icons we don't need in this job.
       - name: Checkout PR body template
         if: steps.check.outputs.skip != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
           sparse-checkout: .github/typst-universe-pr-body.md
