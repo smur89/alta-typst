@@ -41,8 +41,17 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Compile example (syntax check)
-        run: typst compile --root . --format pdf examples/example.typ /dev/null
+      - name: Compile example + test fixtures
+        run: |
+          set -e
+          shopt -s nullglob
+          status=0
+          for f in examples/example.typ tests/*.typ; do
+            echo "::group::$f"
+            typst compile --root . --format pdf "$f" /dev/null || status=$?
+            echo "::endgroup::"
+          done
+          exit $status
 
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and

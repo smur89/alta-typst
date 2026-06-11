@@ -9,6 +9,10 @@
           "type": "toml",
           "path": "typst.toml",
           "jsonpath": "$.package.version"
+        },
+        {
+          "type": "generic",
+          "path": "README.md"
         }
       ]
     }

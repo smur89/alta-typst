@@ -15,4 +15,8 @@ examples/preview-*.png
 # Editor / IDE
 .vscode/
 .idea/
+*.iml
+*.ipr
+*.iws
+out/
 *.swp
