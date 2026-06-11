@@ -111,10 +111,17 @@
   calendar: read("icons/calendar.svg"),
   email: read("icons/email.svg"),
   file: read("icons/file.svg"),
-  linkedin: read("icons/linkedin.svg"),
   location: read("icons/location.svg"),
-  medium: read("icons/medium.svg"),
   phone: read("icons/phone.svg"),
+  bluesky: read("icons/bluesky.svg"),
+  github: read("icons/github.svg"),
+  gitlab: read("icons/gitlab.svg"),
+  linkedin: read("icons/linkedin.svg"),
+  mastodon: read("icons/mastodon.svg"),
+  medium: read("icons/medium.svg"),
+  stackoverflow: read("icons/stackoverflow.svg"),
+  twitter: read("icons/twitter.svg"),
+  website: read("icons/website.svg"),
 )
 #let _profile_networks = _icon_sources.keys().filter(k => k not in _utility_icons)
 
