@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/smur89/alta-typst/compare/v0.3.0...v0.3.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* address typst-package-check feedback for 0.3.0 submission ([#7](https://github.com/smur89/alta-typst/issues/7)) ([9560452](https://github.com/smur89/alta-typst/commit/9560452bb6e0a85e26ae9add6c8f239147ea5fea))
+
 ## [0.3.0](https://github.com/smur89/alta-typst/compare/v0.2.0...v0.3.0) (2026-06-11)
 
 
