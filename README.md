@@ -17,7 +17,7 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
 Once published to [Typst Universe](https://typst.app/universe/):
 
 ```typst
-#import "@preview/altacv:0.1.0": alta // x-release-please-version
+#import "@preview/altacv:0.2.0": alta // x-release-please-version
 ```
 
 ### As a local package (today)
@@ -27,23 +27,23 @@ Symlink the repo into Typst's local packages directory:
 ```sh
 # macOS
 mkdir -p "$HOME/Library/Application Support/typst/packages/local/altacv"
-ln -s "$PWD" "$HOME/Library/Application Support/typst/packages/local/altacv/0.1.0" # x-release-please-version
+ln -s "$PWD" "$HOME/Library/Application Support/typst/packages/local/altacv/0.2.0" # x-release-please-version
 
 # Linux
 mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv"
-ln -s "$PWD" "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv/0.1.0" # x-release-please-version
+ln -s "$PWD" "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv/0.2.0" # x-release-please-version
 ```
 
 Then in your document:
 
 ```typst
-#import "@local/altacv:0.1.0": alta // x-release-please-version
+#import "@local/altacv:0.2.0": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@local/altacv:0.1.0": alta // x-release-please-version
+#import "@local/altacv:0.2.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -165,7 +165,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 The template also exports lower-level helpers (`icon`, `name`, `term`, `skill`, `tag`, `divider`, `styled-link`) for callers who want to compose custom layouts:
 
 ```typst
-#import "@local/altacv:0.1.0": tag, divider // x-release-please-version
+#import "@local/altacv:0.2.0": tag, divider // x-release-please-version
 ```
 
 ## Building the example
