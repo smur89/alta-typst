@@ -98,17 +98,15 @@
   out
 }
 
-// ─── HTML-target polyfill ─────────────────────────────────────────────
-// std.target() requires --features html; in paged builds it isn't in
-// std at all, so fall back to "paged".
+// std.target() is absent in paged-only builds; fall back to "paged".
 #let target() = {
   if "target" in dictionary(std) { std.target() } else { "paged" }
 }
 
-// ─── Vendored icon sources (read once at module load) ────────────────
-// Each SVG ships with fill="#666666" baked in (body colour); icon()
-// string-substitutes the fill at call-time so the same SVG can render
-// in body or accent colour.
+// Vendored icons. SVGs ship with fill="#666666" baked in; icon() swaps
+// it at call time. Utility icons drive the contact bar / term row /
+// publication list; the rest are network icons available to profiles.
+#let _utility_icons = ("calendar", "email", "file", "location", "phone")
 #let _icon_sources = (
   calendar: read("icons/calendar.svg"),
   email: read("icons/email.svg"),
@@ -118,6 +116,7 @@
   medium: read("icons/medium.svg"),
   phone: read("icons/phone.svg"),
 )
+#let _profile_networks = _icon_sources.keys().filter(k => k not in _utility_icons)
 
 // ─── Public helpers ──────────────────────────────────────────────────
 
@@ -169,8 +168,11 @@
 }
 
 // Date + optional location row, rendered as two left-aligned half-width
-// boxes — period on the left, location on the right.
+// boxes — period on the left, location on the right. Either side may
+// be omitted (`none`); the box is skipped so undated/unlocated entries
+// don't emit a stray icon.
 #let term(period, location: none) = context {
+  if period == none and location == none { return }
   let body-size = _body_size_state.get()
   if target() == "paged" {
     block(
@@ -178,10 +180,12 @@
       below: 0.8 * body-size,
       inset: (left: 0.3 * body-size),
       text(0.9 * body-size, {
-        box(width: 50%, {
-          icon("calendar")
-          period
-        })
+        if period != none {
+          box(width: 50%, {
+            icon("calendar")
+            period
+          })
+        }
         if location != none {
           box(width: 50%, {
             icon("location")
@@ -194,8 +198,10 @@
     html.div(
       style: "display: flex; align-items: center; gap: 10px;",
       {
-        icon("calendar")
-        html.div(period)
+        if period != none {
+          icon("calendar")
+          html.div(period)
+        }
         if location != none {
           icon("location")
           html.div(location)
@@ -221,14 +227,24 @@
   "Limited Working":      2,
   "Elementary":           1,
 )
-#let _resolve_rating(entry) = {
-  if "rating" in entry { return entry.rating }
-  if "fluency" in entry {
-    let level = entry.fluency
-    if type(level) == str and level in _fluency_rating { return _fluency_rating.at(level) }
-    panic("Unknown fluency level: " + repr(level) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
+#let _check_rating(rating) = {
+  if type(rating) not in (int, float) {
+    panic("Rating must be numeric, got: " + repr(rating))
   }
-  panic("Language entry needs either a `rating` (0-" + str(_max_rating) + ") or a `fluency` string.")
+  if rating < 0 or rating > _max_rating {
+    panic("Rating out of range: " + repr(rating) + ". Expected 0–" + str(_max_rating) + ".")
+  }
+  rating
+}
+#let _resolve_rating(entry) = {
+  let rating = entry.at("rating", default: none)
+  if rating != none { return _check_rating(rating) }
+  let fluency = entry.at("fluency", default: none)
+  if fluency != none {
+    if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
+    panic("Unknown fluency level: " + repr(fluency) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
+  }
+  panic("Language entry needs either a `rating` (0–" + str(_max_rating) + ") or a `fluency` string.")
 }
 #let _half_fill(accent) = gradient.linear(
   (accent, 0%),
@@ -313,6 +329,15 @@
   v(0.3 * body-size)
 }
 
+// Render each item via `render`, interleaving divider() between
+// consecutive items. Trailing divider is suppressed.
+#let _join_with_dividers(items, render) = {
+  for (i, item) in items.enumerate() {
+    render(item)
+    if i < items.len() - 1 { divider() }
+  }
+}
+
 // Accented underlined italic link — used for publication titles.
 #let styled-link(dest, content) = context {
   let accent = _accent_state.get()
@@ -325,16 +350,16 @@
 // corresponding rendered section. Kept private to the module so the
 // public API surface stays small.
 
-// Render "Aug 2021 - Dec 2022" / "Aug 2021 - Present" / "Dec 2022" /
-// "" — whichever of start/end are populated. Missing endDate renders
-// as the localised "Present" label; missing startDate omits the dash
-// entirely so we never emit a leading " - ".
+// Returns content for the date range, or `none` when neither date is
+// supplied (so callers can skip emitting the term row entirely instead
+// of falsely rendering "Present" for a fully undated entry).
 #let _format_date_range(entry, labels) = {
   let is-empty(v) = v == none or v == ""
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
+  if is-empty(start) and is-empty(end) { return none }
   let end-text = if is-empty(end) { labels.present } else { end }
-  if is-empty(start) { [#end-text] } else { [#start - #end-text] }
+  if is-empty(start) { [#end-text] } else { [#start – #end-text] }
 }
 
 #let _header(basics) = {
@@ -380,12 +405,20 @@
         entries.push((
           icon: "location",
           value: location,
-          url: "https://maps.google.com/?q=" + _url_encode(location),
+          url: "https://www.google.com/maps?q=" + _url_encode(location),
         ))
       }
       for profile in basics.at("profiles", default: ()) {
+        let network = lower(profile.network)
+        if network not in _profile_networks {
+          panic(
+            "Unknown profile network: " + repr(profile.network)
+              + ". Supported: " + _profile_networks.join(", ")
+              + ". To add another, vendor its SVG into icons/ and register it in _icon_sources + _profile_networks.",
+          )
+        }
         entries.push((
-          icon: lower(profile.network),
+          icon: network,
           value: profile.at("username", default: profile.at("url", default: "")),
           url: profile.url,
         ))
@@ -414,7 +447,7 @@
 #let _experience(work, labels) = if work.len() > 0 [
   == #labels.experience
 
-  #for (i, job) in work.enumerate() [
+  #_join_with_dividers(work, job => [
     #block(breakable: false)[
       === #job.position
       #name[#job.name]
@@ -422,9 +455,7 @@
 
       #for bullet in job.at("highlights", default: ()) [- #bullet]
     ]
-
-    #if i < work.len() - 1 { divider() }
-  ]
+  ])
 ]
 
 #let _focus_areas(items, labels) = if items.len() > 0 [
@@ -444,11 +475,13 @@
     let row-gap = 0.7 * body-size
     [== #labels.skills]
     for group in groups {
+      let keywords = group.at("keywords", default: ())
+      if keywords.len() == 0 { continue }
       block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
         tag(group.name, label: true)
         text("-")
         h(0.25 * body-size)
-        for item in group.at("keywords", default: ()) { tag(item) }
+        for item in keywords { tag(item) }
       }))
     }
   }
@@ -457,26 +490,25 @@
 #let _languages(items, labels) = if items.len() > 0 [
   == #labels.languages
 
-  #for (i, lang) in items.enumerate() [
-    #block(breakable: false, skill(lang.language, _resolve_rating(lang)))
-    #if i < items.len() - 1 { divider() }
-  ]
+  #_join_with_dividers(items, lang => block(
+    breakable: false,
+    skill(lang.language, _resolve_rating(lang)),
+  ))
 ]
 
 #let _education(entries, labels) = if entries.len() > 0 [
   == #labels.education
 
-  #for (i, edu) in entries.enumerate() [
+  #_join_with_dividers(entries, edu => [
     #block(breakable: false)[
-      === #edu.at("studyType", default: edu.at("area", default: ""))
-      #name[#edu.institution]
+      #let title = edu.at("studyType", default: edu.at("area", default: ""))
+      #if title != "" [=== #title]
+      #name[#edu.at("institution", default: "")]
       #term(_format_date_range(edu, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
     ]
-
-    #if i < entries.len() - 1 { divider() }
-  ]
+  ])
 ]
 
 // Bucket certs by issuer (insertion order preserved), then split into
@@ -486,7 +518,10 @@
 #let _build_cert_groups(certs) = {
   let by-issuer = (:)
   for cert in certs {
-    by-issuer.insert(cert.issuer, by-issuer.at(cert.issuer, default: ()) + (cert.name,))
+    let issuer = cert.at("issuer", default: "")
+    let name = cert.at("name", default: "")
+    if name == "" { continue }
+    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (name,))
   }
   let groups = ()
   let singletons = ()
@@ -501,27 +536,41 @@
   let groups = if group {
     _build_cert_groups(certs)
   } else {
-    (certs.map(c => c.name),)
+    (certs.map(c => c.at("name", default: "")).filter(n => n != ""),)
   }
   [== #labels.certifications]
-  for (i, names) in groups.enumerate() {
-    block(breakable: false, { for n in names [#tag(n)] })
-    if i < groups.len() - 1 { divider() }
-  }
+  _join_with_dividers(groups, names => block(
+    breakable: false,
+    { for n in names [#tag(n)] },
+  ))
 }
 
+// Group publications by `pub.type` (a local extension to JSON Resume).
+// Entries without `type` fall under `labels.articles` so a CV of plain
+// blog posts renders as before. The grouping key is used verbatim as
+// the subheading, so users localising the section can either override
+// `labels.articles` (for the default) or supply already-translated
+// `type` strings directly. Typst dicts preserve insertion order, so
+// groups render in first-occurrence order.
 #let _publications(pubs, labels) = if pubs.len() > 0 {
   context {
     let body-size = _body_size_state.get()
-    [
-      == #labels.publications
+    let groups = (:)
+    for pub in pubs {
+      let key = pub.at("type", default: labels.articles)
+      groups.insert(key, groups.at(key, default: ()) + (pub,))
+    }
+    [== #labels.publications]
+    for (group, items) in groups.pairs() [
+      ==== #icon("file", size: 1.2 * body-size, shift: 0pt) #group
 
-      ==== #icon("file", size: 1.2 * body-size, shift: 0pt) #labels.articles
-
-      #for pub in pubs [
+      #for pub in items [
         #block(breakable: false)[
-          - #text(0.8 * body-size, fill: _body_colour.lighten(35%), pub.releaseDate) \
-            #styled-link(pub.url, pub.name).
+          #let date = pub.at("releaseDate", default: none)
+          #let url = pub.at("url", default: none)
+          #let title = pub.at("name", default: "")
+          - #if date != none [#text(0.8 * body-size, fill: _body_colour.lighten(35%), date) \ ]
+            #if url != none { styled-link(url, title) } else { emph(title) }.
         ]
       ]
     ]

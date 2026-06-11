@@ -17,7 +17,7 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
 Once published to [Typst Universe](https://typst.app/universe/):
 
 ```typst
-#import "@preview/altacv:0.1.0": alta
+#import "@preview/altacv:0.1.0": alta // x-release-please-version
 ```
 
 ### As a local package (today)
@@ -27,23 +27,23 @@ Symlink the repo into Typst's local packages directory:
 ```sh
 # macOS
 mkdir -p "$HOME/Library/Application Support/typst/packages/local/altacv"
-ln -s "$PWD" "$HOME/Library/Application Support/typst/packages/local/altacv/0.1.0"
+ln -s "$PWD" "$HOME/Library/Application Support/typst/packages/local/altacv/0.1.0" # x-release-please-version
 
 # Linux
 mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv"
-ln -s "$PWD" "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv/0.1.0"
+ln -s "$PWD" "${XDG_DATA_HOME:-$HOME/.local/share}/typst/packages/local/altacv/0.1.0" # x-release-please-version
 ```
 
 Then in your document:
 
 ```typst
-#import "@local/altacv:0.1.0": alta
+#import "@local/altacv:0.1.0": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@local/altacv:0.1.0": alta
+#import "@local/altacv:0.1.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -85,10 +85,11 @@ See [`examples/example.typ`](examples/example.typ) for a complete CV that exerci
 
 ## Data schema
 
-The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with two practical extensions:
+The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three practical extensions:
 
-- `focusAreas`: top-level array of prose items (no JSON Resume equivalent — rendered as a bulleted "Areas of Focus" section).
+- `focusAreas`: top-level array of prose items. This is an intentional altacv addition, distinct from JSON Resume's `interests` (which is structured `{name, keywords}` per entry). Rendered as a bulleted "Areas of Focus" section.
 - `languages[].rating`: numeric 0–5 (JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
+- `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise either by overriding `labels.articles` or by supplying already-translated `type` values directly.
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
@@ -164,7 +165,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 The template also exports lower-level helpers (`icon`, `name`, `term`, `skill`, `tag`, `divider`, `styled-link`) for callers who want to compose custom layouts:
 
 ```typst
-#import "@local/altacv:0.1.0": tag, divider
+#import "@local/altacv:0.1.0": tag, divider // x-release-please-version
 ```
 
 ## Building the example
