@@ -116,6 +116,7 @@
   bluesky: read("icons/bluesky.svg"),
   github: read("icons/github.svg"),
   gitlab: read("icons/gitlab.svg"),
+  link: read("icons/link.svg"),
   linkedin: read("icons/linkedin.svg"),
   mastodon: read("icons/mastodon.svg"),
   medium: read("icons/medium.svg"),

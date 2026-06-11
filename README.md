@@ -75,7 +75,7 @@ Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter`, `Website`. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_icon_sources` in `lib.typ`.
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter`, `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_icon_sources` in `lib.typ`.
 
 ## Configuration
 
