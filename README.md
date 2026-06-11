@@ -157,6 +157,7 @@ Theme + behaviour configuration. Override any subset via `preferences:`; the res
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
+| `sectionOrder` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Order of the right-column sections. Each key must be one of `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`. Sections omitted from the array are not rendered, even if their data is present. Duplicates are allowed (the section renders twice). Unknown keys panic. The Experience section lives in the left column and is not controlled by this preference. |
 
 Example:
 
@@ -165,6 +166,8 @@ Example:
   accent: rgb("#1976D2"),
   groupCertificates: false,
   imageSize: 7em,
+  // Move education above skills; hide publications.
+  sectionOrder: ("focusAreas", "education", "skills", "languages", "certificates"),
 ))
 ```
 

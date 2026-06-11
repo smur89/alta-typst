@@ -57,6 +57,21 @@
 // body-size, paper, margin, column-ratio) remains as top-level alta()
 // arguments since those are layout primitives rather than soft
 // preferences.
+// Right-column sections in their default render order. Listed once so
+// the default preference and the dispatch validator stay in lockstep;
+// adding a new side-panel renderer is a two-line change (here + the
+// dispatch dict in `alta()`).
+#let _default_section_order = (
+  "focusAreas",
+  "skills",
+  "languages",
+  "education",
+  "certificates",
+  "awards",
+  "projects",
+  "publications",
+)
+
 #let _default_preferences = (
   // Theme colour applied to headings, accent rules, tag borders and
   // skill-dot fills.
@@ -69,6 +84,13 @@
   // The image is clipped to a circle of this size and aligned to the
   // top-right of the header. Ignored when `basics.image` is absent.
   imageSize: 6em,
+  // Order in which the right-column (side panel) sections render. Each
+  // string must be one of the keys in the dispatch dict in `alta()`.
+  // Sections omitted from this array are not rendered (even if their
+  // data is present in the cv dict); duplicates are allowed (the
+  // section renders once per occurrence). Default lists every side-
+  // panel section in the historic render order.
+  sectionOrder: _default_section_order,
 )
 
 // Merge user overrides over defaults, panicking on unknown keys so
@@ -724,6 +746,28 @@
   _header(cv.basics, image-size: preferences.imageSize)
   _summary(cv.basics)
 
+  // Side-panel section dispatch. Each key matches a string accepted by
+  // `preferences.sectionOrder`. Closures capture the local cv / labels
+  // / preferences so renderer signatures (which differ in arity) stay
+  // unchanged.
+  let side-panel-renderers = (
+    focusAreas:   () => _focus_areas(cv.at("focusAreas", default: ()), labels),
+    skills:       () => _skills(cv.at("skills", default: ()), labels),
+    languages:    () => _languages(cv.at("languages", default: ()), labels),
+    education:    () => _education(cv.at("education", default: ()), labels),
+    certificates: () => _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates),
+    awards:       () => _awards(cv.at("awards", default: ()), labels),
+    projects:     () => _projects(cv.at("projects", default: ()), labels),
+    publications: () => _publications(cv.at("publications", default: ()), labels),
+  )
+  let unknown = preferences.sectionOrder.filter(k => k not in side-panel-renderers)
+  if unknown.len() > 0 {
+    panic(
+      "Unknown sectionOrder key(s): " + unknown.join(", ")
+        + ". Supported: " + side-panel-renderers.keys().join(", "),
+    )
+  }
+
   // Asymmetric two-column body via grid.
   let gutter = 12pt
   let left-width = column-ratio * 100%
@@ -733,14 +777,9 @@
     column-gutter: gutter,
     _experience(cv.at("work", default: ()), labels),
     {
-      _focus_areas(cv.at("focusAreas", default: ()), labels)
-      _skills(cv.at("skills", default: ()), labels)
-      _languages(cv.at("languages", default: ()), labels)
-      _education(cv.at("education", default: ()), labels)
-      _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates)
-      _awards(cv.at("awards", default: ()), labels)
-      _projects(cv.at("projects", default: ()), labels)
-      _publications(cv.at("publications", default: ()), labels)
+      for key in preferences.sectionOrder {
+        (side-panel-renderers.at(key))()
+      }
     },
   )
 }
