@@ -63,6 +63,10 @@
   // certs become their own group; singletons pool into a final "other"
   // group). When false, certificates render as a single flat row.
   groupCertificates: true,
+  // Diameter of the circular portrait when `basics.image` is set.
+  // The image is clipped to a circle of this size and aligned to the
+  // top-right of the header. Ignored when `basics.image` is absent.
+  imageSize: 6em,
 )
 
 // Merge user overrides over defaults, panicking on unknown keys so
@@ -327,80 +331,111 @@
   if is-empty(start) { [#end-text] } else { [#start – #end-text] }
 }
 
-#let _header(basics) = {
+// Circular photo for the header. Source can be a string path
+// (resolved relative to lib.typ, so callers should prefer a leading
+// "/" for a root-relative path) OR bytes loaded by the caller via
+// `read("path", encoding: none)`. Cropping to a circle is achieved
+// with a clipped box of `radius: 50%`; the image fills via
+// `fit: "cover"` so non-square sources don't distort.
+#let _portrait(source, size) = box(
+  width: size,
+  height: size,
+  clip: true,
+  radius: 50%,
+  image(source, fit: "cover", width: 100%, height: 100%),
+)
+
+#let _header(basics, image-size: 6em) = {
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
 
-    block(
-      spacing: 0pt,
-      below: 1.2 * body-size,
-      text(2.5 * body-size, fill: accent, weight: "bold", upper(basics.name)),
-    )
-
-    if "label" in basics and basics.label != none {
+    let header-text = {
       block(
         spacing: 0pt,
-        below: 0.8 * body-size,
-        text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", basics.label),
+        below: 1.2 * body-size,
+        text(2.5 * body-size, fill: accent, weight: "bold", upper(basics.name)),
       )
-    }
 
-    set text(0.8 * body-size, weight: "bold")
-    let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
-
-    // Build the contact bar: email, phone, location (from basics
-    // top-level), then any profiles (LinkedIn, Medium, etc.).
-    let entries = ()
-    let email = basics.at("email", default: none)
-    if email != none {
-      entries.push((icon: "email", value: email, url: "mailto:" + email))
-    }
-    let phone = basics.at("phone", default: none)
-    if phone != none {
-      // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
-      // from the dialable URI; the displayed value keeps them intact.
-      let dialable = phone.replace(regex("[\s()\-.]"), "")
-      entries.push((
-        icon: "phone",
-        value: phone,
-        url: "tel:" + dialable,
-      ))
-    }
-    let location = basics.at("location", default: none)
-    if location != none {
-      entries.push((
-        icon: "location",
-        value: location,
-        url: "https://www.google.com/maps?q=" + _url_encode(location),
-      ))
-    }
-    for profile in basics.at("profiles", default: ()) {
-      let raw = lower(profile.network)
-      let network = _network_aliases.at(raw, default: raw)
-      if network not in _profile_networks {
-        panic(
-          "Unknown profile network: " + repr(profile.network)
-            + ". Supported: " + _profile_networks.join(", ")
-            + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources.",
+      if "label" in basics and basics.label != none {
+        block(
+          spacing: 0pt,
+          below: 0.8 * body-size,
+          text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", basics.label),
         )
       }
-      entries.push((
-        icon: network,
-        value: profile.at("username", default: profile.at("url", default: "")),
-        url: profile.url,
-      ))
+
+      set text(0.8 * body-size, weight: "bold")
+      let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
+
+      // Build the contact bar: email, phone, location (from basics
+      // top-level), then any profiles (LinkedIn, Medium, etc.).
+      let entries = ()
+      let email = basics.at("email", default: none)
+      if email != none {
+        entries.push((icon: "email", value: email, url: "mailto:" + email))
+      }
+      let phone = basics.at("phone", default: none)
+      if phone != none {
+        // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
+        // from the dialable URI; the displayed value keeps them intact.
+        let dialable = phone.replace(regex("[\s()\-.]"), "")
+        entries.push((
+          icon: "phone",
+          value: phone,
+          url: "tel:" + dialable,
+        ))
+      }
+      let location = basics.at("location", default: none)
+      if location != none {
+        entries.push((
+          icon: "location",
+          value: location,
+          url: "https://www.google.com/maps?q=" + _url_encode(location),
+        ))
+      }
+      for profile in basics.at("profiles", default: ()) {
+        let raw = lower(profile.network)
+        let network = _network_aliases.at(raw, default: raw)
+        if network not in _profile_networks {
+          panic(
+            "Unknown profile network: " + repr(profile.network)
+              + ". Supported: " + _profile_networks.join(", ")
+              + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources.",
+          )
+        }
+        entries.push((
+          icon: network,
+          value: profile.at("username", default: profile.at("url", default: "")),
+          url: profile.url,
+        ))
+      }
+
+      entries
+        .map(entry => {
+          bar-icon(entry.icon)
+          link(entry.url)[#entry.value]
+        })
+        .join(h(1.2 * body-size))
+      [
+
+      ]
     }
 
-    entries
-      .map(entry => {
-        bar-icon(entry.icon)
-        link(entry.url)[#entry.value]
-      })
-      .join(h(1.2 * body-size))
-    [
-
-    ]
+    let image-src = basics.at("image", default: none)
+    let has-image = image-src != none and image-src != "" and image-src != bytes(())
+    if has-image {
+      // Two-column layout: text fills the left, portrait floats top-right.
+      grid(
+        columns: (1fr, auto),
+        align: top,
+        column-gutter: 1em,
+        header-text,
+        _portrait(image-src, image-size),
+      )
+    } else {
+      header-text
+    }
   }
 }
 
@@ -624,7 +659,7 @@
   )
 
   // Header (name / label / contact bar) + summary.
-  _header(cv.basics)
+  _header(cv.basics, image-size: preferences.imageSize)
   _summary(cv.basics)
 
   // Asymmetric two-column body via grid.
