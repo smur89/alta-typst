@@ -762,9 +762,10 @@
   )
   let unknown = preferences.sectionOrder.filter(k => k not in side-panel-renderers)
   if unknown.len() > 0 {
+    let quote(k) = "\"" + k + "\""
     panic(
-      "Unknown sectionOrder key(s): " + unknown.join(", ")
-        + ". Supported: " + side-panel-renderers.keys().join(", "),
+      "Unknown sectionOrder key(s): " + unknown.map(quote).join(", ")
+        + ". Supported: " + side-panel-renderers.keys().map(quote).join(", "),
     )
   }
 
@@ -778,7 +779,8 @@
     _experience(cv.at("work", default: ()), labels),
     {
       for key in preferences.sectionOrder {
-        (side-panel-renderers.at(key))()
+        let render = side-panel-renderers.at(key)
+        render()
       }
     },
   )
