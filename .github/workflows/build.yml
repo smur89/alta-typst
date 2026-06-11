@@ -1,0 +1,190 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  # Single source of truth for the Typst version used across all jobs.
+  # Bumping this requires no other edits.
+  TYPST_VERSION: v0.14.2
+
+jobs:
+  # Syntax + manifest sanity check. Compiles lib.typ and the example
+  # against the local file tree (no installation).
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Typst + Lato font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-lato
+          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
+          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
+          curl -sSfL "$URL" | sudo tar -xJ \
+            --strip-components=1 \
+            -C /usr/local/bin \
+            typst-x86_64-unknown-linux-musl/typst
+
+      - name: Compile example + test fixtures
+        run: |
+          set -e
+          shopt -s nullglob
+          status=0
+          for f in examples/example.typ tests/*.typ; do
+            echo "::group::$f"
+            typst compile --root . --format pdf "$f" /dev/null || status=$?
+            echo "::endgroup::"
+          done
+          exit $status
+
+  # Build the example PDF and a first-page preview PNG. Uploaded as
+  # workflow artifacts on every run so reviewers can download and
+  # inspect the rendered output without checking it out locally.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Typst + Lato font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-lato
+          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
+          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
+          curl -sSfL "$URL" | sudo tar -xJ \
+            --strip-components=1 \
+            -C /usr/local/bin \
+            typst-x86_64-unknown-linux-musl/typst
+
+      - name: Compile example.pdf
+        run: typst compile --root . examples/example.typ examples/example.pdf
+
+      - name: Generate preview.png (page 1)
+        run: |
+          typst compile --root . --format png --ppi 150 \
+            examples/example.typ 'examples/preview-{p}.png'
+          mv examples/preview-1.png examples/preview.png
+          rm -f examples/preview-*.png
+
+      - name: Upload example.pdf
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-pdf
+          path: examples/example.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload preview.png
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-png
+          path: examples/preview.png
+          retention-days: 30
+          if-no-files-found: error
+
+  # release-please reads conventional-commit messages since the last
+  # tag, opens (or updates) a Release PR with the bumped version, and
+  # — when that PR is merged — cuts the tag + GitHub Release.
+  #
+  # The release-please-config.json declares typst.toml's
+  # `package.version` field as an extra-file, so the manifest version
+  # stays in lockstep with the released tag automatically.
+  release-please:
+    needs: [lint, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+      version: ${{ steps.rp.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # Runs only on the workflow run where release-please just created a
+  # release. Builds a `altacv-<version>.tar.gz` containing the package
+  # files that should be submitted to typst/packages (typst.toml,
+  # lib.typ, icons/, LICENSE, README.md) and attaches it to the
+  # release alongside example.pdf and preview.png.
+  attach-release-artifacts:
+    needs: [release-please]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Install Typst + Lato font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-lato
+          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
+          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
+          curl -sSfL "$URL" | sudo tar -xJ \
+            --strip-components=1 \
+            -C /usr/local/bin \
+            typst-x86_64-unknown-linux-musl/typst
+
+      - name: Rebuild example.pdf + preview.png at the tag
+        run: |
+          typst compile --root . examples/example.typ examples/example.pdf
+          typst compile --root . --format png --ppi 150 \
+            examples/example.typ 'examples/preview-{p}.png'
+          mv examples/preview-1.png examples/preview.png
+          rm -f examples/preview-*.png
+
+      # The tarball contains exactly the files that go into
+      # typst/packages/preview/altacv/<version>/. Everything else
+      # (CI, examples, .gitignore) is repo-only and intentionally
+      # excluded from the package payload.
+      - name: Build package tarball
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: |
+          tar czf "altacv-${VERSION}.tar.gz" \
+            typst.toml lib.typ icons/ LICENSE README.md
+
+      - name: Attach assets to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            altacv-*.tar.gz
+            examples/example.pdf
+            examples/preview.png
+          make_latest: 'true'
