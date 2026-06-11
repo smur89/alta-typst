@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.2](https://github.com/smur89/alta-typst/compare/v0.3.1...v0.3.2) (2026-06-11)
+
+
+### Bug Fixes
+
+* **ci:** drop explicit upstream remote add — gh sets it up on fork clone ([#11](https://github.com/smur89/alta-typst/issues/11)) ([be1907d](https://github.com/smur89/alta-typst/commit/be1907daed3968e6e00f450abd84c20cc2107373))
+
+## [0.3.1](https://github.com/smur89/alta-typst/compare/v0.3.0...v0.3.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* address typst-package-check feedback for 0.3.0 submission ([#7](https://github.com/smur89/alta-typst/issues/7)) ([9560452](https://github.com/smur89/alta-typst/commit/9560452bb6e0a85e26ae9add6c8f239147ea5fea))
+
 ## [0.3.0](https://github.com/smur89/alta-typst/compare/v0.2.0...v0.3.0) (2026-06-11)
 
 

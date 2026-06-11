@@ -6,20 +6,20 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
      each GitHub Release. The link below resolves to the latest
      release's `preview.png` asset. Until the first release is cut
      by release-please, this image will 404. -->
-![Preview](https://github.com/smur89/alta-typst/releases/latest/download/preview.png)
+![Two-column CV rendered by the altacv template — left column shows experience; right column shows areas of focus, skills, languages, education, certifications, and publications](https://github.com/smur89/alta-typst/releases/latest/download/preview.png)
 
 ## Installation
 
 Available on [Typst Universe](https://typst.app/universe/package/altacv):
 
 ```typst
-#import "@preview/altacv:0.3.0": alta // x-release-please-version
+#import "@preview/altacv:0.3.2": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@preview/altacv:0.3.0": alta // x-release-please-version
+#import "@preview/altacv:0.3.2": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -59,7 +59,7 @@ Available on [Typst Universe](https://typst.app/universe/package/altacv):
 #alta(cv)
 ```
 
-See [`examples/example.typ`](examples/example.typ) for a one-page CV covering the main sections. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under [`tests/`](tests/).
+See `examples/example.typ` in the [source repository](https://github.com/smur89/alta-typst) for a one-page CV covering the main sections. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
@@ -147,7 +147,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 The template also exports lower-level helpers (`icon`, `name`, `term`, `skill`, `tag`, `divider`, `styled-link`) for callers who want to compose custom layouts:
 
 ```typst
-#import "@preview/altacv:0.3.0": tag, divider // x-release-please-version
+#import "@preview/altacv:0.3.2": tag, divider // x-release-please-version
 ```
 
 ## Building the example
