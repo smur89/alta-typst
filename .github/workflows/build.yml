@@ -259,13 +259,17 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone fork, fetch upstream, branch off upstream/main
+      # `gh repo clone` of a fork auto-configures an `upstream` remote
+      # pointing at the parent and fetches its default branch, so an
+      # explicit `git remote add upstream` would collide ("remote
+      # upstream already exists"). The fork mirrors all of
+      # typst/packages (~70k files); `--depth=1` keeps the clone fast
+      # and we don't need history to branch off upstream/main.
+      - name: Clone fork (gh auto-adds upstream remote), branch off upstream/main
         if: steps.check.outputs.skip != 'true'
         run: |
-          gh repo clone "$FORK_REPO" pkg -- --no-tags
+          gh repo clone "$FORK_REPO" pkg -- --no-tags --depth=1
           cd pkg
-          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
-          git fetch upstream main --depth=1
           git checkout -b "altacv-${VERSION}" upstream/main
 
       - name: Add package files from the release tarball
