@@ -4,12 +4,13 @@
 # Typst build output (target/ used by tooling like Makefiles)
 target/
 
-# Generated example outputs — produced by CI on every push, attached
-# to GitHub Releases as assets, and referenced in the README via the
-# release-latest URL. Keeping these out of the tree avoids binary
-# churn in git history.
+# Generated example outputs. `example.pdf` is built on every CI run
+# and attached to releases — keep it out of git to avoid binary churn.
+# `preview.png` is committed (see examples/preview.png) so the README
+# image resolves both on GitHub and Typst Universe without depending on
+# a Release asset URL; CI still regenerates a transient copy as a
+# workflow artifact for reviewers.
 examples/example.pdf
-examples/preview.png
 examples/preview-*.png
 
 # Editor / IDE

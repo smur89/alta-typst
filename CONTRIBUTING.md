@@ -11,8 +11,10 @@ Compile the example and the fixtures locally:
 ```sh
 set -e
 typst compile --root . examples/example.typ examples/example.pdf
-for f in tests/*.typ; do typst compile --root . "$f" /dev/null; done
+for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
 ```
+
+`--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
 
 If your change is visual, also regenerate the preview to eyeball it:
 
