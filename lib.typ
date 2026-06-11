@@ -331,6 +331,7 @@
   image-size: 6em,
   image-position: "right",
   header-text-align: "left",
+  link-contact-info: true,
 ) = {
   if image-position not in ("left", "right") {
     panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
@@ -414,7 +415,8 @@
       entries
         .map(entry => {
           bar-icon(entry.icon)
-          link(entry.url)[#entry.value]
+          let value = [#entry.value]
+          if link-contact-info { link(entry.url, value) } else { value }
         })
         .join(h(1.2 * body-size))
       // Paragraph break before _summary; inherits par.spacing so the
@@ -750,6 +752,12 @@
   // The image is clipped to a circle of this size. Ignored when
   // `basics.image` is absent.
   imageSize: 6em,
+  // When true (default), the contact bar wraps each entry in a deep
+  // link: mailto: for email, tel: for phone, a Google Maps search URL
+  // for location, and the supplied URL for profiles. When false, the
+  // icons stay but the values render as plain text — useful for
+  // print-only CVs or users who don't want clickable links.
+  linkContactInfo: true,
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
   imagePosition: "right",
@@ -853,6 +861,7 @@
     image-size: preferences.imageSize,
     image-position: preferences.imagePosition,
     header-text-align: preferences.headerTextAlign,
+    link-contact-info: preferences.linkContactInfo,
   )
   _summary(cv.basics)
 
