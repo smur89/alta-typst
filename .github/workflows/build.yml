@@ -43,15 +43,17 @@ jobs:
 
       - name: Compile example + test fixtures
         run: |
-          set -e
           shopt -s nullglob
-          status=0
+          failed=0
           for f in examples/example.typ tests/*.typ; do
             echo "::group::$f"
-            typst compile --root . --format pdf "$f" /dev/null || status=$?
+            if ! typst compile --root . --format pdf "$f" /dev/null; then
+              echo "::error file=$f::compile failed"
+              failed=1
+            fi
             echo "::endgroup::"
           done
-          exit $status
+          exit "$failed"
 
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and
