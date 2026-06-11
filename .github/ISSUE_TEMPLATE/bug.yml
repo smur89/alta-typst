@@ -1,0 +1,51 @@
+name: Bug report
+description: Something the template renders, panics on, or accepts wrongly
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: input
+    id: altacv-version
+    attributes:
+      label: altacv version
+      description: From `typst.toml` or your `#import` line.
+      placeholder: "0.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: typst-version
+    attributes:
+      label: Typst version
+      description: Output of `typst --version`.
+      placeholder: "typst 0.14.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest `cv` dict + `alta(...)` call that reproduces the issue. Inline it here; do not link an external gist.
+      render: typst
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-vs-actual
+    attributes:
+      label: Expected vs. actual
+      description: What did you expect to see, and what did the template do instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: rendered-output
+    attributes:
+      label: Rendered output
+      description: Drag in a screenshot of the rendered PDF if the issue is visual. Optional for panics / errors.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else
+      description: Custom fonts, non-default `preferences` or `labels`, OS, locale — anything that might matter.
