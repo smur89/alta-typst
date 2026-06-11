@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/smur89/alta-typst/compare/v0.3.2...v0.3.3) (2026-06-11)
+
+
+### Bug Fixes
+
+* **ci:** force-push the submission branch so re-runs are idempotent ([#13](https://github.com/smur89/alta-typst/issues/13)) ([82bb1f0](https://github.com/smur89/alta-typst/commit/82bb1f005eb3fbbb01774f8b6aff59d9d64e5c06))
+
 ## [0.3.2](https://github.com/smur89/alta-typst/compare/v0.3.1...v0.3.2) (2026-06-11)
 
 
