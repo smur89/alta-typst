@@ -73,9 +73,9 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `awards`, `publications`. Any section with empty input is skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`. Any section with empty input is skipped — no orphan headings.
 
-JSON Resume keys **not yet rendered** by this template: `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `projects`, `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume keys **not yet rendered** by this template: `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
 
 ### Portrait (`basics.image`)
 
@@ -112,6 +112,21 @@ Each `awards[]` entry follows JSON Resume's schema:
 | `awarder` | string | Granting organisation, rendered in the accent colour beneath the title (same treatment as `education[].institution`). |
 | `date` | string | Single date (not a range). Renders via the calendar-icon row. |
 | `summary` | string or content | Short description, rendered as a paragraph below the date. Pass `[...]` content (e.g. `[For _Idempotent Kafka Consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
+
+### Projects
+
+Each `projects[]` entry follows JSON Resume's schema. Practical subset supported:
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | Project title. Rendered as a heading; linked to `url` when supplied. Entries with missing or empty `name` are silently skipped. |
+| `description` | string | Short subtitle under the title, rendered in body colour as italic. |
+| `url` | string | If supplied, wraps the title in an accent-coloured link. |
+| `startDate` / `endDate` | string | Date range, same conventions as `work` entries (omit `endDate` → "Present"). |
+| `highlights` | array of content | Bulleted list of accomplishments / contributions. |
+| `keywords` | array of strings | Renders as a row of pill tags below the highlights. |
+
+`entity`, `type`, and `roles` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
 
 ### Profile networks
 
@@ -167,6 +182,7 @@ All display strings the template emits. Override any subset via `labels:`; the r
 | `certifications` | `"Certifications"` |
 | `publications` | `"Publications"` |
 | `awards` | `"Awards"` |
+| `projects` | `"Projects"` |
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 
