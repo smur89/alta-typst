@@ -50,6 +50,17 @@
   present: "Present",
 )
 
+// URL templates for the location deep link in the contact bar. `{q}`
+// is replaced with the URL-encoded location string. A Typst `none`
+// value indicates "do not wrap the location in a link" (the icon and
+// plain text still render). Add entries here to support more
+// providers — `alta()` derives the validation set from these keys.
+#let _maps_providers = (
+  google: "https://www.google.com/maps?q={q}",
+  osm: "https://www.openstreetmap.org/search?query={q}",
+  "none": none,
+)
+
 // Merge user overrides over defaults, panicking on unknown keys so
 // typos in `labels` / `preferences` surface as errors instead of being
 // silently absorbed.
@@ -375,6 +386,7 @@
   image-position: "right",
   header-text-align: "left",
   link-contact-info: true,
+  maps-provider: "google",
 ) = {
   if image-position not in ("left", "right") {
     panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
@@ -439,11 +451,15 @@
       }
       let location = basics.at("location", default: none)
       if location != none {
+        let template = _maps_providers.at(maps-provider)
+        let url = if template == none { none } else {
+          template.replace("{q}", _url_encode(location))
+        }
         entries.push((
           channel: "location",
           icon: "location",
           value: location,
-          url: "https://www.google.com/maps?q=" + _url_encode(location),
+          url: url,
         ))
       }
       for profile in basics.at("profiles", default: ()) {
@@ -821,6 +837,10 @@
   // Valid channel keys: "email", "phone", "location", "profiles".
   // Unknown channel keys panic; non-bool / non-dict values panic.
   linkContactInfo: true,
+  // Provider for the `basics.location` deep link. One of the keys
+  // in `_maps_providers` (currently "google", "osm", "none"). "none"
+  // keeps the icon and text but skips the link entirely.
+  mapsProvider: "google",
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
   imagePosition: "right",
@@ -879,6 +899,13 @@
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
     panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
   }
+  if preferences.mapsProvider not in _maps_providers {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "Unknown mapsProvider: " + repr(preferences.mapsProvider)
+        + ". Supported: " + _maps_providers.keys().map(quote).join(", "),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -925,6 +952,7 @@
     image-position: preferences.imagePosition,
     header-text-align: preferences.headerTextAlign,
     link-contact-info: preferences.linkContactInfo,
+    maps-provider: preferences.mapsProvider,
   )
   _summary(cv.basics)
 
