@@ -417,9 +417,9 @@
           link(entry.url)[#entry.value]
         })
         .join(h(1.2 * body-size))
-      [
-
-      ]
+      // Paragraph break before _summary; inherits par.spacing so the
+      // gap stays in sync with the rest of the document.
+      parbreak()
     }
 
     let image-src = basics.at("image", default: none)
