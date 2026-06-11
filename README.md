@@ -73,9 +73,9 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `publications`. Any section with empty input is skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `awards`, `publications`. Any section with empty input is skipped — no orphan headings.
 
-JSON Resume keys **not yet rendered** by this template: `awards`, `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `projects`, `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume keys **not yet rendered** by this template: `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `projects`, `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
 
 ### Portrait (`basics.image`)
 
@@ -101,6 +101,17 @@ basics: (
 JSON Resume's spec calls for a URL here — Typst does not fetch remote URLs at compile time, so a https:// URL will not work. Vendor the asset locally and use one of the two forms above.
 
 Size is configurable via `preferences.imageSize` (default `6em`). The image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort.
+
+### Awards
+
+Each `awards[]` entry follows JSON Resume's schema:
+
+| Field | Type | Effect |
+|---|---|---|
+| `title` | string | Award name. Rendered as the entry heading. Entries with missing or empty `title` are silently skipped. |
+| `awarder` | string | Granting organisation, rendered in the accent colour beneath the title (same treatment as `education[].institution`). |
+| `date` | string | Single date (not a range). Renders via the calendar-icon row. |
+| `summary` | string or content | Short description, rendered as a paragraph below the date. Pass `[...]` content (e.g. `[For _Idempotent Kafka Consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
 
 ### Profile networks
 
@@ -155,6 +166,7 @@ All display strings the template emits. Override any subset via `labels:`; the r
 | `education` | `"Education"` |
 | `certifications` | `"Certifications"` |
 | `publications` | `"Publications"` |
+| `awards` | `"Awards"` |
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 

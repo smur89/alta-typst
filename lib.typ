@@ -44,6 +44,7 @@
   education: "Education",
   certifications: "Certifications",
   publications: "Publications",
+  awards: "Awards",
   articles: "Articles",
   present: "Present",
 )
@@ -549,6 +550,33 @@
   ))
 }
 
+// Awards / honours section. Each entry follows the JSON Resume
+// `awards[]` schema: title (required), date, awarder, summary. The
+// awarder reads as a subtitle (in the accent colour, like education's
+// institution row); the date row goes through `term()`; the summary
+// renders as a paragraph below. Entries without a `title` are skipped
+// to avoid an orphan empty heading.
+#let _awards(entries, labels) = {
+  let has-title(a) = {
+    let t = a.at("title", default: none)
+    t != none and t != ""
+  }
+  let valid = entries.filter(has-title)
+  if valid.len() == 0 { return }
+  [== #labels.awards]
+  _join_with_dividers(valid, award => block(breakable: false, {
+    [=== #award.title]
+    let awarder = award.at("awarder", default: none)
+    if awarder != none and awarder != "" {
+      name[#awarder]
+    }
+    let date = award.at("date", default: none)
+    if date != none and date != "" { term(date) }
+    let summary = award.at("summary", default: none)
+    if summary != none and summary != "" { par(summary) }
+  }))
+}
+
 // Group publications by `pub.type` (a local extension to JSON Resume).
 // Entries without `type` fall under `labels.articles` so a CV of plain
 // blog posts renders as before. The grouping key is used verbatim as
@@ -676,6 +704,7 @@
       _languages(cv.at("languages", default: ()), labels)
       _education(cv.at("education", default: ()), labels)
       _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates)
+      _awards(cv.at("awards", default: ()), labels)
       _publications(cv.at("publications", default: ()), labels)
     },
   )
