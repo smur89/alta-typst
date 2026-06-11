@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Typst build output (target/ used by tooling like Makefiles)
+target/
+
+# Generated example outputs — produced by CI on every push, attached
+# to GitHub Releases as assets, and referenced in the README via the
+# release-latest URL. Keeping these out of the tree avoids binary
+# churn in git history.
+examples/example.pdf
+examples/preview.png
+examples/preview-*.png
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
