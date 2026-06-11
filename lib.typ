@@ -98,21 +98,18 @@
   out
 }
 
-// std.target() is absent in paged-only builds; fall back to "paged".
-#let target() = {
-  if "target" in dictionary(std) { std.target() } else { "paged" }
-}
-
-// Vendored icons. SVGs ship with fill="#666666" baked in; icon() swaps
-// it at call time. Utility icons drive the contact bar / term row /
-// publication list; the rest are network icons available to profiles.
-#let _utility_icons = ("calendar", "email", "file", "location", "phone")
-#let _icon_sources = (
+// Vendored icons, split by role. SVGs ship with fill="#666666" baked
+// in; icon() swaps it at call time. Utility icons drive the contact
+// bar / term row / publication list; network icons are matched to
+// basics.profiles[].network entries.
+#let _utility_icon_sources = (
   calendar: read("icons/calendar.svg"),
   email: read("icons/email.svg"),
   file: read("icons/file.svg"),
   location: read("icons/location.svg"),
   phone: read("icons/phone.svg"),
+)
+#let _network_icon_sources = (
   bluesky: read("icons/bluesky.svg"),
   github: read("icons/github.svg"),
   gitlab: read("icons/gitlab.svg"),
@@ -124,7 +121,14 @@
   twitter: read("icons/twitter.svg"),
   website: read("icons/website.svg"),
 )
-#let _profile_networks = _icon_sources.keys().filter(k => k not in _utility_icons)
+#let _icon_sources = _utility_icon_sources + _network_icon_sources
+#let _profile_networks = _network_icon_sources.keys()
+
+// Aliases mapping caller-supplied network names to their canonical
+// icon key. Matched after lower-casing the network string.
+#let _network_aliases = (
+  x: "twitter",
+)
 
 // ─── Public helpers ──────────────────────────────────────────────────
 
@@ -142,7 +146,7 @@
     _body_colour.to-hex(),
     resolved-fill.to-hex(),
   )
-  let body = box(
+  box(
     baseline: resolved-shift,
     width: resolved-size,
     height: resolved-size,
@@ -151,12 +155,7 @@
       image(bytes(coloured), format: "svg", height: 0.9 * resolved-size),
     ),
   )
-  if target() == "paged" {
-    body
-    h(0.3 * body-size)
-  } else {
-    html.frame(body)
-  }
+  h(0.3 * body-size)
 }
 
 // Company / institution line under a role/education entry.
@@ -164,15 +163,11 @@
 #let name(body) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  if target() == "paged" {
-    block(
-      above: 0pt,
-      below: 0.6 * body-size,
-      text(weight: "bold", fill: accent, body),
-    )
-  } else {
-    html.div(class: "name", text(weight: "bold", fill: accent, body))
-  }
+  block(
+    above: 0pt,
+    below: 0.6 * body-size,
+    text(weight: "bold", fill: accent, body),
+  )
 }
 
 // Date + optional location row, rendered as two left-aligned half-width
@@ -182,41 +177,25 @@
 #let term(period, location: none) = context {
   if period == none and location == none { return }
   let body-size = _body_size_state.get()
-  if target() == "paged" {
-    block(
-      above: 0pt,
-      below: 0.8 * body-size,
-      inset: (left: 0.3 * body-size),
-      text(0.9 * body-size, {
-        if period != none {
-          box(width: 50%, {
-            icon("calendar")
-            period
-          })
-        }
-        if location != none {
-          box(width: 50%, {
-            icon("location")
-            location
-          })
-        }
-      }),
-    )
-  } else {
-    html.div(
-      style: "display: flex; align-items: center; gap: 10px;",
-      {
-        if period != none {
+  block(
+    above: 0pt,
+    below: 0.8 * body-size,
+    inset: (left: 0.3 * body-size),
+    text(0.9 * body-size, {
+      if period != none {
+        box(width: 50%, {
           icon("calendar")
-          html.div(period)
-        }
-        if location != none {
+          period
+        })
+      }
+      if location != none {
+        box(width: 50%, {
           icon("location")
-          html.div(location)
-        }
-      },
-    )
-  }
+          location
+        })
+      }
+    }),
+  )
 }
 
 // Language / skill row — name on the left, N filled dots on the right.
@@ -267,42 +246,20 @@
   let dot-baseline = -0.25 * body-size
   let dot-spacing = 0.4 * body-size
 
-  let dots = {
-    for i in range(1, _max_rating + 1) {
-      let fill = if rating >= i {
-        accent
-      } else if rating > i - 1 {
-        _half_fill(accent)
-      } else {
-        _empty_dot_colour
-      }
-      let dot = box(baseline: dot-baseline, circle(radius: dot-radius, fill: fill))
-      if target() == "paged" {
-        dot
-        if i != _max_rating { h(dot-spacing) }
-      } else {
-        html.frame(dot)
-      }
+  text(name)
+  h(1fr)
+  for i in range(1, _max_rating + 1) {
+    let fill = if rating >= i {
+      accent
+    } else if rating > i - 1 {
+      _half_fill(accent)
+    } else {
+      _empty_dot_colour
     }
+    box(baseline: dot-baseline, circle(radius: dot-radius, fill: fill))
+    if i != _max_rating { h(dot-spacing) }
   }
-
-  if target() == "paged" {
-    text(name)
-    h(1fr)
-    dots
-    [\ ]
-  } else {
-    html.div(
-      style: "display: flex; align-items: center; gap: 5px; max-width: 200px; justify-content: space-between;",
-      {
-        text(name)
-        html.span(
-          style: "display: flex; gap: 5px; align-items: center;",
-          dots,
-        )
-      },
-    )
-  }
+  [\ ]
 }
 
 // Pill tag for skills / certifications.
@@ -389,66 +346,70 @@
       )
     }
 
-    if target() == "paged" {
-      set text(0.8 * body-size, weight: "bold")
-      let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
+    set text(0.8 * body-size, weight: "bold")
+    let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
 
-      // Build the contact bar: email, phone, location (from basics
-      // top-level), then any profiles (LinkedIn, Medium, etc.).
-      let entries = ()
-      let email = basics.at("email", default: none)
-      if email != none {
-        entries.push((icon: "email", value: email, url: "mailto:" + email))
-      }
-      let phone = basics.at("phone", default: none)
-      if phone != none {
-        entries.push((
-          icon: "phone",
-          value: phone,
-          url: "tel:" + phone.replace(" ", ""),
-        ))
-      }
-      let location = basics.at("location", default: none)
-      if location != none {
-        entries.push((
-          icon: "location",
-          value: location,
-          url: "https://www.google.com/maps?q=" + _url_encode(location),
-        ))
-      }
-      for profile in basics.at("profiles", default: ()) {
-        let network = lower(profile.network)
-        if network not in _profile_networks {
-          panic(
-            "Unknown profile network: " + repr(profile.network)
-              + ". Supported: " + _profile_networks.join(", ")
-              + ". To add another, vendor its SVG into icons/ and register it in _icon_sources.",
-          )
-        }
-        entries.push((
-          icon: network,
-          value: profile.at("username", default: profile.at("url", default: "")),
-          url: profile.url,
-        ))
-      }
-
-      entries
-        .map(entry => {
-          bar-icon(entry.icon)
-          link(entry.url)[#entry.value]
-        })
-        .join(h(1.2 * body-size))
-      [
-
-      ]
+    // Build the contact bar: email, phone, location (from basics
+    // top-level), then any profiles (LinkedIn, Medium, etc.).
+    let entries = ()
+    let email = basics.at("email", default: none)
+    if email != none {
+      entries.push((icon: "email", value: email, url: "mailto:" + email))
     }
+    let phone = basics.at("phone", default: none)
+    if phone != none {
+      // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
+      // from the dialable URI; the displayed value keeps them intact.
+      let dialable = phone.replace(regex("[\s()\-.]"), "")
+      entries.push((
+        icon: "phone",
+        value: phone,
+        url: "tel:" + dialable,
+      ))
+    }
+    let location = basics.at("location", default: none)
+    if location != none {
+      entries.push((
+        icon: "location",
+        value: location,
+        url: "https://www.google.com/maps?q=" + _url_encode(location),
+      ))
+    }
+    for profile in basics.at("profiles", default: ()) {
+      let raw = lower(profile.network)
+      let network = _network_aliases.at(raw, default: raw)
+      if network not in _profile_networks {
+        panic(
+          "Unknown profile network: " + repr(profile.network)
+            + ". Supported: " + _profile_networks.join(", ")
+            + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources.",
+        )
+      }
+      entries.push((
+        icon: network,
+        value: profile.at("username", default: profile.at("url", default: "")),
+        url: profile.url,
+      ))
+    }
+
+    entries
+      .map(entry => {
+        bar-icon(entry.icon)
+        link(entry.url)[#entry.value]
+      })
+      .join(h(1.2 * body-size))
+    [
+
+    ]
   }
 }
 
 #let _summary(basics) = context {
+  let summary = basics.at("summary", default: none)
+  if summary == none or summary == [] { return }
   let body-size = _body_size_state.get()
   v(0.8 * body-size)
-  par(basics.at("summary", default: []))
+  par(summary)
   v(0.4 * body-size)
 }
 
@@ -619,6 +580,9 @@
   labels: (:),
   preferences: (:),
 ) = {
+  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
+    panic("column-ratio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
+  }
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
   let accent = preferences.accent
