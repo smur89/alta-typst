@@ -242,14 +242,19 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Sparse-checkout the single PR-body template; full checkout
-      # would pull lib.typ and icons we don't need in this job.
-      - name: Checkout PR body template
+      # Sparse-checkout the PR-body templates; full checkout would
+      # pull lib.typ and icons we don't need in this job. Two
+      # templates: `new` follows typst/packages' PR template with the
+      # full naming-rules checklist; `update` is the slim variant the
+      # template invites for version bumps.
+      - name: Checkout PR body templates
         if: steps.check.outputs.skip != 'true'
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-          sparse-checkout: .github/typst-universe-pr-body.md
+          sparse-checkout: |
+            .github/typst-universe-pr-body.md
+            .github/typst-universe-pr-body-update.md
           sparse-checkout-cone-mode: false
 
       - name: Configure git
@@ -271,6 +276,14 @@ jobs:
           gh repo clone "$FORK_REPO" pkg -- --no-tags --depth=1
           cd pkg
           git checkout -b "altacv-${VERSION}" upstream/main
+          # Picks which PR-body template the Open-PR step sends.
+          # Detection has to happen before the next step creates the
+          # new version directory, otherwise `update` would always win.
+          if [ -d packages/preview/altacv ]; then
+            echo "SUBMISSION_TYPE=update" >> "$GITHUB_ENV"
+          else
+            echo "SUBMISSION_TYPE=new" >> "$GITHUB_ENV"
+          fi
 
       - name: Add package files from the release tarball
         if: steps.check.outputs.skip != 'true'
@@ -303,8 +316,13 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
+          if [ "$SUBMISSION_TYPE" = update ]; then
+            body_template="$GITHUB_WORKSPACE/.github/typst-universe-pr-body-update.md"
+          else
+            body_template="$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md"
+          fi
           envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
-            < "$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md" \
+            < "$body_template" \
             | gh pr create \
                 --repo "$UPSTREAM_REPO" \
                 --base main \
