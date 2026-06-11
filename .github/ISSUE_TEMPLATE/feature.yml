@@ -1,0 +1,26 @@
+name: Feature request
+description: A new section, configuration toggle, profile network, or labelable string
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is the CV-writing situation today that the template doesn't cover well?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Sketch the API or behaviour you have in mind. For new data fields, give a small example dict; for new `preferences` / `labels` keys, name the key and default.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you tried, or other shapes for the same idea.
