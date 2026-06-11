@@ -31,5 +31,21 @@
       startDate: "Sep 2024",
       highlights: ([Migration tool for legacy databases.],),
     ),
+    (
+      // Description + keywords only, no URL / dates / highlights.
+      name: "Tinkerbell",
+      description: "Tiny IRC bot",
+      keywords: ("Lua",),
+    ),
+    (
+      // Entries without a name are silently skipped.
+      description: "Should not render",
+    ),
+    (
+      // Entries with name explicitly set to `none` (e.g. from a JSON
+      // null deserialization) are also skipped.
+      name: none,
+      description: "Should also not render",
+    ),
   ),
 ))
