@@ -550,30 +550,32 @@
   ))
 }
 
+// True when `v` is a meaningfully-present value — neither `none`, an
+// empty string `""`, nor an empty content block `[]`. Used by section
+// renderers to skip entries whose required field is effectively
+// absent (key missing, explicit nil, or empty templated content).
+#let _present(v) = v != none and v != "" and v != []
+
 // Awards / honours section. Each entry follows the JSON Resume
 // `awards[]` schema: title (required), date, awarder, summary. The
 // awarder reads as a subtitle (in the accent colour, like education's
 // institution row); the date row goes through `term()`; the summary
-// renders as a paragraph below. Entries without a `title` are skipped
-// to avoid an orphan empty heading.
+// renders as a paragraph below. `summary` is treated as content
+// (string or `[ ... ]` markup) and passed verbatim to `par()`.
+// Entries without a `title` are skipped to avoid an orphan empty
+// heading.
 #let _awards(entries, labels) = {
-  let has-title(a) = {
-    let t = a.at("title", default: none)
-    t != none and t != ""
-  }
-  let valid = entries.filter(has-title)
+  let valid = entries.filter(a => _present(a.at("title", default: none)))
   if valid.len() == 0 { return }
   [== #labels.awards]
   _join_with_dividers(valid, award => block(breakable: false, {
     [=== #award.title]
     let awarder = award.at("awarder", default: none)
-    if awarder != none and awarder != "" {
-      name[#awarder]
-    }
+    if _present(awarder) { name[#awarder] }
     let date = award.at("date", default: none)
-    if date != none and date != "" { term(date) }
+    if _present(date) { term(date) }
     let summary = award.at("summary", default: none)
-    if summary != none and summary != "" { par(summary) }
+    if _present(summary) { par(summary) }
   }))
 }
 

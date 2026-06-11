@@ -12,7 +12,9 @@
       title: "Best Paper Award",
       date: "Sep 2024",
       awarder: "ScalaConf",
-      summary: "For \"Idempotent Kafka Consumers\".",
+      // Content-form summary so markup (emphasis) renders, not just
+      // plain text. Mirrors the way `basics.summary` accepts content.
+      summary: [For _Idempotent Kafka Consumers_.],
     ),
     (
       // No summary.
