@@ -9,6 +9,8 @@
 //      regardless of which side the photo is on; only the photo moves.
 //   5. Photo on the left with explicit right-aligned text — the
 //      "mirrored" look where each line ends at the page edge.
+//   6. Centred header text on a no-image CV — `headerTextAlign`
+//      applies whether or not `basics.image` is set.
 
 #import "../lib.typ": alta
 
@@ -72,4 +74,19 @@
     imagePosition: "left",
     headerTextAlign: "right",
   ),
+)
+
+#pagebreak()
+
+// No image — `headerTextAlign: "center"` still applies, centring the
+// name / label / contact bar block on the page.
+#alta(
+  (basics: (
+    name: "Centred Header, No Photo",
+    label: "headerTextAlign: \"center\"",
+    email: "centre@example.com",
+    phone: "+353 1 555 0100",
+    location: "Dublin, Ireland",
+  )),
+  preferences: (headerTextAlign: "center"),
 )

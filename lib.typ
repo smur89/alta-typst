@@ -656,19 +656,26 @@
 }
 
 // ─── Section catalogue + default preferences ────────────────────────
-// Single source of truth for every section the template supports.
-// Each entry pairs a section name with the column it lands in by
-// default plus a render closure that takes the runtime context
-// (cv / labels / preferences) and returns the rendered content.
-// Adding a new section is a one-place change here — the dispatch
-// dict, default render order, and default column membership are all
-// derived from this dict, so a new section can't be silently dropped
-// from the default layout by forgetting to wire it in somewhere
-// else. Typst dicts preserve insertion order, which controls the
-// default render order within each column.
+// Canonical list of every section the template supports. Each entry
+// pairs a section name with the column it lands in by default plus a
+// render closure that takes the runtime context (cv / labels /
+// preferences) and returns the rendered content.
 //
-// Defined after the section renderers because Typst closures bind
-// identifiers eagerly at creation time.
+// On the column-layout side this is the single source of truth: the
+// dispatch lookup, default render order, and default column
+// membership are all derived from this dict, so a new section can't
+// be silently dropped from the default layout by forgetting to add
+// it to a parallel order array.
+//
+// Adding a new section is still three touches across the file —
+// the renderer function (e.g. `_awards`), a label key in
+// `_default_labels`, and an entry here — but the layout-side
+// drift risk is gone.
+//
+// Typst dicts preserve insertion order, which controls the default
+// render order within each column. Defined after the section
+// renderers because Typst closures bind identifiers eagerly at
+// creation time.
 #let _sections = (
   work: (
     column: "left",
@@ -777,23 +784,19 @@
 // alta(cv, ...config) renders the document from a cv data dict.
 //
 // Parameters:
-//   cv            — data dict; see examples/example.typ for the schema
-//                   (follows JSON Resume — https://jsonresume.org/).
-//   font          — primary font family. Must be installed.
-//   body-size     — base text size. Every spacing and sub-element size
-//                   derives from this via em-multipliers, so changing
-//                   it scales the document proportionally.
-//   paper         — page format (a4, us-letter, …).
-//   margin        — page margin dict.
-//   labels        — partial dict overriding the template's English
-//                   display strings (section headings, "Present" date
-//                   literal). Supply only the keys you want to change;
-//                   the rest fall back to _default_labels.
-//   preferences   — partial dict of theme + layout toggles. See
-//                   _default_preferences for available keys (accent,
-//                   groupCertificates, imageSize, columnRatio,
-//                   leftColumnSections, rightColumnSections). Supplied
-//                   keys win, the rest fall back to defaults.
+//   cv          — data dict; see examples/example.typ for the schema
+//                 (follows JSON Resume — https://jsonresume.org/).
+//   labels      — partial dict overriding the template's English
+//                 display strings (section headings, "Present" date
+//                 literal). Supply only the keys you want to change;
+//                 the rest fall back to _default_labels.
+//   preferences — partial dict of theme / font / layout / behaviour
+//                 toggles. Supply only the keys you want to change;
+//                 the rest fall back to _default_preferences. See
+//                 that dict for the full set: font, bodySize, paper,
+//                 margin, accent, groupCertificates, imageSize,
+//                 imagePosition, headerTextAlign, columnRatio,
+//                 leftColumnSections, rightColumnSections.
 #let alta(
   cv,
   labels: (:),
@@ -880,9 +883,9 @@
     }
   }
 
-  // Two-column body via grid. `column-ratio` (top-level alta() arg)
-  // controls the split width, so swapping the section arrays and
-  // adjusting `column-ratio` together gives an inverted layout.
+  // Two-column body via grid. `preferences.columnRatio` controls
+  // the split width, so swapping the section arrays and adjusting
+  // `columnRatio` together gives an inverted layout.
   let gutter = 12pt
   let left-width = column-ratio * 100%
   let right-width = (1 - column-ratio) * 100% - gutter
