@@ -45,6 +45,7 @@
   certifications: "Certifications",
   publications: "Publications",
   awards: "Awards",
+  projects: "Projects",
   articles: "Articles",
   present: "Present",
 )
@@ -579,6 +580,37 @@
   }))
 }
 
+// Projects section. Each entry follows the JSON Resume `projects[]`
+// schema (the practical subset: name, description, url, startDate /
+// endDate, highlights, keywords). The name links to `url` when
+// supplied. Keywords render as a row of pill tags below the highlights.
+// Entries without a `name` are skipped (matches the empty-cert-name
+// behaviour in `_build_cert_groups`) so a stray entry doesn't emit
+// an orphan empty heading.
+#let _projects(entries, labels) = {
+  let valid = entries.filter(p => _present(p.at("name", default: none)))
+  if valid.len() == 0 { return }
+  [== #labels.projects]
+  _join_with_dividers(valid, project => block(breakable: false, {
+    let title = project.name
+    let url = project.at("url", default: none)
+    [=== #if url != none { styled-link(url, title) } else { title }]
+    let description = project.at("description", default: none)
+    if _present(description) {
+      // Softer than `name()` (which is bold + accent) so the
+      // description doesn't compete visually with a linked title.
+      emph(description)
+      linebreak()
+    }
+    term(_format_date_range(project, labels))
+    for bullet in project.at("highlights", default: ()) [- #bullet]
+    let keywords = project.at("keywords", default: ())
+    if keywords.len() > 0 {
+      for kw in keywords { tag(kw) }
+    }
+  }))
+}
+
 // Group publications by `pub.type` (a local extension to JSON Resume).
 // Entries without `type` fall under `labels.articles` so a CV of plain
 // blog posts renders as before. The grouping key is used verbatim as
@@ -707,6 +739,7 @@
       _education(cv.at("education", default: ()), labels)
       _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates)
       _awards(cv.at("awards", default: ()), labels)
+      _projects(cv.at("projects", default: ()), labels)
       _publications(cv.at("publications", default: ()), labels)
     },
   )
