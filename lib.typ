@@ -57,11 +57,15 @@
 // body-size, paper, margin, column-ratio) remains as top-level alta()
 // arguments since those are layout primitives rather than soft
 // preferences.
-// Right-column sections in their default render order. Listed once so
-// the default preference and the dispatch validator stay in lockstep;
-// adding a new side-panel renderer is a two-line change (here + the
-// dispatch dict in `alta()`).
-#let _default_section_order = (
+// Default column layout. Every supported section name appears in
+// exactly one of these tuples; together they list the historic
+// render order (work in the left column, side-panel sections in
+// the right column). Listed at module scope so the default
+// preferences and the dispatch validator stay in lockstep — adding
+// a new section is a two-line change (here + the dispatch dict in
+// `alta()`).
+#let _default_left_column_sections = ("work",)
+#let _default_right_column_sections = (
   "focusAreas",
   "skills",
   "languages",
@@ -84,13 +88,20 @@
   // The image is clipped to a circle of this size and aligned to the
   // top-right of the header. Ignored when `basics.image` is absent.
   imageSize: 6em,
-  // Order in which the right-column (side panel) sections render. Each
-  // string must be one of the keys in the dispatch dict in `alta()`.
-  // Sections omitted from this array are not rendered (even if their
-  // data is present in the cv dict); duplicates are allowed (the
-  // section renders once per occurrence). Default lists every side-
-  // panel section in the historic render order.
-  sectionOrder: _default_section_order,
+  // Sections to render in the left column, in order. Each key must be
+  // one of the names in the dispatch dict in `alta()`. Sections
+  // omitted from BOTH `leftColumnSections` and `rightColumnSections`
+  // are not rendered even if their data is present; sections listed
+  // in both render twice. Unknown keys panic. Default puts only
+  // `work` (the Experience section) on the left.
+  leftColumnSections: _default_left_column_sections,
+  // Sections to render in the right column, in order. Same key set
+  // and validation as `leftColumnSections`. Default lists every
+  // side-panel section in the historic render order. Combined with
+  // the top-level `column-ratio` argument, this enables layouts like
+  // a narrow-left / wide-right "inverted" template (move `work` to
+  // the right, the rest to the left, set `column-ratio: 0.36`).
+  rightColumnSections: _default_right_column_sections,
 )
 
 // Merge user overrides over defaults, panicking on unknown keys so
@@ -746,11 +757,13 @@
   _header(cv.basics, image-size: preferences.imageSize)
   _summary(cv.basics)
 
-  // Side-panel section dispatch. Each key matches a string accepted by
-  // `preferences.sectionOrder`. Closures capture the local cv / labels
-  // / preferences so renderer signatures (which differ in arity) stay
-  // unchanged.
-  let side-panel-renderers = (
+  // Column-agnostic section dispatch. Every section the template
+  // can render lives in this dict; `leftColumnSections` and
+  // `rightColumnSections` decide which column each renders in. The
+  // closures capture the local cv / labels / preferences so renderer
+  // signatures (which differ in arity) stay unchanged.
+  let section-renderers = (
+    work:         () => _experience(cv.at("work", default: ()), labels),
     focusAreas:   () => _focus_areas(cv.at("focusAreas", default: ()), labels),
     skills:       () => _skills(cv.at("skills", default: ()), labels),
     languages:    () => _languages(cv.at("languages", default: ()), labels),
@@ -760,28 +773,39 @@
     projects:     () => _projects(cv.at("projects", default: ()), labels),
     publications: () => _publications(cv.at("publications", default: ()), labels),
   )
-  let unknown = preferences.sectionOrder.filter(k => k not in side-panel-renderers)
-  if unknown.len() > 0 {
-    let quote(k) = "\"" + k + "\""
-    panic(
-      "Unknown sectionOrder key(s): " + unknown.map(quote).join(", ")
-        + ". Supported: " + side-panel-renderers.keys().map(quote).join(", "),
-    )
+  let validate-column(arr, pref-name) = {
+    let unknown = arr.filter(k => k not in section-renderers)
+    if unknown.len() > 0 {
+      let quote(k) = "\"" + k + "\""
+      panic(
+        "Unknown " + pref-name + " key(s): " + unknown.map(quote).join(", ")
+          + ". Supported: " + section-renderers.keys().map(quote).join(", "),
+      )
+    }
+  }
+  validate-column(preferences.leftColumnSections, "leftColumnSections")
+  validate-column(preferences.rightColumnSections, "rightColumnSections")
+
+  // Render the given section keys in order. The section renderers
+  // themselves are width-agnostic (they fill their container), so the
+  // same section adapts to whichever column it ends up in.
+  let render-column(keys) = {
+    for key in keys {
+      let render = section-renderers.at(key)
+      render()
+    }
   }
 
-  // Asymmetric two-column body via grid.
+  // Two-column body via grid. `column-ratio` (top-level alta() arg)
+  // controls the split width, so swapping the section arrays and
+  // adjusting `column-ratio` together gives an inverted layout.
   let gutter = 12pt
   let left-width = column-ratio * 100%
   let right-width = (1 - column-ratio) * 100% - gutter
   grid(
     columns: (left-width, right-width),
     column-gutter: gutter,
-    _experience(cv.at("work", default: ()), labels),
-    {
-      for key in preferences.sectionOrder {
-        let render = side-panel-renderers.at(key)
-        render()
-      }
-    },
+    render-column(preferences.leftColumnSections),
+    render-column(preferences.rightColumnSections),
   )
 }

@@ -157,9 +157,14 @@ Theme + behaviour configuration. Override any subset via `preferences:`; the res
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
-| `sectionOrder` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Order of the right-column sections. Each key must be one of `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`. Sections omitted from the array are not rendered, even if their data is present. Duplicates are allowed (the section renders twice). Unknown keys panic. The Experience section lives in the left column and is not controlled by this preference. |
+| `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Sections to render in the right column, in order. |
 
-Example:
+Both column arrays draw from the same set of section keys: `"work"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic. The top-level `column-ratio` argument controls the relative widths.
+
+Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `column-ratio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
+
+Example — reorder the right-column sections:
 
 ```typst
 #alta(cv, preferences: (
@@ -167,8 +172,21 @@ Example:
   groupCertificates: false,
   imageSize: 7em,
   // Move education above skills; hide publications.
-  sectionOrder: ("focusAreas", "education", "skills", "languages", "certificates"),
+  rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
 ))
+```
+
+Example — invert the template (side panel on the left, experience on the right):
+
+```typst
+#alta(
+  cv,
+  column-ratio: 0.36,  // flip the split so the experience column is wider
+  preferences: (
+    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
+    rightColumnSections: ("work", "publications"),
+  ),
+)
 ```
 
 ### Labels
