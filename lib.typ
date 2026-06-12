@@ -336,9 +336,11 @@
 // listed channels and leaves the rest at the all-linked default.
 // Unknown channel keys panic; non-bool / non-dict values panic.
 #let _resolve_link_config(value) = {
-  let defaults = (email: true, phone: true, location: true, profiles: true)
+  // Both branches derive their channel set from `_contact_channels` so
+  // adding a fifth channel here is a one-line change there.
+  let all-channels(v) = _contact_channels.fold((:), (acc, c) => acc + ((c): v))
   if type(value) == bool {
-    (email: value, phone: value, location: value, profiles: value)
+    all-channels(value)
   } else if type(value) == dictionary {
     let unknown = value.keys().filter(k => k not in _contact_channels)
     if unknown.len() > 0 {
@@ -348,7 +350,7 @@
           + ". Supported: " + _contact_channels.map(quote).join(", "),
       )
     }
-    defaults + value
+    all-channels(true) + value
   } else {
     panic(
       "linkContactInfo must be a bool or a dict, got: " + repr(value),

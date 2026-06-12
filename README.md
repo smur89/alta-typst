@@ -195,6 +195,18 @@ Example — invert the template (side panel on the narrow left, experience on th
 ))
 ```
 
+Example — opt out of links per channel (everything stays linked except phone):
+
+```typst
+#alta(cv, preferences: (
+  // Bool form would turn every contact link on or off uniformly;
+  // the dict form lets you keep some channels linked while turning
+  // others into plain text. Omitted channels stay at the default
+  // (`true` — linked).
+  linkContactInfo: (phone: false),
+))
+```
+
 ### Labels
 
 All display strings the template emits. Override any subset via `labels:`; the rest fall back to English defaults. Unknown keys panic. Use this for translation or local renaming.
