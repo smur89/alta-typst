@@ -82,6 +82,26 @@ JSON Resume keys **not yet rendered** by this template: `references`, `meta`. Tr
 
 `basics.location` accepts either a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed to a single line by joining the CV-relevant subset — `city`, `region`, `countryCode` — with `", "`, skipping any field that's missing or empty (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` renders as `Dublin, Leinster, IE`, and `(city: "Tokyo")` renders as `Tokyo`). `address` and `postalCode` are accepted (so a verbatim `resume.json` dict round-trips without panicking) but not rendered — a CV header isn't a mailing label. The same joined string also drives the maps deep link, so display and link stay in sync. Unknown keys panic. If you need the legacy verbatim behaviour for a value that doesn't fit the dict shape, pass it as a string.
 
+### Skills
+
+Each `skills[]` entry is either a flat `(name, keywords)` row or a nested `(name, groups)` cluster. The renderer picks per entry based on which key is present, so a single CV can mix both shapes.
+
+```typst
+skills: (
+  // Flat: one row, label pill + keyword pills.
+  (name: "Languages", keywords: ("Scala", "Python")),
+
+  // Nested: the outer `name` renders as a sub-heading; each inner
+  // group is a flat row beneath it. Useful for deeper taxonomies.
+  (name: "Backend", groups: (
+    (name: "Languages",  keywords: ("Scala", "Haskell")),
+    (name: "Frameworks", keywords: ("Akka", "Cats Effect")),
+  )),
+),
+```
+
+Inner groups without keywords are skipped silently; a nested entry with an empty `groups` array emits nothing (no orphan sub-heading).
+
 ### Portrait (`basics.image`)
 
 Setting `basics.image` adds a circular portrait to the top-right of the header (move it with `preferences.imagePosition` — `"left"` / `"right"` for the two-column layout, or `"center"` to stack the portrait on its own centred row above or below the text block via `preferences.imageStackOrder`). Two ways to supply the source:

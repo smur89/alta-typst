@@ -668,24 +668,42 @@
 // bullet. The trailing `h(...)` after the dash mirrors the gap that
 // `tag()` already emits to its left, keeping the label pill visually
 // centred between its two whitespace gutters.
-//
+#let _name_keywords_row(group, body-size, row-gap) = {
+  let keywords = group.at("keywords", default: ())
+  if keywords.len() == 0 { return }
+  block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
+    tag(group.name, label: true)
+    text("-")
+    h(0.25 * body-size)
+    for item in keywords { tag(item) }
+  }))
+}
+
 // Shared by `_skills` and `_interests` — both consume the same JSON
 // Resume `{name, keywords}` shape, so the layout is identical; only
-// the heading differs.
+// the heading differs. Each top-level entry is either a flat
+// `(name, keywords)` row or a nested `(name, groups)` cluster whose
+// outer `name` is rendered as a `===` sub-heading above the inner
+// rows. Per-entry detection (presence of `groups`) keeps existing
+// flat callers rendering unchanged.
 #let _name_keywords_section(groups, heading) = if groups.len() > 0 {
   context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
     [== #heading]
     for group in groups {
-      let keywords = group.at("keywords", default: ())
-      if keywords.len() == 0 { continue }
-      block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
-        tag(group.name, label: true)
-        text("-")
-        h(0.25 * body-size)
-        for item in keywords { tag(item) }
-      }))
+      let nested = group.at("groups", default: none)
+      if nested == none {
+        _name_keywords_row(group, body-size, row-gap)
+      } else {
+        // Filter empty inner groups first so a cluster whose every
+        // group has zero keywords doesn't emit an orphan sub-heading.
+        let non-empty = nested.filter(g => g.at("keywords", default: ()).len() > 0)
+        if non-empty.len() > 0 {
+          [=== #group.name]
+          for inner in non-empty { _name_keywords_row(inner, body-size, row-gap) }
+        }
+      }
     }
   }
 }
