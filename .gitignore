@@ -4,14 +4,15 @@
 # Typst build output (target/ used by tooling like Makefiles)
 target/
 
-# Generated example outputs. PDFs are built on every CI run and
-# attached to releases — keep them out of git to avoid binary churn.
-# `preview.png` is committed (see examples/preview.png) so the README
-# image resolves both on GitHub and Typst Universe without depending on
-# a Release asset URL; CI still regenerates a transient copy as a
-# workflow artifact for reviewers. The matching pattern covers
-# example.pdf, example_full.pdf, and any future examples/*.pdf demo.
-examples/*.pdf
+# Generated example outputs.
+# - `examples/example.pdf` is a transient one-page render; CI rebuilds
+#   it on every push and attaches it to releases, so it stays out of
+#   git to avoid binary churn.
+# - `examples/example_full.pdf` and `examples/preview.png` are tracked
+#   (not listed here) so the multi-page demo and the README image
+#   resolve immediately on GitHub and Typst Universe without needing
+#   a local rebuild.
+examples/example.pdf
 examples/preview-*.png
 
 # Editor / IDE
