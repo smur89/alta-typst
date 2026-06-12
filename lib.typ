@@ -673,6 +673,13 @@
       #term(_format_date_range(edu, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
+      // Courses render as pill tags — same treatment as `skills[].keywords`
+      // and `projects[].keywords`, which are the other array-of-strings
+      // surfaces in the template. Empty arrays skip silently.
+      #let courses = edu.at("courses", default: ())
+      #if courses.len() > 0 [
+        #for course in courses [#tag(course)]
+      ]
     ]
   ])
 ]

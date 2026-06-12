@@ -158,6 +158,7 @@ Each `education[]` entry follows JSON Resume's schema. Practical subset supporte
 | `area` | string | Field of study. Used as the heading only when `studyType` is missing. |
 | `startDate` / `endDate` | string | Date range, same conventions as `work` entries (omit `endDate` → "Present"). |
 | `score` | string | Grade / classification, rendered as a plain line below the date range. |
+| `courses` | array of strings | Relevant course / module names. Rendered as a row of pill tags below the score — same treatment as `skills[].keywords` and `projects[].keywords`. |
 
 ### Interests
 

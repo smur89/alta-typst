@@ -7,7 +7,8 @@
 // Sections show: every supported profile network, both ongoing
 // and closed-range work entries, fluency-string and numeric (incl.
 // fractional) language ratings, education with and without score
-// (and `area` vs `studyType`), multi-issuer certificate grouping,
+// (and `area` vs `studyType`) and with `courses` pill tags,
+// multi-issuer certificate grouping,
 // awards with and without each optional field, every projects
 // field variant, publication grouping by `type`, and a
 // `preferences` override to demonstrate the API surface.
@@ -99,12 +100,13 @@
 
   education: (
     (
-      // Full entry with `studyType` and `score`.
+      // Full entry with `studyType`, `score`, and `courses` pills.
       institution: "Example University",
       studyType: "M.Sc. in Computer Science",
       startDate: "2017",
       endDate: "2019",
       score: "Distinction",
+      courses: ("Distributed Systems", "Type Theory", "Concurrency"),
     ),
     (
       // `area` fallback (used when `studyType` is absent), no score.
