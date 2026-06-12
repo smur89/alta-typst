@@ -199,8 +199,10 @@
   rating
 }
 #let _resolve_rating(entry) = {
-  let rating = entry.at("rating", default: none)
-  if rating != none { return _check_rating(rating) }
+  // Bound to `value` rather than `rating` so the module-scope public
+  // `rating()` helper isn't shadowed inside this function.
+  let value = entry.at("rating", default: none)
+  if value != none { return _check_rating(value) }
   let fluency = entry.at("fluency", default: none)
   if fluency != none {
     if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
@@ -214,19 +216,19 @@
   (_empty_dot_colour, 50%),
   (_empty_dot_colour, 100%),
 )
-#let skill(name, rating) = context {
+#let rating(label, value) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
   let dot-radius = 0.45 * body-size
   let dot-baseline = -0.25 * body-size
   let dot-spacing = 0.4 * body-size
 
-  text(name)
+  text(label)
   h(1fr)
   for i in range(1, _max_rating + 1) {
-    let fill = if rating >= i {
+    let fill = if value >= i {
       accent
-    } else if rating > i - 1 {
+    } else if value > i - 1 {
       _half_fill(accent)
     } else {
       _empty_dot_colour
@@ -566,7 +568,7 @@
 
   #_join_with_dividers(items, lang => block(
     breakable: false,
-    skill(lang.language, _resolve_rating(lang)),
+    rating(lang.language, _resolve_rating(lang)),
   ))
 ]
 
