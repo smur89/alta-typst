@@ -9,9 +9,26 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
+// Curated accent presets. Each is dark enough to stay legible on
+// white against the grey body text (`#666666`) and to survive a
+// black-and-white photocopy as a distinguishable mid-tone. `teal`
+// matches the historical default; the rest were eyeballed against
+// the heading rule, tag fills (accent.lighten(85%)), and link colour.
+// Callers reference them as `accent: palettes.navy` after importing.
+// Defined up here (above the state and the default-preferences dict)
+// so both can reference `palettes.teal` instead of duplicating the hex.
+#let palettes = (
+  teal:     rgb("#00796B"),
+  navy:     rgb("#1A3A6C"),
+  crimson:  rgb("#9E2A2B"),
+  forest:   rgb("#2E5E3A"),
+  plum:     rgb("#5F2A6E"),
+  charcoal: rgb("#3B3B3B"),
+)
+
 // State set by alta() at render time and read by helpers below.
 #let _body_size_state = state("alta-body-size", 10pt)
-#let _accent_state = state("alta-accent", rgb("#00796B"))
+#let _accent_state = state("alta-accent", palettes.teal)
 #let _max_rating_state = state("alta-max-rating", 5)
 
 // Accent is configurable via alta(); the rest are opinionated.
@@ -1089,7 +1106,9 @@
   bodySize: 10pt,
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
-  accent: rgb("#00796B"),
+  // `palettes.teal` — see the `palettes` dict for the curated set
+  // (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`).
+  accent: palettes.teal,
   groupCertificates: true,
   imageSize: 6em,
   linkContactInfo: true,
