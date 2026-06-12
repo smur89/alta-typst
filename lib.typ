@@ -50,6 +50,23 @@
   present: "Present",
 )
 
+// Public dict of built-in map-provider URL templates, exported as a
+// convenience so callers can write
+//   preferences: (mapsProvider: maps-providers.google)
+// without having to remember the exact URL. The template's `{q}`
+// placeholder is replaced with the URL-encoded location at render
+// time, so any string with that placeholder works — pass an arbitrary
+// URL template here to support a provider that isn't built in (e.g.
+// `"https://yandex.com/maps/?text={q}"`), or pass `none` to suppress
+// the link entirely.
+#let maps-providers = (
+  google: "https://www.google.com/maps?q={q}",
+  apple: "https://maps.apple.com/?q={q}",
+  bing: "https://www.bing.com/maps?q={q}",
+  duckduckgo: "https://duckduckgo.com/?q={q}&iaxm=maps",
+  osm: "https://www.openstreetmap.org/search?query={q}",
+)
+
 // Merge user overrides over defaults, panicking on unknown keys so
 // typos in `labels` / `preferences` surface as errors instead of being
 // silently absorbed.
@@ -375,6 +392,7 @@
   image-position: "right",
   header-text-align: "left",
   link-contact-info: true,
+  maps-provider: maps-providers.google,
 ) = {
   if image-position not in ("left", "right") {
     panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
@@ -439,11 +457,14 @@
       }
       let location = basics.at("location", default: none)
       if location != none {
+        let url = if maps-provider == none { none } else {
+          maps-provider.replace("{q}", _url_encode(location))
+        }
         entries.push((
           channel: "location",
           icon: "location",
           value: location,
-          url: "https://www.google.com/maps?q=" + _url_encode(location),
+          url: url,
         ))
       }
       for profile in basics.at("profiles", default: ()) {
@@ -821,6 +842,16 @@
   // Valid channel keys: "email", "phone", "location", "profiles".
   // Unknown channel keys panic; non-bool / non-dict values panic.
   linkContactInfo: true,
+  // URL template for the `basics.location` deep link. The `{q}`
+  // placeholder is replaced with the URL-encoded location at render
+  // time. Use a built-in template (any of
+  // `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported
+  // from this module) or pass an arbitrary URL template for any
+  // other provider. Set to `none` to suppress the link entirely (the
+  // icon and plain text still render). Non-`none` non-`str` values
+  // panic; strings missing the `{q}` placeholder also panic so a
+  // typo is caught up front.
+  mapsProvider: maps-providers.google,
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
   imagePosition: "right",
@@ -879,6 +910,21 @@
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
     panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
   }
+  let mp = preferences.mapsProvider
+  if mp != none {
+    if type(mp) != str {
+      panic(
+        "mapsProvider must be a URL template string (containing `{q}`) or `none`, got: "
+          + repr(mp),
+      )
+    }
+    if "{q}" not in mp {
+      panic(
+        "mapsProvider URL template must contain the `{q}` placeholder, got: "
+          + repr(mp),
+      )
+    }
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -925,6 +971,7 @@
     image-position: preferences.imagePosition,
     header-text-align: preferences.headerTextAlign,
     link-contact-info: preferences.linkContactInfo,
+    maps-provider: preferences.mapsProvider,
   )
   _summary(cv.basics)
 
