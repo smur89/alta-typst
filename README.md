@@ -104,6 +104,20 @@ JSON Resume's spec calls for a URL here — Typst does not fetch remote URLs at 
 
 Size is configurable via `preferences.imageSize` (default `6em`). The image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort.
 
+### Work
+
+Each `work[]` entry follows JSON Resume's schema. Practical subset supported:
+
+| Field | Type | Effect |
+|---|---|---|
+| `position` | string | Job title. Rendered as the entry heading. |
+| `name` | string | Company / employer name, rendered in the accent colour beneath the title. |
+| `location` | string | Optional location, rendered alongside the date range via the location-icon row. |
+| `startDate` / `endDate` | string | Date range. Omit `endDate` (or pass an empty string) to render "Present" (localisable via `labels.present`). |
+| `summary` | string or content | Short paragraph describing the role, rendered as an italic preamble between the date row and the highlights list. Pass `[...]` content (e.g. `[Owned the _event-sourcing_ stack.]`) to get markup; plain strings render verbatim. |
+| `description` | string or content | Alternative spelling used by some JSON Resume exporters — rendered identically to `summary`, but `summary` wins when both are supplied. |
+| `highlights` | array of content | Bulleted list of accomplishments / contributions. |
+
 ### Awards
 
 Each `awards[]` entry follows JSON Resume's schema:
