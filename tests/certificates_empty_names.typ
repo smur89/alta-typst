@@ -1,14 +1,8 @@
-// Certificates whose `name` fields are all empty (or missing) should
-// render no Certifications section at all — not an orphan heading
-// with no items underneath. Exercises both code paths:
-//
-//   - `groupCertificates: true`  (default) — _build_cert_groups already
-//                                            dropped empty names, so the
-//                                            heading was correctly skipped.
-//   - `groupCertificates: false` — the ungrouped branch used to wrap an
-//                                  empty filtered names array into a
-//                                  single-element tuple `((),)`, emitting
-//                                  the heading anyway. Now also skipped.
+// All certificates have empty / missing `name`. The Certifications
+// section should be suppressed entirely — no orphan heading with no
+// items below it. Exercises the `groupCertificates: false` path,
+// which is where the regression lived; the `true` path was already
+// correct via `_build_cert_groups`.
 
 #import "../lib.typ": alta
 

@@ -1,8 +1,7 @@
-// `uppercaseName: false` renders the name as supplied. Useful for
-// scripts where uppercase is a different glyph set (Turkish dotless-i,
-// many South / East Asian scripts), or when the loud uppercase look
-// isn't wanted. The default (`true`) is exercised by every other
-// fixture.
+// `uppercaseName: false` with mixed-case Turkish input. The dotted /
+// dotless i is the canonical case where Unicode default upper-casing
+// loses information, so this fixture pins the opt-out path. The
+// default `true` is exercised by every other fixture.
 
 #import "../lib.typ": alta
 
