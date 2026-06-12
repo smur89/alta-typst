@@ -65,6 +65,11 @@
   // and falls back to `file` for unknown types. Override here to add
   // custom types or remap built-ins.
   publicationIcons: (:),
+  // Cover-letter only — default closing valediction printed above the
+  // signature. Override via `labels: (closing: "…")` to localise or
+  // pick a different register ("Best regards,", "Yours sincerely,",
+  // "Le meas,", …).
+  closing: "Sincerely,",
 )
 
 // Exported so callers can write `mapsProvider: maps-providers.google`
@@ -1370,22 +1375,12 @@
   maxRating: 5,
 )
 
-// ─── Main template ───────────────────────────────────────────────────
-//
-// `cv` follows the JSON Resume schema (see `examples/example.typ`).
-// `labels` and `preferences` are partial dicts merged over the
-// defaults; unknown keys panic.
-#let alta(
-  cv,
-  labels: (:),
-  preferences: (:),
-) = {
-  let labels = _strict_merge(_default_labels, labels, "labels")
-  let preferences = _strict_merge(_default_preferences, preferences, "preferences")
-  let column-ratio = preferences.columnRatio
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
-    panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
-  }
+// Validates the subset of `preferences` shared by every public
+// entrypoint (`alta`, `cover-letter`, …). The `columnRatio` check
+// belongs only to `alta` (cover-letter is single-column) and stays
+// inline there. `labels` is required so the `months` shape check —
+// which the date formatter depends on — can run here too.
+#let _validate_shared_preferences(preferences, labels) = {
   let mp = preferences.mapsProvider
   if mp != none {
     if type(mp) != str {
@@ -1452,11 +1447,32 @@
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
   }
+}
+
+// ─── Main template ───────────────────────────────────────────────────
+//
+// Parameters:
+//   cv          — data dict following JSON Resume; see
+//                 examples/example.typ for a worked schema.
+//   labels      — partial dict; merged over `_default_labels`.
+//   preferences — partial dict; merged over `_default_preferences`.
+#let alta(
+  cv,
+  labels: (:),
+  preferences: (:),
+) = {
+  let labels = _strict_merge(_default_labels, labels, "labels")
+  let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  let column-ratio = preferences.columnRatio
+  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
+    panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
+  }
+  _validate_shared_preferences(preferences, labels)
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
-  _max_rating_state.update(max-rating)
+  _max_rating_state.update(preferences.maxRating)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
@@ -1485,6 +1501,7 @@
   //   `none`             — no footer
   //   auto renderer      — name + "Page N / M", multi-page only
   //   verbatim content   — rendered on every page
+  let page-footer = preferences.pageFooter
   let resolved-footer = if page-footer != none {
     if page-footer == "auto" {
       _auto_page_footer(cv.basics.name)
@@ -1595,5 +1612,129 @@
       render-column(preferences.leftColumnSections),
       render-column(preferences.rightColumnSections),
     )
+  }
+}
+
+// ─── Cover-letter companion ──────────────────────────────────────────
+//
+// Renders a single-column cover letter that shares the masthead and
+// theme with the CV. Same `cv` dict (only `basics` is consumed —
+// other top-level keys are ignored), same `labels` / `preferences`
+// shape, so a caller can keep one data file and one set of overrides
+// for both documents.
+//
+// Layout:
+//   <header — _header(cv.basics, …), same as alta()>
+//   <date — right-aligned>
+//   <recipient block>
+//
+//   <salutation>,
+//
+//   <body>
+//
+//   <closing>,
+//   <name — signature>
+//
+// Parameters:
+//   cv          — same data dict accepted by alta(); only `basics` is
+//                 consumed here, the rest is ignored. This keeps a
+//                 single source-of-truth for the masthead.
+//   body        — letter body (markup content). Required.
+//   recipient   — optional addressee block (markup content). Use a
+//                 multi-line block with `\` line breaks for "Name /
+//                 Company / Address" stacks.
+//   date        — optional date string or content. Pass `auto` to
+//                 substitute today's date (uses `datetime.today()`,
+//                 formatted as "1 January 2026"). Pass `none` to
+//                 suppress entirely. Defaults to `auto`.
+//   salutation  — optional greeting (content), e.g.
+//                 `[Dear hiring manager,]`. When omitted, no
+//                 salutation line is rendered.
+//   closing     — optional valediction. `auto` (default) uses
+//                 `labels.closing` ("Sincerely,"); pass `none` to
+//                 suppress the closing + signature block entirely;
+//                 pass a string / content to override inline without
+//                 touching `labels`. Mirrors the `date: auto / none`
+//                 sentinel convention.
+//   labels      — partial dict; merged over `_default_labels`.
+//   preferences — partial dict; merged over `_default_preferences`.
+//                 Cover-letter is single-column, so `columnRatio` /
+//                 `leftColumnSections` / `rightColumnSections` are
+//                 accepted (for a single shared preferences dict
+//                 across both documents) but ignored here.
+#let cover-letter(
+  cv,
+  body,
+  recipient: none,
+  date: auto,
+  salutation: none,
+  closing: auto,
+  labels: (:),
+  preferences: (:),
+) = {
+  let labels = _strict_merge(_default_labels, labels, "labels")
+  let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  _validate_shared_preferences(preferences, labels)
+  let accent = preferences.accent
+  let body-size = preferences.bodySize
+  _accent_state.update(accent)
+  _body_size_state.update(body-size)
+
+  set document(
+    title: cv.basics.name + " --- Cover Letter",
+    author: cv.basics.name,
+  )
+  set text(body-size, font: preferences.font, fill: _body_colour)
+  set page(paper: preferences.paper, margin: preferences.margin)
+  set par(leading: 0.65em, spacing: 1.0em, justify: true)
+
+  _header(
+    cv.basics,
+    image-size: preferences.imageSize,
+    image-position: preferences.imagePosition,
+    header-text-align: preferences.headerTextAlign,
+    link-contact-info: preferences.linkContactInfo,
+    maps-provider: preferences.mapsProvider,
+    uppercase-name: preferences.uppercaseName,
+  )
+
+  v(0.8 * body-size)
+
+  // Date — `auto` substitutes today's date in a long form
+  // ("1 January 2026"). Right-aligned to match the conventional
+  // business-letter shape; flip to `headerTextAlign`'s value if a
+  // caller wants it tied to the header alignment (not done by
+  // default — the date is its own visual unit).
+  let resolved-date = if date == auto {
+    datetime.today().display("[day padding:none] [month repr:long] [year]")
+  } else { date }
+  if _present(resolved-date) {
+    align(right, text(fill: _emphasis_colour, resolved-date))
+    v(0.4 * body-size)
+  }
+
+  if _present(recipient) {
+    block(below: 1.2 * body-size, recipient)
+  }
+
+  if _present(salutation) {
+    block(below: 0.8 * body-size, salutation)
+  }
+
+  body
+
+  // `auto` resolves to `labels.closing` so localisation works via
+  // the same path as every other display string; explicit `none`
+  // suppresses the closing + signature block entirely (mirrors the
+  // `date: auto / none` sentinel pair above). `_present` keeps empty
+  // strings / empty content blocks behaving the same as `none`.
+  let resolved-closing = if closing == auto { labels.closing } else { closing }
+  if _present(resolved-closing) {
+    v(0.8 * body-size)
+    block(below: 1.6 * body-size, resolved-closing)
+    // Signature — matches the accent-coloured weight of the masthead
+    // name (without uppercasing) so the letter visually closes back
+    // to where it opened.
+    text(weight: "bold", fill: accent, cv.basics.name)
   }
 }

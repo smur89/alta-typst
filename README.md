@@ -387,6 +387,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `lastModified` | `"Last updated"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
+| `closing` | `"Sincerely,"` (cover letter only) |
 
 `labels.months` carries twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens when rendering ISO date inputs. Override to localise; the array must keep length 12.
 
@@ -440,6 +441,46 @@ Example (German + rename "Skills" to "Core Technologies"):
 ```
 
 The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), the configured maps URL for location, and the supplied URL for the homepage and each profile. Suppress or swap any of them via `preferences.linkContactInfo` and `preferences.mapsProvider` above.
+
+## Cover letter
+
+A matching cover letter is a one-import addition: `cover-letter` reuses the same `cv` dict (only `basics` is consumed), the same `preferences` knobs, and the same `labels` overrides as `alta`, so a single data file and a single set of theme overrides drives both documents.
+
+```typst
+#import "@preview/altacv:1.0.0": cover-letter // x-release-please-version
+
+#cover-letter(
+  cv,
+  recipient: [
+    Hiring Manager \
+    Acme Corp \
+    Dublin 2, Ireland
+  ],
+  // `auto` substitutes today's date; pass a string / content to pin
+  // one, or `none` to suppress.
+  date: auto,
+  salutation: [Dear Hiring Manager,],
+  [
+    I am writing to express my interest in the Senior Backend Engineer
+    role at Acme Corp. …
+  ],
+)
+```
+
+Layout: same masthead as `alta` (name, label, contact bar, optional portrait), then right-aligned date, recipient block, salutation, body, closing valediction, accent-coloured signature.
+
+| Argument | Default | Effect |
+|---|---|---|
+| `cv` | — | Same data dict accepted by `alta`. Only `basics` is consumed; any other top-level keys are ignored, so the same dict works for both documents. |
+| `body` | — | Letter body (positional, required). Markup content — paragraphs, lists, emphasis. |
+| `recipient` | `none` | Optional addressee block (markup content). Use a multi-line block with `\` line breaks for "Name / Company / Address" stacks. |
+| `date` | `auto` | `auto` substitutes today's date in a long form ("1 January 2026"). Pass a string / content to pin a value, or `none` to suppress. |
+| `salutation` | `none` | Optional greeting line, e.g. `[Dear Hiring Manager,]`. |
+| `closing` | `auto` | Valediction printed above the signature. `auto` uses `labels.closing` (default `"Sincerely,"`); pass `none` to suppress the closing + signature entirely; pass a string / content to override inline without touching `labels`. |
+| `labels` | `(:)` | Same shape as `alta` — partial dict merged over `_default_labels`. The new `closing` key sources the default valediction. |
+| `preferences` | `(:)` | Same shape as `alta`. Cover letter is single-column, so `columnRatio` / `leftColumnSections` / `rightColumnSections` are accepted (for a shared preferences dict across both documents) but ignored here. |
+
+See `examples/cover_letter.typ` in the [source repository](https://github.com/smur89/alta-typst) for a worked example.
 
 ## Building the example
 
