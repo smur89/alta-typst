@@ -279,15 +279,47 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `Last updated: <meta.lastModified>` line in the page footer. The label text is localisable via `labels.lastModified`; the timestamp is rendered as supplied (the full ISO 8601 string flows through verbatim). PDF metadata (date / keywords / description) is enriched from `meta` / `basics` independently of this flag — see [PDF metadata](#pdf-metadata). |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
-| `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
+| `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. Only used when `layout: "two-column"`. |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer (default). `"auto"` — emits a footer on **multi-page** documents only, with `basics.name` flush left and `Page N / M` flush right, sized at `0.8em` in the body colour; the single-page case stays clean. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim as the footer on every page. Anything else panics. When set (non-`none`), takes precedence over `lastModifiedFooter` — the two prefs target overlapping surface so a non-default `pageFooter` wins; combine the "last updated" line yourself in a content footer if you want both. |
-| `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. |
+| `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. Only used when `layout: "two-column"`. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. Only used when `layout: "two-column"`. |
+| `layout` | `"two-column"` | Top-level layout switch. `"two-column"` is the historic grid layout. `"single-column"` renders sections sequentially full-width, drops the portrait, and (by default) degrades pill tags to plain comma-separated text — a recipe that survives ATS and recruiter-portal PDF text extractors. See [Single-column / ATS mode](#single-column--ats-mode) below. |
+| `singleColumnSections` | `("focusAreas", "work", "volunteer", "education", "skills", "languages", "certificates", "awards", "projects", "publications", "interests")` | Sections to render when `layout: "single-column"`, in order. Drawn from the same key set as the column arrays. Ignored when `layout: "two-column"`. |
+| `plainTags` | `auto` | Whether the pill chrome on skills, certificates, project keywords, and interests degrades to plain comma-separated text. `auto` resolves to `true` in single-column mode and `false` in two-column mode. An explicit `true` / `false` wins in either direction — e.g. set `true` on a two-column CV to keep the photo and the grid but make the keyword sections ATS-friendly. |
 | `maxRating` | `5` | Number of dots on the language fluency scale. Must be a positive integer. The default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, or any other positive integer for a custom scale. Fluency strings remain anchored to the 0–5 LinkedIn scale, so callers using a non-5 `maxRating` must supply numeric `languages[].rating` values. |
 
 Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
 
 Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
+
+### Single-column / ATS mode
+
+Applicant-tracking systems and some recruiter portals re-extract text from the PDF and frequently mangle multi-column layouts (interleaving left and right columns by Y coordinate). `preferences.layout: "single-column"` switches the template into a parser-friendly variant:
+
+- Sections render sequentially full-width, top-to-bottom.
+- The portrait is dropped (the `basics.image` value is left untouched in your data).
+- Pill tags on `skills`, `certificates`, `projects[].keywords`, and `interests` degrade to plain comma-separated text — controlled by `plainTags`, which defaults to `auto` (resolves to `true` in single-column mode).
+- Same data, same theme knobs (`accent`, `bodySize`, `font`, `paper`, `margin`, `groupCertificates`, …); no separate file required.
+
+```typst
+#alta(cv, preferences: (
+  layout: "single-column",
+))
+```
+
+The default render order (`focusAreas, work, education, skills, languages, certificates, awards, projects, publications, interests`) leads with experience after the optional `focusAreas` prose and trails with the less-load-bearing sections. Override `singleColumnSections` to reorder or drop sections, the same way `leftColumnSections` / `rightColumnSections` work in two-column mode.
+
+```typst
+#alta(cv, preferences: (
+  layout: "single-column",
+  // Drop projects and publications; lead with education.
+  singleColumnSections: (
+    "focusAreas", "education", "work", "skills", "languages", "certificates",
+  ),
+))
+```
+
+`plainTags` is also independently useful in two-column mode — set it to `true` to keep the grid and the portrait while rendering keyword sections as plain text.
 
 Example — reorder the right-column sections + tweak theme + use US Letter:
 

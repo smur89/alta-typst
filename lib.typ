@@ -306,6 +306,20 @@
   if trailing { h(0.25 * body-size) }
 }
 
+// Pill-free variant: renders a label (`"Languages: "`) followed by a
+// comma-separated list of items, all inline. Used in single-column /
+// ATS-friendly mode where pill chrome interferes with PDF text-
+// extraction heuristics. The label can be `none` for an unlabelled
+// run (e.g. flat-rendered certificates). Reads no template state, so
+// no `context` wrapper is needed.
+#let _plain_tag_row(label, items) = {
+  if label != none {
+    text(weight: "bold", label)
+    [: ]
+  }
+  items.join(", ")
+}
+
 #let divider() = context {
   let body-size = _body_size_state.get()
   v(0.3 * body-size)
@@ -725,28 +739,41 @@
 //
 // Shared by `_skills` and `_interests` — both consume the same JSON
 // Resume `{name, keywords}` shape, so the layout is identical; only
-// the heading differs.
-#let _name_keywords_section(groups, heading) = if groups.len() > 0 {
+// the heading differs. `plain-tags: true` swaps the pill chrome for a
+// comma-separated inline run (used in single-column / ATS-friendly
+// mode where pills interleave badly with PDF text extractors).
+#let _name_keywords_section(groups, heading, plain-tags: false) = if groups.len() > 0 {
   context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
+    // Plain rows are a single inline run, so the pill mode's `par`
+    // (hanging indent, custom leading) is only meaningful there.
+    let render-row = if plain-tags {
+      (name, keywords) => _plain_tag_row(name, keywords)
+    } else {
+      (name, keywords) => par(hanging-indent: 1em, leading: row-gap, {
+        tag(name, label: true)
+        text("-")
+        h(0.25 * body-size)
+        _tag_row(keywords)
+      })
+    }
     [== #heading]
     for group in groups {
       let keywords = group.at("keywords", default: ())
       if keywords.len() == 0 { continue }
-      block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
-        tag(group.name, label: true)
-        text("-")
-        h(0.25 * body-size)
-        _tag_row(keywords)
-      }))
+      block(above: 0pt, below: row-gap, render-row(group.name, keywords))
     }
   }
 }
 
-#let _skills(groups, labels) = _name_keywords_section(groups, labels.skills)
+#let _skills(groups, labels, plain-tags: false) = _name_keywords_section(
+  groups, labels.skills, plain-tags: plain-tags,
+)
 
-#let _interests(groups, labels) = _name_keywords_section(groups, labels.interests)
+#let _interests(groups, labels, plain-tags: false) = _name_keywords_section(
+  groups, labels.interests, plain-tags: plain-tags,
+)
 
 #let _languages(items, labels) = if items.len() > 0 [
   == #labels.languages
@@ -841,7 +868,7 @@
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
-#let _certificates(certs, labels, group: true) = {
+#let _certificates(certs, labels, group: true, plain-tags: false) = {
   if certs.len() == 0 { return }
   // Decide whether to emit the heading *after* filtering — otherwise
   // a list of certs whose `name` is empty would still render a bare
@@ -857,10 +884,16 @@
   // Each pill is self-contained — the date (when present) renders
   // inside the pill alongside the name, so all certs flow as a single
   // row of uniformly-shaped pills regardless of which ones carry dates.
-  _join_with_dividers(groups, items => block(
-    breakable: false,
-    { for item in items { _cert_tag(item) } },
-  ))
+  // In plain-tags / ATS-friendly mode the chrome degrades to a comma-
+  // separated run of cert names; dates and links drop because the
+  // plain-text row has no place to thread them in without competing
+  // with the surrounding prose.
+  let render-group = if plain-tags {
+    items => _plain_tag_row(none, items.map(item => item.name))
+  } else {
+    items => { for item in items { _cert_tag(item) } }
+  }
+  _join_with_dividers(groups, items => block(breakable: false, render-group(items)))
 }
 
 // Follows JSON Resume's `awards[]` shape, plus an `url` extension that
@@ -888,7 +921,7 @@
 // url, dates, highlights, keywords. `entity`, `type`, `roles` are
 // accepted but unrendered (open an issue if you need them). Entries
 // without a `name` are skipped to avoid an orphan heading.
-#let _projects(entries, labels) = {
+#let _projects(entries, labels, plain-tags: false) = {
   let valid = entries.filter(p => _present(p.at("name", default: none)))
   if valid.len() == 0 { return }
   [== #labels.projects]
@@ -905,7 +938,14 @@
     }
     term(_format_date_range(project, labels))
     for bullet in project.at("highlights", default: ()) [- #bullet]
-    _tag_row(project.at("keywords", default: ()))
+    let keywords = project.at("keywords", default: ())
+    if keywords.len() > 0 {
+      if plain-tags {
+        _plain_tag_row(none, keywords)
+      } else {
+        _tag_row(keywords)
+      }
+    }
   }))
 }
 
@@ -987,7 +1027,11 @@
   ),
   skills: (
     column: "right",
-    render: (cv, labels, prefs) => _skills(cv.at("skills", default: ()), labels),
+    render: (cv, labels, prefs) => _skills(
+      cv.at("skills", default: ()),
+      labels,
+      plain-tags: prefs.plainTags,
+    ),
   ),
   languages: (
     column: "right",
@@ -1003,6 +1047,7 @@
       cv.at("certificates", default: ()),
       labels,
       group: prefs.groupCertificates,
+      plain-tags: prefs.plainTags,
     ),
   ),
   awards: (
@@ -1011,7 +1056,11 @@
   ),
   projects: (
     column: "right",
-    render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels),
+    render: (cv, labels, prefs) => _projects(
+      cv.at("projects", default: ()),
+      labels,
+      plain-tags: prefs.plainTags,
+    ),
   ),
   publications: (
     column: "right",
@@ -1019,7 +1068,11 @@
   ),
   interests: (
     column: "right",
-    render: (cv, labels, prefs) => _interests(cv.at("interests", default: ()), labels),
+    render: (cv, labels, prefs) => _interests(
+      cv.at("interests", default: ()),
+      labels,
+      plain-tags: prefs.plainTags,
+    ),
   ),
 )
 
@@ -1029,6 +1082,27 @@
 #let _keys_for_column(col) = _sections.keys().filter(k => _sections.at(k).column == col)
 #let _default_left_column_sections = _keys_for_column("left")
 #let _default_right_column_sections = _keys_for_column("right")
+
+// Default render order for the single-column / ATS-friendly layout.
+// Mirrors the order from issue #49: work first, then education and
+// the side-panel sections, then optional trailing sections. The
+// per-CV `focusAreas` section sits up front (where the prose
+// summary belongs) so callers using it don't silently lose data
+// when switching layouts.
+#let _default_single_column_sections = (
+  "focusAreas",
+  "work",
+  "volunteer",
+  "education",
+  "skills",
+  "languages",
+  "certificates",
+  "awards",
+  "projects",
+  "publications",
+  "interests",
+)
+#let _valid_layouts = ("two-column", "single-column")
 
 // User-facing reference for these prefs lives in the README. Comments
 // below capture only what isn't recoverable from the key name + default
@@ -1074,6 +1148,22 @@
   // from `_sections` so adding a section there places it automatically.
   leftColumnSections: _default_left_column_sections,
   rightColumnSections: _default_right_column_sections,
+  // Top-level layout switch. "two-column" preserves the historic
+  // grid; "single-column" renders sections full-width, top-to-bottom
+  // — easier for ATS / recruiter-portal PDF text extractors to
+  // linearise. See `singleColumnSections` and `plainTags` for the
+  // knobs that only matter in the single-column mode.
+  layout: "two-column",
+  // Render order used when `layout: "single-column"`. Ignored in
+  // two-column mode (which uses `leftColumnSections` /
+  // `rightColumnSections` instead).
+  singleColumnSections: _default_single_column_sections,
+  // When true, the pill tag chrome on skills / certificates / project
+  // keywords degrades to plain comma-separated text — readable both
+  // visually and to PDF text extractors. Auto-enabled in single-
+  // column mode (where pills + extracted text interleave badly);
+  // explicit `plainTags: true` opts in for two-column users too.
+  plainTags: auto,
   // Number of dots on the language fluency scale. Default 5 matches
   // LinkedIn's scale (and the built-in `fluency` string map). Override
   // to suit other scales — CEFR (6: A1–C2), ILR (5), or custom.
@@ -1096,9 +1186,21 @@
 ) = {
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  if preferences.layout not in _valid_layouts {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "layout must be one of " + _valid_layouts.map(quote).join(", ")
+        + ", got: " + repr(preferences.layout),
+    )
+  }
   let column-ratio = preferences.columnRatio
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
     panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
+  }
+  if type(preferences.plainTags) != bool and preferences.plainTags != auto {
+    panic(
+      "plainTags must be a bool or `auto`, got: " + repr(preferences.plainTags),
+    )
   }
   let mp = preferences.mapsProvider
   if mp != none {
@@ -1145,6 +1247,19 @@
         + repr(page-footer),
     )
   }
+  // `auto` defers the decision to the layout: pills in two-column
+  // (visual mode), plain text in single-column (ATS-friendly mode).
+  // An explicit bool wins over the layout default in both directions.
+  let single-column = preferences.layout == "single-column"
+  let resolved-plain-tags = if preferences.plainTags == auto {
+    single-column
+  } else {
+    preferences.plainTags
+  }
+  // Section renderers read `plainTags` off the prefs dict — replace
+  // the (possibly `auto`) user value with the resolved bool so they
+  // don't have to re-do the resolution.
+  preferences.plainTags = resolved-plain-tags
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -1230,8 +1345,18 @@
     text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
   )
 
+  // The single-column / ATS-friendly layout drops the portrait —
+  // images are invisible to PDF text extractors anyway, and the
+  // header reads more naturally when it isn't being squeezed into
+  // a narrowed text column next to a circular avatar. The override
+  // is an `image: none` overlay so `_header`'s existing
+  // empty/missing-image branch handles it; the original
+  // `cv.basics.image` is left untouched.
+  let header-basics = if single-column {
+    cv.basics + (image: none)
+  } else { cv.basics }
   _header(
-    cv.basics,
+    header-basics,
     image-size: preferences.imageSize,
     image-position: preferences.imagePosition,
     image-stack-order: preferences.imageStackOrder,
@@ -1245,7 +1370,7 @@
   // The same `_sections` dict that derives the column defaults also
   // gates the overrides, so adding a section stays a single-touch
   // change.
-  let validate-column(arr, pref-name) = {
+  let validate-sections(arr, pref-name) = {
     let unknown = arr.filter(k => k not in _sections)
     if unknown.len() > 0 {
       let quote(k) = "\"" + k + "\""
@@ -1255,28 +1380,36 @@
       )
     }
   }
-  validate-column(preferences.leftColumnSections, "leftColumnSections")
-  validate-column(preferences.rightColumnSections, "rightColumnSections")
 
   // Section renderers are width-agnostic — they fill their container,
-  // so the same renderer works whether dropped into the wide or the
-  // narrow column.
-  let render-column(keys) = {
+  // so the same renderer works whether dropped into a column or a
+  // page-wide block.
+  let render-sections(keys) = {
     for key in keys {
       let entry = _sections.at(key)
       (entry.render)(cv, labels, preferences)
     }
   }
 
-  // Swapping the column-section arrays and inverting `columnRatio`
-  // together gives a mirrored layout.
-  let gutter = 12pt
-  let left-width = column-ratio * 100%
-  let right-width = (1 - column-ratio) * 100% - gutter
-  grid(
-    columns: (left-width, right-width),
-    column-gutter: gutter,
-    render-column(preferences.leftColumnSections),
-    render-column(preferences.rightColumnSections),
-  )
+  if single-column {
+    // Validate only the array that's actually used so a CV that opts
+    // out of two-column doesn't have to also tidy up its (now unused)
+    // column arrays.
+    validate-sections(preferences.singleColumnSections, "singleColumnSections")
+    render-sections(preferences.singleColumnSections)
+  } else {
+    validate-sections(preferences.leftColumnSections, "leftColumnSections")
+    validate-sections(preferences.rightColumnSections, "rightColumnSections")
+    // Swapping the column-section arrays and inverting `columnRatio`
+    // together gives a mirrored layout.
+    let gutter = 12pt
+    let left-width = column-ratio * 100%
+    let right-width = (1 - column-ratio) * 100% - gutter
+    grid(
+      columns: (left-width, right-width),
+      column-gutter: gutter,
+      render-sections(preferences.leftColumnSections),
+      render-sections(preferences.rightColumnSections),
+    )
+  }
 }
