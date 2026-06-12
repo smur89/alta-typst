@@ -26,6 +26,20 @@
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", palettes.teal)
 #let _max_rating_state = state("alta-max-rating", 5)
+// Multiplier applied to every spacing em-token (block above/below,
+// `v()`, par.spacing/leading, list.spacing). Driven by
+// `preferences.density`; defaults to 1.0 so "comfortable" reproduces
+// the historical layout byte-for-byte.
+#let _spacing_scale_state = state("alta-spacing-scale", 1.0)
+
+// `preferences.density` → multiplier on every spacing em-token.
+// 0.85 / 1.0 / 1.15 keeps the three presets visibly distinct without
+// either crushing lines together or pushing the one-page CV onto two.
+#let _density_scales = (
+  compact:     0.85,
+  comfortable: 1.0,
+  spacious:    1.15,
+)
 
 // Accent is configurable via alta(); the rest are opinionated.
 #let _body_colour = rgb("#666666")
@@ -213,9 +227,10 @@
 #let name(body) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
+  let scale = _spacing_scale_state.get()
   block(
     above: 0pt,
-    below: 0.6 * body-size,
+    below: 0.6 * scale * body-size,
     text(weight: "bold", fill: accent, body),
   )
 }
@@ -225,9 +240,10 @@
 #let term(period, location: none) = context {
   if period == none and location == none { return }
   let body-size = _body_size_state.get()
+  let scale = _spacing_scale_state.get()
   block(
     above: 0pt,
-    below: 0.8 * body-size,
+    below: 0.8 * scale * body-size,
     inset: (left: 0.3 * body-size),
     text(0.9 * body-size, {
       if period != none {
@@ -346,12 +362,13 @@
 #let divider() = context {
   let body-size = _body_size_state.get()
   if here().position().y < 2cm { return }
-  v(0.3 * body-size)
+  let scale = _spacing_scale_state.get()
+  v(0.3 * scale * body-size)
   line(
     length: 100%,
     stroke: (paint: _divider_colour, thickness: 0.6pt, dash: "dashed"),
   )
-  v(0.3 * body-size)
+  v(0.3 * scale * body-size)
 }
 
 // Like `divider()` but with a leading label that sits slightly indented
@@ -685,11 +702,12 @@
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
+    let scale = _spacing_scale_state.get()
 
     let header-text = align(text-align, {
       block(
         spacing: 0pt,
-        below: 1.2 * body-size,
+        below: 1.2 * scale * body-size,
         text(
           2.5 * body-size,
           fill: accent,
@@ -701,7 +719,7 @@
       if "label" in basics and basics.label != none {
         block(
           spacing: 0pt,
-          below: 0.8 * body-size,
+          below: 0.8 * scale * body-size,
           text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", basics.label),
         )
       }
@@ -859,9 +877,10 @@
   let summary = basics.at("summary", default: none)
   if summary == none or summary == [] { return }
   let body-size = _body_size_state.get()
-  v(0.8 * body-size)
+  let scale = _spacing_scale_state.get()
+  v(0.8 * scale * body-size)
   par(summary)
-  v(0.4 * body-size)
+  v(0.4 * scale * body-size)
 }
 
 // JSON Resume's `work[]` carries a `summary` (a short paragraph
@@ -932,7 +951,8 @@
 #let _name_keywords_section(groups, heading) = if groups.len() > 0 {
   context {
     let body-size = _body_size_state.get()
-    let row-gap = 0.7 * body-size
+    let scale = _spacing_scale_state.get()
+    let row-gap = 0.7 * scale * body-size
     [== #heading]
     for group in groups {
       let keywords = group.at("keywords", default: ())
@@ -1315,6 +1335,11 @@
   // Every spacing token is an em-multiplier of this, so changing one
   // knob scales the whole document proportionally.
   bodySize: 10pt,
+  // Scales every spacing em-token uniformly (see `_density_scales`).
+  // `"comfortable"` (1.0×) preserves the historical layout; `"compact"`
+  // (0.85×) tightens for one-page CVs; `"spacious"` (1.15×) opens it
+  // up for print presentation.
+  density: "comfortable",
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
   // `palettes.teal` — see the `palettes` dict for the curated set
@@ -1454,9 +1479,19 @@
   }
   let accent = preferences.accent
   let body-size = preferences.bodySize
+  let density = preferences.density
+  if density not in _density_scales {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "density must be one of " + _density_scales.keys().map(quote).join(", ")
+        + ", got: " + repr(density),
+    )
+  }
+  let scale = _density_scales.at(density)
   _accent_state.update(accent)
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
+  _spacing_scale_state.update(scale)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
@@ -1505,12 +1540,12 @@
     margin: preferences.margin,
     footer: resolved-footer,
   )
-  set par(leading: 0.55em, spacing: 0.7em)
+  set par(leading: 0.55 * scale * 1em, spacing: 0.7 * scale * 1em)
   set list(
     marker: text(0.85em, "•"),
     indent: 0pt,
     body-indent: 0.4 * body-size,
-    spacing: 0.55em,
+    spacing: 0.55 * scale * 1em,
   )
 
   // Heading levels map to semantic CV roles:
@@ -1518,21 +1553,21 @@
   //   ===  role / qualification line
   //   ==== sub-grouping (publication type)
   show heading.where(level: 2): it => block(sticky: true)[
-    #v(0.6 * body-size)
+    #v(0.6 * scale * body-size)
     #text(1.7 * body-size, fill: accent, weight: "bold", upper(it.body))
-    #v(-0.7 * body-size)
+    #v(-0.7 * scale * body-size)
     #line(length: 100%, stroke: 2pt + accent)
-    #v(0.2 * body-size)
+    #v(0.2 * scale * body-size)
   ]
   show heading.where(level: 3): it => block(
-    above: 1.0 * body-size,
-    below: 0.8 * body-size,
+    above: 1.0 * scale * body-size,
+    below: 0.8 * scale * body-size,
     sticky: true,
     text(1.2 * body-size, fill: _emphasis_colour, weight: "regular", it.body),
   )
   show heading.where(level: 4): it => block(
-    above: 0.6 * body-size,
-    below: 0.6 * body-size,
+    above: 0.6 * scale * body-size,
+    below: 0.6 * scale * body-size,
     sticky: true,
     text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
   )
