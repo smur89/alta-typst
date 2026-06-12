@@ -44,6 +44,7 @@
   education: "Education",
   certifications: "Certifications",
   publications: "Publications",
+  awards: "Awards",
   articles: "Articles",
   present: "Present",
 )
@@ -549,6 +550,35 @@
   ))
 }
 
+// True when `v` is a meaningfully-present value — neither `none`, an
+// empty string `""`, nor an empty content block `[]`. Used by section
+// renderers to skip entries whose required field is effectively
+// absent (key missing, explicit nil, or empty templated content).
+#let _present(v) = v != none and v != "" and v != []
+
+// Awards / honours section. Each entry follows the JSON Resume
+// `awards[]` schema: title (required), date, awarder, summary. The
+// awarder reads as a subtitle (in the accent colour, like education's
+// institution row); the date row goes through `term()`; the summary
+// renders as a paragraph below. `summary` is treated as content
+// (string or `[ ... ]` markup) and passed verbatim to `par()`.
+// Entries without a `title` are skipped to avoid an orphan empty
+// heading.
+#let _awards(entries, labels) = {
+  let valid = entries.filter(a => _present(a.at("title", default: none)))
+  if valid.len() == 0 { return }
+  [== #labels.awards]
+  _join_with_dividers(valid, award => block(breakable: false, {
+    [=== #award.title]
+    let awarder = award.at("awarder", default: none)
+    if _present(awarder) { name[#awarder] }
+    let date = award.at("date", default: none)
+    if _present(date) { term(date) }
+    let summary = award.at("summary", default: none)
+    if _present(summary) { par(summary) }
+  }))
+}
+
 // Group publications by `pub.type` (a local extension to JSON Resume).
 // Entries without `type` fall under `labels.articles` so a CV of plain
 // blog posts renders as before. The grouping key is used verbatim as
@@ -676,6 +706,7 @@
       _languages(cv.at("languages", default: ()), labels)
       _education(cv.at("education", default: ()), labels)
       _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates)
+      _awards(cv.at("awards", default: ()), labels)
       _publications(cv.at("publications", default: ()), labels)
     },
   )
