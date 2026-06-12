@@ -78,6 +78,42 @@
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
 
+// Vetted preset bundles of preferences that hang together visually.
+// Each theme is a partial preferences dict — callers spread it over
+// their own overrides:
+//
+//   #alta(cv, preferences: themes.modern + (imageSize: 7em))
+//
+// Themes only set knobs that interact (accent + font + layout); the
+// rest fall back to `_default_preferences`. Keeping each theme small
+// keeps the visual identity coherent without locking callers out of
+// per-document tweaks like `imageSize` or `paper`.
+#let themes = (
+  // The default look — warm teal accent, asymmetric two-column layout.
+  classic: (
+    accent: rgb("#00796B"),
+    font: "Lato",
+    columnRatio: 0.64,
+    headerTextAlign: "left",
+  ),
+  // Cool indigo accent, balanced columns, centred header for a more
+  // contemporary feel.
+  modern: (
+    accent: rgb("#1A237E"),
+    font: "Inter",
+    columnRatio: 0.50,
+    headerTextAlign: "center",
+  ),
+  // Neutral charcoal accent for a low-contrast, monochrome-leaning
+  // look that still respects the two-column structure.
+  minimal: (
+    accent: rgb("#37474F"),
+    font: "Source Sans 3",
+    columnRatio: 0.55,
+    headerTextAlign: "left",
+  ),
+)
+
 // Panics on unknown keys so typos surface as errors instead of being
 // silently absorbed.
 #let _strict_merge(defaults, overrides, name) = {
