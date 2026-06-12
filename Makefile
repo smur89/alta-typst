@@ -56,14 +56,24 @@ examples/preview.png: examples/example.typ lib.typ
 
 # Compile every example + fixture; output goes to /dev/null. Same
 # shape as the CI lint job, so a green `make test` locally means the
-# CI lint step will also pass.
+# CI lint step will also pass. When `GITHUB_ACTIONS` is set (i.e. the
+# recipe is running on a GitHub Actions runner) the recipe also emits
+# `::group::` / `::endgroup::` markers for collapsible per-file log
+# sections and `::error file=<path>::` annotations for failing files,
+# preserving the PR-file-view annotations the lint step previously
+# emitted inline.
 test:
 	@status=0; \
 	for f in $(EXAMPLES) $(TESTS); do \
-	  printf '  %s\n' "$$f"; \
+	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$f"; \
+	  else printf '  %s\n' "$$f"; fi; \
 	  if ! $(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null; then \
+	    if [ -n "$$GITHUB_ACTIONS" ]; then \
+	      printf '::error file=%s::compile failed\n' "$$f"; \
+	    fi; \
 	    status=1; \
 	  fi; \
+	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
 	done; \
 	exit $$status
 
