@@ -844,12 +844,13 @@
   linkContactInfo: true,
   // URL template for the `basics.location` deep link. The `{q}`
   // placeholder is replaced with the URL-encoded location at render
-  // time. Use a built-in template (`maps-providers.google`,
-  // `maps-providers.osm` — exported from this module) or pass an
-  // arbitrary URL template for any other provider. Set to `none` to
-  // suppress the link entirely (the icon and plain text still
-  // render). Non-`none` non-`str` values panic; strings missing the
-  // `{q}` placeholder also panic so a typo is caught up front.
+  // time. Use a built-in template (any of
+  // `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported
+  // from this module) or pass an arbitrary URL template for any
+  // other provider. Set to `none` to suppress the link entirely (the
+  // icon and plain text still render). Non-`none` non-`str` values
+  // panic; strings missing the `{q}` placeholder also panic so a
+  // typo is caught up front.
   mapsProvider: maps-providers.google,
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
