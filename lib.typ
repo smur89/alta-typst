@@ -350,6 +350,17 @@
           + ". Supported: " + _contact_channels.map(quote).join(", "),
       )
     }
+    // Per-channel values must be bools. Validating up front gives a
+    // precise error message anchored to the user's input rather than
+    // letting non-bools propagate to the render-time `if` check
+    // (which would panic with a generic "expected boolean" message).
+    for (k, v) in value.pairs() {
+      if type(v) != bool {
+        panic(
+          "linkContactInfo." + k + " must be a bool, got: " + repr(v),
+        )
+      }
+    }
     all-channels(true) + value
   } else {
     panic(
