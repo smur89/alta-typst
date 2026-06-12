@@ -229,6 +229,18 @@
   "Limited Working":      2,
   "Elementary":           1,
 )
+// JSON Resume's `skills[].level` is a freeform string; this is the
+// conventional set (the same scale the schema's examples use). Numeric
+// `rating` wins over `level` when both are present, mirroring the
+// `rating` / `fluency` precedence for languages.
+#let _skill_level_rating = (
+  "Master":       5,
+  "Expert":       5,
+  "Advanced":     4,
+  "Intermediate": 3,
+  "Beginner":     2,
+  "Novice":       1,
+)
 #let _check_rating(rating) = {
   if type(rating) not in (int, float) {
     panic("Rating must be numeric, got: " + repr(rating))
@@ -238,18 +250,25 @@
   }
   rating
 }
-#let _resolve_rating(entry) = {
+// Generic `rating` / named-string resolver shared by languages
+// (`fluency` → `_fluency_rating`) and skill groups (`level` →
+// `_skill_level_rating`). Numeric `rating` wins over the named string
+// when both are supplied, so callers can opt into fractional precision
+// without rewriting their data.
+#let _resolve_named_rating(entry, name-key, name-map, entry-label) = {
   // Bound to `value` rather than `rating` so the module-scope public
   // `rating()` helper isn't shadowed inside this function.
   let value = entry.at("rating", default: none)
   if value != none { return _check_rating(value) }
-  let fluency = entry.at("fluency", default: none)
-  if fluency != none {
-    if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
-    panic("Unknown fluency level: " + repr(fluency) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
+  let named = entry.at(name-key, default: none)
+  if named != none {
+    if type(named) == str and named in name-map { return name-map.at(named) }
+    panic("Unknown " + name-key + ": " + repr(named) + ". Provide a numeric `rating` instead, or use one of: " + name-map.keys().join(", "))
   }
-  panic("Language entry needs either a `rating` (0–" + str(_max_rating) + ") or a `fluency` string.")
+  panic(entry-label + " entry needs either a `rating` (0–" + str(_max_rating) + ") or a `" + name-key + "` string.")
 }
+#let _resolve_rating(entry) = _resolve_named_rating(entry, "fluency", _fluency_rating, "Language")
+#let _resolve_skill_rating(entry) = _resolve_named_rating(entry, "level", _skill_level_rating, "Skill")
 #let _half_fill(accent) = gradient.linear(
   (accent, 0%),
   (accent, 50%),
@@ -671,26 +690,39 @@
 //
 // Shared by `_skills` and `_interests` — both consume the same JSON
 // Resume `{name, keywords}` shape, so the layout is identical; only
-// the heading differs.
-#let _name_keywords_section(groups, heading) = if groups.len() > 0 {
+// the heading differs. `_skills` additionally opts into a 5-dot rating
+// row when a group carries `level` (JSON Resume's freeform string) or
+// `rating` (numeric 0–5, same shape as `languages[].rating`); passing
+// `rating-resolver: none` (as `_interests` does) skips the rating
+// branch entirely.
+#let _name_keywords_section(groups, heading, rating-resolver: none) = if groups.len() > 0 {
   context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
     [== #heading]
     for group in groups {
       let keywords = group.at("keywords", default: ())
-      if keywords.len() == 0 { continue }
+      let has-rating = rating-resolver != none and ("rating" in group or "level" in group)
+      if keywords.len() == 0 and not has-rating { continue }
       block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
-        tag(group.name, label: true)
-        text("-")
-        h(0.25 * body-size)
+        if has-rating {
+          rating(tag(group.name, label: true), rating-resolver(group))
+        } else {
+          tag(group.name, label: true)
+          text("-")
+          h(0.25 * body-size)
+        }
         for item in keywords { tag(item) }
       }))
     }
   }
 }
 
-#let _skills(groups, labels) = _name_keywords_section(groups, labels.skills)
+#let _skills(groups, labels) = _name_keywords_section(
+  groups,
+  labels.skills,
+  rating-resolver: _resolve_skill_rating,
+)
 
 #let _interests(groups, labels) = _name_keywords_section(groups, labels.interests)
 

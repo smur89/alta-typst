@@ -70,6 +70,7 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 - `focusAreas`: top-level array of prose items. This is an intentional altacv addition, distinct from JSON Resume's `interests` (which is structured `{name, keywords}` per entry — also supported, see below). Rendered as a bulleted "Areas of Focus" section.
 - `languages[].rating`: numeric 0–5 (JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
+- `skills[].rating`: numeric 0–5 on a skill group (JSON Resume defines `level` as a freeform string; supplying `rating` enables half-dot precision and wins over `level` if both are present). When either is supplied the group's label renders with a 5-dot bar; groups without either field render as before (label + keyword pills on one row). Recognised `level` strings: `"Master"`, `"Expert"` (5), `"Advanced"` (4), `"Intermediate"` (3), `"Beginner"` (2), `"Novice"` (1).
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise either by overriding `labels.articles` or by supplying already-translated `type` values directly.
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
