@@ -78,13 +78,12 @@ An empty or missing `endDate` is interpreted as the role still being current and
 
 ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"`) — the JSON Resume canonical shape — are formatted according to `preferences.dateFormat` (default `"long"`: e.g. `"Jun 2024"`). Any string that doesn't parse as an ISO date (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) passes through verbatim, so pre-formatted data keeps rendering identically. See `preferences.dateFormat` below for the available formats and the closure form.
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
 
 `basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
 
 JSON Resume fields **accepted but not yet rendered** by this template:
 
-- top-level: `references`
 - `volunteer[].summary`, `volunteer[].url`
 - `projects[].entity`, `projects[].type`, `projects[].roles`
 - `meta.canonical`, `meta.version`
@@ -226,6 +225,17 @@ interests: (
 )
 ```
 
+### References
+
+Each `references[]` entry follows JSON Resume's schema:
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | Referee's name. Rendered as the entry heading above the quote. Optional — entries with no `name` still render as an anonymous quote. |
+| `reference` | string or content | The quote attributed to the referee. Rendered as an italic paragraph. Entries with missing or empty `reference` are silently skipped (the name on its own would have nothing to attribute). |
+
+If the section is included in the layout but contains no valid entries, it is suppressed by default. Set `preferences.referencesAvailableOnRequest: true` to instead emit the conventional "References available upon request." line under the heading — useful when you want to acknowledge the section without listing referees on the document.
+
 ### Profile networks
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `lib.typ`.
@@ -274,6 +284,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts works. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. Use a built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}`, all exported from the module — or pass any `rgb(...)` value. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster under a darker issuer-label pill; singletons across distinct issuers pool into a trailing unlabelled group). When false, render flat — each cert sits next to its own issuer label. Certificates with no `issuer` render unlabelled either way. |
+| `referencesAvailableOnRequest` | `false` | When true and the `references` section is rendered with no valid entries, emit `labels.referencesAvailableOnRequest` (default "References available upon request.") under the heading instead of suppressing the section. No effect when references are present. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 | `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
 | `imageStackOrder` | `"above"` | Stack order when `imagePosition` is `"center"` — `"above"` puts the portrait above the name/label/contact block; `"below"` puts it underneath (the "photo as sign-off" look). Ignored for `"left"` / `"right"` positions. |
@@ -286,10 +297,10 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use the complement (`1 - r`) to invert the layout, or set to `1` for a [single-column layout](#single-column-layout). |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer (default). `"auto"` — emits a footer on **multi-page** documents only, with `basics.name` flush left and `Page N / M` flush right, sized at `0.8em` in the body colour; the single-page case stays clean. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim as the footer on every page. Anything else panics. When set (non-`none`), takes precedence over `lastModifiedFooter` — the two prefs target overlapping surface so a non-default `pageFooter` wins; combine the "last updated" line yourself in a content footer if you want both. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. The defaults put the long-form / bulleted sections on the (wider) left so their highlights and summary paragraphs aren't crammed into the narrower right column. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests")` | Sections to render in the right column, in order. The defaults put the compact / horizontal-by-nature sections (pill rows, dot ratings, short metadata blocks) on the right. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. The defaults put the compact / horizontal-by-nature sections (pill rows, dot ratings, short metadata blocks) on the right. |
 | `maxRating` | `5` | Number of dots on the language fluency scale. Must be a positive integer. The default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, or any other positive integer for a custom scale. Fluency strings remain anchored to the 0–5 LinkedIn scale, so callers using a non-5 `maxRating` must supply numeric `languages[].rating` values. |
 
-Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
+Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
 
 Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
 
@@ -382,9 +393,11 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `awards` | `"Awards"` |
 | `projects` | `"Projects"` |
 | `interests` | `"Interests"` |
+| `references` | `"References"` |
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
+| `referencesAvailableOnRequest` | `"References available upon request."` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
 

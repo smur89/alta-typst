@@ -49,9 +49,11 @@
   awards: "Awards",
   projects: "Projects",
   interests: "Interests",
+  references: "References",
   articles: "Articles",
   present: "Present",
   lastModified: "Last updated",
+  referencesAvailableOnRequest: "References available upon request.",
   // Twelve abbreviated month names, January–December. Used by the
   // built-in `dateFormat: "long"` formatter to render ISO 8601 inputs
   // (e.g. "2024-06" → "Jun 2024"). Override to localise; the array
@@ -1164,6 +1166,28 @@
   paper: "newspaper",
 )
 
+// JSON Resume `references[]`: each entry is `{name, reference}` — a
+// referee's name and a quote attributed to them. Entries without a
+// `reference` quote are skipped to avoid a name with nothing under
+// it. When `availableOnRequest` is true and no valid entries remain
+// (empty list, missing list, or all entries lacked a quote), render
+// the conventional "References available upon request" line instead.
+#let _references(entries, labels, available_on_request: false) = {
+  let valid = entries.filter(r => _present(r.at("reference", default: none)))
+  if valid.len() == 0 {
+    if not available_on_request { return }
+    [== #labels.references]
+    emph(labels.referencesAvailableOnRequest)
+    return
+  }
+  [== #labels.references]
+  _join_with_dividers(valid, ref => block(breakable: false, {
+    let referee = ref.at("name", default: none)
+    if _present(referee) [=== #referee]
+    par(emph[#ref.reference])
+  }))
+}
+
 // `pub.type` is a local extension. The grouping key is rendered
 // verbatim as the subheading; groups appear in first-occurrence order
 // (Typst dicts preserve insertion order). Untyped entries fall under
@@ -1297,6 +1321,14 @@
     column: "right",
     render: (cv, labels, prefs) => _interests(cv.at("interests", default: ()), labels),
   ),
+  references: (
+    column: "right",
+    render: (cv, labels, prefs) => _references(
+      cv.at("references", default: ()),
+      labels,
+      available_on_request: prefs.referencesAvailableOnRequest,
+    ),
+  ),
 )
 
 // Defaults derived from `_sections` so adding a section there
@@ -1321,6 +1353,11 @@
   // (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`).
   accent: palettes.teal,
   groupCertificates: true,
+  // When `true` and the `references` section is rendered with no
+  // valid entries, emit the conventional "References available upon
+  // request" line under the heading instead of suppressing the
+  // section. Has no effect when references are present.
+  referencesAvailableOnRequest: false,
   imageSize: 6em,
   linkContactInfo: true,
   // `{q}` is substituted with the URL-encoded location. A string
@@ -1423,6 +1460,7 @@
         + repr(page-footer),
     )
   }
+  _check_bool("referencesAvailableOnRequest", preferences.referencesAvailableOnRequest)
   let df = preferences.dateFormat
   if type(df) == str {
     // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to

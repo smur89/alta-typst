@@ -14,4 +14,5 @@
   certificates: (),
   interests: (),
   publications: (),
+  references: (),
 ))
