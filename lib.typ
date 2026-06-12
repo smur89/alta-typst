@@ -747,24 +747,58 @@
   ])
 ]
 
+// Normalises a cert into the (name, date, url) triple the renderer
+// consumes. Returns `none` for entries with no usable name so callers
+// can filter them in one pass.
+#let _normalise_cert(cert) = {
+  let name = cert.at("name", default: "")
+  if name == "" { return none }
+  (
+    name: name,
+    date: cert.at("date", default: none),
+    url: cert.at("url", default: none),
+  )
+}
+
 // Buckets by issuer in insertion order; multi-issuer clusters survive
 // as their own group, singletons pool into a trailing "other" group.
 // The issuer key is never rendered — it exists purely for grouping.
+// Each group carries full cert records (name + date + url) so the
+// renderer can wire links and date lines without re-reading the source.
 #let _build_cert_groups(certs) = {
   let by-issuer = (:)
   for cert in certs {
+    let item = _normalise_cert(cert)
+    if item == none { continue }
     let issuer = cert.at("issuer", default: "")
-    let name = cert.at("name", default: "")
-    if name == "" { continue }
-    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (name,))
+    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (item,))
   }
   let groups = ()
   let singletons = ()
-  for (_, names) in by-issuer.pairs() {
-    if names.len() > 1 { groups.push(names) } else { singletons.push(names.first()) }
+  for (_, items) in by-issuer.pairs() {
+    if items.len() > 1 { groups.push(items) } else { singletons.push(items.first()) }
   }
   if singletons.len() > 0 { groups.push(singletons) }
   groups
+}
+
+// Wraps the cert pill in a link when `url` is present. Suppresses the
+// trailing inter-tag gap so a following inline date sits flush with
+// the pill; the caller is responsible for adding spacing between pairs.
+#let _cert_tag(item) = {
+  let pill = tag(item.name, trailing: false)
+  if item.url != none { link(item.url, pill) } else { pill }
+}
+
+// Small body-coloured inline date emitted immediately to the right of
+// the pill — mirrors publications' release-date colour. A tight
+// leading gap keeps the date snug to its pill; a larger trailing gap
+// separates the pair from the next pill in the row.
+#let _cert_date(date) = context {
+  let body-size = _body_size_state.get()
+  h(0.1 * body-size)
+  text(0.85 * body-size, fill: _body_colour.lighten(35%), date)
+  h(0.25 * body-size)
 }
 
 #let _certificates(certs, labels, group: true) = {
@@ -775,14 +809,29 @@
   let groups = if group {
     _build_cert_groups(certs)
   } else {
-    let names = certs.map(c => c.at("name", default: "")).filter(n => n != "")
-    if names.len() > 0 { (names,) } else { () }
+    let items = certs.map(_normalise_cert).filter(c => c != none)
+    if items.len() > 0 { (items,) } else { () }
   }
   if groups.len() == 0 { return }
   [== #labels.certificates]
-  _join_with_dividers(groups, names => block(
+  _join_with_dividers(groups, items => block(
     breakable: false,
-    _tag_row(names),
+    context {
+      let body-size = _body_size_state.get()
+      // Pills and dates flow as natural row pairs. Each pill suppresses
+      // its trailing gap so an inline date sits flush; the date helper
+      // handles the spacing on either side. Dateless certs in a dated
+      // group keep a small trailing gap so they don't collide with the
+      // next pill.
+      for (i, item) in items.enumerate() {
+        _cert_tag(item)
+        if item.date != none {
+          _cert_date(item.date)
+        } else if i < items.len() - 1 {
+          h(0.25 * body-size)
+        }
+      }
+    },
   ))
 }
 
