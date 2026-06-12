@@ -219,14 +219,16 @@ Example — opt out of links per channel (everything stays linked except phone):
 
 All display strings the template emits. Override any subset via `labels:`; the rest fall back to English defaults. Unknown keys panic. Use this for translation or local renaming.
 
+Label keys match the JSON Resume section keys (`work`, `certificates`, …) so the data-field name and the heading-override key are the same. The default *values* still read "Experience" and "Certifications" — that's editorial.
+
 | Key | Default |
 |---|---|
-| `experience` | `"Experience"` |
+| `work` | `"Experience"` |
 | `focusAreas` | `"Areas of Focus"` |
 | `skills` | `"Skills"` |
 | `languages` | `"Languages"` |
 | `education` | `"Education"` |
-| `certifications` | `"Certifications"` |
+| `certificates` | `"Certifications"` |
 | `publications` | `"Publications"` |
 | `awards` | `"Awards"` |
 | `projects` | `"Projects"` |
@@ -237,14 +239,14 @@ Example (German + rename "Skills" to "Core Technologies"):
 
 ```typst
 #alta(cv, labels: (
-  experience:     "Berufserfahrung",
-  focusAreas:     "Schwerpunkte",
-  skills:         "Core Technologies",
-  languages:      "Sprachen",
-  education:      "Ausbildung",
-  certifications: "Zertifikate",
-  publications:   "Veröffentlichungen",
-  present:        "Heute",
+  work:         "Berufserfahrung",
+  focusAreas:   "Schwerpunkte",
+  skills:       "Core Technologies",
+  languages:    "Sprachen",
+  education:    "Ausbildung",
+  certificates: "Zertifikate",
+  publications: "Veröffentlichungen",
+  present:      "Heute",
 ))
 ```
 

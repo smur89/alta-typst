@@ -37,8 +37,8 @@
     ),
   ),
   labels: (
-    experience: "Taithí Oibre",
-    languages:  "Teangacha",
-    present:    "I láthair",
+    work:      "Taithí Oibre",
+    languages: "Teangacha",
+    present:   "I láthair",
   ),
 )

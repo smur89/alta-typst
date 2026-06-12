@@ -37,21 +37,18 @@
 // French, German, ...) or local renaming (e.g. "Experience" →
 // "Work History") without forking the template.
 //
-// Label keys vs section keys: most label keys match the corresponding
-// section key in `_sections` one-to-one, with two intentional renames:
-//   - section `work`          → label `experience`
-//   - section `certificates`  → label `certifications`
-// The label key is the **rendered heading**; the section key is the
-// **data field on the cv dict**. The split lets callers say e.g.
-//   labels: (experience: "Berufserfahrung")
-// without having to know that the underlying data field is `work`.
+// Label keys mirror JSON Resume's section keys (`work`, `certificates`,
+// …) so callers can think in a single vocabulary. The display values
+// are editorial — "Experience" reads better than "Work" as a CV
+// heading, "Certifications" than "Certificates" — but the lookup key
+// stays aligned with the data-field name.
 #let _default_labels = (
-  experience: "Experience",
+  work: "Experience",
   focusAreas: "Areas of Focus",
   skills: "Skills",
   languages: "Languages",
   education: "Education",
-  certifications: "Certifications",
+  certificates: "Certifications",
   publications: "Publications",
   awards: "Awards",
   projects: "Projects",
@@ -557,7 +554,7 @@
 }
 
 #let _experience(work, labels) = if work.len() > 0 [
-  == #labels.experience
+  == #labels.work
 
   #_join_with_dividers(work, job => [
     #block(breakable: false)[
@@ -650,7 +647,7 @@
   } else {
     (certs.map(c => c.at("name", default: "")).filter(n => n != ""),)
   }
-  [== #labels.certifications]
+  [== #labels.certificates]
   _join_with_dividers(groups, names => block(
     breakable: false,
     { for n in names [#tag(n)] },
