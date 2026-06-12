@@ -27,7 +27,7 @@
     location: "Dublin, Ireland",
   ),
   work: (
-    role("Acme Corp", "Staff Engineer", "Jan 2022", none, (
+    role("Spire Software", "Staff Engineer", "Jan 2022", none, (
       [Led the migration of a customer-facing monolith into a set of
         event-driven microservices, halving p99 latency.],
       [Designed and rolled out an event-sourcing platform now used by

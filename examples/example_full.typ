@@ -19,31 +19,31 @@
 
 #let cv = (
   basics: (
-    name: "Jane Doe",
+    name: "Seán Ó Murchú",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
       distributed, event-driven systems. Specialises in functional
       programming, observability, and developer experience.
     ],
-    email: "jane@example.com",
+    email: "sean@example.com",
     phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
+    location: "Tallaght, Dublin",
     image: read("avatar-placeholder.svg", encoding: none),
     // One entry per built-in network so the icon set gets a full
     // visual sweep. `Link` is the generic-URL fallback; `X` is the
     // alias for Twitter.
     profiles: (
-      (network: "LinkedIn",      username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
-      (network: "GitHub",        username: "janedoe",     url: "https://github.com/janedoe"),
-      (network: "GitLab",        username: "janedoe",     url: "https://gitlab.com/janedoe"),
-      (network: "Bluesky",       username: "@janedoe",    url: "https://bsky.app/profile/janedoe"),
-      (network: "Mastodon",      username: "@jane@fosstodon.org", url: "https://fosstodon.org/@jane"),
-      (network: "Medium",        username: "@janedoe",    url: "https://medium.com/@janedoe"),
-      (network: "Stackoverflow", username: "janedoe",     url: "https://stackoverflow.com/u/1"),
-      (network: "X",             username: "@janedoe",    url: "https://x.com/janedoe"),
-      (network: "Website",       username: "janedoe.dev", url: "https://janedoe.dev"),
-      (network: "Link",          username: "talk recording", url: "https://example.com/talk"),
+      (network: "LinkedIn",      username: "seanomurchu",     url: "https://linkedin.com/in/seanomurchu"),
+      (network: "GitHub",        username: "seanomurchu",     url: "https://github.com/seanomurchu"),
+      (network: "GitLab",        username: "seanomurchu",     url: "https://gitlab.com/seanomurchu"),
+      (network: "Bluesky",       username: "@seanomurchu",    url: "https://bsky.app/profile/seanomurchu"),
+      (network: "Mastodon",      username: "@sean@fosstodon.org", url: "https://fosstodon.org/@sean"),
+      (network: "Medium",        username: "@seanomurchu",    url: "https://medium.com/@seanomurchu"),
+      (network: "Stackoverflow", username: "seanomurchu",     url: "https://stackoverflow.com/u/1"),
+      (network: "X",             username: "@seanomurchu",    url: "https://x.com/seanomurchu"),
+      (network: "Website",       username: "seanomurchu.dev", url: "https://seanomurchu.dev"),
+      (network: "Link",          username: "talk recording",  url: "https://example.com/talk"),
     ),
   ),
 
@@ -57,7 +57,7 @@
   work: (
     (
       // Ongoing role — `endDate` omitted → renders as "Present".
-      name: "Acme Corp",
+      name: "Spire Software",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
       startDate: "Jan 2022",
@@ -152,7 +152,7 @@
       description: "Distributed task scheduler in Rust",
       startDate: "Jan 2024",
       endDate: "Aug 2024",
-      url: "https://github.com/janedoe/hyperion",
+      url: "https://github.com/seanomurchu/hyperion",
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
         [Handled 10k tasks/s on a single node.],
