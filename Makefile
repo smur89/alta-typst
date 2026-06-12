@@ -3,12 +3,15 @@
 # CONTRIBUTING.md doesn't drift from `.github/workflows/build.yml`.
 #
 # Usage:
-#   make            # build every example PDF + the README preview image
-#   make example    # build examples/example.pdf + examples/preview.png
-#   make pdfs       # build PDFs for every examples/*.typ
-#   make previews   # build a page-1 PNG for every examples/*.typ
-#   make test       # compile every example + fixture (output discarded)
-#   make clean      # remove generated PDFs and PNGs
+#   make             # build every example PDF + the README preview image
+#                    # + a rendered PDF per fixture under examples/tests/
+#   make example     # build examples/example.pdf + examples/preview.png
+#   make pdfs        # build PDFs for every examples/*.typ
+#   make previews    # build a page-1 PNG for every examples/*.typ
+#   make test-pdfs   # render every tests/*.typ fixture into
+#                    # examples/tests/*.pdf (tracked in git)
+#   make test        # compile every example + fixture (output discarded)
+#   make clean       # remove generated PDFs and PNGs
 #
 # Tool overrides:
 #   make TYPST=/path/to/typst   # use a non-default typst binary
@@ -22,16 +25,34 @@ EXAMPLES  := $(wildcard examples/*.typ)
 TESTS     := $(wildcard tests/*.typ)
 PDFS      := $(EXAMPLES:.typ=.pdf)
 PNGS      := $(EXAMPLES:.typ=.png)
+TEST_PDFS := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all example pdfs previews test check clean help
+.PHONY: all example pdfs previews test-pdfs test check clean help
 
-all: pdfs examples/preview.png
+all: pdfs examples/preview.png test-pdfs
 
 example: examples/example.pdf examples/preview.png
 
 pdfs: $(PDFS)
 
 previews: $(PNGS)
+
+# Renders every fixture to its own PDF under examples/tests/ as a
+# visible reference for each permutation of the template's output.
+# The PDFs are tracked in git so reviewers can browse the rendered
+# fixtures without a local rebuild.
+#
+# `--creation-timestamp 0` pins the PDF's CreationDate metadata so
+# repeated builds of the same source produce byte-identical output.
+# Without this, every rebuild changes the PDF (timestamp drift),
+# which would defeat the CI drift check in `.github/workflows/build.yml`.
+test-pdfs: $(TEST_PDFS)
+
+examples/tests:
+	mkdir -p $@
+
+examples/tests/%.pdf: tests/%.typ | examples/tests
+	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ
@@ -86,16 +107,18 @@ check: test
 # (or `git checkout examples/preview.png`) after `make clean` to put
 # it back.
 clean:
-	rm -f $(PDFS) $(PNGS) examples/preview.png examples/preview-*.png
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png
 
 help:
 	@echo "Targets:"
-	@echo "  all       Build every example PDF and the README preview (default)"
-	@echo "  example   Build examples/example.pdf + examples/preview.png"
-	@echo "  pdfs      Build PDFs for every examples/*.typ"
-	@echo "  previews  Build page-1 PNGs for every examples/*.typ"
-	@echo "  test      Compile every example + fixture, discarding output"
-	@echo "  check     Alias for test (matches the CI lint shape)"
-	@echo "  clean     Remove generated PDFs and PNGs"
+	@echo "  all        Build every example PDF, the README preview,"
+	@echo "             and the per-fixture PDFs (default)"
+	@echo "  example    Build examples/example.pdf + examples/preview.png"
+	@echo "  pdfs       Build PDFs for every examples/*.typ"
+	@echo "  previews   Build page-1 PNGs for every examples/*.typ"
+	@echo "  test-pdfs  Render every tests/*.typ to examples/tests/*.pdf"
+	@echo "  test       Compile every example + fixture, discarding output"
+	@echo "  check      Alias for test (matches the CI lint shape)"
+	@echo "  clean      Remove generated PDFs and PNGs"
 	@echo ""
 	@echo "Overrides: TYPST=path/to/typst, PPI=300"
