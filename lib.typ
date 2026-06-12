@@ -285,6 +285,10 @@
 
 // ─── Section renderers (internal) ────────────────────────────────────
 
+// Rejects `none`, the empty string, and the empty content block —
+// the three ways a section field can be effectively absent.
+#let _present(v) = v != none and v != "" and v != []
+
 // Returns `none` when neither date is supplied so callers can skip
 // emitting the term row, rather than falsely rendering "Present" for
 // a fully undated entry.
@@ -579,7 +583,14 @@
     #block(breakable: false)[
       #let title = edu.at("studyType", default: edu.at("area", default: ""))
       #if title != "" [=== #title]
-      #name[#edu.at("institution", default: "")]
+      #let institution = edu.at("institution", default: "")
+      #let url = edu.at("url", default: none)
+      #let body = name[#institution]
+      // `link()` wraps the `name()` block as-is, so the accent-bold
+      // treatment is preserved — the only visible change is that the
+      // institution becomes clickable. An empty-string url is treated
+      // as absent so a missing JSON field doesn't render a dead link.
+      #if _present(url) and institution != "" { link(url, body) } else { body }
       #term(_format_date_range(edu, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
@@ -625,10 +636,6 @@
     { for n in names [#tag(n)] },
   ))
 }
-
-// Rejects `none`, the empty string, and the empty content block —
-// the three ways a section field can be effectively absent.
-#let _present(v) = v != none and v != "" and v != []
 
 // Follows JSON Resume's `awards[]` shape. Entries without a `title`
 // are skipped so a stray entry can't emit an orphan heading.
