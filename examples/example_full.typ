@@ -30,9 +30,7 @@
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     image: read("avatar-placeholder.svg", encoding: none),
-    // One entry per built-in network so the icon set gets a full
-    // visual sweep. `Link` is the generic-URL fallback; `X` is the
-    // alias for Twitter.
+    // One entry per built-in network so the icon set gets a full visual sweep. `Link` is the generic-URL fallback
     profiles: (
       (network: "LinkedIn",      username: "shanemurphy",     url: "https://linkedin.com/in/shanemurphy"),
       (network: "GitHub",        username: "shanemurphy",     url: "https://github.com/shanemurphy"),
