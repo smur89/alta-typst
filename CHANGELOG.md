@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.0](https://github.com/smur89/alta-typst/compare/v0.3.3...v1.0.0) (2026-06-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename skill() helper to rating() ([#65](https://github.com/smur89/alta-typst/issues/65))
+* align label keys with JSON Resume section keys ([#62](https://github.com/smur89/alta-typst/issues/62))
+
+### Features
+
+* add basics.image circular portrait in the header ([#29](https://github.com/smur89/alta-typst/issues/29)) ([601e586](https://github.com/smur89/alta-typst/commit/601e586bfe2e5d96eb2f51391d1f32abb9797d36))
+* align label keys with JSON Resume section keys ([#62](https://github.com/smur89/alta-typst/issues/62)) ([b33df8c](https://github.com/smur89/alta-typst/commit/b33df8c81a894be2b02ce58d03c00e5a5644f793))
+* rename skill() helper to rating() ([#65](https://github.com/smur89/alta-typst/issues/65)) ([95a0aca](https://github.com/smur89/alta-typst/commit/95a0acaa733183ba11637b8a11843bb2a341a876))
+* render JSON Resume awards section ([#28](https://github.com/smur89/alta-typst/issues/28)) ([b1125e9](https://github.com/smur89/alta-typst/commit/b1125e9d6504b4cce8086073f3f5c6656f6c801f))
+* render JSON Resume projects section ([#27](https://github.com/smur89/alta-typst/issues/27)) ([c9fe93b](https://github.com/smur89/alta-typst/commit/c9fe93b23a90443e9d9873685d449b6884b10312))
+
+
+### Bug Fixes
+
+* address findings from repo-wide quality review ([#16](https://github.com/smur89/alta-typst/issues/16)) ([be32f4a](https://github.com/smur89/alta-typst/commit/be32f4a914b496ae52ad6b0a28f55099ecb1f8b6))
+
 ## [0.3.3](https://github.com/smur89/alta-typst/compare/v0.3.2...v0.3.3) (2026-06-11)
 
 
