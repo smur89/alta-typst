@@ -259,7 +259,7 @@ The template also exports lower-level helpers for callers who want to compose cu
 | `icon(name, size: auto, shift: auto, fill: auto)` | Render a vendored SVG. `name` is any key from the built-in icon set (utility or network). |
 | `name(body)` | Bold accent-coloured line — designed for the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with their leading icon. |
-| `skill(name, rating)` | Name on the left, five filled / half-filled / empty dots on the right. `rating` is numeric 0–5. |
+| `rating(label, value)` | Label on the left, five filled / half-filled / empty dots on the right. `value` is numeric 0–5. Drives the language fluency dots; works for any 0–5 row. (Shares a name with the `languages[].rating` data field because both describe the same 0–5 scale — the function isn't auto-fed from the data; pass the value explicitly.) |
 | `tag(body, label: false)` | Pill-style tag; `label: true` for a darker, bold "category" variant. |
 | `divider()` | Dashed grey rule used between entries within a section. |
 | `styled-link(dest, content)` | Accent-coloured italic underlined link — used for publication titles. |
