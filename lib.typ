@@ -33,6 +33,7 @@
   publications: "Publications",
   awards: "Awards",
   projects: "Projects",
+  interests: "Interests",
   articles: "Articles",
   present: "Present",
 )
@@ -619,11 +620,15 @@
 // bullet. The trailing `h(...)` after the dash mirrors the gap that
 // `tag()` already emits to its left, keeping the label pill visually
 // centred between its two whitespace gutters.
-#let _skills(groups, labels) = if groups.len() > 0 {
+//
+// Shared by `_skills` and `_interests` — both consume the same JSON
+// Resume `{name, keywords}` shape, so the layout is identical; only
+// the heading differs.
+#let _name_keywords_section(groups, heading) = if groups.len() > 0 {
   context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
-    [== #labels.skills]
+    [== #heading]
     for group in groups {
       let keywords = group.at("keywords", default: ())
       if keywords.len() == 0 { continue }
@@ -636,6 +641,10 @@
     }
   }
 }
+
+#let _skills(groups, labels) = _name_keywords_section(groups, labels.skills)
+
+#let _interests(groups, labels) = _name_keywords_section(groups, labels.interests)
 
 #let _languages(items, labels) = if items.len() > 0 [
   == #labels.languages
@@ -832,6 +841,10 @@
   publications: (
     column: "right",
     render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels),
+  ),
+  interests: (
+    column: "right",
+    render: (cv, labels, prefs) => _interests(cv.at("interests", default: ()), labels),
   ),
 )
 
