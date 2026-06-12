@@ -497,14 +497,18 @@
         ))
       }
 
+      // Each entry is wrapped in `box(...)` so the icon and its
+      // display text stay together when the contact bar wraps —
+      // line breaks fall on the inter-entry `h(...)` joins, never
+      // between an icon and the text it labels.
       entries
-        .map(entry => {
+        .map(entry => box({
           bar-icon(entry.icon)
           let value = [#entry.value]
           if link-config.at(entry.channel) and entry.url != none {
             link(entry.url, value)
           } else { value }
-        })
+        }))
         .join(h(1.2 * body-size))
       // Paragraph break before _summary; inherits par.spacing so the
       // gap stays in sync with the rest of the document.
@@ -512,9 +516,21 @@
     })
 
     let image-src = basics.at("image", default: none)
-    // `bytes` carries `len()`; strings have `len()` too. An empty path
-    // ("") or empty bytes both report 0 and shouldn't render a frame.
-    let has-image = image-src != none and image-src.len() > 0
+    // Contract is `str` (path) or `bytes`. Both carry `len()`, so an
+    // empty path ("") or empty bytes report 0 and skip the frame.
+    // Anything else panics with a clear message instead of falling
+    // through to a cryptic `image()` failure or — worse — silently
+    // dropping the photo (which is what an empty array would do under
+    // a bare `.len()` check).
+    let has-image = if image-src == none {
+      false
+    } else if type(image-src) in (str, bytes) {
+      image-src.len() > 0
+    } else {
+      panic(
+        "basics.image must be a string path or bytes, got: " + repr(image-src),
+      )
+    }
     if has-image {
       // Two-column layout: portrait sits in its `auto` column, text
       // fills the remaining `1fr`. Swapping the column order moves
@@ -641,12 +657,20 @@
   groups
 }
 
-#let _certificates(certs, labels, group: true) = if certs.len() > 0 {
+#let _certificates(certs, labels, group: true) = {
+  if certs.len() == 0 { return }
+  // Build groups first, *then* decide whether there's anything to
+  // render. The grouped path already drops empty-name entries; the
+  // ungrouped path now does the same (and pools the survivors into
+  // a single row, or yields zero groups if none survive). Either way
+  // the heading only emits when at least one cert name made it through.
   let groups = if group {
     _build_cert_groups(certs)
   } else {
-    (certs.map(c => c.at("name", default: "")).filter(n => n != ""),)
+    let names = certs.map(c => c.at("name", default: "")).filter(n => n != "")
+    if names.len() > 0 { (names,) } else { () }
   }
+  if groups.len() == 0 { return }
   [== #labels.certificates]
   _join_with_dividers(groups, names => block(
     breakable: false,
@@ -944,11 +968,20 @@
       )
     }
   }
+  if type(preferences.uppercaseName) != bool {
+    panic(
+      "uppercaseName must be a bool, got: " + repr(preferences.uppercaseName),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
 
+  // PDF metadata uses `basics.name` verbatim — never the uppercased
+  // form. The `uppercaseName` preference is purely visual; the title
+  // and author fields a PDF reader displays should match the
+  // candidate's actual name as supplied.
   set document(title: cv.basics.name + " --- CV", author: cv.basics.name)
   set text(body-size, font: preferences.font, fill: _body_colour)
   set page(paper: preferences.paper, margin: preferences.margin)
