@@ -38,6 +38,7 @@
   interests: "Interests",
   articles: "Articles",
   present: "Present",
+  lastModified: "Last updated",
 )
 
 // Exported so callers can write `mapsProvider: maps-providers.google`
@@ -336,6 +337,37 @@
 #let styled-link(dest, content) = context {
   let accent = _accent_state.get()
   emph(text(fill: accent, link(dest, content)))
+}
+
+// ─── Meta helpers ────────────────────────────────────────────────────
+
+// JSON Resume's `meta.lastModified` is ISO 8601 — either a bare date
+// ("2026-06-12") or a full timestamp ("2026-06-12T14:00:00Z"). We only
+// need the calendar part for `set document(date: ...)` (PDF readers
+// surface day-level precision in their metadata panel). Returns `none`
+// for malformed input so callers can fall back to omitting the field;
+// the visible footer renders the original string verbatim, so a
+// non-parseable timestamp still surfaces to the reader.
+#let _parse_iso_date(s) = {
+  if type(s) != str { return none }
+  let m = s.match(regex("^(\d{4})-(\d{2})-(\d{2})"))
+  if m == none { return none }
+  let (y, mo, d) = m.captures.map(int)
+  if mo < 1 or mo > 12 or d < 1 or d > 31 { return none }
+  datetime(year: y, month: mo, day: d)
+}
+
+// Flatten every skill group's `keywords` into a de-duplicated array
+// for the PDF `Keywords` field. Insertion order is preserved so the
+// metadata reflects the author's curated ordering.
+#let _collect_keywords(skills) = {
+  let seen = ()
+  for group in skills {
+    for kw in group.at("keywords", default: ()) {
+      if type(kw) == str and kw != "" and kw not in seen { seen.push(kw) }
+    }
+  }
+  seen
 }
 
 // ─── Section renderers (internal) ────────────────────────────────────
@@ -959,6 +991,11 @@
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
   uppercaseName: true,
+  // When true and `cv.meta.lastModified` is set, render a small
+  // "Last updated: <value>" line in the page footer. PDF metadata
+  // (date / keywords / description) is populated from `meta` and
+  // `basics` independently of this flag.
+  lastModifiedFooter: false,
   // Fraction strictly between 0 and 1 (validated in alta()). Halving
   // it and swapping the column-section arrays gives an inverted layout.
   columnRatio: 0.64,
@@ -1017,16 +1054,45 @@
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
   }
+  if type(preferences.lastModifiedFooter) != bool {
+    panic(
+      "lastModifiedFooter must be a bool, got: " + repr(preferences.lastModifiedFooter),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
 
+  // PDF metadata is sourced from `basics` (title, author, description)
+  // and the JSON Resume `meta` block (date, keywords). Each field is
+  // only set when its source is non-empty — `set document(...)` rejects
+  // `none` for `date`, and emitting empty strings for `description` /
+  // `keywords` would still write a present-but-empty entry.
+  //
   // `uppercaseName` is purely visual — PDF metadata stays canonical.
-  set document(title: cv.basics.name + " --- CV", author: cv.basics.name)
+  let meta = cv.at("meta", default: (:))
+  let last-modified-raw = meta.at("lastModified", default: none)
+  let doc-date = _parse_iso_date(last-modified-raw)
+  let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
+  let doc-description = cv.basics.at("summary", default: none)
+  set document(
+    title: cv.basics.name + " --- CV",
+    author: cv.basics.name,
+    ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
+    ..(if _present(doc-description) { (description: doc-description) } else { (:) }),
+    ..(if doc-date != none { (date: doc-date) } else { (:) }),
+  )
   set text(body-size, font: preferences.font, fill: _body_colour)
-  set page(paper: preferences.paper, margin: preferences.margin)
+  let footer-content = if preferences.lastModifiedFooter and _present(last-modified-raw) {
+    align(right, text(0.8 * body-size, fill: _body_colour, {
+      labels.lastModified
+      ": "
+      last-modified-raw
+    }))
+  } else { none }
+  set page(paper: preferences.paper, margin: preferences.margin, footer: footer-content)
   set par(leading: 0.55em, spacing: 0.7em)
   set list(
     marker: text(0.85em, "•"),
