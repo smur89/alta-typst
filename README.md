@@ -80,7 +80,7 @@ ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"`) — the JSON Resum
 
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
 
-`basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
+`basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` is also consumed by `preferences.qrCode: "url"` to drive the header QR matrix (see "Header QR code" below).
 
 JSON Resume fields **accepted but not yet rendered** by this template:
 
@@ -132,6 +132,31 @@ Each `work[]` entry follows JSON Resume's schema. Practical subset supported:
 | `summary` | string or content | Short paragraph describing the role, rendered as an italic preamble between the date row and the highlights list. Pass `[...]` content (e.g. `[Owned the _event-sourcing_ stack.]`) to get markup; plain strings render verbatim. |
 | `description` | string or content | Alternative spelling used by some JSON Resume exporters — rendered identically to `summary`, but `summary` wins when both are supplied. |
 | `highlights` | array of content | Bulleted list of accomplishments / contributions. |
+
+### Header QR code (`preferences.qrCode`)
+
+A small QR matrix can sit in the header opposite the portrait — handy for printed CVs, where the reader has no way to click a link. Off by default; opt in via `preferences.qrCode`:
+
+```typst
+#alta(
+  (basics: (
+    name: "Jane Doe",
+    url: "https://janedoe.dev",  // canonical home page
+    // …
+  )),
+  preferences: (qrCode: "url"),  // encode basics.url
+)
+```
+
+`preferences.qrCode` accepts three shapes:
+
+- `none` (default) — no QR rendered.
+- `"url"` — encode `basics.url`. Panics if `basics.url` is missing or empty.
+- any other string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page that's distinct from the canonical `basics.url`.
+
+The QR lives on the side of the header opposite the portrait (so the default `imagePosition: "right"` layout puts the QR on the left). With no portrait, the QR still lands on the side opposite `imagePosition`. It inherits `preferences.accent` for its module colour and renders at roughly `3.5em` — small enough to stay out of the way, large enough to scan reliably on print at typical DPIs.
+
+Generation is delegated to the [`@preview/zebra`](https://typst.app/universe/package/zebra) package (a single-file QR generator that emits native Typst vector paths). This is the only third-party Typst dependency `altacv` pulls in; it's downloaded on first compile and cached thereafter.
 
 ### Awards
 
@@ -278,6 +303,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
 | `imageStackOrder` | `"above"` | Stack order when `imagePosition` is `"center"` — `"above"` puts the portrait above the name/label/contact block; `"below"` puts it underneath (the "photo as sign-off" look). Ignored for `"left"` / `"right"` positions. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
+| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `"url"` encodes `basics.url` (panicking if it's missing or empty). Any other string is encoded verbatim, useful when the printed CV should point at a tracked landing page distinct from `basics.url`. See "Header QR code" above for layout details. |
 | `uppercaseName` | `true` | When `true` (the default — matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` to render the name as supplied. Useful for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts that have no case at all, or simply when the loud uppercase look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `Last updated: <meta.lastModified>` line in the page footer. The label text is localisable via `labels.lastModified`; the timestamp is rendered as supplied (the full ISO 8601 string flows through verbatim). PDF metadata (date / keywords / description) is enriched from `meta` / `basics` independently of this flag — see [PDF metadata](#pdf-metadata). |
 | `dateFormat` | `"long"` | How ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the three shapes the [JSON Resume `iso8601` definition](https://github.com/jsonresume/resume-schema/blob/master/schema.json) accepts) are rendered wherever the template surfaces a date (`startDate`, `endDate`, `awards[].date`, `publications[].releaseDate`, …). Non-ISO strings (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) always pass through verbatim regardless of this setting — back-compat with pre-formatted data. Accepted values: `"long"` (`"Jun 2024"` / `"15 Jun 2024"`, month names sourced from `labels.months`), `"short"` (`"06/2024"` / `"15/06/2024"`), `"iso"` (passthrough), **a bracketed template** in [Typst's `datetime.display()` syntax](https://typst.app/docs/reference/foundations/datetime/#definitions-display) (e.g. `"[day padding:none] [month repr:short] [year]"` → `"15 Jun 2024"`; supported tokens are `year`/`month`/`day` with `padding:` and `repr:long`/`repr:short`/`repr:numerical` modifiers, with `month repr:long`/`repr:short` reading from `labels.months` so they localise), or a closure `parts => str` receiving a `(year, month, day)` dict (`month` and `day` are `none` for year-only / year-month inputs). |

@@ -9,6 +9,12 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
+// `qrcode` is the only third-party dependency. Zebra is a small
+// (single-WASM) generator that emits native Typst paths, so the QR
+// matrix renders crisply at any size and inherits the document's
+// accent colour via `fill`.
+#import "@preview/zebra:0.1.0": qrcode
+
 // Curated accent presets — each dark enough to remain legible against
 // the grey body text and to survive a B&W photocopy as a distinct
 // mid-tone. `teal` is the default. Declared above the state + prefs
@@ -614,6 +620,53 @@
   image(source, fit: "cover", width: 100%, height: 100%),
 )
 
+// Resolves `preferences.qrCode` against `basics.url`:
+//   - `none`   → no QR
+//   - `"url"`  → encode `basics.url` (panics if not supplied)
+//   - any other string → encode it verbatim
+// Returns the destination URL string, or `none` when no QR should
+// render. The validator in `alta()` has already constrained `qr-code`
+// to one of the accepted shapes, so this is purely a lookup.
+#let _resolve_qr_url(qr-code, basics) = {
+  if qr-code == none { return none }
+  if qr-code == "url" {
+    let url = basics.at("url", default: none)
+    if url == none {
+      panic(
+        "preferences.qrCode is \"url\" but basics.url is missing. "
+          + "Set basics.url to the destination URL, or pass the URL "
+          + "directly via preferences.qrCode.",
+      )
+    }
+    if type(url) != str {
+      panic("basics.url must be a string, got: " + repr(url))
+    }
+    if url == "" {
+      panic("basics.url is empty; set it to the destination URL or remove preferences.qrCode.")
+    }
+    return url
+  }
+  qr-code
+}
+
+// `quiet-zone: 0` because the surrounding header padding already
+// supplies plenty of whitespace; the default 4-module quiet zone
+// would otherwise shrink the dark matrix and make it harder to scan
+// at the small print size we're targeting. `fill: accent` themes the
+// QR to the document's accent colour — still high-contrast on white,
+// while staying visually coherent with the rest of the header.
+// Passing only `width` (not both width and height) is required by
+// zebra's API — QR matrices are square by construction, so the
+// generator infers the missing dimension.
+//
+// The matrix is wrapped in `link()` so a digital PDF reader can
+// click through to the same destination the QR encodes — the QR is
+// for print, the click is for screen.
+#let _qr_code(url, size, accent) = link(
+  url,
+  qrcode(url, width: size, quiet-zone: 0, fill: accent),
+)
+
 #let _contact_channels = ("email", "phone", "location", "url", "profiles")
 
 // Returns a fully-populated per-channel dict so downstream code can
@@ -661,6 +714,7 @@
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
+  qr-code: none,
 ) = {
   if image-position not in ("left", "right", "center") {
     panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
@@ -670,6 +724,7 @@
   if image-stack-order not in ("above", "below") {
     panic("imageStackOrder must be \"above\" or \"below\", got: " + repr(image-stack-order))
   }
+  let qr-url = _resolve_qr_url(qr-code, basics)
   let text-align = (
     if header-text-align == "left" { left }
     else if header-text-align == "right" { right }
@@ -810,47 +865,73 @@
         "basics.image must be a string path or bytes, got: " + repr(image-src),
       )
     }
-    if has-image {
-      // Swapping the column order moves the photo to the opposite
-      // side without changing the alignment of the text within its
-      // column — both branches keep `1fr` on the text side.
-      let photo = _portrait(image-src, image-size)
-      if image-position == "left" {
-        grid(
-          columns: (auto, 1fr),
-          align: top,
-          column-gutter: 1em,
-          photo,
-          header-text,
-        )
-      } else if image-position == "right" {
+    let photo = if has-image { _portrait(image-src, image-size) } else { none }
+    let qr = if qr-url != none {
+      // 3.5em ≈ small enough to stay out of the way, large enough to
+      // remain scannable at typical print DPIs.
+      _qr_code(qr-url, 3.5 * body-size, accent)
+    } else { none }
+
+    if image-position == "center" {
+      // Centred photo: stack it on its own row above or below the
+      // text block. `header-text` already honours `headerTextAlign`,
+      // so wrapping the photo in `align(center, ...)` is enough to
+      // place it on the page's centre axis regardless of how the
+      // text below/above it is aligned. A QR — when present — sits
+      // beside the header text row so it stays scannable without
+      // disturbing the centred-photo composition.
+      let centred-photo = if photo != none {
+        block(spacing: 0.8 * body-size, align(center, photo))
+      } else { none }
+      let text-row = if qr == none {
+        header-text
+      } else {
         grid(
           columns: (1fr, auto),
           align: top,
           column-gutter: 1em,
           header-text,
-          photo,
+          qr,
         )
+      }
+      if centred-photo == none {
+        text-row
+      } else if image-stack-order == "above" {
+        centred-photo
+        text-row
       } else {
-        // Centred: stack the photo on its own row above or below the
-        // text block. `header-text` already honours `headerTextAlign`,
-        // so wrapping the photo in `align(center, ...)` is enough to
-        // place it on the page's centre axis regardless of how the
-        // text below/above it is aligned.
-        let centred-photo = block(
-          spacing: 0.8 * body-size,
-          align(center, photo),
-        )
-        if image-stack-order == "above" {
-          centred-photo
-          header-text
-        } else {
-          header-text
-          centred-photo
-        }
+        text-row
+        centred-photo
       }
     } else {
-      header-text
+      // Horizontal layout: photo on the requested side, QR opposite.
+      // With no portrait, "opposite of imagePosition" still applies —
+      // so a default (imagePosition: "right") CV with only a QR puts
+      // it on the left, matching where it would land if a photo were
+      // added later.
+      let left-cell = if image-position == "left" { photo } else { qr }
+      let right-cell = if image-position == "left" { qr } else { photo }
+
+      // Build the grid dynamically — empty cells are dropped along
+      // with their column so the surviving columns don't pick up an
+      // extra 1em of gutter from a zero-width neighbour.
+      let cells = ()
+      let columns = ()
+      if left-cell != none {
+        cells.push(left-cell)
+        columns.push(auto)
+      }
+      cells.push(header-text)
+      columns.push(1fr)
+      if right-cell != none {
+        cells.push(right-cell)
+        columns.push(auto)
+      }
+      if columns.len() == 1 {
+        header-text
+      } else {
+        grid(columns: columns, align: top, column-gutter: 1em, ..cells)
+      }
     }
   }
 }
@@ -1332,6 +1413,11 @@
   // the centred portrait stacks above or below the header text block.
   imageStackOrder: "above",
   headerTextAlign: "left",
+  // `none` skips the QR entirely. `"url"` encodes `basics.url` (and
+  // panics if it's missing). Any other string is treated as the URL
+  // to encode directly — handy for pointing a printed CV at a
+  // landing-page redirect that's distinct from the resume's `url`.
+  qrCode: none,
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
   uppercaseName: true,
@@ -1452,6 +1538,16 @@
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
   }
+  let qr = preferences.qrCode
+  if qr != none and type(qr) != str {
+    panic(
+      "qrCode must be `none`, the string \"url\", or a URL string, got: "
+        + repr(qr),
+    )
+  }
+  if type(qr) == str and qr == "" {
+    panic("qrCode must be a non-empty string when not `none`.")
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -1546,6 +1642,7 @@
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
     uppercase-name: preferences.uppercaseName,
+    qr-code: preferences.qrCode,
   )
   _summary(cv.basics)
 
