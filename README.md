@@ -158,7 +158,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imagePosition` | `"right"` | Side of the header the portrait sits on — `"left"` or `"right"`. Ignored when no image is supplied. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, Google Maps for location, supplied URL for profiles). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
-| `mapsProvider` | `"google"` | Provider for the `basics.location` deep link. `"google"` → Google Maps, `"osm"` → OpenStreetMap, `"none"` → no link (icon and text still render). Unknown values panic. |
+| `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
 | `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Sections to render in the right column, in order. |
@@ -177,8 +177,10 @@ Example — reorder the right-column sections + tweak theme + use US Letter:
   imageSize: 7em,
   // Render the contact bar as plain text (no mailto:/tel:/maps links).
   linkContactInfo: false,
-  // Use OpenStreetMap for the `basics.location` link.
-  mapsProvider: "osm",
+  // Use OpenStreetMap for the `basics.location` link (the
+  // `maps-providers` dict is re-exported by the module — `import` it
+  // alongside `alta` to use a built-in).
+  mapsProvider: maps-providers.osm,
   // Move education above skills; hide publications.
   rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
 ))

@@ -50,15 +50,21 @@
   present: "Present",
 )
 
-// URL templates for the location deep link in the contact bar. `{q}`
-// is replaced with the URL-encoded location string. A Typst `none`
-// value indicates "do not wrap the location in a link" (the icon and
-// plain text still render). Add entries here to support more
-// providers — `alta()` derives the validation set from these keys.
-#let _maps_providers = (
+// Public dict of built-in map-provider URL templates, exported as a
+// convenience so callers can write
+//   preferences: (mapsProvider: maps-providers.google)
+// without having to remember the exact URL. The template's `{q}`
+// placeholder is replaced with the URL-encoded location at render
+// time, so any string with that placeholder works — pass an arbitrary
+// URL template here to support a provider that isn't built in (e.g.
+// `"https://yandex.com/maps/?text={q}"`), or pass `none` to suppress
+// the link entirely.
+#let maps-providers = (
   google: "https://www.google.com/maps?q={q}",
+  apple: "https://maps.apple.com/?q={q}",
+  bing: "https://www.bing.com/maps?q={q}",
+  duckduckgo: "https://duckduckgo.com/?q={q}&iaxm=maps",
   osm: "https://www.openstreetmap.org/search?query={q}",
-  "none": none,
 )
 
 // Merge user overrides over defaults, panicking on unknown keys so
@@ -386,7 +392,7 @@
   image-position: "right",
   header-text-align: "left",
   link-contact-info: true,
-  maps-provider: "google",
+  maps-provider: maps-providers.google,
 ) = {
   if image-position not in ("left", "right") {
     panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
@@ -451,9 +457,8 @@
       }
       let location = basics.at("location", default: none)
       if location != none {
-        let template = _maps_providers.at(maps-provider)
-        let url = if template == none { none } else {
-          template.replace("{q}", _url_encode(location))
+        let url = if maps-provider == none { none } else {
+          maps-provider.replace("{q}", _url_encode(location))
         }
         entries.push((
           channel: "location",
@@ -837,10 +842,15 @@
   // Valid channel keys: "email", "phone", "location", "profiles".
   // Unknown channel keys panic; non-bool / non-dict values panic.
   linkContactInfo: true,
-  // Provider for the `basics.location` deep link. One of the keys
-  // in `_maps_providers` (currently "google", "osm", "none"). "none"
-  // keeps the icon and text but skips the link entirely.
-  mapsProvider: "google",
+  // URL template for the `basics.location` deep link. The `{q}`
+  // placeholder is replaced with the URL-encoded location at render
+  // time. Use a built-in template (`maps-providers.google`,
+  // `maps-providers.osm` — exported from this module) or pass an
+  // arbitrary URL template for any other provider. Set to `none` to
+  // suppress the link entirely (the icon and plain text still
+  // render). Non-`none` non-`str` values panic; strings missing the
+  // `{q}` placeholder also panic so a typo is caught up front.
+  mapsProvider: maps-providers.google,
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
   imagePosition: "right",
@@ -899,12 +909,20 @@
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
     panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
   }
-  if preferences.mapsProvider not in _maps_providers {
-    let quote(k) = "\"" + k + "\""
-    panic(
-      "Unknown mapsProvider: " + repr(preferences.mapsProvider)
-        + ". Supported: " + _maps_providers.keys().map(quote).join(", "),
-    )
+  let mp = preferences.mapsProvider
+  if mp != none {
+    if type(mp) != str {
+      panic(
+        "mapsProvider must be a URL template string (containing `{q}`) or `none`, got: "
+          + repr(mp),
+      )
+    }
+    if "{q}" not in mp {
+      panic(
+        "mapsProvider URL template must contain the `{q}` placeholder, got: "
+          + repr(mp),
+      )
+    }
   }
   let accent = preferences.accent
   let body-size = preferences.bodySize
