@@ -22,6 +22,8 @@
       email: "jane@example.com",
       phone: "+353 1 555 0100",
       location: "Dublin, Ireland",
+      // Photo placed on the LEFT to match the column inversion below.
+      image: read("../examples/avatar-placeholder.svg", encoding: none),
       profiles: (
         (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
         (network: "GitHub",   username: "janedoe", url: "https://github.com/janedoe"),
@@ -100,6 +102,10 @@
     // column becomes the narrow one and the (now experience) right
     // column gets the wider share.
     columnRatio: 0.36,
+    // Photo flips to the left as part of the inverted layout. The
+    // default left-aligned header text keeps every line starting at
+    // a consistent edge regardless of the photo position.
+    imagePosition: "left",
     // Side-panel sections take the narrow left column.
     leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
     // Experience + publications take the wide right column.

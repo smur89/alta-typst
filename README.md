@@ -155,6 +155,8 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
+| `imagePosition` | `"right"` | Side of the header the portrait sits on — `"left"` or `"right"`. Ignored when no image is supplied. |
+| `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar) within its column — `"left"`, `"right"`, or `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
 | `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Sections to render in the right column, in order. |

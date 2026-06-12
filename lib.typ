@@ -326,12 +326,31 @@
   image(source, fit: "cover", width: 100%, height: 100%),
 )
 
-#let _header(basics, image-size: 6em) = {
+#let _header(
+  basics,
+  image-size: 6em,
+  image-position: "right",
+  header-text-align: "left",
+) = {
+  if image-position not in ("left", "right") {
+    panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
+  }
+  let text-align = (
+    if header-text-align == "left" { left }
+    else if header-text-align == "right" { right }
+    else if header-text-align == "center" { center }
+    else {
+      panic(
+        "headerTextAlign must be \"left\", \"right\", or \"center\", got: "
+          + repr(header-text-align),
+      )
+    }
+  )
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
 
-    let header-text = {
+    let header-text = align(text-align, {
       block(
         spacing: 0pt,
         below: 1.2 * body-size,
@@ -401,19 +420,33 @@
       // Paragraph break before _summary; inherits par.spacing so the
       // gap stays in sync with the rest of the document.
       parbreak()
-    }
+    })
 
     let image-src = basics.at("image", default: none)
     let has-image = image-src != none and image-src != "" and image-src != bytes(())
     if has-image {
-      // Two-column layout: text fills the left, portrait floats top-right.
-      grid(
-        columns: (1fr, auto),
-        align: top,
-        column-gutter: 1em,
-        header-text,
-        _portrait(image-src, image-size),
-      )
+      // Two-column layout: portrait sits in its `auto` column, text
+      // fills the remaining `1fr`. Swapping the column order moves
+      // the photo to the opposite side without touching the
+      // alignment of the text within its column.
+      let photo = _portrait(image-src, image-size)
+      if image-position == "left" {
+        grid(
+          columns: (auto, 1fr),
+          align: top,
+          column-gutter: 1em,
+          photo,
+          header-text,
+        )
+      } else {
+        grid(
+          columns: (1fr, auto),
+          align: top,
+          column-gutter: 1em,
+          header-text,
+          photo,
+        )
+      }
     } else {
       header-text
     }
@@ -707,9 +740,19 @@
   // group). When false, certificates render as a single flat row.
   groupCertificates: true,
   // Diameter of the circular portrait when `basics.image` is set.
-  // The image is clipped to a circle of this size and aligned to the
-  // top-right of the header. Ignored when `basics.image` is absent.
+  // The image is clipped to a circle of this size. Ignored when
+  // `basics.image` is absent.
   imageSize: 6em,
+  // Side of the header the portrait sits on: "left" or "right".
+  // Ignored when `basics.image` is absent.
+  imagePosition: "right",
+  // Horizontal alignment of the text content (name, label, contact
+  // bar) within its column. One of "left", "right", "center".
+  // Default "left" keeps every line starting at a consistent edge
+  // for natural left-to-right reading regardless of which side the
+  // photo is on; set "right" or "center" for a mirrored or
+  // centred header look.
+  headerTextAlign: "left",
   // Left-column width as a fraction of the page (between 0 and 1
   // exclusive). The right column gets the remainder minus a fixed
   // gutter. Default (0.64) gives the historic experience-left /
@@ -802,7 +845,12 @@
   )
 
   // Header (name / label / contact bar) + summary.
-  _header(cv.basics, image-size: preferences.imageSize)
+  _header(
+    cv.basics,
+    image-size: preferences.imageSize,
+    image-position: preferences.imagePosition,
+    header-text-align: preferences.headerTextAlign,
+  )
   _summary(cv.basics)
 
   // Validate both column arrays against the canonical section set
