@@ -15,13 +15,13 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
 Available on [Typst Universe](https://typst.app/universe/package/altacv):
 
 ```typst
-#import "@preview/altacv:0.3.3": alta // x-release-please-version
+#import "@preview/altacv:0.4.0": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@preview/altacv:0.3.3": alta // x-release-please-version
+#import "@preview/altacv:0.4.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -216,7 +216,7 @@ The template also exports lower-level helpers for callers who want to compose cu
 | `styled-link(dest, content)` | Accent-coloured italic underlined link — used for publication titles. |
 
 ```typst
-#import "@preview/altacv:0.3.3": tag, divider // x-release-please-version
+#import "@preview/altacv:0.4.0": tag, divider // x-release-please-version
 ```
 
 The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), and a Google Maps search URL for location. These are not currently configurable; if you need to suppress them or swap providers, please open a feature request.

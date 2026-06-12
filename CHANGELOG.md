@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/smur89/alta-typst/compare/v0.3.3...v0.4.0) (2026-06-12)
+
+
+### Features
+
+* add basics.image circular portrait in the header ([#29](https://github.com/smur89/alta-typst/issues/29)) ([601e586](https://github.com/smur89/alta-typst/commit/601e586bfe2e5d96eb2f51391d1f32abb9797d36))
+* render JSON Resume awards section ([#28](https://github.com/smur89/alta-typst/issues/28)) ([b1125e9](https://github.com/smur89/alta-typst/commit/b1125e9d6504b4cce8086073f3f5c6656f6c801f))
+* render JSON Resume projects section ([#27](https://github.com/smur89/alta-typst/issues/27)) ([c9fe93b](https://github.com/smur89/alta-typst/commit/c9fe93b23a90443e9d9873685d449b6884b10312))
+
+
+### Bug Fixes
+
+* address findings from repo-wide quality review ([#16](https://github.com/smur89/alta-typst/issues/16)) ([be32f4a](https://github.com/smur89/alta-typst/commit/be32f4a914b496ae52ad6b0a28f55099ecb1f8b6))
+
 ## [0.3.3](https://github.com/smur89/alta-typst/compare/v0.3.2...v0.3.3) (2026-06-11)
 
 
