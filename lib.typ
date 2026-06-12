@@ -326,6 +326,36 @@
   image(source, fit: "cover", width: 100%, height: 100%),
 )
 
+// Channels the contact bar emits. The order doesn't matter here —
+// the per-channel link config is keyed by channel name.
+#let _contact_channels = ("email", "phone", "location", "profiles")
+
+// Resolve `linkContactInfo` (bool or partial dict) to a fully-populated
+// per-channel dict: `(email: bool, phone: bool, location: bool,
+// profiles: bool)`. A bool applies uniformly; a dict overrides the
+// listed channels and leaves the rest at the all-linked default.
+// Unknown channel keys panic; non-bool / non-dict values panic.
+#let _resolve_link_config(value) = {
+  let defaults = (email: true, phone: true, location: true, profiles: true)
+  if type(value) == bool {
+    (email: value, phone: value, location: value, profiles: value)
+  } else if type(value) == dictionary {
+    let unknown = value.keys().filter(k => k not in _contact_channels)
+    if unknown.len() > 0 {
+      let quote(k) = "\"" + k + "\""
+      panic(
+        "Unknown linkContactInfo channel(s): " + unknown.map(quote).join(", ")
+          + ". Supported: " + _contact_channels.map(quote).join(", "),
+      )
+    }
+    defaults + value
+  } else {
+    panic(
+      "linkContactInfo must be a bool or a dict, got: " + repr(value),
+    )
+  }
+}
+
 #let _header(
   basics,
   image-size: 6em,
@@ -347,6 +377,7 @@
       )
     }
   )
+  let link-config = _resolve_link_config(link-contact-info)
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
@@ -374,7 +405,12 @@
       let entries = ()
       let email = basics.at("email", default: none)
       if email != none {
-        entries.push((icon: "email", value: email, url: "mailto:" + email))
+        entries.push((
+          channel: "email",
+          icon: "email",
+          value: email,
+          url: "mailto:" + email,
+        ))
       }
       let phone = basics.at("phone", default: none)
       if phone != none {
@@ -382,6 +418,7 @@
         // from the dialable URI; the displayed value keeps them intact.
         let dialable = phone.replace(regex("[\s()\-.]"), "")
         entries.push((
+          channel: "phone",
           icon: "phone",
           value: phone,
           url: "tel:" + dialable,
@@ -390,6 +427,7 @@
       let location = basics.at("location", default: none)
       if location != none {
         entries.push((
+          channel: "location",
           icon: "location",
           value: location,
           url: "https://www.google.com/maps?q=" + _url_encode(location),
@@ -406,6 +444,7 @@
           )
         }
         entries.push((
+          channel: "profiles",
           icon: network,
           value: profile.at("username", default: profile.at("url", default: "")),
           url: profile.url,
@@ -416,7 +455,9 @@
         .map(entry => {
           bar-icon(entry.icon)
           let value = [#entry.value]
-          if link-contact-info { link(entry.url, value) } else { value }
+          if link-config.at(entry.channel) and entry.url != none {
+            link(entry.url, value)
+          } else { value }
         })
         .join(h(1.2 * body-size))
       // Paragraph break before _summary; inherits par.spacing so the
@@ -752,11 +793,20 @@
   // The image is clipped to a circle of this size. Ignored when
   // `basics.image` is absent.
   imageSize: 6em,
-  // When true (default), the contact bar wraps each entry in a deep
-  // link: mailto: for email, tel: for phone, a Google Maps search URL
-  // for location, and the supplied URL for profiles. When false, the
-  // icons stay but the values render as plain text — useful for
-  // print-only CVs or users who don't want clickable links.
+  // Controls whether contact-bar entries are wrapped in deep links
+  // (mailto: for email, tel: for phone, a Google Maps search URL for
+  // location, the supplied URL for profiles). Accepts either:
+  //
+  //   - a boolean — applies to every channel uniformly:
+  //       linkContactInfo: true    (default; everything linked)
+  //       linkContactInfo: false   (icons + plain text, no links)
+  //   - a partial dict keyed by channel — listed channels override,
+  //     omitted channels stay linked:
+  //       linkContactInfo: (phone: false)
+  //       linkContactInfo: (email: false, location: false)
+  //
+  // Valid channel keys: "email", "phone", "location", "profiles".
+  // Unknown channel keys panic; non-bool / non-dict values panic.
   linkContactInfo: true,
   // Side of the header the portrait sits on: "left" or "right".
   // Ignored when `basics.image` is absent.
