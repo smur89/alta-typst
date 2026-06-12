@@ -309,7 +309,7 @@
   image(source, fit: "cover", width: 100%, height: 100%),
 )
 
-#let _contact_channels = ("email", "phone", "location", "profiles")
+#let _contact_channels = ("email", "phone", "location", "url", "profiles")
 
 // Returns a fully-populated per-channel dict so downstream code can
 // always `link-config.at(channel)` without missing-key guards.
@@ -429,6 +429,15 @@
           channel: "location",
           icon: "location",
           value: location,
+          url: url,
+        ))
+      }
+      let url = basics.at("url", default: none)
+      if url != none {
+        entries.push((
+          channel: "url",
+          icon: "link",
+          value: url,
           url: url,
         ))
       }
