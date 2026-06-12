@@ -134,40 +134,40 @@ The `network` field of each `basics.profiles` entry is matched case-insensitivel
 
 ## Configuration
 
-### Top-level `alta()` arguments
+### `alta()` arguments
 
-These are page-geometry primitives:
+```typst
+#alta(cv, labels: (:), preferences: (:))
+```
 
-| Argument | Default | Purpose |
-|---|---|---|
-| `font` | `"Lato"` | Primary font family. Must be installed. |
-| `body-size` | `10pt` | Base text size. Every sub-element scales from this via em-multipliers. |
-| `paper` | `"a4"` | Page format. |
-| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. |
-| `column-ratio` | `0.64` | Left/right column split (experience vs side panel). |
-| `labels` | `(:)` | Override section headings — see [Labels](#labels). |
-| `preferences` | `(:)` | Override theme + behaviour toggles — see [Preferences](#preferences). |
+Just three arguments. `cv` is the data dict; `labels` and `preferences` are partial dicts that shallow-merge over the built-in defaults (unknown keys panic — catches typos).
 
 ### Preferences
 
-Theme + behaviour configuration. Override any subset via `preferences:`; the rest fall back to defaults. Unknown keys panic (catches typos).
+Every theme, font, layout, and behaviour knob lives in `preferences`. Override any subset; the rest fall back to defaults.
 
 | Key | Default | Effect |
 |---|---|---|
+| `font` | `"Lato"` | Primary font family. Must be installed. |
+| `bodySize` | `10pt` | Base text size. Every sub-element scales from this via em-multipliers. |
+| `paper` | `"a4"` | Standard paper size — string passed to Typst's `set page(paper: ...)`. Supports `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
+| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts works. |
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
+| `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
 | `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications")` | Sections to render in the right column, in order. |
 
-Both column arrays draw from the same set of section keys: `"work"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic. The top-level `column-ratio` argument controls the relative widths.
+Both column arrays draw from the same set of section keys: `"work"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
 
-Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `column-ratio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
+Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
 
-Example — reorder the right-column sections:
+Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
 #alta(cv, preferences: (
+  paper: "us-letter",
   accent: rgb("#1976D2"),
   groupCertificates: false,
   imageSize: 7em,
@@ -176,17 +176,18 @@ Example — reorder the right-column sections:
 ))
 ```
 
-Example — invert the template (side panel on the left, experience on the right):
+Example — invert the template (side panel on the narrow left, experience on the wide right):
 
 ```typst
-#alta(
-  cv,
-  column-ratio: 0.36,  // flip the split so the experience column is wider
-  preferences: (
-    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
-    rightColumnSections: ("work", "publications"),
-  ),
-)
+#alta(cv, preferences: (
+  // columnRatio is the LEFT column's width fraction. The historic
+  // experience-left layout uses 0.64; halving it to 0.36 turns the
+  // left column into the narrow side panel and gives the (now
+  // right-hand) experience block the wider share.
+  columnRatio: 0.36,
+  leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
+  rightColumnSections: ("work", "publications"),
+))
 ```
 
 ### Labels

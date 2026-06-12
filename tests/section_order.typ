@@ -51,14 +51,12 @@
 
 // 3. Inverted layout: side-panel sections move to the (now narrower)
 //    left column, work moves to the (now wider) right column.
-#alta(
-  cv,
-  column-ratio: 0.36,
-  preferences: (
-    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
-    rightColumnSections: ("work", "publications"),
-  ),
-)
+//    `columnRatio` lives alongside the section arrays in preferences.
+#alta(cv, preferences: (
+  columnRatio: 0.36,
+  leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
+  rightColumnSections: ("work", "publications"),
+))
 
 #pagebreak()
 

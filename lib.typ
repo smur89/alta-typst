@@ -50,60 +50,6 @@
   present: "Present",
 )
 
-// ─── Default preferences ─────────────────────────────────────────────
-// Theme + behaviour configuration for the template. Callers override
-// any subset via the `preferences` parameter on alta(); supplied keys
-// win, the rest fall back to these defaults. Page geometry (font,
-// body-size, paper, margin, column-ratio) remains as top-level alta()
-// arguments since those are layout primitives rather than soft
-// preferences.
-// Default column layout. Every supported section name appears in
-// exactly one of these tuples; together they list the historic
-// render order (work in the left column, side-panel sections in
-// the right column). Listed at module scope so the default
-// preferences and the dispatch validator stay in lockstep — adding
-// a new section is a two-line change (here + the dispatch dict in
-// `alta()`).
-#let _default_left_column_sections = ("work",)
-#let _default_right_column_sections = (
-  "focusAreas",
-  "skills",
-  "languages",
-  "education",
-  "certificates",
-  "awards",
-  "projects",
-  "publications",
-)
-
-#let _default_preferences = (
-  // Theme colour applied to headings, accent rules, tag borders and
-  // skill-dot fills.
-  accent: rgb("#00796B"),
-  // When true, certificates are grouped by issuer (issuers with 2+
-  // certs become their own group; singletons pool into a final "other"
-  // group). When false, certificates render as a single flat row.
-  groupCertificates: true,
-  // Diameter of the circular portrait when `basics.image` is set.
-  // The image is clipped to a circle of this size and aligned to the
-  // top-right of the header. Ignored when `basics.image` is absent.
-  imageSize: 6em,
-  // Sections to render in the left column, in order. Each key must be
-  // one of the names in the dispatch dict in `alta()`. Sections
-  // omitted from BOTH `leftColumnSections` and `rightColumnSections`
-  // are not rendered even if their data is present; sections listed
-  // in both render twice. Unknown keys panic. Default puts only
-  // `work` (the Experience section) on the left.
-  leftColumnSections: _default_left_column_sections,
-  // Sections to render in the right column, in order. Same key set
-  // and validation as `leftColumnSections`. Default lists every
-  // side-panel section in the historic render order. Combined with
-  // the top-level `column-ratio` argument, this enables layouts like
-  // a narrow-left / wide-right "inverted" template (move `work` to
-  // the right, the rest to the left, set `column-ratio: 0.36`).
-  rightColumnSections: _default_right_column_sections,
-)
-
 // Merge user overrides over defaults, panicking on unknown keys so
 // typos in `labels` / `preferences` surface as errors instead of being
 // silently absorbed.
@@ -676,6 +622,113 @@
   }
 }
 
+// ─── Section catalogue + default preferences ────────────────────────
+// Single source of truth for every section the template supports.
+// Each entry pairs a section name with the column it lands in by
+// default plus a render closure that takes the runtime context
+// (cv / labels / preferences) and returns the rendered content.
+// Adding a new section is a one-place change here — the dispatch
+// dict, default render order, and default column membership are all
+// derived from this dict, so a new section can't be silently dropped
+// from the default layout by forgetting to wire it in somewhere
+// else. Typst dicts preserve insertion order, which controls the
+// default render order within each column.
+//
+// Defined after the section renderers because Typst closures bind
+// identifiers eagerly at creation time.
+#let _sections = (
+  work: (
+    column: "left",
+    render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels),
+  ),
+  focusAreas: (
+    column: "right",
+    render: (cv, labels, prefs) => _focus_areas(cv.at("focusAreas", default: ()), labels),
+  ),
+  skills: (
+    column: "right",
+    render: (cv, labels, prefs) => _skills(cv.at("skills", default: ()), labels),
+  ),
+  languages: (
+    column: "right",
+    render: (cv, labels, prefs) => _languages(cv.at("languages", default: ()), labels),
+  ),
+  education: (
+    column: "right",
+    render: (cv, labels, prefs) => _education(cv.at("education", default: ()), labels),
+  ),
+  certificates: (
+    column: "right",
+    render: (cv, labels, prefs) => _certificates(
+      cv.at("certificates", default: ()),
+      labels,
+      group: prefs.groupCertificates,
+    ),
+  ),
+  awards: (
+    column: "right",
+    render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels),
+  ),
+  projects: (
+    column: "right",
+    render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels),
+  ),
+  publications: (
+    column: "right",
+    render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels),
+  ),
+)
+
+// Defaults derived from `_sections` so adding a section there
+// automatically places it in the default layout for its declared
+// column. Insertion order in `_sections` controls render order.
+#let _keys_for_column(col) = _sections.keys().filter(k => _sections.at(k).column == col)
+#let _default_left_column_sections = _keys_for_column("left")
+#let _default_right_column_sections = _keys_for_column("right")
+
+#let _default_preferences = (
+  // Primary font family. Must be installed on the build host.
+  font: "Lato",
+  // Base text size; every sub-element scales from this via em
+  // multipliers, so changing it scales the document proportionally.
+  bodySize: 10pt,
+  // Standard paper size. Passed to `set page(paper: ...)`, which
+  // resolves names like "a4" (210×297mm — default), "us-letter"
+  // (8.5×11"), "a5", "us-legal", etc. into page dimensions. See
+  // https://typst.app/docs/reference/layout/page/#parameters-paper.
+  paper: "a4",
+  // Page margins. Anything `set page(margin: ...)` accepts works.
+  margin: (x: 0.9cm, y: 1.5cm),
+  // Theme colour applied to headings, accent rules, tag borders and
+  // skill-dot fills.
+  accent: rgb("#00796B"),
+  // When true, certificates are grouped by issuer (issuers with 2+
+  // certs become their own group; singletons pool into a final "other"
+  // group). When false, certificates render as a single flat row.
+  groupCertificates: true,
+  // Diameter of the circular portrait when `basics.image` is set.
+  // The image is clipped to a circle of this size and aligned to the
+  // top-right of the header. Ignored when `basics.image` is absent.
+  imageSize: 6em,
+  // Left-column width as a fraction of the page (between 0 and 1
+  // exclusive). The right column gets the remainder minus a fixed
+  // gutter. Default (0.64) gives the historic experience-left /
+  // side-panel-right split a little more left-column room; flipping
+  // to ~0.36 with swapped column-sections inverts the layout.
+  columnRatio: 0.64,
+  // Sections to render in the left column, in order. Each key must
+  // be one of the names declared in `_sections`. Sections omitted
+  // from BOTH `leftColumnSections` and `rightColumnSections` are
+  // not rendered even if their data is present; sections listed in
+  // both render twice. Unknown keys panic. Default derives from
+  // `_sections` (everything with `column: "left"`).
+  leftColumnSections: _default_left_column_sections,
+  // Sections to render in the right column, in order. Same key set
+  // and validation as `leftColumnSections`. Default derives from
+  // `_sections` (everything with `column: "right"`).
+  rightColumnSections: _default_right_column_sections,
+)
+
 // ─── Main template ───────────────────────────────────────────────────
 //
 // alta(cv, ...config) renders the document from a cv data dict.
@@ -689,39 +742,34 @@
 //                   it scales the document proportionally.
 //   paper         — page format (a4, us-letter, …).
 //   margin        — page margin dict.
-//   column-ratio  — left/right column width split. The default (0.64)
-//                   gives the experience column slightly more room
-//                   than the side panel; tune to taste.
 //   labels        — partial dict overriding the template's English
 //                   display strings (section headings, "Present" date
 //                   literal). Supply only the keys you want to change;
 //                   the rest fall back to _default_labels.
-//   preferences   — partial dict of theme + behaviour toggles. See
-//                   _default_preferences for available keys (e.g.
-//                   accent, groupCertificates). Supplied keys win, the
-//                   rest fall back to defaults.
+//   preferences   — partial dict of theme + layout toggles. See
+//                   _default_preferences for available keys (accent,
+//                   groupCertificates, imageSize, columnRatio,
+//                   leftColumnSections, rightColumnSections). Supplied
+//                   keys win, the rest fall back to defaults.
 #let alta(
   cv,
-  font: "Lato",
-  body-size: 10pt,
-  paper: "a4",
-  margin: (x: 0.9cm, y: 1.5cm),
-  column-ratio: 0.64,
   labels: (:),
   preferences: (:),
 ) = {
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
-    panic("column-ratio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
-  }
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  let column-ratio = preferences.columnRatio
+  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
+    panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
+  }
   let accent = preferences.accent
+  let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
 
   set document(title: cv.basics.name + " --- CV", author: cv.basics.name)
-  set text(body-size, font: font, fill: _body_colour)
-  set page(paper: paper, margin: margin)
+  set text(body-size, font: preferences.font, fill: _body_colour)
+  set page(paper: preferences.paper, margin: preferences.margin)
   set par(leading: 0.55em, spacing: 0.7em)
   set list(
     marker: text(0.85em, "•"),
@@ -757,29 +805,17 @@
   _header(cv.basics, image-size: preferences.imageSize)
   _summary(cv.basics)
 
-  // Column-agnostic section dispatch. Every section the template
-  // can render lives in this dict; `leftColumnSections` and
-  // `rightColumnSections` decide which column each renders in. The
-  // closures capture the local cv / labels / preferences so renderer
-  // signatures (which differ in arity) stay unchanged.
-  let section-renderers = (
-    work:         () => _experience(cv.at("work", default: ()), labels),
-    focusAreas:   () => _focus_areas(cv.at("focusAreas", default: ()), labels),
-    skills:       () => _skills(cv.at("skills", default: ()), labels),
-    languages:    () => _languages(cv.at("languages", default: ()), labels),
-    education:    () => _education(cv.at("education", default: ()), labels),
-    certificates: () => _certificates(cv.at("certificates", default: ()), labels, group: preferences.groupCertificates),
-    awards:       () => _awards(cv.at("awards", default: ()), labels),
-    projects:     () => _projects(cv.at("projects", default: ()), labels),
-    publications: () => _publications(cv.at("publications", default: ()), labels),
-  )
+  // Validate both column arrays against the canonical section set
+  // declared in module-scope `_sections`. Unknown keys panic with the
+  // supported set; the same single source of truth that derives the
+  // defaults also gates the overrides.
   let validate-column(arr, pref-name) = {
-    let unknown = arr.filter(k => k not in section-renderers)
+    let unknown = arr.filter(k => k not in _sections)
     if unknown.len() > 0 {
       let quote(k) = "\"" + k + "\""
       panic(
         "Unknown " + pref-name + " key(s): " + unknown.map(quote).join(", ")
-          + ". Supported: " + section-renderers.keys().map(quote).join(", "),
+          + ". Supported: " + _sections.keys().map(quote).join(", "),
       )
     }
   }
@@ -791,8 +827,8 @@
   // same section adapts to whichever column it ends up in.
   let render-column(keys) = {
     for key in keys {
-      let render = section-renderers.at(key)
-      render()
+      let entry = _sections.at(key)
+      (entry.render)(cv, labels, preferences)
     }
   }
 
