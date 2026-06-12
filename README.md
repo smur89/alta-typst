@@ -75,7 +75,32 @@ An empty or missing `endDate` is interpreted as the role still being current and
 
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `publications`. Any section with empty input is skipped — no orphan headings.
 
-JSON Resume keys **not yet rendered** by this template: `awards`, `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `projects`, `volunteer`, `references`, `meta`, `basics.image`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume keys **not yet rendered** by this template: `awards`, `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `projects`, `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
+
+### Portrait (`basics.image`)
+
+Setting `basics.image` adds a circular portrait to the top-right of the header. Two ways to supply the source:
+
+```typst
+// Recommended: load the bytes in your own typ file. Path resolution
+// happens at your call site, so relative paths "just work".
+basics: (
+  image: read("avatar.png", encoding: none),
+  ...
+)
+
+// Alternative: a root-relative path (leading "/", anchored to the
+// `--root` directory passed to `typst compile`). String paths without
+// a leading "/" resolve relative to `lib.typ` and are not portable.
+basics: (
+  image: "/avatar.png",
+  ...
+)
+```
+
+JSON Resume's spec calls for a URL here — Typst does not fetch remote URLs at compile time, so a https:// URL will not work. Vendor the asset locally and use one of the two forms above.
+
+Size is configurable via `preferences.imageSize` (default `6em`). The image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort.
 
 ### Profile networks
 
@@ -105,6 +130,7 @@ Theme + behaviour configuration. Override any subset via `preferences:`; the res
 |---|---|---|
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
+| `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 
 Example:
 
@@ -112,6 +138,7 @@ Example:
 #alta(cv, preferences: (
   accent: rgb("#1976D2"),
   groupCertificates: false,
+  imageSize: 7em,
 ))
 ```
 

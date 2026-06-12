@@ -19,6 +19,7 @@
     email: "jane@example.com",
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
+    image: read("avatar-placeholder.svg", encoding: none),
     profiles: (
       (network: "LinkedIn", username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
       (network: "GitHub",   username: "janedoe",     url: "https://github.com/janedoe"),
