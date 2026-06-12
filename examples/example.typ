@@ -37,6 +37,7 @@
   work: (
     (
       name: "Acme Corp",
+      url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
       startDate: "Jan 2022",

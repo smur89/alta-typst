@@ -40,6 +40,7 @@ Available on [Typst Universe](https://typst.app/universe/package/altacv):
   work: (
     (
       name: "Acme Corp",
+      url: "https://acme.example.com", // optional — wraps the company name in a link
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
       startDate: "Jan 2022",
@@ -113,7 +114,8 @@ Each `work[]` entry follows JSON Resume's schema. Practical subset supported:
 | Field | Type | Effect |
 |---|---|---|
 | `position` | string | Job title. Rendered as the entry heading. |
-| `name` | string | Company / employer name, rendered in the accent colour beneath the title. |
+| `name` | string | Company / employer name, rendered in the accent colour beneath the title; wrapped in a link when `url` is supplied. |
+| `url` | string | If supplied, wraps `name` in a link. Visual treatment is unchanged (bold accent, no italic / underline) — clickable in viewers that honour PDF links. |
 | `location` | string | Optional location, rendered alongside the date range via the location-icon row. |
 | `startDate` / `endDate` | string | Date range. Omit `endDate` (or pass an empty string) to render "Present" (localisable via `labels.present`). |
 | `summary` | string or content | Short paragraph describing the role, rendered as an italic preamble between the date row and the highlights list. Pass `[...]` content (e.g. `[Owned the _event-sourcing_ stack.]`) to get markup; plain strings render verbatim. |
