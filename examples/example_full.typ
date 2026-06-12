@@ -19,31 +19,29 @@
 
 #let cv = (
   basics: (
-    name: "Jane Doe",
+    name: "Shane Murphy",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
       distributed, event-driven systems. Specialises in functional
       programming, observability, and developer experience.
     ],
-    email: "jane@example.com",
+    email: "shane@example.com",
     phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
+    location: "Tallaght, Dublin",
     image: read("avatar-placeholder.svg", encoding: none),
-    // One entry per built-in network so the icon set gets a full
-    // visual sweep. `Link` is the generic-URL fallback; `X` is the
-    // alias for Twitter.
+    // One entry per built-in network so the icon set gets a full visual sweep. `Link` is the generic-URL fallback
     profiles: (
-      (network: "LinkedIn",      username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
-      (network: "GitHub",        username: "janedoe",     url: "https://github.com/janedoe"),
-      (network: "GitLab",        username: "janedoe",     url: "https://gitlab.com/janedoe"),
-      (network: "Bluesky",       username: "@janedoe",    url: "https://bsky.app/profile/janedoe"),
-      (network: "Mastodon",      username: "@jane@fosstodon.org", url: "https://fosstodon.org/@jane"),
-      (network: "Medium",        username: "@janedoe",    url: "https://medium.com/@janedoe"),
-      (network: "Stackoverflow", username: "janedoe",     url: "https://stackoverflow.com/u/1"),
-      (network: "X",             username: "@janedoe",    url: "https://x.com/janedoe"),
-      (network: "Website",       username: "janedoe.dev", url: "https://janedoe.dev"),
-      (network: "Link",          username: "talk recording", url: "https://example.com/talk"),
+      (network: "LinkedIn",      username: "shanemurphy",     url: "https://linkedin.com/in/shanemurphy"),
+      (network: "GitHub",        username: "shanemurphy",     url: "https://github.com/shanemurphy"),
+      (network: "GitLab",        username: "shanemurphy",     url: "https://gitlab.com/shanemurphy"),
+      (network: "Bluesky",       username: "@shanemurphy",    url: "https://bsky.app/profile/shanemurphy"),
+      (network: "Mastodon",      username: "@shane@fosstodon.org", url: "https://fosstodon.org/@shane"),
+      (network: "Medium",        username: "@shanemurphy",    url: "https://medium.com/@shanemurphy"),
+      (network: "Stackoverflow", username: "shanemurphy",     url: "https://stackoverflow.com/u/1"),
+      (network: "X",             username: "@shanemurphy",    url: "https://x.com/shanemurphy"),
+      (network: "Website",       username: "shanemurphy.dev", url: "https://shanemurphy.dev"),
+      (network: "Link",          username: "talk recording",  url: "https://example.com/talk"),
     ),
   ),
 
@@ -152,7 +150,7 @@
       description: "Distributed task scheduler in Rust",
       startDate: "Jan 2024",
       endDate: "Aug 2024",
-      url: "https://github.com/janedoe/hyperion",
+      url: "https://github.com/shanemurphy/hyperion",
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
         [Handled 10k tasks/s on a single node.],

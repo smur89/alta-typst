@@ -1,18 +1,19 @@
 // Preference overrides: custom accent + ungrouped certificates +
 // localised labels. Exercises _strict_merge for both `labels` and
-// `preferences`.
+// `preferences`. Labels are translated to Gaeilge (Irish) to
+// demonstrate the localisation path with a non-English language.
 
 #import "../lib.typ": alta
 
 #alta(
   (
-    basics: (name: "Jane Doe", email: "jane@example.com"),
+    basics: (name: "Oisín Mac Cárthaigh", email: "oisin@example.com"),
     work: (
       (
-        name: "Acme",
-        position: "Engineer",
-        startDate: "Jan 2022",
-        highlights: ([Did work.],),
+        name: "Forge Liffey",
+        position: "Innealtóir",
+        startDate: "Eanáir 2022",
+        highlights: ([Rinne obair.],),
       ),
     ),
     certificates: (
@@ -26,8 +27,14 @@
     groupCertificates: false,
   ),
   labels: (
-    experience: "Berufserfahrung",
-    certifications: "Zertifikate",
-    present: "Heute",
+    experience:     "Taithí Oibre",
+    focusAreas:     "Réimsí Spéise",
+    skills:         "Scileanna",
+    languages:      "Teangacha",
+    education:      "Oideachas",
+    certifications: "Teastais",
+    publications:   "Foilseacháin",
+    articles:       "Ailt",
+    present:        "I láthair",
   ),
 )

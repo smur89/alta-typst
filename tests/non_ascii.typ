@@ -1,35 +1,44 @@
 // Non-ASCII content in name, location, and other fields. Exercises
-// _url_encode's multi-byte UTF-8 path (Zürich) and verifies that
-// accented + non-Latin characters survive the contact-bar / header
-// emission unchanged.
+// _url_encode's multi-byte UTF-8 path (fadas in Gaeilge — á é í ó ú)
+// and verifies that accented characters survive the contact-bar /
+// header emission unchanged. Section headings are also overridden
+// to Gaeilge so the rendered document is end-to-end in Irish.
 
 #import "../lib.typ": alta
 
-#alta((
-  basics: (
-    name: "Renée Bäumler",
-    label: "Software-Ingenieurin",
-    summary: [Backend-Entwicklerin mit Fokus auf verteilte Systeme.],
-    email: "renee@example.com",
-    phone: "+41 44 555 0100",
-    location: "Zürich, Schweiz",
-    profiles: (
-      (network: "GitHub", username: "renée", url: "https://github.com/renee"),
-      (network: "X",      username: "renée", url: "https://x.com/renee"),
+#alta(
+  (
+    basics: (
+      name: "Caoimhe Ní Bhriain",
+      label: "Innealtóir Bogearraí Sinsearach",
+      summary: [Innealtóir bogearraí le taithí ar chórais dáilte.],
+      email: "caoimhe@example.com",
+      phone: "+353 1 555 0100",
+      location: "Dún Laoghaire, Éire",
+      profiles: (
+        (network: "GitHub", username: "caoimhe", url: "https://github.com/caoimhe"),
+        (network: "X",      username: "caoimhe", url: "https://x.com/caoimhe"),
+      ),
+    ),
+    work: (
+      (
+        name: "Áras Bogearraí Teo.",
+        position: "Príomh-innealtóir",
+        location: "Baile Átha Cliath, Éire",
+        startDate: "Eanáir 2022",
+        highlights: ([Dhear córas Kafka don eagraíocht.],),
+      ),
+    ),
+    languages: (
+      (language: "Gaeilge",  fluency: "Native"),
+      (language: "Béarla",   fluency: "Native"),
+      (language: "Français", rating: 3),
+      (language: "Español",  rating: 2.5),
     ),
   ),
-  work: (
-    (
-      name: "Müller & Söhne AG",
-      position: "Senior Engineer",
-      location: "Zürich, Schweiz",
-      startDate: "Jan 2022",
-      highlights: ([Entwarf ein ereignisgesteuertes System mit Kafka.],),
-    ),
+  labels: (
+    experience: "Taithí Oibre",
+    languages:  "Teangacha",
+    present:    "I láthair",
   ),
-  languages: (
-    (language: "Deutsch",    fluency: "Native"),
-    (language: "Français",   rating: 4),
-    (language: "Português",  rating: 2.5),
-  ),
-))
+)

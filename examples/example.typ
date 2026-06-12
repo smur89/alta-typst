@@ -9,21 +9,21 @@
 
 #let cv = (
   basics: (
-    name: "Jane Doe",
+    name: "Seán Ó Murchú",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
       distributed, event-driven systems. Specialises in functional
       programming, observability, and developer experience.
     ],
-    email: "jane@example.com",
+    email: "sean@example.com",
     phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
+    location: "Tallaght, Dublin",
     image: read("avatar-placeholder.svg", encoding: none),
     profiles: (
-      (network: "LinkedIn", username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
-      (network: "GitHub",   username: "janedoe",     url: "https://github.com/janedoe"),
-      (network: "Website",  username: "janedoe.dev", url: "https://janedoe.dev"),
+      (network: "LinkedIn", username: "seanomurchu",     url: "https://linkedin.com/in/seanomurchu"),
+      (network: "GitHub",   username: "seanomurchu",     url: "https://github.com/seanomurchu"),
+      (network: "Website",  username: "seanomurchu.dev", url: "https://seanomurchu.dev"),
     ),
   ),
 
