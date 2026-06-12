@@ -122,13 +122,14 @@ Each `work[]` entry follows JSON Resume's schema. Practical subset supported:
 
 ### Awards
 
-Each `awards[]` entry follows JSON Resume's schema:
+Each `awards[]` entry follows JSON Resume's schema, plus a `url` extension:
 
 | Field | Type | Effect |
 |---|---|---|
-| `title` | string | Award name. Rendered as the entry heading. Entries with missing or empty `title` are silently skipped. |
+| `title` | string | Award name. Rendered as the entry heading; linked to `url` when supplied. Entries with missing or empty `title` are silently skipped. |
 | `awarder` | string | Granting organisation, rendered in the accent colour beneath the title (same treatment as `education[].institution`). |
 | `date` | string | Single date (not a range). Renders via the calendar-icon row. |
+| `url` | string | If supplied, wraps the title in an accent-coloured link. Not in the JSON Resume spec — an altacv extension for linking to a paper, conference page, or write-up. |
 | `summary` | string or content | Short description, rendered as a paragraph below the date. Pass `[...]` content (e.g. `[For _Idempotent Kafka Consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
 
 ### Projects
