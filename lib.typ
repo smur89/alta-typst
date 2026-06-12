@@ -398,13 +398,19 @@
   basics,
   image-size: 6em,
   image-position: "right",
+  image-stack-order: "above",
   header-text-align: "left",
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
 ) = {
-  if image-position not in ("left", "right") {
-    panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
+  if image-position not in ("left", "right", "center") {
+    panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
+  }
+  // Only meaningful when image-position == "center"; validated unconditionally
+  // so a typo surfaces even if the caller later flips the position.
+  if image-stack-order not in ("above", "below") {
+    panic("imageStackOrder must be \"above\" or \"below\", got: " + repr(image-stack-order))
   }
   let text-align = (
     if header-text-align == "left" { left }
@@ -559,7 +565,7 @@
           photo,
           header-text,
         )
-      } else {
+      } else if image-position == "right" {
         grid(
           columns: (1fr, auto),
           align: top,
@@ -567,6 +573,23 @@
           header-text,
           photo,
         )
+      } else {
+        // Centred: stack the photo on its own row above or below the
+        // text block. `header-text` already honours `headerTextAlign`,
+        // so wrapping the photo in `align(center, ...)` is enough to
+        // place it on the page's centre axis regardless of how the
+        // text below/above it is aligned.
+        let centred-photo = block(
+          spacing: 0.8 * body-size,
+          align(center, photo),
+        )
+        if image-stack-order == "above" {
+          centred-photo
+          header-text
+        } else {
+          header-text
+          centred-photo
+        }
       }
     } else {
       header-text
@@ -875,6 +898,9 @@
   // rather than producing a dead link.
   mapsProvider: maps-providers.google,
   imagePosition: "right",
+  // Only consulted when `imagePosition` is "center" — chooses whether
+  // the centred portrait stacks above or below the header text block.
+  imageStackOrder: "above",
   headerTextAlign: "left",
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
@@ -972,6 +998,7 @@
     cv.basics,
     image-size: preferences.imageSize,
     image-position: preferences.imagePosition,
+    image-stack-order: preferences.imageStackOrder,
     header-text-align: preferences.headerTextAlign,
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
