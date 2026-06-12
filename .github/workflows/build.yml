@@ -44,6 +44,18 @@ jobs:
       - name: Compile example + test fixtures
         run: make test
 
+      # Re-render every fixture under examples/tests/ and fail if any
+      # committed PDF is out of date. Keeps the visible reference in
+      # lockstep with the .typ source.
+      - name: Verify examples/tests/*.pdf are in sync
+        run: |
+          make test-pdfs
+          if ! git diff --quiet --exit-code -- examples/tests; then
+            echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
+            git --no-pager diff --stat -- examples/tests
+            exit 1
+          fi
+
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and
   # inspect the rendered output without checking it out locally.
@@ -69,14 +81,24 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Build example.pdf + preview.png
-        run: make example
+      - name: Build example.pdf + example_full.pdf + preview.png
+        run: |
+          make example
+          typst compile --root . examples/example_full.typ examples/example_full.pdf
 
       - name: Upload example.pdf
         uses: actions/upload-artifact@v7
         with:
           name: example-pdf
           path: examples/example.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload example_full.pdf
+        uses: actions/upload-artifact@v7
+        with:
+          name: example-full-pdf
+          path: examples/example_full.pdf
           retention-days: 30
           if-no-files-found: error
 

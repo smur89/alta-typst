@@ -5,14 +5,18 @@
 target/
 
 # Generated example outputs.
-# - `examples/example.pdf` is a transient one-page render; CI rebuilds
-#   it on every push and attaches it to releases, so it stays out of
-#   git to avoid binary churn.
-# - `examples/example_full.pdf` and `examples/preview.png` are tracked
-#   (not listed here) so the multi-page demo and the README image
-#   resolve immediately on GitHub and Typst Universe without needing
-#   a local rebuild.
+# - `examples/example.pdf` and `examples/example_full.pdf` are transient
+#   demo renders that CI rebuilds on every push (attached as workflow
+#   artifacts + release assets), so they stay out of git to avoid
+#   binary churn.
+# - `examples/preview.png` is tracked (not listed here) so the README
+#   image resolves immediately on GitHub and Typst Universe without
+#   needing a local rebuild.
+# - `examples/tests/*.pdf` is tracked too — one rendered PDF per
+#   `tests/*.typ` fixture as a visible reference for each permutation
+#   of the template's output.
 examples/example.pdf
+examples/example_full.pdf
 examples/preview-*.png
 
 # Editor / IDE
