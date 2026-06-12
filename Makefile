@@ -41,13 +41,18 @@ previews: $(PNGS)
 # visible reference for each permutation of the template's output.
 # The PDFs are tracked in git so reviewers can browse the rendered
 # fixtures without a local rebuild.
+#
+# `--creation-timestamp 0` pins the PDF's CreationDate metadata so
+# repeated builds of the same source produce byte-identical output.
+# Without this, every rebuild changes the PDF (timestamp drift),
+# which would defeat the CI drift check in `.github/workflows/build.yml`.
 test-pdfs: $(TEST_PDFS)
 
 examples/tests:
 	mkdir -p $@
 
 examples/tests/%.pdf: tests/%.typ | examples/tests
-	$(TYPST) compile --root $(ROOT) $< $@
+	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ
