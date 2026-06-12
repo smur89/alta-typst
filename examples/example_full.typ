@@ -19,14 +19,14 @@
 
 #let cv = (
   basics: (
-    name: "Seán Ó Murchú",
+    name: "Shane Murphy",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
       distributed, event-driven systems. Specialises in functional
       programming, observability, and developer experience.
     ],
-    email: "sean@example.com",
+    email: "shane@example.com",
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     image: read("avatar-placeholder.svg", encoding: none),
@@ -34,15 +34,15 @@
     // visual sweep. `Link` is the generic-URL fallback; `X` is the
     // alias for Twitter.
     profiles: (
-      (network: "LinkedIn",      username: "seanomurchu",     url: "https://linkedin.com/in/seanomurchu"),
-      (network: "GitHub",        username: "seanomurchu",     url: "https://github.com/seanomurchu"),
-      (network: "GitLab",        username: "seanomurchu",     url: "https://gitlab.com/seanomurchu"),
-      (network: "Bluesky",       username: "@seanomurchu",    url: "https://bsky.app/profile/seanomurchu"),
-      (network: "Mastodon",      username: "@sean@fosstodon.org", url: "https://fosstodon.org/@sean"),
-      (network: "Medium",        username: "@seanomurchu",    url: "https://medium.com/@seanomurchu"),
-      (network: "Stackoverflow", username: "seanomurchu",     url: "https://stackoverflow.com/u/1"),
-      (network: "X",             username: "@seanomurchu",    url: "https://x.com/seanomurchu"),
-      (network: "Website",       username: "seanomurchu.dev", url: "https://seanomurchu.dev"),
+      (network: "LinkedIn",      username: "shanemurphy",     url: "https://linkedin.com/in/shanemurphy"),
+      (network: "GitHub",        username: "shanemurphy",     url: "https://github.com/shanemurphy"),
+      (network: "GitLab",        username: "shanemurphy",     url: "https://gitlab.com/shanemurphy"),
+      (network: "Bluesky",       username: "@shanemurphy",    url: "https://bsky.app/profile/shanemurphy"),
+      (network: "Mastodon",      username: "@shane@fosstodon.org", url: "https://fosstodon.org/@shane"),
+      (network: "Medium",        username: "@shanemurphy",    url: "https://medium.com/@shanemurphy"),
+      (network: "Stackoverflow", username: "shanemurphy",     url: "https://stackoverflow.com/u/1"),
+      (network: "X",             username: "@shanemurphy",    url: "https://x.com/shanemurphy"),
+      (network: "Website",       username: "shanemurphy.dev", url: "https://shanemurphy.dev"),
       (network: "Link",          username: "talk recording",  url: "https://example.com/talk"),
     ),
   ),
@@ -57,7 +57,7 @@
   work: (
     (
       // Ongoing role — `endDate` omitted → renders as "Present".
-      name: "Spire Software",
+      name: "Acme Corp",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
       startDate: "Jan 2022",
@@ -152,7 +152,7 @@
       description: "Distributed task scheduler in Rust",
       startDate: "Jan 2024",
       endDate: "Aug 2024",
-      url: "https://github.com/seanomurchu/hyperion",
+      url: "https://github.com/shanemurphy/hyperion",
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
         [Handled 10k tasks/s on a single node.],
