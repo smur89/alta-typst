@@ -6,21 +6,26 @@ Thanks for taking the time to look. This project is small enough that almost any
 
 Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. The `Lato` font must be installed for the example to render correctly.
 
-Compile the example and the fixtures locally:
+Most everyday tasks go through the `Makefile`:
 
 ```sh
-set -e
+make            # build every example PDF + the README preview image
+make example    # build examples/example.pdf + examples/preview.png
+make test       # compile every example + fixture (same shape as CI lint)
+make clean      # remove generated PDFs and PNGs
+make help       # list every target
+```
+
+`make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/preview.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+
+If you'd rather drive Typst directly, the manual incantations are:
+
+```sh
 typst compile --root . examples/example.typ examples/example.pdf
 for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
 ```
 
 `--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
-
-If your change is visual, also regenerate the preview to eyeball it:
-
-```sh
-typst compile --root . --format png --ppi 150 examples/example.typ 'examples/preview-{p}.png'
-```
 
 CI runs the same compile sweep on every PR and uploads `example-pdf` and `preview-png` artifacts, so reviewers can see your output without checking out locally.
 
