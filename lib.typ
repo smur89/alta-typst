@@ -36,6 +36,15 @@
 // rest fall back to these defaults. Allows translation (Spanish,
 // French, German, ...) or local renaming (e.g. "Experience" →
 // "Work History") without forking the template.
+//
+// Label keys vs section keys: most label keys match the corresponding
+// section key in `_sections` one-to-one, with two intentional renames:
+//   - section `work`          → label `experience`
+//   - section `certificates`  → label `certifications`
+// The label key is the **rendered heading**; the section key is the
+// **data field on the cv dict**. The split lets callers say e.g.
+//   labels: (experience: "Berufserfahrung")
+// without having to know that the underlying data field is `work`.
 #let _default_labels = (
   experience: "Experience",
   focusAreas: "Areas of Focus",
@@ -393,6 +402,7 @@
   header-text-align: "left",
   link-contact-info: true,
   maps-provider: maps-providers.google,
+  uppercase-name: true,
 ) = {
   if image-position not in ("left", "right") {
     panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
@@ -417,7 +427,12 @@
       block(
         spacing: 0pt,
         below: 1.2 * body-size,
-        text(2.5 * body-size, fill: accent, weight: "bold", upper(basics.name)),
+        text(
+          2.5 * body-size,
+          fill: accent,
+          weight: "bold",
+          if uppercase-name { upper(basics.name) } else { basics.name },
+        ),
       )
 
       if "label" in basics and basics.label != none {
@@ -500,7 +515,9 @@
     })
 
     let image-src = basics.at("image", default: none)
-    let has-image = image-src != none and image-src != "" and image-src != bytes(())
+    // `bytes` carries `len()`; strings have `len()` too. An empty path
+    // ("") or empty bytes both report 0 and shouldn't render a frame.
+    let has-image = image-src != none and image-src.len() > 0
     if has-image {
       // Two-column layout: portrait sits in its `auto` column, text
       // fills the remaining `1fr`. Swapping the column order moves
@@ -828,8 +845,9 @@
   // `basics.image` is absent.
   imageSize: 6em,
   // Controls whether contact-bar entries are wrapped in deep links
-  // (mailto: for email, tel: for phone, a Google Maps search URL for
-  // location, the supplied URL for profiles). Accepts either:
+  // (mailto: for email, tel: for phone, the configured maps URL for
+  // location — see `mapsProvider` — and the supplied URL for
+  // profiles). Accepts either:
   //
   //   - a boolean — applies to every channel uniformly:
   //       linkContactInfo: true    (default; everything linked)
@@ -862,6 +880,13 @@
   // photo is on; set "right" or "center" for a mirrored or
   // centred header look.
   headerTextAlign: "left",
+  // When true (the default), `basics.name` renders in uppercase —
+  // matching AltaCV's visual ancestor. Set to false to render the
+  // name as supplied; useful for scripts where uppercase is a
+  // different glyph set (Turkish dotless-i; many South / East Asian
+  // scripts that have no case at all) or simply when the loud
+  // uppercase look isn't desired.
+  uppercaseName: true,
   // Left-column width as a fraction of the page (between 0 and 1
   // exclusive). The right column gets the remainder minus a fixed
   // gutter. Default (0.64) gives the historic experience-left /
@@ -894,11 +919,8 @@
 //                 the rest fall back to _default_labels.
 //   preferences — partial dict of theme / font / layout / behaviour
 //                 toggles. Supply only the keys you want to change;
-//                 the rest fall back to _default_preferences. See
-//                 that dict for the full set: font, bodySize, paper,
-//                 margin, accent, groupCertificates, imageSize,
-//                 imagePosition, headerTextAlign, columnRatio,
-//                 leftColumnSections, rightColumnSections.
+//                 the rest fall back to _default_preferences (see
+//                 that dict for the full set, with per-key docs).
 #let alta(
   cv,
   labels: (:),
@@ -972,6 +994,7 @@
     header-text-align: preferences.headerTextAlign,
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
+    uppercase-name: preferences.uppercaseName,
   )
   _summary(cv.basics)
 

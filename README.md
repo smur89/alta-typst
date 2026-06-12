@@ -77,6 +77,8 @@ Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`
 
 JSON Resume keys **not yet rendered** by this template: `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `volunteer`, `references`, `meta`, `basics.url`. Track or upvote feature requests on the issue tracker if you need any of them.
 
+`basics.location` is treated as a plain string (the value flows verbatim into the contact bar and the maps deep link). JSON Resume's schema defines it as a structured object `{address, postalCode, city, countryCode, region}` — that shape isn't accepted yet; flatten to a single string at the call site.
+
 ### Portrait (`basics.image`)
 
 Setting `basics.image` adds a circular portrait to the top-right of the header. Two ways to supply the source:
@@ -157,7 +159,8 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 | `imagePosition` | `"right"` | Side of the header the portrait sits on — `"left"` or `"right"`. Ignored when no image is supplied. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
-| `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, Google Maps for location, supplied URL for profiles). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
+| `uppercaseName` | `true` | When `true` (the default — matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` to render the name as supplied. Useful for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts that have no case at all, or simply when the loud uppercase look isn't wanted. |
+| `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, supplied URL for profiles). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
 | `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
@@ -263,7 +266,7 @@ The template also exports lower-level helpers for callers who want to compose cu
 #import "@preview/altacv:0.3.3": tag, divider // x-release-please-version
 ```
 
-The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), and a Google Maps search URL for location. These are not currently configurable; if you need to suppress them or swap providers, please open a feature request.
+The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), and the configured maps URL for location. Suppress or swap any of them via `preferences.linkContactInfo` and `preferences.mapsProvider` above.
 
 ## Building the example
 
