@@ -661,6 +661,7 @@
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
+  anonymous: false,
 ) = {
   if image-position not in ("left", "right", "center") {
     panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
@@ -687,16 +688,21 @@
     let accent = _accent_state.get()
 
     let header-text = align(text-align, {
-      block(
-        spacing: 0pt,
-        below: 1.2 * body-size,
-        text(
-          2.5 * body-size,
-          fill: accent,
-          weight: "bold",
-          if uppercase-name { upper(basics.name) } else { basics.name },
-        ),
-      )
+      // Anonymous mode skips the name block entirely — the label
+      // (when present) becomes the sole header line, so role-relevant
+      // signal survives while identifying detail is dropped.
+      if not anonymous {
+        block(
+          spacing: 0pt,
+          below: 1.2 * body-size,
+          text(
+            2.5 * body-size,
+            fill: accent,
+            weight: "bold",
+            if uppercase-name { upper(basics.name) } else { basics.name },
+          ),
+        )
+      }
 
       if "label" in basics and basics.label != none {
         block(
@@ -709,71 +715,77 @@
       set text(0.8 * body-size, weight: "bold")
       let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
 
+      // Anonymous mode suppresses the contact bar wholesale — every
+      // channel (email, phone, location, url, profiles) carries
+      // identifying signal, so the safe default is to drop them all
+      // rather than pick winners.
       let entries = ()
-      let email = basics.at("email", default: none)
-      if email != none {
-        entries.push((
-          channel: "email",
-          icon: "email",
-          value: email,
-          url: "mailto:" + email,
-        ))
-      }
-      let phone = basics.at("phone", default: none)
-      if phone != none {
-        // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
-        // from the dialable URI; the displayed value keeps them intact.
-        let dialable = phone.replace(regex("[\s()\-.]"), "")
-        entries.push((
-          channel: "phone",
-          icon: "phone",
-          value: phone,
-          url: "tel:" + dialable,
-        ))
-      }
-      // `_format_location` collapses the JSON Resume dict form
-      // `{address, postalCode, city, countryCode, region}` to a
-      // single line, leaves an already-flat string untouched, and
-      // returns `none` when every relevant field is empty. Both the
-      // display value and the maps deep link are fed from the same
-      // result so they cannot drift.
-      let location = _format_location(basics.at("location", default: none))
-      if location != none {
-        let url = if maps-provider == none { none } else {
-          maps-provider.replace("{q}", _url_encode(location))
+      if not anonymous {
+        let email = basics.at("email", default: none)
+        if email != none {
+          entries.push((
+            channel: "email",
+            icon: "email",
+            value: email,
+            url: "mailto:" + email,
+          ))
         }
-        entries.push((
-          channel: "location",
-          icon: "location",
-          value: location,
-          url: url,
-        ))
-      }
-      let url = basics.at("url", default: none)
-      if url != none {
-        entries.push((
-          channel: "url",
-          icon: "link",
-          value: url,
-          url: url,
-        ))
-      }
-      for profile in basics.at("profiles", default: ()) {
-        let raw = lower(profile.network)
-        let network = _network_aliases.at(raw, default: raw)
-        if network not in _profile_networks {
-          panic(
-            "Unknown profile network: " + repr(profile.network)
-              + ". Supported: " + _profile_networks.join(", ")
-              + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources.",
-          )
+        let phone = basics.at("phone", default: none)
+        if phone != none {
+          // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
+          // from the dialable URI; the displayed value keeps them intact.
+          let dialable = phone.replace(regex("[\s()\-.]"), "")
+          entries.push((
+            channel: "phone",
+            icon: "phone",
+            value: phone,
+            url: "tel:" + dialable,
+          ))
         }
-        entries.push((
-          channel: "profiles",
-          icon: network,
-          value: profile.at("username", default: profile.at("url", default: "")),
-          url: profile.url,
-        ))
+        // `_format_location` collapses the JSON Resume dict form
+        // `{address, postalCode, city, countryCode, region}` to a
+        // single line, leaves an already-flat string untouched, and
+        // returns `none` when every relevant field is empty. Both the
+        // display value and the maps deep link are fed from the same
+        // result so they cannot drift.
+        let location = _format_location(basics.at("location", default: none))
+        if location != none {
+          let url = if maps-provider == none { none } else {
+            maps-provider.replace("{q}", _url_encode(location))
+          }
+          entries.push((
+            channel: "location",
+            icon: "location",
+            value: location,
+            url: url,
+          ))
+        }
+        let url = basics.at("url", default: none)
+        if url != none {
+          entries.push((
+            channel: "url",
+            icon: "link",
+            value: url,
+            url: url,
+          ))
+        }
+        for profile in basics.at("profiles", default: ()) {
+          let raw = lower(profile.network)
+          let network = _network_aliases.at(raw, default: raw)
+          if network not in _profile_networks {
+            panic(
+              "Unknown profile network: " + repr(profile.network)
+                + ". Supported: " + _profile_networks.join(", ")
+                + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources.",
+            )
+          }
+          entries.push((
+            channel: "profiles",
+            icon: network,
+            value: profile.at("username", default: profile.at("url", default: "")),
+            url: profile.url,
+          ))
+        }
       }
 
       // Each entry is wrapped in `box(...)` so the icon and its
@@ -800,11 +812,13 @@
     // Anything else panics with a clear message instead of falling
     // through to a cryptic `image()` failure or — worse — silently
     // dropping the photo (which is what an empty array would do under
-    // a bare `.len()` check).
+    // a bare `.len()` check). Anonymous mode forces the portrait off
+    // even when `basics.image` is supplied — validation still runs so
+    // a malformed value can't slip through unnoticed via the flag.
     let has-image = if image-src == none {
       false
     } else if type(image-src) in (str, bytes) {
-      image-src.len() > 0
+      not anonymous and image-src.len() > 0
     } else {
       panic(
         "basics.image must be a string path or bytes, got: " + repr(image-src),
@@ -1349,6 +1363,12 @@
   //   "iso"   — passthrough of the original string
   //   closure — (parts) -> str, where parts is (year, month?, day?)
   dateFormat: "long",
+  // Blind-review mode: redacts name, photo, and contact bar from the
+  // rendered header, and overrides PDF metadata `author` with a
+  // generic placeholder so the document itself doesn't leak identity.
+  // The label (e.g. "Senior Software Engineer") still renders, as do
+  // all other sections — only the identifying header surface is dropped.
+  anonymous: false,
   // Fraction in (0, 1] (validated in alta()). Use the complement
   // (`1 - r`) and swap the column-section arrays to invert the layout;
   // exactly 1 collapses the grid to a single full-width column.
@@ -1452,6 +1472,11 @@
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
   }
+  if type(preferences.anonymous) != bool {
+    panic(
+      "anonymous must be a bool, got: " + repr(preferences.anonymous),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -1464,15 +1489,25 @@
   // rejects `none` for `date`, and emitting empty strings for
   // `description` / `keywords` would still write a present-but-empty
   // entry.
+  //
+  // `uppercaseName` is purely visual — PDF metadata stays canonical.
+  //
+  // `anonymous` flips the title and author into generic placeholders
+  // and suppresses the keyword / description fields so the file itself
+  // can't unmask the candidate via its metadata (a blind reviewer who
+  // saved the PDF would otherwise see the real name in their reader's
+  // "document properties" pane, and the description / keywords would
+  // surface basics.summary and the skill keywords verbatim).
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
   let doc-date = _iso_datetime(last-modified-raw)
-  let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
-  let doc-description = cv.basics.at("summary", default: none)
+  let doc-title = if preferences.anonymous { "Candidate --- CV" } else { cv.basics.name + " --- CV" }
+  let doc-author = if preferences.anonymous { "Candidate" } else { cv.basics.name }
+  let doc-keywords = if preferences.anonymous { () } else { _collect_keywords(cv.at("skills", default: ())) }
+  let doc-description = if preferences.anonymous { none } else { cv.basics.at("summary", default: none) }
   set document(
-    // `uppercaseName` is purely visual — PDF metadata stays canonical.
-    title: cv.basics.name + " --- CV",
-    author: cv.basics.name,
+    title: doc-title,
+    author: doc-author,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
     ..(if _present(doc-description) { (description: doc-description) } else { (:) }),
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
@@ -1546,6 +1581,7 @@
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
     uppercase-name: preferences.uppercaseName,
+    anonymous: preferences.anonymous,
   )
   _summary(cv.basics)
 
