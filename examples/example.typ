@@ -104,6 +104,7 @@
   education: (
     (
       institution: "Example University",
+      url: "https://example.edu",
       studyType: "M.Sc. in Computer Science",
       startDate: "2017",
       endDate: "2019",
@@ -111,6 +112,7 @@
     ),
     (
       institution: "Example University",
+      url: "https://example.edu",
       studyType: "B.Sc. in Computer Science",
       startDate: "2014",
       endDate: "2017",
