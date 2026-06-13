@@ -1,7 +1,7 @@
 // JSON Resume `awards` section. Each entry has an optional date,
-// awarder, and summary. Fixture covers: full entry, no-summary entry,
-// no-date entry, title-only minimal, and skip cases (missing title
-// and explicit `title: none`).
+// awarder, summary, and url (altacv extension). Fixture covers: full
+// entry with url, no-summary entry, no-date entry, title-only minimal,
+// and skip cases (missing title and explicit `title: none`).
 
 #import "../lib.typ": alta
 
@@ -12,6 +12,9 @@
       title: "Best Paper Award",
       date: "Sep 2024",
       awarder: "ScalaConf",
+      // `url` is an altacv extension — wraps the title in an
+      // accent-coloured link, same as `projects[].url`.
+      url: "https://example.com/best-paper",
       // Content-form summary so markup (emphasis) renders, not just
       // plain text. Mirrors the way `basics.summary` accepts content.
       summary: [For _Idempotent Kafka Consumers_.],
