@@ -73,11 +73,11 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`. Any section with empty input is skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`. Any section with empty input is skipped — no orphan headings.
 
 `basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
 
-JSON Resume keys **not yet rendered** by this template: `volunteer`, `references`, `meta`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume keys **not yet rendered** by this template: `references`, `meta`. Track or upvote feature requests on the issue tracker if you need any of them.
 
 `basics.location` accepts either a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed to a single line by joining the CV-relevant subset — `city`, `region`, `countryCode` — with `", "`, skipping any field that's missing or empty (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` renders as `Dublin, Leinster, IE`, and `(city: "Tokyo")` renders as `Tokyo`). `address` and `postalCode` are accepted (so a verbatim `resume.json` dict round-trips without panicking) but not rendered — a CV header isn't a mailing label. The same joined string also drives the maps deep link, so display and link stay in sync. Unknown keys panic. If you need the legacy verbatim behaviour for a value that doesn't fit the dict shape, pass it as a string.
 
@@ -146,6 +146,22 @@ Each `projects[]` entry follows JSON Resume's schema. Practical subset supported
 
 `entity`, `type`, and `roles` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
 
+### Volunteer
+
+Each `volunteer[]` entry follows JSON Resume's schema — the same shape as `work[]`, but with `organization` in place of `name`:
+
+| Field | Type | Effect |
+|---|---|---|
+| `position` | string | Role title. Rendered as the entry heading. |
+| `organization` | string | Granting organisation, rendered in the accent colour beneath the position (same treatment as `work[].name`). |
+| `location` | string | Optional location, rendered next to the date range. |
+| `startDate` / `endDate` | string | Date range, same conventions as `work` entries (omit `endDate` → "Present"). |
+| `highlights` | array of content | Bulleted list of accomplishments / contributions. |
+
+`summary` and `url` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
+
+By default `volunteer` renders in the left column directly below `work`, so volunteering reads as a continuation of the experience block. Move it to the right column (or reorder it within the left) via `preferences.leftColumnSections` / `preferences.rightColumnSections` like any other section.
+
 ### Education
 
 Each `education[]` entry follows JSON Resume's schema. Practical subset supported:
@@ -209,10 +225,10 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
-| `leftColumnSections` | `("work",)` | Sections to render in the left column, in order. |
+| `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. |
 
-Both column arrays draw from the same set of section keys: `"work"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
+Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
 
 Section renderers are width-agnostic — they fill whichever column they end up in. Combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column and the experience block spans a wider right column.
 
@@ -270,6 +286,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | Key | Default |
 |---|---|
 | `work` | `"Experience"` |
+| `volunteer` | `"Volunteer"` |
 | `focusAreas` | `"Areas of Focus"` |
 | `skills` | `"Skills"` |
 | `languages` | `"Languages"` |
