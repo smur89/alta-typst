@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0](https://github.com/smur89/alta-typst/compare/v1.0.0...v1.1.0) (2026-06-13)
+
+
+### Features
+
+* accept basics.location structured form ([#73](https://github.com/smur89/alta-typst/issues/73)) ([f7235b2](https://github.com/smur89/alta-typst/commit/f7235b25b2ca9da696bdd353c3c02610957bc4a1))
+* link education[].institution via education[].url ([#77](https://github.com/smur89/alta-typst/issues/77)) ([b2966b8](https://github.com/smur89/alta-typst/commit/b2966b8d285d8210b44bdaa6dc13a1b31031f2ee))
+* render basics.url in contact bar ([#75](https://github.com/smur89/alta-typst/issues/75)) ([3133548](https://github.com/smur89/alta-typst/commit/3133548e0e6868cd2eebf18348d6c0945e524e1f))
+* render work[].summary (and work[].description) ([#82](https://github.com/smur89/alta-typst/issues/82)) ([028a3c2](https://github.com/smur89/alta-typst/commit/028a3c2eb65251c62eb557b958690d439c1c1af5))
+
 ## [1.0.0](https://github.com/smur89/alta-typst/compare/v0.3.3...v1.0.0) (2026-06-12)
 
 
