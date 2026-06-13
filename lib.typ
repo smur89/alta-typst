@@ -795,14 +795,15 @@
 }
 
 // Small body-coloured inline date emitted immediately to the right of
-// the pill — mirrors publications' release-date colour. A tight
-// leading gap keeps the date snug to its pill; a larger trailing gap
-// separates the pair from the next pill in the row.
+// the pill — mirrors publications' release-date colour. The leading
+// gap matches `tag()`'s inter-pill gap (`0.25 * body-size`) so the
+// date sits with the same rhythm as other adjacent pills would; a
+// larger trailing gap separates the pair from the next pill.
 #let _cert_date(date) = context {
   let body-size = _body_size_state.get()
-  h(0.1 * body-size)
-  text(0.85 * body-size, fill: _body_colour.lighten(35%), date)
   h(0.25 * body-size)
+  text(0.85 * body-size, fill: _body_colour.lighten(35%), date)
+  h(0.5 * body-size)
 }
 
 #let _certificates(certs, labels, group: true) = {
