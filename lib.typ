@@ -850,8 +850,10 @@
           #let date = pub.at("releaseDate", default: none)
           #let url = pub.at("url", default: none)
           #let title = pub.at("name", default: "")
+          #let summary = pub.at("summary", default: none)
           - #if date != none [#text(0.8 * body-size, fill: _body_colour.lighten(35%), date) \ ]
             #if url != none { styled-link(url, title) } else { emph(title) }.
+            #if _present(summary) [\ #par(summary)]
         ]
       ]
     ]
