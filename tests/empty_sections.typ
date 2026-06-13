@@ -7,6 +7,7 @@
   basics: (name: "Jane Doe", email: "jane@example.com"),
   focusAreas: (),
   work: (),
+  volunteer: (),
   skills: (),
   languages: (),
   education: (),

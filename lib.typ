@@ -25,6 +25,7 @@
 // "Certifications" than "Certificates".
 #let _default_labels = (
   work: "Experience",
+  volunteer: "Volunteer",
   focusAreas: "Areas of Focus",
   skills: "Skills",
   languages: "Languages",
@@ -398,13 +399,19 @@
   basics,
   image-size: 6em,
   image-position: "right",
+  image-stack-order: "above",
   header-text-align: "left",
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
 ) = {
-  if image-position not in ("left", "right") {
-    panic("imagePosition must be \"left\" or \"right\", got: " + repr(image-position))
+  if image-position not in ("left", "right", "center") {
+    panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
+  }
+  // Only meaningful when image-position == "center"; validated unconditionally
+  // so a typo surfaces even if the caller later flips the position.
+  if image-stack-order not in ("above", "below") {
+    panic("imageStackOrder must be \"above\" or \"below\", got: " + repr(image-stack-order))
   }
   let text-align = (
     if header-text-align == "left" { left }
@@ -559,7 +566,7 @@
           photo,
           header-text,
         )
-      } else {
+      } else if image-position == "right" {
         grid(
           columns: (1fr, auto),
           align: top,
@@ -567,6 +574,23 @@
           header-text,
           photo,
         )
+      } else {
+        // Centred: stack the photo on its own row above or below the
+        // text block. `header-text` already honours `headerTextAlign`,
+        // so wrapping the photo in `align(center, ...)` is enough to
+        // place it on the page's centre axis regardless of how the
+        // text below/above it is aligned.
+        let centred-photo = block(
+          spacing: 0.8 * body-size,
+          align(center, photo),
+        )
+        if image-stack-order == "above" {
+          centred-photo
+          header-text
+        } else {
+          header-text
+          centred-photo
+        }
       }
     } else {
       header-text
@@ -594,7 +618,12 @@
   #_join_with_dividers(work, job => [
     #block(breakable: false)[
       === #job.position
-      #name[#job.name]
+      // `link()` inherits the surrounding bold + accent from `name()`,
+      // so the company stays visually identical to the unlinked case
+      // and just gains click behaviour. `styled-link` would impose the
+      // italic / underline treatment used for publication titles.
+      #let url = job.at("url", default: none)
+      #name[#if url != none { link(url, job.name) } else { job.name }]
       #term(_format_date_range(job, labels), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
@@ -606,6 +635,25 @@
         #emph(preamble)
       ]
       #for bullet in job.at("highlights", default: ()) [- #bullet]
+    ]
+  ])
+]
+
+// JSON Resume `volunteer[]` mirrors `work[]` shape, but uses
+// `organization` where work uses `name`. Renderer is otherwise
+// identical to `_experience`: position heading, accent-coloured
+// organisation line, optional date range + location, bulleted
+// highlights.
+#let _volunteer(entries, labels) = if entries.len() > 0 [
+  == #labels.volunteer
+
+  #_join_with_dividers(entries, entry => [
+    #block(breakable: false)[
+      === #entry.position
+      #name[#entry.at("organization", default: "")]
+      #term(_format_date_range(entry, labels), location: entry.at("location", default: none))
+
+      #for bullet in entry.at("highlights", default: ()) [- #bullet]
     ]
   ])
 ]
@@ -673,6 +721,13 @@
       #term(_format_date_range(edu, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
+      // Courses render as pill tags — same treatment as `skills[].keywords`
+      // and `projects[].keywords`, which are the other array-of-strings
+      // surfaces in the template. Empty arrays skip silently.
+      #let courses = edu.at("courses", default: ())
+      #if courses.len() > 0 [
+        #for course in courses [#tag(course)]
+      ]
     ]
   ])
 ]
@@ -810,6 +865,10 @@
     column: "left",
     render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels),
   ),
+  volunteer: (
+    column: "left",
+    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels),
+  ),
   focusAreas: (
     column: "right",
     render: (cv, labels, prefs) => _focus_areas(cv.at("focusAreas", default: ()), labels),
@@ -879,6 +938,9 @@
   // rather than producing a dead link.
   mapsProvider: maps-providers.google,
   imagePosition: "right",
+  // Only consulted when `imagePosition` is "center" — chooses whether
+  // the centred portrait stacks above or below the header text block.
+  imageStackOrder: "above",
   headerTextAlign: "left",
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
@@ -976,6 +1038,7 @@
     cv.basics,
     image-size: preferences.imageSize,
     image-position: preferences.imagePosition,
+    image-stack-order: preferences.imageStackOrder,
     header-text-align: preferences.headerTextAlign,
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
