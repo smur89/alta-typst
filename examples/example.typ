@@ -41,6 +41,8 @@
       location: "Dublin, Ireland",
       startDate: "Jan 2022",
       // endDate omitted → renders as "Present"
+      summary: [Platform team lead. Owns the event-sourcing stack
+        underpinning the wider product surface.],
       highlights: (
         [Led the migration of a customer-facing monolith into a set of
           event-driven microservices, halving p99 latency.],
