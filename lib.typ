@@ -12,6 +12,7 @@
 // State set by alta() at render time and read by helpers below.
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", rgb("#00796B"))
+#let _max_rating_state = state("alta-max-rating", 5)
 
 // Accent is configurable via alta(); the rest are opinionated.
 #let _body_colour = rgb("#666666")
@@ -219,8 +220,9 @@
 //
 // LinkedIn-style fluency strings. Numeric `rating` wins over `fluency`
 // when an entry supplies both, so callers can opt into fractional
-// precision without rewriting their data.
-#let _max_rating = 5
+// precision without rewriting their data. The fluency map is fixed at
+// a 0–5 scale (LinkedIn's); callers using `preferences.maxRating` for a
+// non-5 scale (e.g. CEFR's 6) must pass numeric `rating` values.
 #let _fluency_rating = (
   "Native":               5,
   "Bilingual":            5,
@@ -229,26 +231,21 @@
   "Limited Working":      2,
   "Elementary":           1,
 )
-#let _check_rating(rating) = {
-  if type(rating) not in (int, float) {
-    panic("Rating must be numeric, got: " + repr(rating))
-  }
-  if rating < 0 or rating > _max_rating {
-    panic("Rating out of range: " + repr(rating) + ". Expected 0–" + str(_max_rating) + ".")
-  }
-  rating
-}
+// Resolves an entry to a rating. Type and bounds validation are
+// deferred to `rating()` (which runs inside a `context` block and can
+// read the configured `_max_rating_state`); this function only handles
+// the numeric-vs-fluency dispatch.
 #let _resolve_rating(entry) = {
   // Bound to `value` rather than `rating` so the module-scope public
   // `rating()` helper isn't shadowed inside this function.
   let value = entry.at("rating", default: none)
-  if value != none { return _check_rating(value) }
+  if value != none { return value }
   let fluency = entry.at("fluency", default: none)
   if fluency != none {
     if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
     panic("Unknown fluency level: " + repr(fluency) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
   }
-  panic("Language entry needs either a `rating` (0–" + str(_max_rating) + ") or a `fluency` string.")
+  panic("Language entry needs either a numeric `rating` or a `fluency` string.")
 }
 #let _half_fill(accent) = gradient.linear(
   (accent, 0%),
@@ -259,13 +256,20 @@
 #let rating(label, value) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
+  let max-rating = _max_rating_state.get()
+  if type(value) not in (int, float) {
+    panic("Rating must be numeric, got: " + repr(value))
+  }
+  if value < 0 or value > max-rating {
+    panic("Rating out of range: " + repr(value) + ". Expected 0–" + str(max-rating) + ".")
+  }
   let dot-radius = 0.45 * body-size
   let dot-baseline = -0.25 * body-size
   let dot-spacing = 0.4 * body-size
 
   text(label)
   h(1fr)
-  for i in range(1, _max_rating + 1) {
+  for i in range(1, max-rating + 1) {
     let fill = if value >= i {
       accent
     } else if value > i - 1 {
@@ -274,15 +278,18 @@
       _empty_dot_colour
     }
     box(baseline: dot-baseline, circle(radius: dot-radius, fill: fill))
-    if i != _max_rating { h(dot-spacing) }
+    if i != max-rating { h(dot-spacing) }
   }
   [\ ]
 }
 
 // `label: true` is the category-heading variant (darker fill, bold
 // text) — used to distinguish a group's leading pill from the item
-// pills that follow it on the same row.
-#let tag(body, label: false) = context {
+// pills that follow it on the same row. `trailing: false` suppresses
+// the inter-tag gap that would otherwise sit after the pill; callers
+// composing a row of tags pass `false` on the final one so the row
+// doesn't end on dead horizontal space.
+#let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
   let fill-colour = if label { accent.lighten(70%) } else { accent.lighten(85%) }
@@ -295,7 +302,7 @@
     outset: (y: 0.15 * body-size),
     text(0.85 * body-size, fill: accent.darken(15%), weight: text-weight, body),
   )
-  h(0.25 * body-size)
+  if trailing { h(0.25 * body-size) }
 }
 
 #let divider() = context {
@@ -314,6 +321,14 @@
   for (i, item) in items.enumerate() {
     render(item)
     if i < items.len() - 1 { divider() }
+  }
+}
+
+// Renders a row of tag pills, suppressing the inter-tag gap after the
+// last one so the row doesn't end on dead horizontal space.
+#let _tag_row(items) = {
+  for (i, item) in items.enumerate() {
+    tag(item, trailing: i < items.len() - 1)
   }
 }
 
@@ -684,7 +699,7 @@
         tag(group.name, label: true)
         text("-")
         h(0.25 * body-size)
-        for item in keywords { tag(item) }
+        _tag_row(keywords)
       }))
     }
   }
@@ -767,7 +782,7 @@
   [== #labels.certificates]
   _join_with_dividers(groups, names => block(
     breakable: false,
-    { for n in names [#tag(n)] },
+    _tag_row(names),
   ))
 }
 
@@ -813,10 +828,7 @@
     }
     term(_format_date_range(project, labels))
     for bullet in project.at("highlights", default: ()) [- #bullet]
-    let keywords = project.at("keywords", default: ())
-    if keywords.len() > 0 {
-      for kw in keywords { tag(kw) }
-    }
+    _tag_row(project.at("keywords", default: ()))
   }))
 }
 
@@ -955,6 +967,12 @@
   // from `_sections` so adding a section there places it automatically.
   leftColumnSections: _default_left_column_sections,
   rightColumnSections: _default_right_column_sections,
+  // Number of dots on the language fluency scale. Default 5 matches
+  // LinkedIn's scale (and the built-in `fluency` string map). Override
+  // to suit other scales — CEFR (6: A1–C2), ILR (5), or custom.
+  // Fluency strings remain anchored to LinkedIn's 0–5 scale, so callers
+  // using a non-5 maxRating must supply numeric `rating` values.
+  maxRating: 5,
 )
 
 // ─── Main template ───────────────────────────────────────────────────
@@ -995,10 +1013,15 @@
       "uppercaseName must be a bool, got: " + repr(preferences.uppercaseName),
     )
   }
+  let max-rating = preferences.maxRating
+  if type(max-rating) != int or max-rating < 1 {
+    panic("maxRating must be a positive integer, got: " + repr(max-rating))
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
+  _max_rating_state.update(max-rating)
 
   // `uppercaseName` is purely visual — PDF metadata stays canonical.
   set document(title: cv.basics.name + " --- CV", author: cv.basics.name)
