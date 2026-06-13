@@ -353,7 +353,14 @@
   let m = s.match(regex("^(\d{4})-(\d{2})-(\d{2})"))
   if m == none { return none }
   let (y, mo, d) = m.captures.map(int)
-  if mo < 1 or mo > 12 or d < 1 or d > 31 { return none }
+  if mo < 1 or mo > 12 or d < 1 { return none }
+  // Reject calendar-invalid days *before* calling datetime(), which
+  // panics (unrecoverably) on e.g. Feb 31 or Feb 29 in a non-leap
+  // year. Falling back to `none` here lets the caller drop the field
+  // and use compile time, matching the documented behaviour.
+  let is-leap = calc.rem(y, 4) == 0 and (calc.rem(y, 100) != 0 or calc.rem(y, 400) == 0)
+  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  if d > days-in-month.at(mo - 1) { return none }
   datetime(year: y, month: mo, day: d)
 }
 
