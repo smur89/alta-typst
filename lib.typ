@@ -62,6 +62,44 @@
   defaults + overrides
 }
 
+// JSON Resume defines `basics.location` as a structured dict —
+// `{address, postalCode, city, countryCode, region}`. The CV header
+// wants a single line, not five fields, so the dict form is collapsed
+// into a string by joining the CV-relevant subset (`city`, `region`,
+// `countryCode`) with ", ", skipping any field that's missing or
+// empty. `address` and `postalCode` are accepted (so a verbatim
+// `resume.json` dict round-trips without panicking) but not rendered
+// — a CV header isn't a mailing label.
+//
+// The resulting string drives both the displayed text and the maps
+// deep link, so the link target stays consistent with what the reader
+// sees. Unknown keys panic to surface typos.
+#let _location_fields = ("address", "postalCode", "city", "countryCode", "region")
+#let _location_display_order = ("city", "region", "countryCode")
+#let _format_location(value) = {
+  if value == none { return none }
+  if type(value) == str { return value }
+  if type(value) != dictionary {
+    panic(
+      "basics.location must be a string or a dict matching JSON Resume's"
+        + " {address, postalCode, city, countryCode, region}, got: " + repr(value),
+    )
+  }
+  let unknown = value.keys().filter(k => k not in _location_fields)
+  if unknown.len() > 0 {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "Unknown basics.location key(s): " + unknown.map(quote).join(", ")
+        + ". Supported: " + _location_fields.map(quote).join(", "),
+    )
+  }
+  let parts = _location_display_order
+    .map(k => value.at(k, default: none))
+    .filter(v => v != none and v != "")
+  if parts.len() == 0 { return none }
+  parts.join(", ")
+}
+
 // Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
 // locations like "Zürich" or "京都" round-trip through the maps URL.
 #let _url_encode(s) = {
@@ -420,7 +458,13 @@
           url: "tel:" + dialable,
         ))
       }
-      let location = basics.at("location", default: none)
+      // `_format_location` collapses the JSON Resume dict form
+      // `{address, postalCode, city, countryCode, region}` to a
+      // single line, leaves an already-flat string untouched, and
+      // returns `none` when every relevant field is empty. Both the
+      // display value and the maps deep link are fed from the same
+      // result so they cannot drift.
+      let location = _format_location(basics.at("location", default: none))
       if location != none {
         let url = if maps-provider == none { none } else {
           maps-provider.replace("{q}", _url_encode(location))
