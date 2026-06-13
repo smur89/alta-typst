@@ -44,3 +44,36 @@
 
 // Same data with `groupCertificates: false` to exercise the flat path.
 #alta(cv, preferences: (groupCertificates: false))
+
+#pagebreak()
+
+// Empty-string `date` / `url` are treated as absent — no orphan
+// calendar icon, no link to "". `none` is handled the same way.
+// The trailing dateless entry in a dated group must not emit a
+// stray linebreak before the divider.
+#alta((
+  basics: (name: "Jane Doe", email: "jane@example.com"),
+  certificates: (
+    (
+      name: "Empty strings are absent",
+      issuer: "Acme",
+      date: "",
+      url: "",
+    ),
+    (
+      name: "Explicit none is absent",
+      issuer: "Acme",
+      date: none,
+      url: none,
+    ),
+    (
+      name: "Dated cert (first)",
+      issuer: "Globex",
+      date: "Jan 2024",
+    ),
+    (
+      name: "Trailing dateless cert (last in group)",
+      issuer: "Globex",
+    ),
+  ),
+))

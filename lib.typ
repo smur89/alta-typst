@@ -749,14 +749,18 @@
 
 // Normalises a cert into the (name, date, url) triple the renderer
 // consumes. Returns `none` for entries with no usable name so callers
-// can filter them in one pass.
+// can filter them in one pass. `date` / `url` are normalised to `none`
+// when absent or empty so downstream `!= none` checks don't render an
+// orphan date snippet or a link with an empty target.
 #let _normalise_cert(cert) = {
   let name = cert.at("name", default: "")
-  if name == "" { return none }
+  if not _present(name) { return none }
+  let date = cert.at("date", default: none)
+  let url = cert.at("url", default: none)
   (
     name: name,
-    date: cert.at("date", default: none),
-    url: cert.at("url", default: none),
+    date: if _present(date) { date } else { none },
+    url: if _present(url) { url } else { none },
   )
 }
 
@@ -764,7 +768,7 @@
 // as their own group, singletons pool into a trailing "other" group.
 // The issuer key is never rendered — it exists purely for grouping.
 // Each group carries full cert records (name + date + url) so the
-// renderer can wire links and date lines without re-reading the source.
+// renderer can wire links and inline dates without re-reading the source.
 #let _build_cert_groups(certs) = {
   let by-issuer = (:)
   for cert in certs {
