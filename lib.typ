@@ -25,6 +25,7 @@
 // "Certifications" than "Certificates".
 #let _default_labels = (
   work: "Experience",
+  volunteer: "Volunteer",
   focusAreas: "Areas of Focus",
   skills: "Skills",
   languages: "Languages",
@@ -617,7 +618,12 @@
   #_join_with_dividers(work, job => [
     #block(breakable: false)[
       === #job.position
-      #name[#job.name]
+      // `link()` inherits the surrounding bold + accent from `name()`,
+      // so the company stays visually identical to the unlinked case
+      // and just gains click behaviour. `styled-link` would impose the
+      // italic / underline treatment used for publication titles.
+      #let url = job.at("url", default: none)
+      #name[#if url != none { link(url, job.name) } else { job.name }]
       #term(_format_date_range(job, labels), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
@@ -629,6 +635,25 @@
         #emph(preamble)
       ]
       #for bullet in job.at("highlights", default: ()) [- #bullet]
+    ]
+  ])
+]
+
+// JSON Resume `volunteer[]` mirrors `work[]` shape, but uses
+// `organization` where work uses `name`. Renderer is otherwise
+// identical to `_experience`: position heading, accent-coloured
+// organisation line, optional date range + location, bulleted
+// highlights.
+#let _volunteer(entries, labels) = if entries.len() > 0 [
+  == #labels.volunteer
+
+  #_join_with_dividers(entries, entry => [
+    #block(breakable: false)[
+      === #entry.position
+      #name[#entry.at("organization", default: "")]
+      #term(_format_date_range(entry, labels), location: entry.at("location", default: none))
+
+      #for bullet in entry.at("highlights", default: ()) [- #bullet]
     ]
   ])
 ]
@@ -696,6 +721,13 @@
       #term(_format_date_range(edu, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
+      // Courses render as pill tags — same treatment as `skills[].keywords`
+      // and `projects[].keywords`, which are the other array-of-strings
+      // surfaces in the template. Empty arrays skip silently.
+      #let courses = edu.at("courses", default: ())
+      #if courses.len() > 0 [
+        #for course in courses [#tag(course)]
+      ]
     ]
   ])
 ]
@@ -828,6 +860,10 @@
   work: (
     column: "left",
     render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels),
+  ),
+  volunteer: (
+    column: "left",
+    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels),
   ),
   focusAreas: (
     column: "right",
