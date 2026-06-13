@@ -339,6 +339,10 @@
   if is-empty(start) { [#end-text] } else { [#start – #end-text] }
 }
 
+// Rejects `none`, the empty string, and the empty content block —
+// the three ways a section field can be effectively absent.
+#let _present(v) = v != none and v != "" and v != []
+
 // String-path sources resolve relative to lib.typ (not the user's
 // document), so callers should prefer a leading "/" for a root-
 // relative path or pass bytes via `read("path", encoding: none)`.
@@ -578,6 +582,11 @@
   v(0.4 * body-size)
 }
 
+// JSON Resume's `work[]` carries a `summary` (a short paragraph
+// describing the role) and some exporters also populate `description`.
+// We treat them as alternatives that fill the same slot between the
+// term row and the highlights list — `summary` wins when both are
+// present so callers can opt into either field name without surprises.
 #let _experience(work, labels) = if work.len() > 0 [
   == #labels.work
 
@@ -587,6 +596,14 @@
       #name[#job.name]
       #term(_format_date_range(job, labels), location: job.at("location", default: none))
 
+      #let preamble = job.at("summary", default: job.at("description", default: none))
+      #if _present(preamble) [
+        // Softer than `name()` (the bold accent line above) — same
+        // treatment as `projects[].description` — so the prose
+        // preamble doesn't compete with the role headings or the
+        // highlight bullets that follow.
+        #emph(preamble)
+      ]
       #for bullet in job.at("highlights", default: ()) [- #bullet]
     ]
   ])
