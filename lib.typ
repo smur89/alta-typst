@@ -771,14 +771,18 @@
   ))
 }
 
-// Follows JSON Resume's `awards[]` shape. Entries without a `title`
-// are skipped so a stray entry can't emit an orphan heading.
+// Follows JSON Resume's `awards[]` shape, plus an `url` extension that
+// wraps the title in an accent-coloured link (same treatment as
+// `projects[].url`). Entries without a `title` are skipped so a stray
+// entry can't emit an orphan heading.
 #let _awards(entries, labels) = {
   let valid = entries.filter(a => _present(a.at("title", default: none)))
   if valid.len() == 0 { return }
   [== #labels.awards]
   _join_with_dividers(valid, award => block(breakable: false, {
-    [=== #award.title]
+    let title = award.title
+    let url = award.at("url", default: none)
+    [=== #if url != none { styled-link(url, title) } else { title }]
     let awarder = award.at("awarder", default: none)
     if _present(awarder) { name[#awarder] }
     let date = award.at("date", default: none)
