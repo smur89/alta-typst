@@ -595,7 +595,12 @@
   #_join_with_dividers(work, job => [
     #block(breakable: false)[
       === #job.position
-      #name[#job.name]
+      // `link()` inherits the surrounding bold + accent from `name()`,
+      // so the company stays visually identical to the unlinked case
+      // and just gains click behaviour. `styled-link` would impose the
+      // italic / underline treatment used for publication titles.
+      #let url = job.at("url", default: none)
+      #name[#if url != none { link(url, job.name) } else { job.name }]
       #term(_format_date_range(job, labels), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
