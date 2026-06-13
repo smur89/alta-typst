@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.1.0](https://github.com/smur89/alta-typst/compare/v1.0.0...v1.1.0) (2026-06-13)
+
+
+### Features
+
+* accept basics.location structured form ([#73](https://github.com/smur89/alta-typst/issues/73)) ([f7235b2](https://github.com/smur89/alta-typst/commit/f7235b25b2ca9da696bdd353c3c02610957bc4a1))
+* add preferences.maxRating for configurable language dot scale ([#69](https://github.com/smur89/alta-typst/issues/69)) ([f88f6e2](https://github.com/smur89/alta-typst/commit/f88f6e2ae52bd31cc120110f429f0823952062c3))
+* add volunteer section ([#78](https://github.com/smur89/alta-typst/issues/78)) ([7a19d70](https://github.com/smur89/alta-typst/commit/7a19d706cb19e16290343eca4e3b08e84ff1802c))
+* centred header image (stack above/below name) ([#67](https://github.com/smur89/alta-typst/issues/67)) ([f4a1978](https://github.com/smur89/alta-typst/commit/f4a1978d59b8919b2839f2f7e544b2e8e689de72))
+* link education[].institution via education[].url ([#77](https://github.com/smur89/alta-typst/issues/77)) ([b2966b8](https://github.com/smur89/alta-typst/commit/b2966b8d285d8210b44bdaa6dc13a1b31031f2ee))
+* render awards[].url as a link on the title ([#66](https://github.com/smur89/alta-typst/issues/66)) ([0c517c4](https://github.com/smur89/alta-typst/commit/0c517c4ec9984217fdadbfcf12a019c49bf0c72b))
+* render basics.url in contact bar ([#75](https://github.com/smur89/alta-typst/issues/75)) ([3133548](https://github.com/smur89/alta-typst/commit/3133548e0e6868cd2eebf18348d6c0945e524e1f))
+* render education[].courses as pill tags ([#74](https://github.com/smur89/alta-typst/issues/74)) ([996fad0](https://github.com/smur89/alta-typst/commit/996fad0297ae16524b2e969579ccdc5be3269800))
+* render publications[].summary ([#80](https://github.com/smur89/alta-typst/issues/80)) ([09b24d6](https://github.com/smur89/alta-typst/commit/09b24d64df1f9398a6f8b06961bdd5f6f178c90f))
+* render structured interests[] section ([#93](https://github.com/smur89/alta-typst/issues/93)) ([310c81e](https://github.com/smur89/alta-typst/commit/310c81e36a7f99db8b96cfc53778d3ef3a1b30d3)), closes [#45](https://github.com/smur89/alta-typst/issues/45)
+* render work[].summary (and work[].description) ([#82](https://github.com/smur89/alta-typst/issues/82)) ([028a3c2](https://github.com/smur89/alta-typst/commit/028a3c2eb65251c62eb557b958690d439c1c1af5))
+* render work[].url as a link on the company name ([#72](https://github.com/smur89/alta-typst/issues/72)) ([89d0a7a](https://github.com/smur89/alta-typst/commit/89d0a7a7f25c3d823be4b16ff8acfe6e683ed73e))
+
 ## [1.0.0](https://github.com/smur89/alta-typst/compare/v0.3.3...v1.0.0) (2026-06-12)
 
 
