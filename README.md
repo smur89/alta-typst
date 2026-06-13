@@ -132,6 +132,19 @@ Each `projects[]` entry follows JSON Resume's schema. Practical subset supported
 
 `entity`, `type`, and `roles` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
 
+### Education
+
+Each `education[]` entry follows JSON Resume's schema. Practical subset supported:
+
+| Field | Type | Effect |
+|---|---|---|
+| `institution` | string | School name. Rendered in accent-bold beneath the qualification title; wrapped in a link to `url` when supplied. |
+| `url` | string | If supplied, wraps the institution name in an accent-bold link (preserving the styling, just clickable). |
+| `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"). Rendered as the entry heading. Falls back to `area` if absent. |
+| `area` | string | Field of study. Used as the heading only when `studyType` is missing. |
+| `startDate` / `endDate` | string | Date range, same conventions as `work` entries (omit `endDate` → "Present"). |
+| `score` | string | Grade / classification, rendered as a plain line below the date range. |
+
 ### Profile networks
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `lib.typ`.
