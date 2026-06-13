@@ -69,7 +69,7 @@ See `examples/example.typ` in the [source repository](https://github.com/smur89/
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three practical extensions:
 
 - `focusAreas`: top-level array of prose items. This is an intentional altacv addition, distinct from JSON Resume's `interests` (which is structured `{name, keywords}` per entry — also supported, see below). Rendered as a bulleted "Areas of Focus" section.
-- `languages[].rating`: numeric 0–5 (JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
+- `languages[].rating`: numeric 0–`preferences.maxRating` (default 5; JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise either by overriding `labels.articles` or by supplying already-translated `type` values directly.
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
@@ -245,6 +245,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
 | `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. |
+| `maxRating` | `5` | Number of dots on the language fluency scale. Must be a positive integer. The default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, or any other positive integer for a custom scale. Fluency strings remain anchored to the 0–5 LinkedIn scale, so callers using a non-5 `maxRating` must supply numeric `languages[].rating` values. |
 
 Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
 
@@ -341,7 +342,7 @@ The template also exports lower-level helpers for callers who want to compose cu
 | `icon(name, size: auto, shift: auto, fill: auto)` | Render a vendored SVG. `name` is any key from the built-in icon set (utility or network). |
 | `name(body)` | Bold accent-coloured line — designed for the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with their leading icon. |
-| `rating(label, value)` | Label on the left, five filled / half-filled / empty dots on the right. `value` is numeric 0–5. Drives the language fluency dots; works for any 0–5 row. (Shares a name with the `languages[].rating` data field because both describe the same 0–5 scale — the function isn't auto-fed from the data; pass the value explicitly.) |
+| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5). Drives the language fluency dots; works for any row on the configured scale. (Shares a name with the `languages[].rating` data field because both describe the same scale — the function isn't auto-fed from the data; pass the value explicitly.) |
 | `tag(body, label: false)` | Pill-style tag; `label: true` for a darker, bold "category" variant. |
 | `divider()` | Dashed grey rule used between entries within a section. |
 | `styled-link(dest, content)` | Accent-coloured italic underlined link — used for publication titles. |
