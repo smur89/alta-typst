@@ -25,6 +25,7 @@
 // "Certifications" than "Certificates".
 #let _default_labels = (
   work: "Experience",
+  volunteer: "Volunteer",
   focusAreas: "Areas of Focus",
   skills: "Skills",
   languages: "Languages",
@@ -610,6 +611,25 @@
   ])
 ]
 
+// JSON Resume `volunteer[]` mirrors `work[]` shape, but uses
+// `organization` where work uses `name`. Renderer is otherwise
+// identical to `_experience`: position heading, accent-coloured
+// organisation line, optional date range + location, bulleted
+// highlights.
+#let _volunteer(entries, labels) = if entries.len() > 0 [
+  == #labels.volunteer
+
+  #_join_with_dividers(entries, entry => [
+    #block(breakable: false)[
+      === #entry.position
+      #name[#entry.at("organization", default: "")]
+      #term(_format_date_range(entry, labels), location: entry.at("location", default: none))
+
+      #for bullet in entry.at("highlights", default: ()) [- #bullet]
+    ]
+  ])
+]
+
 #let _focus_areas(items, labels) = if items.len() > 0 [
   == #labels.focusAreas
 
@@ -805,6 +825,10 @@
   work: (
     column: "left",
     render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels),
+  ),
+  volunteer: (
+    column: "left",
+    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels),
   ),
   focusAreas: (
     column: "right",
