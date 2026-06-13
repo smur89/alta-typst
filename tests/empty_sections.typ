@@ -11,5 +11,6 @@
   languages: (),
   education: (),
   certificates: (),
+  interests: (),
   publications: (),
 ))
