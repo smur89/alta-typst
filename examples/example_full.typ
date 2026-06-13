@@ -176,6 +176,15 @@
     ),
   ),
 
+  // Structured `interests[]` — same `{name, keywords}` shape as
+  // `skills[]`, renders the same way. Coexists with `focusAreas`
+  // (prose) above.
+  interests: (
+    (name: "Music",  keywords: ("Trad", "Jazz")),
+    (name: "Sport",  keywords: ("Hurling", "Climbing")),
+    (name: "Travel", keywords: ("Japan", "Iceland")),
+  ),
+
   // Publications split across explicit `type` values + an untyped
   // entry that falls under `labels.articles`. Dict insertion order
   // controls the rendered group order.
