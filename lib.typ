@@ -281,8 +281,11 @@
 
 // `label: true` is the category-heading variant (darker fill, bold
 // text) — used to distinguish a group's leading pill from the item
-// pills that follow it on the same row.
-#let tag(body, label: false) = context {
+// pills that follow it on the same row. `trailing: false` suppresses
+// the inter-tag gap that would otherwise sit after the pill; callers
+// composing a row of tags pass `false` on the final one so the row
+// doesn't end on dead horizontal space.
+#let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
   let fill-colour = if label { accent.lighten(70%) } else { accent.lighten(85%) }
@@ -295,7 +298,7 @@
     outset: (y: 0.15 * body-size),
     text(0.85 * body-size, fill: accent.darken(15%), weight: text-weight, body),
   )
-  h(0.25 * body-size)
+  if trailing { h(0.25 * body-size) }
 }
 
 #let divider() = context {
@@ -314,6 +317,14 @@
   for (i, item) in items.enumerate() {
     render(item)
     if i < items.len() - 1 { divider() }
+  }
+}
+
+// Renders a row of tag pills, suppressing the inter-tag gap after the
+// last one so the row doesn't end on dead horizontal space.
+#let _tag_row(items) = {
+  for (i, item) in items.enumerate() {
+    tag(item, trailing: i < items.len() - 1)
   }
 }
 
@@ -684,7 +695,7 @@
         tag(group.name, label: true)
         text("-")
         h(0.25 * body-size)
-        for item in keywords { tag(item) }
+        _tag_row(keywords)
       }))
     }
   }
@@ -767,7 +778,7 @@
   [== #labels.certificates]
   _join_with_dividers(groups, names => block(
     breakable: false,
-    { for n in names [#tag(n)] },
+    _tag_row(names),
   ))
 }
 
@@ -813,10 +824,7 @@
     }
     term(_format_date_range(project, labels))
     for bullet in project.at("highlights", default: ()) [- #bullet]
-    let keywords = project.at("keywords", default: ())
-    if keywords.len() > 0 {
-      for kw in keywords { tag(kw) }
-    }
+    _tag_row(project.at("keywords", default: ()))
   }))
 }
 
