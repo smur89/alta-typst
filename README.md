@@ -84,7 +84,7 @@ JSON Resume keys **not yet rendered** by this template: `references`, `meta`. Tr
 
 ### Portrait (`basics.image`)
 
-Setting `basics.image` adds a circular portrait to the top-right of the header. Two ways to supply the source:
+Setting `basics.image` adds a circular portrait to the top-right of the header (move it with `preferences.imagePosition` — `"left"` / `"right"` for the two-column layout, or `"center"` to stack the portrait on its own centred row above or below the text block via `preferences.imageStackOrder`). Two ways to supply the source:
 
 ```typst
 // Recommended: load the bytes in your own typ file. Path resolution
@@ -221,7 +221,8 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
-| `imagePosition` | `"right"` | Side of the header the portrait sits on — `"left"` or `"right"`. Ignored when no image is supplied. |
+| `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
+| `imageStackOrder` | `"above"` | Stack order when `imagePosition` is `"center"` — `"above"` puts the portrait above the name/label/contact block; `"below"` puts it underneath (the "photo as sign-off" look). Ignored for `"left"` / `"right"` positions. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
 | `uppercaseName` | `true` | When `true` (the default — matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` to render the name as supplied. Useful for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts that have no case at all, or simply when the loud uppercase look isn't wanted. |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
