@@ -79,7 +79,7 @@ Top-level keys recognised: `basics`, `focusAreas`, `work`, `skills`, `languages`
 
 JSON Resume keys **not yet rendered** by this template: `interests` (the structured `{name, keywords}` form — see `focusAreas` for the prose alternative), `volunteer`, `references`, `meta`. Track or upvote feature requests on the issue tracker if you need any of them.
 
-`basics.location` is treated as a plain string (the value flows verbatim into the contact bar and the maps deep link). JSON Resume's schema defines it as a structured object `{address, postalCode, city, countryCode, region}` — that shape isn't accepted yet; flatten to a single string at the call site.
+`basics.location` accepts either a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed to a single line by joining the CV-relevant subset — `city`, `region`, `countryCode` — with `", "`, skipping any field that's missing or empty (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` renders as `Dublin, Leinster, IE`, and `(city: "Tokyo")` renders as `Tokyo`). `address` and `postalCode` are accepted (so a verbatim `resume.json` dict round-trips without panicking) but not rendered — a CV header isn't a mailing label. The same joined string also drives the maps deep link, so display and link stay in sync. Unknown keys panic. If you need the legacy verbatim behaviour for a value that doesn't fit the dict shape, pass it as a string.
 
 ### Portrait (`basics.image`)
 
