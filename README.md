@@ -179,6 +179,20 @@ Each `education[]` entry follows JSON Resume's schema. Practical subset supporte
 | `score` | string | Grade / classification, rendered as a plain line below the date range. |
 | `courses` | array of strings | Relevant course / module names. Rendered as a row of pill tags below the score — same treatment as `skills[].keywords` and `projects[].keywords`. |
 
+### Publications
+
+Each `publications[]` entry follows JSON Resume's schema, with one altacv-specific extension (`type`). Practical subset supported:
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | Publication title. Rendered as the bullet body; linked to `url` when supplied, italicised when not. |
+| `releaseDate` | string | Single date (not a range). Rendered above the title in a lighter shade. |
+| `url` | string | If supplied, wraps the title in an accent-coloured link. |
+| `summary` | string or content | Short description, rendered as a paragraph below the title. Pass `[...]` content (e.g. `[A walk-through of _idempotent Kafka consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
+| `type` | string | altacv extension. Optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. |
+
+`publisher` from the JSON Resume spec is accepted (silently ignored) but not yet rendered. Open an issue if you need it.
+
 ### Interests
 
 Each `interests[]` entry follows JSON Resume's `{name, keywords}` shape — the same shape as `skills[]`, and rendered with the same pill-tag layout (the `name` as a label-tag, each `keywords` entry as a regular tag). Use it for personal interests / hobbies; reach for `focusAreas` instead when you want prose-style bullets.
