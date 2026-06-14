@@ -193,6 +193,17 @@ Each `publications[]` entry follows JSON Resume's schema, with one altacv-specif
 
 `publisher` from the JSON Resume spec is accepted (silently ignored) but not yet rendered. Open an issue if you need it.
 
+### Certificates
+
+Each `certificates[]` entry follows JSON Resume's schema:
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | Certificate name. Rendered as a pill tag; linked to `url` when supplied. Entries with missing or empty `name` are silently skipped. |
+| `issuer` | string | Granting organisation. Never rendered, but drives the grouping when `preferences.groupCertificates` is `true` — certs from the same issuer cluster into a single pill row. |
+| `date` | string | Single date (not a range). Rendered as small body-coloured text inline immediately to the right of the pill, sharing the same baseline. |
+| `url` | string | If supplied, wraps the pill in a link to the credential. |
+
 ### Interests
 
 Each `interests[]` entry follows JSON Resume's `{name, keywords}` shape — the same shape as `skills[]`, and rendered with the same pill-tag layout (the `name` as a label-tag, each `keywords` entry as a regular tag). Use it for personal interests / hobbies; reach for `focusAreas` instead when you want prose-style bullets.
