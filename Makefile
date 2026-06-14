@@ -67,6 +67,13 @@ TESTS         := $(wildcard tests/*.typ)
 PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
+# Every test fixture imports `lib.typ` (transitively pulling in
+# everything under `internal/` and `sections/`), so renderer tweaks
+# there must invalidate the cached PDFs even though the per-fixture
+# `tests/*.typ` source itself hasn't changed. Without this dependency
+# CI rebuilds from scratch, sees byte drift, and trips the
+# "examples/tests/*.pdf in sync" guard.
+LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 
 .PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help
 
@@ -132,7 +139,7 @@ test-pdfs: $(TEST_PDFS)
 examples/tests:
 	mkdir -p $@
 
-examples/tests/%.pdf: tests/%.typ | examples/tests
+examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
