@@ -2,7 +2,7 @@
 
 A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
 
-<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the Universe package archive ships only lib.typ, icons/, LICENSE, README.md). -->
+<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). -->
 ![Two-column CV rendered by the altacv template — left column shows experience; right column shows areas of focus, skills, languages, education, certifications, and publications](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.png)
 
 ## Installation
@@ -387,6 +387,20 @@ Example — German, plus renaming "Skills" to "Core Technologies":
   months: ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
 ))
 ```
+
+#### Translation workflow
+
+The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a plain resource file a translator can be handed without learning Typst syntax. For full translations, copy that file, translate the values, and load it at the call site with the built-in `toml(...)`:
+
+```typst
+// Inline partial overrides — best for one-off renames or a few keys.
+#alta(cv, labels: (work: "Berufserfahrung", skills: "Core Technologies"))
+
+// File-based — best for full translations or strings owned by a translator.
+#alta(cv, labels: toml("labels-ga.toml"))
+```
+
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](examples/example_ga.typ) for a worked Irish translation.
 
 ### Helpers
 
