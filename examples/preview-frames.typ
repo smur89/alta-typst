@@ -95,14 +95,17 @@
     rightColumnSections: ("work", "projects", "publications", "awards"),
   ), (:)),
 
-  // ── Frame 4 ─ crimson + portrait left + Irish labels ────────────
-  // Image swung to the left of the header; section columns swap
-  // emphasis (compact / support blocks lead, work + projects move
+  // ── Frame 4 ─ crimson + portrait left + QR right + Irish labels ─
+  // Image swung to the left of the header with a QR matrix mirrored
+  // on the right — the flipped twin of frame 6's QR layout, exercising
+  // the same feature under `imagePosition: "left"`. Section columns
+  // swap emphasis (compact / support blocks lead, work + projects move
   // right). Section headings render in Irish via `labels-ga.toml`
   // — the same data dict, just localised display strings.
   (cv, base + (
     accent: palettes.crimson,
     imagePosition: "left",
+    qrCode: auto,
     leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates", "awards"),
     rightColumnSections: ("work", "projects"),
   ), ga-labels),
@@ -122,13 +125,16 @@
     ),
   ), (:)),
 
-  // ── Frame 6 ─ plum + portrait right + short dates + education up ─
-  // Image on the right (canonical default); compact European-style
-  // `[day]/[month]/[year]` date format. Education + certificates
+  // ── Frame 6 ─ plum + portrait right + QR left + short dates + education up
+  // Image on the right (canonical default) and a QR matrix on the
+  // opposite side — a [QR | text | portrait] header showcasing the
+  // print-affordance feature on the standard layout. Compact European-
+  // style `[day]/[month]/[year]` date format. Education + certificates
   // promoted to the left column alongside work; the right column
   // becomes a compact support panel.
   (cv, base + (
     accent: palettes.plum,
+    qrCode: auto,
     dateFormat: "[day]/[month]/[year]",
     leftColumnSections: ("work", "education", "certificates"),
     rightColumnSections: (

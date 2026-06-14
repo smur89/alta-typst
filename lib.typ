@@ -28,6 +28,7 @@
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _date_format_aliases, _iso_datetime
 #import "internal/header.typ": _header, _summary
+#import "internal/qr.typ": _check_qr_code
 #import "internal/footer.typ": _auto_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
 
@@ -139,6 +140,7 @@
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
   }
+  _check_qr_code(preferences.qrCode)
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -233,6 +235,7 @@
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
     uppercase-name: preferences.uppercaseName,
+    qr-code: preferences.qrCode,
   )
   _summary(cv.basics)
 
