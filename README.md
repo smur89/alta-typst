@@ -74,11 +74,11 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`. Any section with empty input is skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
 
 `basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
 
-JSON Resume keys **not yet rendered** by this template: `references`, `meta`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume keys **not yet rendered** by this template: `references`. Track or upvote feature requests on the issue tracker if you need any of them.
 
 `basics.location` accepts either a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed to a single line by joining the CV-relevant subset — `city`, `region`, `countryCode` — with `", "`, skipping any field that's missing or empty (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` renders as `Dublin, Leinster, IE`, and `(city: "Tokyo")` renders as `Tokyo`). `address` and `postalCode` are accepted (so a verbatim `resume.json` dict round-trips without panicking) but not rendered — a CV header isn't a mailing label. The same joined string also drives the maps deep link, so display and link stay in sync. Unknown keys panic. If you need the legacy verbatim behaviour for a value that doesn't fit the dict shape, pass it as a string.
 
@@ -224,6 +224,30 @@ interests: (
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `lib.typ`.
 
+### PDF metadata
+
+The rendered PDF carries metadata in its document properties — what your OS shows in "Get Info" / "Properties" and what indexing services (CV review tools, search) read. Fields are populated from the data dict; each is only written when its source is non-empty.
+
+| PDF field | Source | Notes |
+|---|---|---|
+| Title | `basics.name + " --- CV"` | Always set. |
+| Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
+| Subject (description) | `basics.summary` | Same content rendered in the document header. |
+| Keywords | `skills[].keywords` | Flattened across every skill group and de-duplicated, insertion order preserved. |
+| Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — either `YYYY-MM-DD` or a full `YYYY-MM-DDTHH:MM:SSZ` timestamp; only the calendar part is used. Falls back to compile time when `meta.lastModified` is absent or unparseable. |
+
+The `meta` block is otherwise unrendered — `canonical` and `version` are accepted (for round-trip with JSON Resume sources) but currently have no visible or metadata effect.
+
+To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true` — see the [preferences table](#preferences).
+
+```typst
+meta: (
+  canonical: "https://example.com/cv.json", // accepted, currently unrendered
+  version: "1.0.0",                         // accepted, currently unrendered
+  lastModified: "2026-06-12",               // → PDF date + optional footer
+)
+```
+
 ## Configuration
 
 ### `alta()` arguments
@@ -251,6 +275,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imageStackOrder` | `"above"` | Stack order when `imagePosition` is `"center"` — `"above"` puts the portrait above the name/label/contact block; `"below"` puts it underneath (the "photo as sign-off" look). Ignored for `"left"` / `"right"` positions. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
 | `uppercaseName` | `true` | When `true` (the default — matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` to render the name as supplied. Useful for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts that have no case at all, or simply when the loud uppercase look isn't wanted. |
+| `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `Last updated: <meta.lastModified>` line in the page footer. The label text is localisable via `labels.lastModified`; the timestamp is rendered as supplied (the full ISO 8601 string flows through verbatim). PDF metadata (date / keywords / description) is enriched from `meta` / `basics` independently of this flag — see [PDF metadata](#pdf-metadata). |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.64` | Left-column width as a fraction of the page (strictly between 0 and 1). The right column gets the remainder minus a fixed gutter. Halve it to invert the layout. |
@@ -328,6 +353,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `interests` | `"Interests"` |
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
+| `lastModified` | `"Last updated"` |
 
 Example (German + rename "Skills" to "Core Technologies"):
 
