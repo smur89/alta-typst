@@ -189,8 +189,8 @@ jobs:
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
-      # (CI, examples, .gitignore) is repo-only and intentionally
-      # excluded from the package payload.
+      # (CI, test fixtures, build helpers, .gitignore) is repo-only and
+      # intentionally excluded from the package payload.
       #
       # `internal/` and `sections/` carry the modules that lib.typ
       # `#import`s; they must ship with the package or compile fails
@@ -201,13 +201,27 @@ jobs:
       # image Typst Universe displays on the package card. Both are
       # referenced from typst.toml's `[template]` section and must
       # ship with the package or the linter reports them missing.
+      #
+      # The `examples/*` files are documentation assets the README
+      # links to (preview GIF, gallery PDFs / PNGs, Irish translation
+      # demo). They ship in the typst/packages directory so the
+      # README's local links resolve on Universe at the matching
+      # version, but they are listed under `exclude` in typst.toml so
+      # the compiler bundle a downstream `#import` pulls stays small.
+      # Update this list (and the README) when adding new README
+      # links — anything not listed here will 404 from Universe.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
             typst.toml lib.typ internal/ sections/ icons/ template/ \
-            thumbnail.png LICENSE README.md
+            thumbnail.png LICENSE README.md \
+            examples/preview.gif \
+            examples/cv.png \
+            examples/example_full.typ examples/example_full.pdf \
+            examples/example_full-1.png examples/example_full-2.png \
+            examples/example_ga.typ examples/labels-ga.toml
 
       - name: Attach assets to release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0

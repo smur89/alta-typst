@@ -1,18 +1,18 @@
 <h1 align="center">Alta CV</h1>
 
 <p align="center">
-  <a href="https://typst.app/universe/package/altacv"><img alt="Typst Universe" src="https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Ftypst.app%2Funiverse%2Fpackage%2Faltacv&query=%2Fhtml%2Fbody%2Fdiv%2Fmain%2Fdiv%5B2%5D%2Faside%2Fsection%5B2%5D%2Fdl%2Fdd%5B3%5D&logo=typst&label=Universe&color=%23239DAE&style=flat-square"></a>
-  <a href="https://github.com/smur89/alta-typst/releases"><img alt="Release" src="https://img.shields.io/github/v/release/smur89/alta-typst?style=flat-square"></a>
-  <a href="https://github.com/smur89/alta-typst/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/smur89/alta-typst/build.yml?style=flat-square"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/smur89/alta-typst?style=flat-square"></a>
-  <a href="https://github.com/smur89/alta-typst/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square"></a>
+  <a href="https://typst.app/universe/package/altacv"><img alt="altacv on Typst Universe" src="https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Ftypst.app%2Funiverse%2Fpackage%2Faltacv&query=%2Fhtml%2Fbody%2Fdiv%2Fmain%2Fdiv%5B2%5D%2Faside%2Fsection%5B2%5D%2Fdl%2Fdd%5B3%5D&logo=typst&label=Universe&color=%23239DAE&style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/releases"><img alt="Latest GitHub release version of altacv" src="https://img.shields.io/github/v/release/smur89/alta-typst?style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/actions/workflows/build.yml"><img alt="GitHub Actions build workflow status on the altacv main branch" src="https://img.shields.io/github/actions/workflow/status/smur89/alta-typst/build.yml?style=flat-square"></a>
+  <a href="LICENSE"><img alt="MIT license badge linking to the altacv LICENSE file" src="https://img.shields.io/github/license/smur89/alta-typst?style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/stargazers"><img alt="Number of GitHub stargazers for altacv" src="https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square"></a>
 </p>
 
 <p align="center">A Typst CV template inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX). Data-driven via a <a href="https://jsonresume.org/">JSON Resume</a>-style dict; configurable theme, labels, and sections.</p>
 
-<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/cv.png is the tracked static fallback for places that don't render animated GIFs. -->
+<!-- Relative path so the GIF tracks the codebase: GitHub renders the README from main, Universe renders it from the package version's snapshot — each context sees the matching frame set. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml), so the file lives next to README on Universe without bloating the import payload. -->
 <p align="center">
-  <img alt="Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif">
+  <img alt="Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable" src="examples/preview.gif">
 </p>
 
 ## Features
@@ -20,16 +20,16 @@
 - **Data-driven from a [JSON Resume](https://jsonresume.org/) dict** — round-trips your `resume.json`, with a small set of practical extensions (`focusAreas`, numeric language `rating`, publication `type` grouping).
 - **Single-column ATS mode** (`columnRatio: 1`) for parser-friendly output, alongside the default two-column layout — and inverted layouts (narrow side panel on either side).
 - **Six built-in accent palettes** (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`) plus any `rgb(...)` value.
-- **Full label localisation** via inline dict or TOML file — every display string the template emits is overridable, with a worked Irish translation under [`examples/labels-ga.toml`](https://github.com/smur89/alta-typst/blob/main/examples/labels-ga.toml).
+- **Full label localisation** via inline dict or TOML file — every display string the template emits is overridable, with a worked Irish translation under [`examples/labels-ga.toml`](examples/labels-ga.toml).
 - **PDF metadata baked in** — title, author, subject, keywords (auto-derived from skills), and document date populate from the same data dict.
 
 ## Gallery
 
-Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ); rendered output: [`examples/example_full.pdf`](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full.pdf).
+Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](examples/example_full.typ); rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
 
 | Page 1 | Page 2 |
 | :---: | :---: |
-| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-2.png) |
+| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests](examples/example_full-2.png) |
 
 ## Installation
 
@@ -100,7 +100,7 @@ Run `typst fonts` to list what Typst can see on your system.
 #alta(cv)
 ```
 
-[`template/cv.typ`](https://github.com/smur89/alta-typst/blob/main/template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](https://github.com/smur89/alta-typst/blob/main/examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ) is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](examples/example_full.typ) is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
@@ -443,7 +443,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](https://github.com/smur89/alta-typst/blob/main/examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_ga.typ) for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](examples/example_ga.typ) for a worked Irish translation.
 
 ### Helpers
 
