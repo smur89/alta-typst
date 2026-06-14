@@ -6,6 +6,7 @@
 #   make             # build every example PDF + the README preview image
 #                    # + a rendered PDF per fixture under examples/tests/
 #   make example     # build examples/example.pdf + examples/preview.png
+#   make preview-gif # build the animated README hero (needs ffmpeg)
 #   make pdfs        # build PDFs for every examples/*.typ
 #   make previews    # build a page-1 PNG for every examples/*.typ
 #   make test-pdfs   # render every tests/*.typ fixture into
@@ -14,12 +15,20 @@
 #   make clean       # remove generated PDFs and PNGs
 #
 # Tool overrides:
-#   make TYPST=/path/to/typst   # use a non-default typst binary
-#   make PPI=300                # raise preview resolution (default 150)
+#   make TYPST=/path/to/typst    # use a non-default typst binary
+#   make FFMPEG=/path/to/ffmpeg  # use a non-default ffmpeg binary
+#   make PPI=300                 # raise preview resolution (default 150)
+#   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.4)
 
 TYPST     ?= typst
+FFMPEG    ?= ffmpeg
 ROOT      := .
 PPI       ?= 150
+# Animated-preview frame rate. `ffmpeg`'s `-framerate` is the
+# inverse of seconds-per-frame, so 0.4 → 2.5s/frame — long enough
+# for the eye to register each frame's layout change without
+# dragging.
+PREVIEW_FPS ?= 0.4
 
 # Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
 # helpers `#import`-ed by the real examples — not standalone documents
@@ -30,9 +39,11 @@ PDFS      := $(EXAMPLES:.typ=.pdf)
 PNGS      := $(EXAMPLES:.typ=.png)
 TEST_PDFS := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all example pdfs previews test-pdfs test check clean help
+.PHONY: all example preview-gif pdfs previews test-pdfs test check clean help
 
 all: pdfs examples/preview.png test-pdfs
+
+preview-gif: examples/preview.gif
 
 example: examples/example.pdf examples/preview.png
 
@@ -78,6 +89,26 @@ examples/preview.png: examples/example.typ lib.typ
 	mv examples/preview-1.png $@
 	rm -f examples/preview-*.png
 
+# Animated README hero — one frame per preference variation defined
+# in examples/preview-frames.typ. The frames file emits one page per
+# variation; Typst renders the pages to dotfile PNGs (hidden from
+# `ls`), and ffmpeg stitches them with `palettegen` + `paletteuse`
+# for higher-quality colour quantisation than a default GIF.
+#
+# Local-only target — committed alongside `preview.png`; CI does not
+# regenerate the GIF on every push (ffmpeg install + multi-page typst
+# compile is too slow for the lint job).
+#
+# Prerequisites include every file `preview-frames.typ` reads —
+# transitive `#import`/`read()` targets — so editing any of them
+# triggers a fresh GIF on the next `make preview-gif`.
+examples/preview.gif: examples/preview-frames.typ examples/_dates.typ examples/avatar-placeholder.svg lib.typ
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
+	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
+	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
+	  -loop 0 -y $@
+	rm -f examples/.preview-gif-frame-*.png
+
 # Compile every example + fixture; output goes to /dev/null. Same
 # shape as the CI lint job, so a green `make test` locally means the
 # CI lint step will also pass. When `GITHUB_ACTIONS` is set (i.e. the
@@ -110,18 +141,20 @@ check: test
 # (or `git checkout examples/preview.png`) after `make clean` to put
 # it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png
 
 help:
 	@echo "Targets:"
-	@echo "  all        Build every example PDF, the README preview,"
-	@echo "             and the per-fixture PDFs (default)"
-	@echo "  example    Build examples/example.pdf + examples/preview.png"
-	@echo "  pdfs       Build PDFs for every examples/*.typ"
-	@echo "  previews   Build page-1 PNGs for every examples/*.typ"
-	@echo "  test-pdfs  Render every tests/*.typ to examples/tests/*.pdf"
-	@echo "  test       Compile every example + fixture, discarding output"
-	@echo "  check      Alias for test (matches the CI lint shape)"
-	@echo "  clean      Remove generated PDFs and PNGs"
+	@echo "  all          Build every example PDF, the README preview,"
+	@echo "               and the per-fixture PDFs (default)"
+	@echo "  example      Build examples/example.pdf + examples/preview.png"
+	@echo "  preview-gif  Build the animated README hero (needs ffmpeg)"
+	@echo "  pdfs         Build PDFs for every examples/*.typ"
+	@echo "  previews     Build page-1 PNGs for every examples/*.typ"
+	@echo "  test-pdfs    Render every tests/*.typ to examples/tests/*.pdf"
+	@echo "  test         Compile every example + fixture, discarding output"
+	@echo "  check        Alias for test (matches the CI lint shape)"
+	@echo "  clean        Remove generated PDFs and PNGs"
 	@echo ""
-	@echo "Overrides: TYPST=path/to/typst, PPI=300"
+	@echo "Overrides: TYPST=path/to/typst, FFMPEG=path/to/ffmpeg,"
+	@echo "           PPI=300, PREVIEW_FPS=1"
