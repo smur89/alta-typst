@@ -127,6 +127,12 @@
       date: "Aug 2023",
       url: "https://www.cncf.io/training/certification/cka/",
     ),
+    (
+      name: "Certified Kubernetes Application Developer",
+      issuer: "CNCF",
+      date: "Jan 2024",
+      url: "https://www.cncf.io/training/certification/ckad/",
+    ),
   ),
 
   publications: (

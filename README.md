@@ -201,7 +201,7 @@ Each `certificates[]` entry follows JSON Resume's schema:
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Certificate name. Rendered as a pill tag; linked to `url` when supplied. Entries with missing or empty `name` are silently skipped. |
-| `issuer` | string | Granting organisation. Never rendered, but drives the grouping when `preferences.groupCertificates` is `true` — certs from the same issuer cluster into a single pill row. |
+| `issuer` | string | Granting organisation. When `preferences.groupCertificates` is `true`, certs from the same issuer cluster into a single pill row prefixed by a darker issuer-label pill. Certs whose issuer is unique (or whose `issuer` is missing) pool into a trailing unlabelled group. |
 | `date` | string | Single date (not a range). Rendered as small body-coloured text inline immediately to the right of the pill, sharing the same baseline. |
 | `url` | string | If supplied, wraps the pill in a link to the credential. |
 
@@ -270,7 +270,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `paper` | `"a4"` | Standard paper size — string passed to Typst's `set page(paper: ...)`. Supports `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts works. |
 | `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
-| `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster; singletons pool into a final "other" group). When false, render flat. |
+| `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster under a darker issuer-label pill; singletons across distinct issuers pool into a trailing unlabelled group). When false, render flat — each cert sits next to its own issuer label. Certificates with no `issuer` render unlabelled either way. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 | `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
 | `imageStackOrder` | `"above"` | Stack order when `imagePosition` is `"center"` — `"above"` puts the portrait above the name/label/contact block; `"below"` puts it underneath (the "photo as sign-off" look). Ignored for `"left"` / `"right"` positions. |
