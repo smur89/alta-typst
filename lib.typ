@@ -21,7 +21,7 @@
   palettes, maps-providers,
   _body_colour, _emphasis_colour, _body_size_state, _accent_state, _max_rating_state,
 )
-#import "internal/defaults.typ": _default_labels
+#import "internal/defaults.typ": _default_labels, _default_preferences
 #import "internal/validation.typ": _strict_merge, _check_bool
 #import "internal/text.typ": _present, styled-link
 #import "internal/icons.typ": icon
@@ -30,7 +30,8 @@
 #import "internal/dates.typ": _date_format_aliases, _iso_datetime
 #import "internal/meta.typ": _collect_keywords
 #import "internal/header.typ": _header
-#import "internal/layout.typ": _sections, _default_preferences, _auto_page_footer
+#import "internal/footer.typ": _auto_page_footer
+#import "internal/layout.typ": _sections
 #import "sections/summary.typ": _summary
 
 // `cv` follows the JSON Resume schema (see `examples/example.typ`).
