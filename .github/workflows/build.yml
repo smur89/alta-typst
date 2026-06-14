@@ -15,6 +15,11 @@ env:
   # Single source of truth for the Typst version used across all jobs.
   # Bumping this requires no other edits.
   TYPST_VERSION: v0.14.2
+  # Package name as it appears in typst.toml's `package.name`. Surfaced
+  # here so branch names, tarball names, PR titles, and the supersede
+  # filter all derive from one place; rename the package by editing
+  # both this and typst.toml.
+  PACKAGE_NAME: altacv
 
 jobs:
   # Syntax + manifest sanity check. Compiles lib.typ and the example
@@ -170,14 +175,14 @@ jobs:
         run: make example
 
       # The tarball contains exactly the files that go into
-      # typst/packages/preview/altacv/<version>/. Everything else
+      # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
       # (CI, examples, .gitignore) is repo-only and intentionally
       # excluded from the package payload.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
-          tar czf "altacv-${VERSION}.tar.gz" \
+          tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
             typst.toml lib.typ icons/ LICENSE README.md
 
       - name: Attach assets to release
@@ -185,7 +190,7 @@ jobs:
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
-            altacv-*.tar.gz
+            ${{ env.PACKAGE_NAME }}-*.tar.gz
             examples/example.pdf
             examples/preview.png
           make_latest: 'true'
@@ -238,7 +243,7 @@ jobs:
           # useful for a title containing a colon.
           existing=$(gh pr list \
             --repo "$UPSTREAM_REPO" \
-            --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
+            --head "${FORK_REPO%%/*}:${PACKAGE_NAME}-${VERSION}" \
             --state open \
             --json url --jq '.[0].url // empty')
           if [ -n "$existing" ]; then
@@ -281,19 +286,21 @@ jobs:
         run: |
           gh repo clone "$FORK_REPO" pkg -- --no-tags --depth=1
           cd pkg
-          git checkout -b "altacv-${VERSION}" upstream/main
+          git checkout -b "${PACKAGE_NAME}-${VERSION}" upstream/main
 
       - name: Add package files from the release tarball
         if: steps.check.outputs.skip != 'true'
+        env:
+          SERVER_URL: ${{ github.server_url }}
         run: |
           cd pkg
-          PKG_DIR="packages/preview/altacv/${VERSION}"
+          PKG_DIR="packages/preview/${PACKAGE_NAME}/${VERSION}"
           mkdir -p "$PKG_DIR"
           curl -sSfL \
-            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/altacv-${VERSION}.tar.gz" \
+            "${SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${TAG}/${PACKAGE_NAME}-${VERSION}.tar.gz" \
             | tar xz -C "$PKG_DIR"
           git add "$PKG_DIR"
-          git commit -m "altacv:${VERSION}"
+          git commit -m "${PACKAGE_NAME}:${VERSION}"
 
       # `--force` because the branch is auto-generated per version and
       # only this workflow ever pushes to it — overwriting stale state
@@ -305,7 +312,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          git push --force origin "altacv-${VERSION}"
+          git push --force origin "${PACKAGE_NAME}-${VERSION}"
 
       # envsubst is restricted to the expected variable names so any
       # incidental $-references in the template (e.g. a stray $PATH)
@@ -315,16 +322,19 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          # `gh pr create` prints the new PR's URL on stdout; capture
-          # it for the supersede step below.
+          # `gh pr create` ordinarily prints just the URL, but some
+          # versions also emit a "Creating pull request for X into Y"
+          # preamble line first. `tail -n 1` keeps the capture robust
+          # across either format.
           new_pr_url=$(envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
             < "$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md" \
             | gh pr create \
                 --repo "$UPSTREAM_REPO" \
                 --base main \
-                --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
-                --title "altacv:${VERSION}" \
-                --body-file -)
+                --head "${FORK_REPO%%/*}:${PACKAGE_NAME}-${VERSION}" \
+                --title "${PACKAGE_NAME}:${VERSION}" \
+                --body-file - \
+            | tail -n 1)
           echo "Opened: $new_pr_url"
           echo "pr_url=$new_pr_url" >> "$GITHUB_OUTPUT"
 
@@ -332,11 +342,11 @@ jobs:
       # — a v1.0.0 submission can sit pending while v1.1.0 is ready
       # to go. Once a *newer* submission is open, the older one is
       # stale (its bugs are fixed in the newer release, and merging
-      # both wastes reviewer time). We close every other open altacv:*
-      # PR we own with a supersede comment pointing at the current
-      # one. Runs regardless of whether this run *created* the current
-      # PR or detected it from a previous run, so a retried workflow
-      # still tidies up stragglers.
+      # both wastes reviewer time). We close every other open
+      # ${PACKAGE_NAME}:* PR we own with a supersede comment pointing
+      # at the current one. Runs regardless of whether this run
+      # *created* the current PR or detected it from a previous run,
+      # so a retried workflow still tidies up stragglers.
       #
       # Safety:
       #   - `--author "@me"` scopes to PRs opened by the PAT identity
@@ -346,38 +356,45 @@ jobs:
       #     to a different account orphans PRs opened under the old
       #     identity from this filter — close those manually if a
       #     rotation happens while prior-version PRs are still open.
-      #   - Filtering on the head branch starting with `altacv-` is a
-      #     belt-and-braces check against any non-altacv PR the bot
-      #     might also have opened against typst/packages.
-      #   - We exclude `altacv-${VERSION}` (the current submission)
-      #     from the close list so it survives.
-      - name: Supersede earlier altacv PRs
+      #   - Filtering on the head branch starting with `${PACKAGE_NAME}-`
+      #     is a belt-and-braces check against any non-package PR the
+      #     bot might also have opened against typst/packages.
+      #   - We exclude `${PACKAGE_NAME}-${VERSION}` (the current
+      #     submission) from the close list so it survives.
+      - name: Supersede earlier package PRs
         env:
           CURRENT_PR_URL: ${{ steps.check.outputs.pr_url || steps.open.outputs.pr_url }}
+          SERVER_URL: ${{ github.server_url }}
         run: |
-          # `set -o pipefail` propagates the gh failure through the
-          # pipe to set -e; jq's `--arg cur` passes VERSION via jq's
-          # own quoting so a future release-please change that emits
-          # an unusual character in the version string can't break the
-          # jq expression by escaping out of the string literal.
+          # GHA's default shell for `run:` is `bash --noprofile --norc
+          # -eo pipefail {0}`, so a `gh` failure on the upstream side
+          # of the `| jq` pipe aborts the step. `jq -r --arg cur` is
+          # quote-safe regardless of what release-please ever emits as
+          # the version string. `--limit 100` defeats the 30-item gh
+          # default — a long upstream review hiatus could otherwise let
+          # stragglers slip past unseen.
           stale=$(gh pr list \
             --repo "$UPSTREAM_REPO" \
             --author "@me" \
             --state open \
+            --limit 100 \
             --json number,headRefName \
-            | jq -r --arg cur "altacv-${VERSION}" \
-                '.[] | select(.headRefName | startswith("altacv-")) | select(.headRefName != $cur) | .number')
+            | jq -r --arg cur "${PACKAGE_NAME}-${VERSION}" --arg prefix "${PACKAGE_NAME}-" \
+                '.[] | select(.headRefName | startswith($prefix)) | select(.headRefName != $cur) | .number')
           if [ -z "$stale" ]; then
-            echo "No older altacv submissions open — nothing to supersede."
+            echo "No older ${PACKAGE_NAME} submissions open — nothing to supersede."
             exit 0
           fi
-          release_notes="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
-          body="Closing in favour of \`altacv:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
+          release_notes="${SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          body="Closing in favour of \`${PACKAGE_NAME}:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
+          # Tolerate per-PR close failures (e.g. someone manually closed
+          # one between the list and now): log and continue rather than
+          # aborting the batch and leaving the rest open until the next
+          # release happens by.
           for pr in $stale; do
-            # `--comment` fuses comment + close into one atomic API call,
-            # avoiding the inter-call race where a manual close between
-            # `gh pr comment` and `gh pr close` would leave behind a
-            # supersede comment on an already-closed PR.
-            gh pr close "$pr" --repo "$UPSTREAM_REPO" --comment "$body"
-            echo "Superseded PR #$pr"
+            if gh pr close "$pr" --repo "$UPSTREAM_REPO" --comment "$body"; then
+              echo "Superseded PR #$pr"
+            else
+              echo "::warning::Could not close PR #$pr (already closed, or transient error) — continuing"
+            fi
           done
