@@ -24,6 +24,13 @@ publications = "Publications"
 awards       = "Awards"
 projects     = "Projects"
 interests    = "Interests"
+references   = "References"
+
+# Italic fallback line rendered under the References heading when the
+# section is empty and `preferences.referencesAvailableOnRequest` is
+# true. Suppressed entirely (no heading, no line) when the preference
+# is false — the default.
+referencesAvailableOnRequest = "References available upon request."
 
 # Cluster heading for publications without an explicit `type`.
 articles = "Articles"
