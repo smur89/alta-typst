@@ -29,7 +29,7 @@ Every documented section rendered in a single multi-page CV. Source: [`examples/
 
 | Page 1 | Page 2 |
 | :---: | :---: |
-| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests](examples/example_full-2.png) |
+| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests, references](examples/example_full-2.png) |
 
 ## Installation
 
@@ -114,13 +114,12 @@ An empty or missing `endDate` renders as `Present` (localisable via `labels.pres
 
 ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume canonical shape) are formatted according to `preferences.dateFormat` (default `"long"`: e.g. `"Jun 2024"`). Strings that don't parse as ISO (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) pass through verbatim, so pre-formatted data keeps rendering identically.
 
-Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Sections with empty input are skipped — no orphan headings.
+Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Sections with empty input are skipped — no orphan headings.
 
 `basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered.
 
 JSON Resume fields **accepted but not yet rendered** by this template:
 
-- top-level: `references`
 - `volunteer[].summary`, `volunteer[].url`
 - `projects[].entity`, `projects[].type`, `projects[].roles`
 - `meta.canonical`, `meta.version`
@@ -256,6 +255,15 @@ interests: (
 )
 ```
 
+### References
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | Referee name, level-3 heading above the quote. Omitted entries render the quote anonymously. |
+| `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading). |
+
+When `references[]` is empty (or every entry lacks a `reference`) and `preferences.referencesAvailableOnRequest` is `true`, the section renders the conventional `References available upon request.` line under the heading instead of being suppressed. The line text is `labels.referencesAvailableOnRequest`, so it localises alongside the other display strings.
+
 ### Profile networks
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `internal/icons.typ`.
@@ -309,16 +317,17 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
+| `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. When `false` (the default) an empty section is suppressed entirely, matching every other section. |
 | `dateFormat` | `"long"` | How ISO 8601 dates are rendered wherever the template surfaces a date (`startDate`, `endDate`, `awards[].date`, `publications[].releaseDate`, …). Non-ISO strings pass through verbatim regardless. Accepted: `"long"` (`"Jun 2024"` / `"15 Jun 2024"`, month names from `labels.months`), `"short"` (`"06/2024"` / `"15/06/2024"`), `"iso"` (passthrough), **a bracketed template** in [Typst's `datetime.display()` syntax](https://typst.app/docs/reference/foundations/datetime/#definitions-display) (e.g. `"[day padding:none] [month repr:short] [year]"` → `"15 Jun 2024"`; tokens `year`/`month`/`day` with `padding:` and `repr:long`/`repr:short`/`repr:numerical`, where `month repr:long`/`short` localises via `labels.months`), or a closure `parts => str` receiving `(year, month, day)` (`month` / `day` are `none` for year-only / year-month inputs). |
 | `linkContactInfo` | `true` | Whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location, the supplied URL for `basics.url` and each profile). Accepts a **boolean** (uniform across channels) or a **partial dict** keyed by `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` (omitted channels stay linked). E.g. `linkContactInfo: (phone: false)` linkifies everything except the phone. Unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. `{q}` is replaced with the URL-encoded location at render time. Use a built-in — `maps-providers.{google,apple,bing,duckduckgo,osm}` — or any URL template string. Pass `none` to suppress the link (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`; combine the "last updated" line yourself in a content footer if you want both. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
 | `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, etc. Fluency strings stay anchored to the 0–5 LinkedIn scale, so non-5 `maxRating` requires numeric `languages[].rating` values. |
 
-Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
+Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
 
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
@@ -358,7 +367,7 @@ Example — opt out of links per channel (everything stays linked except phone):
 
 ### Single-column layout
 
-Set `columnRatio: 1` to collapse the grid to a single full-width column — useful for ATS parsers that struggle with multi-column PDFs. Sections from both `leftColumnSections` and `rightColumnSections` stream top-to-bottom in left-then-right order. With the defaults: `work → volunteer → projects → publications → focusAreas → skills → languages → education → certificates → awards → interests`.
+Set `columnRatio: 1` to collapse the grid to a single full-width column — useful for ATS parsers that struggle with multi-column PDFs. Sections from both `leftColumnSections` and `rightColumnSections` stream top-to-bottom in left-then-right order. With the defaults: `work → volunteer → projects → publications → focusAreas → skills → languages → education → certificates → awards → interests → references`.
 
 ```typst
 #alta(cv, preferences: (columnRatio: 1))
@@ -395,6 +404,8 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `awards` | `"Awards"` |
 | `projects` | `"Projects"` |
 | `interests` | `"Interests"` |
+| `references` | `"References"` |
+| `referencesAvailableOnRequest` | `"References available upon request."` |
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
