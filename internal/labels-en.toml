@@ -34,6 +34,12 @@ present = "Present"
 # Footer label when `preferences.lastModifiedFooter` is true.
 lastModified = "Last updated"
 
+# Cover-letter only — default closing valediction printed above the
+# signature. Override via `labels: (closing: "…")` to localise or pick
+# a different register ("Best regards,", "Yours sincerely,", "Le meas,",
+# …). Consumed only by `cover-letter`; ignored by `alta`.
+closing = "Sincerely,"
+
 # Twelve abbreviated month names (January–December). Consumed by the
 # built-in `dateFormat: "long"` formatter and the `[month repr:long]` /
 # `[month repr:short]` template tokens. Must keep length 12 (validated
