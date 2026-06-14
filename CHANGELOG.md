@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/smur89/alta-typst/compare/v1.1.0...v1.1.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **package:** address Typst Universe package-check warnings ([#124](https://github.com/smur89/alta-typst/issues/124)) ([562f95d](https://github.com/smur89/alta-typst/commit/562f95d90ace09af2b5dfb2430eaa77297bf3f95))
+
 ## [1.1.0](https://github.com/smur89/alta-typst/compare/v1.0.0...v1.1.0) (2026-06-14)
 
 
