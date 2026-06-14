@@ -316,22 +316,30 @@
   v(0.3 * body-size)
 }
 
-// Like `divider()` but with a centred label nested between two dashed
-// segments — used to announce a sub-grouping (e.g. the certificates'
-// issuer above its row of cert pills). The label renders in the same
-// muted register as publications' release-date metadata.
+// Like `divider()` but with a leading label that sits slightly indented
+// from the left edge, followed by the dashed segment running to the
+// right margin. Used to announce a sub-grouping (e.g. the certificates'
+// issuer above its row of cert pills). The label borrows the section-
+// heading register (uppercase, tracked) at a smaller scale and in body
+// colour so it reads as a quiet sub-heading rather than competing with
+// the parent section title.
 #let _labelled_divider(label) = context {
   let body-size = _body_size_state.get()
   let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
   v(0.3 * body-size)
-  grid(
-    columns: (1fr, auto, 1fr),
+  pad(left: 0.6 * body-size, grid(
+    columns: (auto, 1fr),
     column-gutter: 0.5 * body-size,
     align: horizon,
+    text(
+      0.75 * body-size,
+      fill: _emphasis_colour,
+      weight: "medium",
+      tracking: 0.08em,
+      upper(label),
+    ),
     line(length: 100%, stroke: stroke),
-    text(0.85 * body-size, fill: _body_colour.lighten(15%), label),
-    line(length: 100%, stroke: stroke),
-  )
+  ))
   v(0.3 * body-size)
 }
 
