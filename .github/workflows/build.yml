@@ -86,24 +86,14 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Build example.pdf + example_full.pdf + preview.png
-        run: |
-          make example
-          typst compile --root . examples/example_full.typ examples/example_full.pdf
+      - name: Build example.pdf + preview.png
+        run: make example
 
       - name: Upload example.pdf
         uses: actions/upload-artifact@v7
         with:
           name: example-pdf
           path: examples/example.pdf
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload example_full.pdf
-        uses: actions/upload-artifact@v7
-        with:
-          name: example-full-pdf
-          path: examples/example_full.pdf
           retention-days: 30
           if-no-files-found: error
 

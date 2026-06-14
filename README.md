@@ -57,7 +57,7 @@ Available on [Typst Universe](https://typst.app/universe/package/altacv):
 #alta(cv)
 ```
 
-See `examples/example.typ` in the [source repository](https://github.com/smur89/alta-typst) for a one-page CV covering the main sections; edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+See `examples/example.typ` in the [source repository](https://github.com/smur89/alta-typst) for a fully populated CV exercising every section. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
