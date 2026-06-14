@@ -300,12 +300,16 @@
         )
       } else {
         // Centred: stack the photo on its own row above or below the
-        // text block. `header-text` already honours `headerTextAlign`,
-        // so wrapping the photo in `align(center, ...)` is enough to
-        // place it on the page's centre axis regardless of how the
-        // text below/above it is aligned.
+        // text block. The photo itself is a fixed-size `box` (inline-
+        // level); a bare `align(center, box)` lays the box at the
+        // default inline position because there's no block context
+        // defining what to centre within. Wrap the centring `align`
+        // in a full-width `block` so the alignment computes against
+        // the document width, regardless of how the text above /
+        // below is aligned.
         let centred-photo = block(
           spacing: 0.8 * body-size,
+          width: 100%,
           align(center, photo),
         )
         if image-stack-order == "above" {
