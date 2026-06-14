@@ -90,8 +90,12 @@ example-full: examples/example_full.pdf
 
 # Universe package-card thumbnail. Per the typst/packages submission
 # rules, the thumbnail must depict one of the pages of the *template*
-# as initialised (not an example), rendered at 250 PPI, longer edge
-# at least 1080 px, ≤3 MiB.
+# as initialised (not an example), longer edge ≥ 1080 px, ≤ 3 MiB.
+# We render at 180 PPI (long edge ≈ 2105 px, file ≈ 0.8 MiB) — well
+# above the minimum and comfortably under the typst-package-check
+# linter's 1 MiB "large file" suggestion. The Universe card itself
+# displays at a small fraction of these pixels, so the extra
+# resolution from the typst docs' "usually" 250 PPI default is wasted.
 #
 # template/cv.typ uses `#import "@preview/altacv:<version>"` so it
 # works after `typst init` on a user's machine, but that path doesn't
@@ -99,11 +103,13 @@ example-full: examples/example_full.pdf
 # `$(LOCAL_IMPORT_SED)` expression) to the local `lib.typ`, renders
 # page 1, and cleans up the temp source — keeping template/cv.typ
 # untouched on disk so it ships verbatim.
+THUMB_PPI  ?= 180
+
 thumbnail: thumbnail.png
 
 thumbnail.png: template/cv.typ lib.typ
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .thumbnail-src.typ
-	$(TYPST) compile --root $(ROOT) --format png --ppi 250 .thumbnail-src.typ '.thumbnail-{p}.png'
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(THUMB_PPI) .thumbnail-src.typ '.thumbnail-{p}.png'
 	mv .thumbnail-1.png $@
 	rm -f .thumbnail-src.typ .thumbnail-*.png
 
