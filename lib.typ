@@ -328,15 +328,14 @@
   let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
   v(0.3 * body-size)
   pad(left: 0.6 * body-size, grid(
-    columns: (auto, 1fr),
+    columns: (1.3em, auto, 1fr),
     column-gutter: 0.5 * body-size,
     align: horizon,
+    line(length: 100%, stroke: stroke),
     text(
-      0.75 * body-size,
-      fill: _emphasis_colour,
-      weight: "medium",
-      tracking: 0.08em,
-      upper(label),
+      0.7 * body-size,
+      fill: _body_colour.lighten(15%),
+      label,
     ),
     line(length: 100%, stroke: stroke),
   ))
