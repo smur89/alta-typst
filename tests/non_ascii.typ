@@ -1,8 +1,9 @@
 // Non-ASCII content in name, location, and other fields. Exercises
 // _url_encode's multi-byte UTF-8 path (fadas in Gaeilge — á é í ó ú)
 // and verifies that accented characters survive the contact-bar /
-// header emission unchanged. Section headings are also overridden
-// to Gaeilge so the rendered document is end-to-end in Irish.
+// header emission unchanged. Section headings are loaded from the
+// file-based Irish translation, so the rendered document is end-to-end
+// in Irish and the `labels: toml(...)` workflow gets CI coverage.
 
 #import "../lib.typ": alta
 
@@ -36,9 +37,5 @@
       (language: "Español",  rating: 2.5),
     ),
   ),
-  labels: (
-    work:      "Taithí Oibre",
-    languages: "Teangacha",
-    present:   "I láthair",
-  ),
+  labels: toml("../examples/labels-ga.toml"),
 )
