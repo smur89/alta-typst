@@ -15,13 +15,13 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
 Available on [Typst Universe](https://typst.app/universe/package/altacv):
 
 ```typst
-#import "@preview/altacv:1.0.0": alta // x-release-please-version
+#import "@preview/altacv:1.1.0": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@preview/altacv:1.0.0": alta // x-release-please-version
+#import "@preview/altacv:1.1.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -297,7 +297,7 @@ Section renderers are width-agnostic — they fill whichever column they end up 
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
-#import "@preview/altacv:1.0.0": alta, maps-providers, palettes // x-release-please-version
+#import "@preview/altacv:1.1.0": alta, maps-providers, palettes // x-release-please-version
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -437,7 +437,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.0.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.1.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
 ```
 
 The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), the configured maps URL for location, and the supplied URL for the homepage and each profile. Suppress or swap any of them via `preferences.linkContactInfo` and `preferences.mapsProvider` above.
