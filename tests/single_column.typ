@@ -50,3 +50,15 @@
   leftColumnSections: ("work", "education"),
   rightColumnSections: ("skills", "languages"),
 ))
+
+#pagebreak()
+
+// Third page: partial `columnRatio` with an empty `rightColumnSections`.
+// Exercises the "collapse the grid to avoid a zero-width right cell"
+// branch — the left column is rendered full-width even though the ratio
+// is less than 1, because there is no right content to allocate space
+// for.
+#alta(cv, preferences: (
+  columnRatio: 0.6,
+  rightColumnSections: (),
+))

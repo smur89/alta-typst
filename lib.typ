@@ -1317,15 +1317,12 @@
     }
   }
 
+  // Three layout shapes: full-width merge when columnRatio is 1,
+  // left-only when the right side is empty, otherwise the canonical
+  // two-column grid.
+  //
   // Swapping the column-section arrays and inverting `columnRatio`
-  // together gives a mirrored layout. When `columnRatio` is exactly 1
-  // the grid collapses to a single full-width column streaming every
-  // requested section top-to-bottom in left-then-right order — so
-  // callers get a sensible single-column rendering from `columnRatio:
-  // 1` alone, without having to redistribute the default section
-  // arrays. Explicit overrides of either array still apply. When
-  // `rightColumnSections` is empty but `columnRatio < 1`, the grid
-  // also collapses to avoid a zero-width right cell.
+  // gives a mirrored layout.
   if column-ratio == 1 {
     render-column(preferences.leftColumnSections + preferences.rightColumnSections)
   } else if preferences.rightColumnSections.len() == 0 {

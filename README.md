@@ -324,7 +324,7 @@ Example — invert the template (side panel on the narrow left, experience on th
 
 ### Single-column layout
 
-Set `columnRatio: 1` to collapse the grid to a single full-width column. By default every section from both `leftColumnSections` and `rightColumnSections` streams top-to-bottom in left-then-right order — no redistribution needed:
+Set `columnRatio: 1` to collapse the grid to a single full-width column. By default every section from both `leftColumnSections` and `rightColumnSections` streams top-to-bottom in left-then-right order — no redistribution needed. With the defaults, that order is `work → volunteer → focusAreas → skills → languages → education → certificates → awards → projects → publications → interests`:
 
 ```typst
 #alta(cv, preferences: (columnRatio: 1))
