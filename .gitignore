@@ -24,7 +24,16 @@ target/
 #   GitHub and Typst Universe without needing a local rebuild.
 examples/*.pdf
 !examples/example_full.pdf
+examples/*.pdf.tmp
 examples/preview-*.png
+
+# Sed-swap temp sources created by `make cv` / `make thumbnail`.
+# Recipes `rm -f` them on success, but a compile failure (or Ctrl-C)
+# can leave one behind — ignoring keeps `git add -A` clean.
+.cv-pdf-src.typ
+.cv-png-src.typ
+.thumbnail-src.typ
+.thumbnail-*.png
 
 # Editor / IDE
 .vscode/

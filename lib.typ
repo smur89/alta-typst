@@ -57,9 +57,10 @@
   seen
 }
 
-// `cv` follows the JSON Resume schema (see `examples/example.typ`).
-// `labels` and `preferences` are partial dicts merged over the
-// defaults; unknown keys panic.
+// `cv` follows the JSON Resume schema (see `examples/example_full.typ`
+// for a fully-populated demo, or `template/cv.typ` for the starter
+// `typst init` produces). `labels` and `preferences` are partial
+// dicts merged over the defaults; unknown keys panic.
 #let alta(
   cv,
   labels: (:),

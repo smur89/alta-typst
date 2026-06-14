@@ -1,11 +1,13 @@
-// Shared CV data used by both the static page-1 preview
-// (`example.typ` → `examples/preview.png`) and the animated
-// multi-frame preview (`preview-frames.typ` → `examples/preview.gif`).
+// Shared CV data for the animated multi-frame preview
+// (`preview-frames.typ` → `examples/preview.gif`). Every frame of
+// the GIF renders the SAME fictional CV — only the preferences
+// differ — so accent / layout / column-arrangement changes read as
+// preference customisation rather than data differences.
 //
-// Keeping the data in one file means every frame of the GIF shows the
-// SAME fictional CV — only the preferences differ — so accent /
-// layout / column-arrangement changes read as preference customisation
-// rather than data differences.
+// The static README preview (`examples/cv.png`) and the Universe
+// thumbnail are rendered from `template/cv.typ` instead, which
+// carries its own inline data; that's the file `typst init` copies
+// into the user's project, so it ships standalone.
 //
 // `no-image` is a helper that returns the CV with `basics.image`
 // suppressed, used by frames that demonstrate the image-less header

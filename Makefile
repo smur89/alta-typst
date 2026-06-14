@@ -63,14 +63,14 @@ preview-gif: examples/preview.gif
 # for why it sed-swaps the package import.
 cv: examples/cv.pdf examples/cv.png
 
-# Multi-page gallery — one PNG per page of example_full, alongside the
-# rendered PDF. The PDF doubles as the freshness stamp for the PNGs:
-# whenever example_full.typ (or lib.typ) is newer than the PDF, both
-# the PDF and every gallery PNG regenerate together. Listing each PNG
-# individually would drift out of sync if content grows or shrinks a
-# page; this way the page count can change and `make` still does the
-# right thing.
-example-full: examples/example_full.pdf
+# Multi-page gallery — the rendered PDF plus per-page PNGs. PDF and
+# PNGs both depend on the same source set, so a stale PNG can no
+# longer linger when the PDF is current (a hazard of the old
+# PDF-as-stamp pattern). Listing every page would drift if content
+# grows, so we list the first two (the README's gallery embeds page
+# 1 + 2) and accept that adding a 3rd page is a deliberate edit that
+# also adds `examples/example_full-3.png` here.
+example-full: examples/example_full.pdf examples/example_full-1.png examples/example_full-2.png
 
 # Universe package-card thumbnail. Per the typst/packages submission
 # rules, the thumbnail must depict one of the pages of the *template*
@@ -118,15 +118,19 @@ examples/tests/%.pdf: tests/%.typ | examples/tests
 examples/%.pdf: examples/%.typ
 	$(TYPST) compile --root $(ROOT) $< $@
 
-# Explicit rule for example_full — overrides the pattern rule above to
-# also emit a per-page PNG sequence (examples/example_full-{1,2,…}.png)
-# used as the static gallery in README.md. The Typst PNG export needs
-# a `{p}` placeholder; that produces one file per page, which is the
-# multi-page shape we want here (the standard pattern rule keeps only
-# page 1).
-examples/example_full.pdf: examples/example_full.typ lib.typ
-	$(TYPST) compile --root $(ROOT) $< $@
+# Explicit rule for example_full: PDF + per-page PNG gallery in one
+# recipe. The PDF is written to a `.tmp` first and only renamed to
+# its final path if the PNG compile also succeeds — so a partial
+# failure leaves `examples/example_full.pdf` stale and the rule
+# fires again on the next `make` (rather than skipping the rule
+# because a half-built PDF is newer than the source). The `{p}`
+# placeholder emits one file per page; the standard `examples/%.png`
+# rule only keeps page 1, so this is the only place that holds the
+# multi-page gallery.
+examples/example_full.pdf examples/example_full-1.png examples/example_full-2.png: examples/example_full.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
+	$(TYPST) compile --root $(ROOT) --format pdf $< examples/example_full.pdf.tmp
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
+	mv examples/example_full.pdf.tmp examples/example_full.pdf
 
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
 # Typst's PNG export needs a `{p}` placeholder; we render to a numbered
@@ -208,22 +212,10 @@ check: test
 # regenerated from `template/cv.typ` — run `make cv` (or
 # `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png examples/example_full.pdf.tmp thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ
 
 help:
-	@echo "Targets:"
-	@echo "  all          Build every example PDF, the cv preview,"
-	@echo "               and the per-fixture PDFs (default)"
-	@echo "  cv           Build examples/cv.pdf + examples/cv.png"
-	@echo "  example-full Build examples/example_full.pdf + per-page gallery PNGs"
-	@echo "  thumbnail    Build thumbnail.png from template/cv.typ (Universe card)"
-	@echo "  preview-gif  Build the animated README hero (needs ffmpeg)"
-	@echo "  pdfs         Build PDFs for every examples/*.typ"
-	@echo "  previews     Build page-1 PNGs for every examples/*.typ"
-	@echo "  test-pdfs    Render every tests/*.typ to examples/tests/*.pdf"
-	@echo "  test         Compile every example + fixture, discarding output"
-	@echo "  check        Alias for test (matches the CI lint shape)"
-	@echo "  clean        Remove generated PDFs and PNGs"
-	@echo ""
-	@echo "Overrides: TYPST=path/to/typst, FFMPEG=path/to/ffmpeg,"
-	@echo "           PPI=300, PREVIEW_FPS=1"
+	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
+	  '         pdfs | previews | test-pdfs | test (alias: check) | clean' \
+	  'Per-target detail: see the header comment in this Makefile.' \
+	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1'
