@@ -11,19 +11,23 @@
 // bullet. The trailing `h(...)` after the dash mirrors the gap that
 // `tag()` already emits to its left, keeping the label pill visually
 // centred between its two whitespace gutters.
-#let _name_keywords_section(groups, heading) = if groups.len() > 0 {
+#let _name_keywords_section(groups, heading) = {
+  // Filter empty-keywords groups up front so we can also skip the
+  // section heading: rendering a bare "Skills" with nothing underneath
+  // (every group had an empty `keywords:`) reads worse than skipping
+  // the section entirely.
+  let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
+  if visible.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
     [== #heading]
-    for group in groups {
-      let keywords = group.at("keywords", default: ())
-      if keywords.len() == 0 { continue }
+    for group in visible {
       block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
         tag(group.name, label: true)
         text("-")
         h(0.25 * body-size)
-        _tag_row(keywords)
+        _tag_row(group.keywords)
       }))
     }
   }

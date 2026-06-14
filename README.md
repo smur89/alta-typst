@@ -106,8 +106,9 @@ basics: (
 )
 
 // Alternative: a root-relative path (leading "/", anchored to the
-// `--root` directory passed to `typst compile`). String paths without
-// a leading "/" resolve relative to `lib.typ` and are not portable.
+// `--root` directory passed to `typst compile`). Paths without a
+// leading "/" resolve relative to an internal package file and are
+// not portable — use one of these two forms.
 basics: (
   image: "/avatar.png",
   ...

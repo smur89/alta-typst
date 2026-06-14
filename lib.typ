@@ -4,35 +4,45 @@
 // (https://github.com/GeorgeHoneywood/alta-typst, MIT, © 2023 George
 // Honeywood) and rewritten around a JSON Resume-style data dict.
 //
-// This file is the public entry point — exposes `alta(cv, ...)` plus
-// the helpers documented in the README. Implementation lives under:
+// Public entry: `alta(cv, ...)` plus the helpers documented in the
+// README. Implementation lives under:
 //
-//   internal/   — shared infrastructure (state, dates, icons,
-//                 primitives, ratings, header, layout catalogue)
+//   internal/   — shared infrastructure (presets, state, dates, icons,
+//                 primitives, ratings, header, footer, layout catalogue)
 //   sections/   — one renderer per CV section (work, education,
-//                 certificates, …) — the "component" layer
+//                 certificates, …) — the "component" layer dispatched
+//                 from `internal/layout.typ`'s `_sections` table.
 //
 // Spacing tokens are em-multipliers of `body-size`, so changing one
 // knob scales the document proportionally. The few absolute values
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
-#import "internal/state.typ": (
-  palettes, maps-providers,
-  _body_colour, _emphasis_colour, _body_size_state, _accent_state, _max_rating_state,
-)
-#import "internal/defaults.typ": _default_labels, _default_preferences
+#import "internal/presets.typ": palettes, maps-providers
+#import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
+#import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": _strict_merge, _check_bool
 #import "internal/text.typ": _present, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": name, term, tag, divider
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _date_format_aliases, _iso_datetime
-#import "internal/meta.typ": _collect_keywords
-#import "internal/header.typ": _header
+#import "internal/header.typ": _header, _summary
 #import "internal/footer.typ": _auto_page_footer
-#import "internal/layout.typ": _sections
-#import "sections/summary.typ": _summary
+#import "internal/layout.typ": _sections, _default_preferences
+
+// Flatten every skill group's `keywords` into a de-duplicated array
+// for the PDF `Keywords` field. Insertion order is preserved so the
+// metadata reflects the author's curated ordering.
+#let _collect_keywords(skills) = {
+  let seen = ()
+  for group in skills {
+    for kw in group.at("keywords", default: ()) {
+      if type(kw) == str and kw != "" and kw not in seen { seen.push(kw) }
+    }
+  }
+  seen
+}
 
 // `cv` follows the JSON Resume schema (see `examples/example.typ`).
 // `labels` and `preferences` are partial dicts merged over the

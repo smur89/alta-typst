@@ -69,8 +69,8 @@
 // Resolves a single bracketed token from a Typst-style format template
 // (e.g. "year", "month repr:long", "day padding:none") against the
 // parsed parts. Missing components (month/day on a year-only or
-// year-month input) substitute a sentinel marker (see SEP_DROP below)
-// so adjacent separators can be collapsed by the caller. Mirrors a
+// year-month input) substitute `_DATE_TOKEN_DROP` so adjacent
+// separators can be collapsed by the caller. Mirrors a
 // subset of Typst's own `datetime.display()` token syntax — the
 // supported tokens are `year`, `month`, and `day`, with
 // `repr:long`/`repr:short`/`repr:numerical` for `month` (the long/short

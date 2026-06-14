@@ -4,16 +4,28 @@ Thanks for taking the time to look. This project is small enough that almost any
 
 ## Project layout
 
-```
-lib.typ           # public entry — re-exports + `alta()`
-internal/         # shared infrastructure (state, dates, icons, primitives, ratings, header, layout catalogue)
-sections/         # one renderer per CV section — the "component" layer
+```text
+lib.typ           # public entry — re-exports + `alta()` + _collect_keywords
+internal/         # shared infrastructure
+                  #   presets.typ      — palettes, maps-providers (public)
+                  #   state.typ        — state cells, colour constants
+                  #   defaults.typ     — _default_labels
+                  #   validation.typ   — _strict_merge, _check_bool
+                  #   text.typ         — _present, styled-link
+                  #   icons.typ        — icon dicts + icon()
+                  #   primitives.typ   — name, term, tag, divider, joiners
+                  #   ratings.typ      — rating system
+                  #   dates.typ        — date parse / format / range
+                  #   header.typ       — _header + _summary + location helpers
+                  #   footer.typ       — _auto_page_footer
+                  #   layout.typ       — _sections + _default_preferences
+sections/         # one renderer per dispatched CV section — the "component" layer
 icons/            # vendored Font Awesome SVGs
-examples/         # example CVs and shared `_dates.typ` helper
+examples/         # example CVs and shared _dates.typ helper
 tests/            # fixtures — each compiled by CI and rendered to examples/tests/*.pdf
 ```
 
-Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API. Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
+Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
 
 ## Development loop
 
@@ -68,6 +80,8 @@ This is the most common shape of contribution. Three changes:
 ## Adding a section, preference, or label
 
 For a **new section**: add the renderer under `sections/<name>.typ`, register it in `_sections` in `internal/layout.typ` (column + dispatch closure), and add the heading to `_default_labels` in `internal/defaults.typ`. For a **new preference**: add it to `_default_preferences` in `internal/layout.typ`, validate it inside `alta()` in `lib.typ`, and thread it through to the consumer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+
+The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
 
 ## Security
 

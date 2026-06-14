@@ -53,6 +53,13 @@
   if value < 0 or value > max-rating {
     panic("Rating out of range: " + repr(value) + ". Expected 0–" + str(max-rating) + ".")
   }
+  // Half-dot precision is the only fractional shape the renderer can
+  // express (a single `_half_fill` gradient). Reject other fractions
+  // up front so `3.1` and `3.9` don't both silently round to a
+  // half-dot — callers either ask for a full step or a half step.
+  if calc.round(value * 2) / 2 != value {
+    panic("Rating must use 0.5 increments, got: " + repr(value))
+  }
   let dot-radius = 0.45 * body-size
   let dot-baseline = -0.25 * body-size
   let dot-spacing = 0.4 * body-size

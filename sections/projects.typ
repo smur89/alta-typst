@@ -1,23 +1,20 @@
 // Projects — name (optionally linked), italic description, date
-// range, bulleted highlights, pill-tagged keywords. Follows JSON
-// Resume's `projects[]` schema (`entity` / `type` / `roles` are
-// accepted but unrendered).
+// range, bulleted highlights, pill-tagged keywords. JSON Resume's
+// `projects[]` schema; `entity` / `type` / `roles` are accepted but
+// unrendered. Entries without a `name` are skipped to avoid an
+// orphan heading.
 
-#import "../internal/text.typ": _present, _titled_link
+#import "../internal/text.typ": _present, styled-link
 #import "../internal/primitives.typ": term, _join_with_dividers, _tag_row
 #import "../internal/dates.typ": _format_date_range
 
-// Practical subset of JSON Resume's `projects[]`: name, description,
-// url, dates, highlights, keywords. `entity`, `type`, `roles` are
-// accepted but unrendered (open an issue if you need them). Entries
-// without a `name` are skipped to avoid an orphan heading.
 #let _projects(entries, labels, prefs) = {
   let valid = entries.filter(p => _present(p.at("name", default: none)))
   if valid.len() == 0 { return }
   [== #labels.projects]
   _join_with_dividers(valid, project => block(breakable: false, {
     let url = project.at("url", default: none)
-    [=== #_titled_link(project.name, url)]
+    [=== #styled-link(project.name, dest: url)]
     let description = project.at("description", default: none)
     if _present(description) {
       // Softer than `name()` (which is bold + accent) so the

@@ -4,9 +4,13 @@
 // fields. Both panic on misuse so errors surface at the caller rather
 // than as cryptic render-time failures.
 
-// Panics on unknown keys so typos surface as errors instead of being
-// silently absorbed.
+// Panics on the wrong override-shape (non-dictionary) up front, then
+// on unknown keys so typos surface as errors instead of being silently
+// absorbed.
 #let _strict_merge(defaults, overrides, name) = {
+  if type(overrides) != dictionary {
+    panic(name + " must be a dictionary, got: " + repr(overrides))
+  }
   let unknown = overrides.keys().filter(k => k not in defaults)
   if unknown.len() > 0 {
     panic(

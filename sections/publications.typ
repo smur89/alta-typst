@@ -1,9 +1,9 @@
 // Publications — grouped by `type` (an altacv extension) with a
-// type-appropriate icon on each subheading. Untyped entries fall
-// under `labels.articles`.
+// type-appropriate icon on each subheading. Untyped or invalid-type
+// entries fall under `labels.articles`.
 
 #import "../internal/state.typ": _body_size_state, _body_colour
-#import "../internal/text.typ": _present, _titled_link
+#import "../internal/text.typ": _present, styled-link
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -34,12 +34,27 @@
 // (Typst dicts preserve insertion order). Untyped entries fall under
 // `labels.articles`. Subheading icons resolve via
 // `labels.publicationIcons` → `_default_publication_icons` → `file`.
-#let _publications(pubs, labels, prefs) = if pubs.len() > 0 {
+#let _publications(pubs, labels, prefs) = {
+  // Drop entries with no usable `name` up front so the section
+  // doesn't render an empty bullet, and so an empty section doesn't
+  // emit an orphan heading. Matches the filter-first pattern used by
+  // awards / projects.
+  let valid = pubs.filter(p => _present(p.at("name", default: none)))
+  if valid.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
     let groups = (:)
-    for pub in pubs {
-      let key = pub.at("type", default: labels.articles)
+    for pub in valid {
+      // Normalise `type` to a non-empty string — a missing field or
+      // a non-string value (e.g. `none`, a number) falls back to the
+      // default "Articles" heading rather than crashing at
+      // `lower(group)` below.
+      let raw-type = pub.at("type", default: none)
+      let key = if type(raw-type) == str and _present(raw-type) {
+        raw-type
+      } else {
+        labels.articles
+      }
       groups.insert(key, groups.at(key, default: ()) + (pub,))
     }
     [== #labels.publications]
@@ -76,7 +91,7 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          - #_titled_link(title, url).
+          - #styled-link(title, dest: url).
             #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
             #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]

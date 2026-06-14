@@ -9,11 +9,6 @@
 #import "../internal/primitives.typ": name, term, _join_with_dividers
 #import "../internal/dates.typ": _format_date_range
 
-// JSON Resume's `work[]` carries a `summary` (a short paragraph
-// describing the role) and some exporters also populate `description`.
-// We treat them as alternatives that fill the same slot between the
-// term row and the highlights list — `summary` wins when both are
-// present so callers can opt into either field name without surprises.
 #let _experience(work, labels, prefs) = if work.len() > 0 [
   == #labels.work
 
@@ -24,11 +19,17 @@
       // so the company stays visually identical to the unlinked case
       // and just gains click behaviour. `styled-link` would impose the
       // italic / underline treatment used for publication titles.
+      // `_present` (rather than `!= none`) so an empty-string url
+      // doesn't render a dead link.
       #let url = job.at("url", default: none)
-      #name[#if url != none { link(url, job.name) } else { job.name }]
+      #name[#if _present(url) { link(url, job.name) } else { job.name }]
       #term(_format_date_range(job, prefs, labels), location: job.at("location", default: none))
 
-      #let preamble = job.at("summary", default: job.at("description", default: none))
+      // `summary` wins over `description` only when present-and-non-
+      // empty; an empty-string `summary` falls through to `description`
+      // so callers using either field name get the right preamble.
+      #let summary = job.at("summary", default: none)
+      #let preamble = if _present(summary) { summary } else { job.at("description", default: none) }
       #if _present(preamble) [
         // Softer than `name()` (the bold accent line above) — same
         // treatment as `projects[].description` — so the prose
