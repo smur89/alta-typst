@@ -1,23 +1,61 @@
-# altacv
+<h1 align="center">Alta CV</h1>
 
-[![Typst Universe](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Ftypst.app%2Funiverse%2Fpackage%2Faltacv&query=%2Fhtml%2Fbody%2Fdiv%2Fmain%2Fdiv%5B2%5D%2Faside%2Fsection%5B2%5D%2Fdl%2Fdd%5B3%5D&logo=typst&label=Universe&color=%23239DAE&style=flat-square)](https://typst.app/universe/package/altacv)
-[![Release](https://img.shields.io/github/v/release/smur89/alta-typst?style=flat-square)](https://github.com/smur89/alta-typst/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/smur89/alta-typst/build.yml?style=flat-square)](https://github.com/smur89/alta-typst/actions/workflows/build.yml)
-[![License](https://img.shields.io/github/license/smur89/alta-typst?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square)](https://github.com/smur89/alta-typst/stargazers)
+<p align="center">
+  <a href="https://typst.app/universe/package/altacv"><img alt="Typst Universe" src="https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Ftypst.app%2Funiverse%2Fpackage%2Faltacv&query=%2Fhtml%2Fbody%2Fdiv%2Fmain%2Fdiv%5B2%5D%2Faside%2Fsection%5B2%5D%2Fdl%2Fdd%5B3%5D&logo=typst&label=Universe&color=%23239DAE&style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/releases"><img alt="Release" src="https://img.shields.io/github/v/release/smur89/alta-typst?style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/smur89/alta-typst/build.yml?style=flat-square"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/smur89/alta-typst?style=flat-square"></a>
+  <a href="https://github.com/smur89/alta-typst/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square"></a>
+</p>
 
-A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
+<p align="center">A Typst CV template inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX). Data-driven via a <a href="https://jsonresume.org/">JSON Resume</a>-style dict; configurable theme, labels, and sections.</p>
 
 <!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/preview.png is also committed for places that don't render animated GIFs. -->
-![Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif)
+<p align="center">
+  <img alt="Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif">
+</p>
+
+## Features
+
+- **Data-driven from a [JSON Resume](https://jsonresume.org/) dict** — round-trips your `resume.json`, with a small set of practical extensions (`focusAreas`, numeric language `rating`, publication `type` grouping).
+- **Single-column ATS mode** (`columnRatio: 1`) for parser-friendly output, alongside the default two-column layout — and inverted layouts (narrow side panel on either side).
+- **Six built-in accent palettes** (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`) plus any `rgb(...)` value.
+- **Full label localisation** via inline dict or TOML file — every display string the template emits is overridable, with a worked Irish translation under [`examples/labels-ga.toml`](https://github.com/smur89/alta-typst/blob/main/examples/labels-ga.toml).
+- **PDF metadata baked in** — title, author, subject, keywords (auto-derived from skills), and document date populate from the same data dict.
+
+## Gallery
+
+Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ); rendered output: [`examples/example_full.pdf`](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full.pdf).
+
+<p align="center">
+  <img alt="example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-1.png" width="48%">
+  <img alt="example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-2.png" width="48%">
+</p>
 
 ## Installation
 
-Available on [Typst Universe](https://typst.app/universe/package/altacv):
+Scaffold a new project from the template:
+
+```bash
+typst init @preview/altacv
+```
+
+Or `#import` it from an existing `.typ`:
 
 ```typst
 #import "@preview/altacv:1.0.0": alta // x-release-please-version
 ```
+
+## Fonts
+
+The default font is **Lato**. The Typst web app has it preinstalled — local users need it on the system font path, or pass `preferences.font` to override.
+
+- **Web app**: works out of the box.
+- **Local (Linux)**: `sudo apt-get install fonts-lato` (or your distro's equivalent).
+- **Local (macOS/Windows)**: download from [Google Fonts](https://fonts.google.com/specimen/Lato) and install.
+- **Other fonts**: any installed system font works — `#alta(cv, preferences: (font: "Inter"))`.
+
+Run `typst fonts` to list what Typst can see on your system.
 
 ## Quick start
 
@@ -63,7 +101,7 @@ Available on [Typst Universe](https://typst.app/universe/package/altacv):
 #alta(cv)
 ```
 
-See `examples/example.typ` in the [source repository](https://github.com/smur89/alta-typst) for a fully populated CV exercising every section. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+See [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ) for a multi-page CV exercising every section and every documented input form (see [Gallery](#gallery) for the rendered output). [`examples/example.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example.typ) is the single-page variant that drives the README preview image. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
@@ -406,7 +444,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](examples/example_ga.typ) for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](https://github.com/smur89/alta-typst/blob/main/examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_ga.typ) for a worked Irish translation.
 
 ### Helpers
 
@@ -430,16 +468,18 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
 
-## Building the example
+## Building the examples
 
 ```sh
 typst compile --root . examples/example.typ examples/example.pdf
+typst compile --root . examples/example_full.typ examples/example_full.pdf
 ```
 
-To regenerate the preview artifacts (both the static page-1 PNG and the animated GIF that cycles through preference variations):
+To regenerate the preview artifacts (the static page-1 PNG, the animated GIF that cycles through preference variations, and the multi-page gallery PNGs):
 
 ```sh
 make example        # examples/example.pdf + examples/preview.png
+make example-full   # examples/example_full.pdf + examples/example_full-{1,2,…}.png
 make preview-gif    # examples/preview.gif (requires ffmpeg)
 ```
 

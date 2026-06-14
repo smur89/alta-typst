@@ -86,14 +86,22 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Build example.pdf + preview.png
-        run: make example
+      - name: Build example.pdf + example_full.pdf + preview.png
+        run: make example example-full
 
       - name: Upload example.pdf
         uses: actions/upload-artifact@v7
         with:
           name: example-pdf
           path: examples/example.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload example_full.pdf
+        uses: actions/upload-artifact@v7
+        with:
+          name: example-full-pdf
+          path: examples/example_full.pdf
           retention-days: 30
           if-no-files-found: error
 
@@ -161,8 +169,8 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Rebuild example.pdf + preview.png at the tag
-        run: make example
+      - name: Rebuild example.pdf + example_full.pdf + preview.png at the tag
+        run: make example example-full
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
@@ -172,12 +180,19 @@ jobs:
       # `internal/` and `sections/` carry the modules that lib.typ
       # `#import`s; they must ship with the package or compile fails
       # at the user's site with "file not found".
+      #
+      # `template/` provides the starter project that `typst init
+      # @preview/altacv` copies to the user; `thumbnail.png` is the
+      # image Typst Universe displays on the package card. Both are
+      # referenced from typst.toml's `[template]` section and must
+      # ship with the package or the linter reports them missing.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
-            typst.toml lib.typ internal/ sections/ icons/ LICENSE README.md
+            typst.toml lib.typ internal/ sections/ icons/ template/ \
+            thumbnail.png LICENSE README.md
 
       - name: Attach assets to release
         uses: softprops/action-gh-release@v3
@@ -186,6 +201,7 @@ jobs:
           files: |
             ${{ env.PACKAGE_NAME }}-*.tar.gz
             examples/example.pdf
+            examples/example_full.pdf
             examples/preview.png
           make_latest: 'true'
 

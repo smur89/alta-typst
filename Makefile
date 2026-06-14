@@ -6,6 +6,8 @@
 #   make             # build every example PDF + the README preview image
 #                    # + a rendered PDF per fixture under examples/tests/
 #   make example     # build examples/example.pdf + examples/preview.png
+#   make example-full # build examples/example_full.pdf + per-page PNGs
+#                    # used as the static README gallery
 #   make preview-gif # build the animated README hero (needs ffmpeg)
 #   make pdfs        # build PDFs for every examples/*.typ
 #   make previews    # build a page-1 PNG for every examples/*.typ
@@ -33,19 +35,35 @@ PREVIEW_FPS ?= 0.4
 # Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
 # helpers `#import`-ed by the real examples — not standalone documents
 # — so they're excluded from the PDF/PNG sweep.
-EXAMPLES  := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
-TESTS     := $(wildcard tests/*.typ)
-PDFS      := $(EXAMPLES:.typ=.pdf)
-PNGS      := $(EXAMPLES:.typ=.png)
-TEST_PDFS := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
+#
+# `example_full.typ` is in the PDF sweep but excluded from the PNG
+# sweep — the standard `examples/%.png` rule keeps only page 1, while
+# example_full needs every page rendered (one PNG per page, used as
+# the static gallery in README.md). The dedicated rule below handles
+# both its PDF and its multi-page PNG output in one step.
+EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
+EXAMPLES_PNG  := $(filter-out examples/example_full.typ,$(EXAMPLES))
+TESTS         := $(wildcard tests/*.typ)
+PDFS          := $(EXAMPLES:.typ=.pdf)
+PNGS          := $(EXAMPLES_PNG:.typ=.png)
+TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all example preview-gif pdfs previews test-pdfs test check clean help
+.PHONY: all example example-full preview-gif pdfs previews test-pdfs test check clean help
 
 all: pdfs examples/preview.png test-pdfs
 
 preview-gif: examples/preview.gif
 
 example: examples/example.pdf examples/preview.png
+
+# Multi-page gallery — one PNG per page of example_full, alongside the
+# rendered PDF. The PDF doubles as the freshness stamp for the PNGs:
+# whenever example_full.typ (or lib.typ) is newer than the PDF, both
+# the PDF and every gallery PNG regenerate together. Listing each PNG
+# individually would drift out of sync if content grows or shrinks a
+# page; this way the page count can change and `make` still does the
+# right thing.
+example-full: examples/example_full.pdf
 
 pdfs: $(PDFS)
 
@@ -71,6 +89,16 @@ examples/tests/%.pdf: tests/%.typ | examples/tests
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ
 	$(TYPST) compile --root $(ROOT) $< $@
+
+# Explicit rule for example_full — overrides the pattern rule above to
+# also emit a per-page PNG sequence (examples/example_full-{1,2,…}.png)
+# used as the static gallery in README.md. The Typst PNG export needs
+# a `{p}` placeholder; that produces one file per page, which is the
+# multi-page shape we want here (the standard pattern rule keeps only
+# page 1).
+examples/example_full.pdf: examples/example_full.typ lib.typ
+	$(TYPST) compile --root $(ROOT) $< $@
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
 
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
 # Typst's PNG export needs a `{p}` placeholder; we render to a numbered
@@ -141,13 +169,14 @@ check: test
 # (or `git checkout examples/preview.png`) after `make clean` to put
 # it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png
 
 help:
 	@echo "Targets:"
 	@echo "  all          Build every example PDF, the README preview,"
 	@echo "               and the per-fixture PDFs (default)"
 	@echo "  example      Build examples/example.pdf + examples/preview.png"
+	@echo "  example-full Build examples/example_full.pdf + per-page gallery PNGs"
 	@echo "  preview-gif  Build the animated README hero (needs ffmpeg)"
 	@echo "  pdfs         Build PDFs for every examples/*.typ"
 	@echo "  previews     Build page-1 PNGs for every examples/*.typ"
