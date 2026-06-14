@@ -2,7 +2,7 @@
 
 A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
 
-<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the Universe package archive ships only lib.typ, icons/, LICENSE, README.md). -->
+<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). -->
 ![Two-column CV rendered by the altacv template — left column shows experience; right column shows areas of focus, skills, languages, education, certifications, and publications](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.png)
 
 ## Installation
