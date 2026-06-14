@@ -316,6 +316,25 @@
   v(0.3 * body-size)
 }
 
+// Like `divider()` but with a centred label nested between two dashed
+// segments — used to announce a sub-grouping (e.g. the certificates'
+// issuer above its row of cert pills). The label renders in the same
+// muted register as publications' release-date metadata.
+#let _labelled_divider(label) = context {
+  let body-size = _body_size_state.get()
+  let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
+  v(0.3 * body-size)
+  grid(
+    columns: (1fr, auto, 1fr),
+    column-gutter: 0.5 * body-size,
+    align: horizon,
+    line(length: 100%, stroke: stroke),
+    text(0.85 * body-size, fill: _body_colour.lighten(15%), label),
+    line(length: 100%, stroke: stroke),
+  )
+  v(0.3 * body-size)
+}
+
 // Interleaves `divider()` between items; the trailing one is suppressed
 // so sections don't end on a stray rule.
 #let _join_with_dividers(items, render) = {
@@ -872,20 +891,16 @@
   }
   if groups.len() == 0 { return }
   [== #labels.certificates]
-  context {
-    let body-size = _body_size_state.get()
-    // Issuer renders as a category-style label tag (matching the
-    // leading pill in `_skills`); the item pills then carry the cert
-    // name and — when present — an inline middot + calendar icon +
-    // date, all wrapped in a link when the cert supplies one.
-    _join_with_dividers(groups, g => block(breakable: false, {
-      if g.issuer != none {
-        tag(g.issuer, label: true)
-        text("-")
-        h(0.25 * body-size)
-      }
-      for item in g.items { _cert_tag(item) }
-    }))
+  // Each group's issuer (when present) leads its row as a labelled
+  // dashed divider — replacing the plain inter-group divider with one
+  // that names the issuer. Groups without an issuer (the pooled
+  // singletons cluster, or every group in flat mode) get the plain
+  // divider; the first group is preceded by no divider regardless so
+  // the section starts flush against the heading.
+  for (i, g) in groups.enumerate() {
+    if g.issuer != none { _labelled_divider(g.issuer) }
+    else if i > 0 { divider() }
+    block(breakable: false, { for item in g.items { _cert_tag(item) } })
   }
 }
 
