@@ -89,6 +89,7 @@
   }
   _check_bool("uppercaseName", preferences.uppercaseName)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
+  _check_bool("anonymous", preferences.anonymous)
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
@@ -155,10 +156,16 @@
   let doc-date = _iso_datetime(last-modified-raw)
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
   let doc-description = cv.basics.at("summary", default: none)
+  // `uppercaseName` is purely visual — PDF metadata stays canonical.
+  // `anonymous` collapses identifying metadata to a generic placeholder
+  // so the file's document properties can't leak name through e.g. an
+  // OS file-info panel or a search index. The placeholder mirrors what
+  // the rendered header shows for an anonymised CV.
+  let doc-title = if preferences.anonymous { "Candidate" } else { cv.basics.name + " --- CV" }
+  let doc-author = if preferences.anonymous { "Candidate" } else { cv.basics.name }
   set document(
-    // `uppercaseName` is purely visual — PDF metadata stays canonical.
-    title: cv.basics.name + " --- CV",
-    author: cv.basics.name,
+    title: doc-title,
+    author: doc-author,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
     ..(if _present(doc-description) { (description: doc-description) } else { (:) }),
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
@@ -232,6 +239,7 @@
     link-contact-info: preferences.linkContactInfo,
     maps-provider: preferences.mapsProvider,
     uppercase-name: preferences.uppercaseName,
+    anonymous: preferences.anonymous,
   )
   _summary(cv.basics)
 

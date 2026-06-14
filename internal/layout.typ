@@ -110,6 +110,13 @@
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
   uppercaseName: true,
+  // Blind-review mode. When `true`, the header drops `basics.name`,
+  // `basics.image`, and the contact bar entirely — only `basics.label`
+  // remains (or nothing, if absent). PDF metadata `title` and `author`
+  // also collapse to the placeholder `"Candidate"` so file properties
+  // can't leak identity. Same data dict, same compile command, single
+  // toggle — no need to maintain a stripped-down copy of `basics`.
+  anonymous: false,
   // When true and `cv.meta.lastModified` is set, render a small
   // "Last updated: <value>" line in the page footer. PDF metadata
   // (date / keywords / description) is populated from `meta` and
