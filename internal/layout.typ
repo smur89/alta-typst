@@ -142,13 +142,9 @@
   // from `_sections` so adding a section there places it automatically.
   leftColumnSections: _keys_for_column("left"),
   rightColumnSections: _keys_for_column("right"),
-  // When true and `references` is empty (or every entry has no
-  // `reference` quote), the references section renders a single italic
-  // fallback line — the conventional "References available upon
-  // request" CV idiom — instead of being suppressed. The line text
-  // comes from `labels.referencesAvailableOnRequest` so translators can
-  // localise it. Default `false` keeps the section silent when there's
-  // no data, matching every other section's no-data behaviour.
+  // Opt-in: emit `labels.referencesAvailableOnRequest` under the
+  // References heading when no entry has a `reference` quote, instead
+  // of suppressing the section.
   referencesAvailableOnRequest: false,
   // Number of dots on the language fluency scale. Default 5 matches
   // LinkedIn's scale (and the built-in `fluency` string map). Override
