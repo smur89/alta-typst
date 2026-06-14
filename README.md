@@ -22,6 +22,7 @@
 - **Six built-in accent palettes** (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`) plus any `rgb(...)` value.
 - **Full label localisation** via inline dict or TOML file — every display string the template emits is overridable, with a worked Irish translation under [`examples/labels-ga.toml`](https://github.com/smur89/alta-typst/blob/main/examples/labels-ga.toml).
 - **PDF metadata baked in** — title, author, subject, keywords (auto-derived from skills), and document date populate from the same data dict.
+- **Matching cover letter** via `cover-letter(cv, …)` — shares the masthead, accent, and contact bar with the CV from a single `basics` dict.
 
 ## Gallery
 
@@ -400,6 +401,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `lastModified` | `"Last updated"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
+| `closing` | `"Sincerely,"` — cover letter only |
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
@@ -466,6 +468,44 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 ```
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
+
+## Cover letter
+
+`cover-letter` is the matching companion entrypoint — a single-column letter that reuses the same `cv` dict (only `basics` is consumed), the same `preferences` knobs, and the same `labels` overrides as `alta`. One data file and one set of theme overrides drives both documents.
+
+```typst
+#import "@preview/altacv:1.1.0": cover-letter // x-release-please-version
+
+#cover-letter(
+  cv,
+  recipient: [
+    Hiring Manager \
+    Acme Corp \
+    Dublin 2, Ireland
+  ],
+  // `auto` substitutes today's date; pass a string / content to pin
+  // one, or `none` to suppress entirely.
+  date: auto,
+  salutation: [Dear Hiring Manager,],
+  [
+    I am writing to express my interest in the Senior Backend Engineer
+    role at Acme Corp. …
+  ],
+)
+```
+
+Layout: same masthead as `alta` (name, label, contact bar, optional portrait), then right-aligned date, recipient block, salutation, body, closing valediction, accent-coloured signature.
+
+| Argument | Default | Effect |
+|---|---|---|
+| `cv` | — | Same data dict accepted by `alta`. Only `basics` is consumed; any other top-level keys are ignored. |
+| `body` | — | Letter body (positional, required). Markup content — paragraphs, lists, emphasis. Trailing-content sugar works: `#cover-letter(cv)[Letter …]`. |
+| `recipient` | `none` | Optional addressee block (markup content). Use `\` line breaks for "Name / Company / Address" stacks. |
+| `date` | `auto` | `auto` substitutes today's date routed through the configured `dateFormat` (so `labels.months` translation applies). Pass a string / content to pin a value, or `none` to suppress. |
+| `salutation` | `none` | Optional greeting line, e.g. `[Dear Hiring Manager,]`. No default — no defensible neutral works across languages and registers. |
+| `closing` | `auto` | Valediction printed above the signature. `auto` uses `labels.closing` (default `"Sincerely,"`); pass `none` to suppress the closing + signature entirely; pass a string / content to override inline without touching `labels`. |
+| `labels` | `(:)` | Same shape as `alta`. The new `closing` key sources the default valediction. |
+| `preferences` | `(:)` | Same shape as `alta`. Cover letter is single-column, so `columnRatio` / `leftColumnSections` / `rightColumnSections` are accepted (for a single shared preferences dict across both documents) but ignored here. |
 
 ## Building the examples
 

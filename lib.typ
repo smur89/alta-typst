@@ -21,12 +21,12 @@
 #import "internal/presets.typ": palettes, maps-providers
 #import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
 #import "internal/defaults.typ": _default_labels
-#import "internal/validation.typ": _strict_merge, _check_bool
+#import "internal/validation.typ": _strict_merge, _validate_shared_preferences
 #import "internal/text.typ": _present, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": name, term, tag, divider
 #import "internal/ratings.typ": rating
-#import "internal/dates.typ": _date_format_aliases, _iso_datetime
+#import "internal/dates.typ": _iso_datetime, _format_date
 #import "internal/header.typ": _header, _summary
 #import "internal/footer.typ": _auto_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
@@ -72,77 +72,12 @@
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
     panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
   }
-  let mp = preferences.mapsProvider
-  if mp != none {
-    if type(mp) != str {
-      panic(
-        "mapsProvider must be a URL template string (containing `{q}`) or `none`, got: "
-          + repr(mp),
-      )
-    }
-    if "{q}" not in mp {
-      panic(
-        "mapsProvider URL template must contain the `{q}` placeholder, got: "
-          + repr(mp),
-      )
-    }
-  }
-  _check_bool("uppercaseName", preferences.uppercaseName)
-  _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
-  let max-rating = preferences.maxRating
-  if type(max-rating) != int or max-rating < 1 {
-    panic("maxRating must be a positive integer, got: " + repr(max-rating))
-  }
-  // `pageFooter` accepts `none`, the string `"auto"`, or any content
-  // value. Any other type — bools, dicts, numbers — panics so a typo
-  // like `pageFooter: true` surfaces at the call site rather than
-  // falling through to a render-time failure inside `set page(...)`.
-  let page-footer = preferences.pageFooter
-  let footer-ok = (
-    page-footer == none
-      or page-footer == "auto"
-      or type(page-footer) == content
-  )
-  if not footer-ok {
-    panic(
-      "pageFooter must be `none`, the string \"auto\", or a content value, got: "
-        + repr(page-footer),
-    )
-  }
-  let df = preferences.dateFormat
-  if type(df) == str {
-    // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
-    // `_apply_date_template`; bare strings must be one of the named
-    // formatters or the literal `"iso"` passthrough.
-    if "[" not in df and df != "iso" and df not in _date_format_aliases {
-      panic(
-        "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
-          + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
-          + repr(df),
-      )
-    }
-  } else if type(df) != function {
-    panic(
-      "dateFormat must be a string (named formatter or bracketed template) "
-        + "or a closure, got: " + repr(df),
-    )
-  }
-  // `labels.months` is consumed by the "long" formatter and by the
-  // bracketed-template `[month repr:long]` / `[month repr:short]`
-  // tokens; validate shape and element types up front so a malformed
-  // override panics with a clear message rather than failing inside
-  // `array.at()` or string slicing at render time.
-  let months = labels.months
-  if type(months) != array or months.len() != 12 or months.any(m => type(m) != str) {
-    panic(
-      "labels.months must be an array of 12 strings, got: " + repr(months),
-    )
-  }
+  _validate_shared_preferences(preferences, labels)
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
   _body_size_state.update(body-size)
-  _max_rating_state.update(max-rating)
+  _max_rating_state.update(preferences.maxRating)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
@@ -171,6 +106,7 @@
   //   `none`             — no footer
   //   auto renderer      — name + "Page N / M", multi-page only
   //   verbatim content   — rendered on every page
+  let page-footer = preferences.pageFooter
   let resolved-footer = if page-footer != none {
     if page-footer == "auto" {
       _auto_page_footer(cv.basics.name)
@@ -281,5 +217,134 @@
       render-column(preferences.leftColumnSections),
       render-column(preferences.rightColumnSections),
     )
+  }
+}
+
+// Cover-letter companion entrypoint. Renders a single-column letter
+// that shares the masthead and theme with `alta()`. Same `cv` dict
+// (only `basics` is consumed — other top-level keys are ignored), same
+// `labels` / `preferences` shape, so a caller keeps one data file and
+// one set of theme overrides for both documents.
+//
+// Layout:
+//   <header — _header(cv.basics, …), same as alta()>
+//   <date — right-aligned>
+//   <recipient block>
+//
+//   <salutation>
+//
+//   <body>
+//
+//   <closing>
+//   <name — signature, accent-coloured>
+//
+// Parameters:
+//   cv          — same data dict accepted by alta(); only `basics` is
+//                 consumed here, the rest is ignored. Keeps a single
+//                 source-of-truth for the masthead.
+//   body        — letter body (markup content). Required. Trailing-
+//                 content sugar works: `#cover-letter(cv)[Letter …]`.
+//   recipient   — optional addressee block (markup content). Use `\`
+//                 line breaks for "Name / Company / Address" stacks.
+//   date        — optional date. `auto` (default) substitutes today's
+//                 date, routed through the same `dateFormat` +
+//                 `labels.months` path as every other date in the
+//                 template (so a German caller sets `dateFormat` once
+//                 and the cover letter follows). `none` suppresses the
+//                 date row. A string / content overrides explicitly.
+//   salutation  — optional greeting (content), e.g.
+//                 `[Dear hiring manager,]`. No defensible default
+//                 across languages/registers, so omitted unless
+//                 supplied.
+//   closing     — optional valediction. `auto` (default) uses
+//                 `labels.closing` ("Sincerely,") so localisation
+//                 flows through the same path as every other display
+//                 string; `none` suppresses the closing + signature
+//                 block entirely; a string / content overrides
+//                 inline without touching `labels`. Mirrors the
+//                 `date: auto / none` sentinel pair.
+//   labels      — partial dict; merged over `_default_labels`.
+//   preferences — partial dict; merged over `_default_preferences`.
+//                 Cover-letter is single-column, so `columnRatio` /
+//                 `leftColumnSections` / `rightColumnSections` are
+//                 accepted (so the same prefs dict drives both
+//                 documents) but ignored here.
+#let cover-letter(
+  cv,
+  body,
+  recipient: none,
+  date: auto,
+  salutation: none,
+  closing: auto,
+  labels: (:),
+  preferences: (:),
+) = {
+  let labels = _strict_merge(_default_labels, labels, "labels")
+  let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  _validate_shared_preferences(preferences, labels)
+  let accent = preferences.accent
+  let body-size = preferences.bodySize
+  _accent_state.update(accent)
+  _body_size_state.update(body-size)
+
+  set document(
+    title: cv.basics.name + " --- Cover Letter",
+    author: cv.basics.name,
+  )
+  set text(body-size, font: preferences.font, fill: _body_colour)
+  set page(paper: preferences.paper, margin: preferences.margin)
+  set par(leading: 0.65em, spacing: 1.0em, justify: true)
+
+  _header(
+    cv.basics,
+    image-size: preferences.imageSize,
+    image-position: preferences.imagePosition,
+    image-stack-order: preferences.imageStackOrder,
+    header-text-align: preferences.headerTextAlign,
+    link-contact-info: preferences.linkContactInfo,
+    maps-provider: preferences.mapsProvider,
+    uppercase-name: preferences.uppercaseName,
+  )
+
+  v(0.8 * body-size)
+
+  // `auto` substitutes today's date, routed through `_format_date` so
+  // the user's `dateFormat` preference + `labels.months` translation
+  // apply here too — a German caller sets `dateFormat` once and gets a
+  // consistently localised CV and cover letter. Right-aligned per the
+  // conventional business-letter shape; not tied to `headerTextAlign`
+  // because the date is its own visual unit.
+  let resolved-date = if date == auto {
+    let today = datetime.today()
+    _format_date(today.display("[year]-[month]-[day]"), preferences, labels)
+  } else { date }
+  if _present(resolved-date) {
+    align(right, text(fill: _emphasis_colour, resolved-date))
+    v(0.4 * body-size)
+  }
+
+  if _present(recipient) {
+    block(below: 1.2 * body-size, recipient)
+  }
+
+  if _present(salutation) {
+    block(below: 0.8 * body-size, salutation)
+  }
+
+  body
+
+  // `auto` resolves to `labels.closing` so localisation works via the
+  // same path as every other display string; explicit `none` suppresses
+  // the closing + signature block entirely (mirrors the `date: auto /
+  // none` sentinel pair above). `_present` keeps empty strings / empty
+  // content blocks behaving the same as `none`.
+  let resolved-closing = if closing == auto { labels.closing } else { closing }
+  if _present(resolved-closing) {
+    v(0.8 * body-size)
+    block(below: 1.6 * body-size, resolved-closing)
+    // Signature — matches the accent-coloured weight of the masthead
+    // name (without uppercasing) so the letter visually closes back to
+    // where it opened.
+    text(weight: "bold", fill: accent, cv.basics.name)
   }
 }
