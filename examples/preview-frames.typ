@@ -122,13 +122,16 @@
     ),
   ), (:)),
 
-  // ── Frame 6 ─ plum + portrait right + short dates + education up ─
-  // Image on the right (canonical default); compact European-style
-  // `[day]/[month]/[year]` date format. Education + certificates
+  // ── Frame 6 ─ plum + portrait right + QR left + short dates + education up
+  // Image on the right (canonical default) and a QR matrix on the
+  // opposite side — a [QR | text | portrait] header showcasing the
+  // print-affordance feature on the standard layout. Compact European-
+  // style `[day]/[month]/[year]` date format. Education + certificates
   // promoted to the left column alongside work; the right column
   // becomes a compact support panel.
   (cv, base + (
     accent: palettes.plum,
+    qrCode: auto,
     dateFormat: "[day]/[month]/[year]",
     leftColumnSections: ("work", "education", "certificates"),
     rightColumnSections: (
