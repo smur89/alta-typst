@@ -20,6 +20,16 @@
 
 #import "internal/presets.typ": palettes, maps-providers
 #import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
+#import "internal/defaults.typ": _default_labels
+#import "internal/validation.typ": _strict_merge, _check_bool
+#import "internal/text.typ": _present, styled-link
+#import "internal/icons.typ": icon
+#import "internal/primitives.typ": name, term, tag, divider
+#import "internal/ratings.typ": rating
+#import "internal/dates.typ": _date_format_aliases, _iso_datetime
+#import "internal/header.typ": _header, _summary
+#import "internal/footer.typ": _auto_page_footer
+#import "internal/layout.typ": _sections, _default_preferences
 
 // Default portrait — a generic head-and-shoulders silhouette baked
 // into the package. Exposed so the `typst init` template (and any
@@ -33,16 +43,6 @@
 // Replace with `read("your-photo.png", encoding: none)` (or `none`
 // to drop the portrait entirely).
 #let avatar-placeholder = read("icons/avatar-placeholder.svg", encoding: none)
-#import "internal/defaults.typ": _default_labels
-#import "internal/validation.typ": _strict_merge, _check_bool
-#import "internal/text.typ": _present, styled-link
-#import "internal/icons.typ": icon
-#import "internal/primitives.typ": name, term, tag, divider
-#import "internal/ratings.typ": rating
-#import "internal/dates.typ": _date_format_aliases, _iso_datetime
-#import "internal/header.typ": _header, _summary
-#import "internal/footer.typ": _auto_page_footer
-#import "internal/layout.typ": _sections, _default_preferences
 
 // Flatten every skill group's `keywords` into a de-duplicated array
 // for the PDF `Keywords` field. Insertion order is preserved so the

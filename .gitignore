@@ -13,12 +13,12 @@ target/
 #   NOT matched and stay tracked (see below).
 # - `examples/example_full.pdf` is the explicit exception — tracked
 #   so the README's Gallery link resolves via raw.githubusercontent
-#   without a local rebuild (same pattern as preview.png). The
+#   without a local rebuild (same pattern as cv.png). The
 #   negation must come AFTER the broader `examples/*.pdf` line.
 # - `examples/tests/*.pdf` is tracked (not listed here) — one
 #   rendered PDF per `tests/*.typ` fixture as a visible reference
 #   for each permutation of the template's output.
-# - `examples/preview.png`, `examples/preview.gif`, and the per-page
+# - `examples/cv.png`, `examples/preview.gif`, and the per-page
 #   gallery PNGs (`examples/example_full-*.png`) are tracked
 #   (not listed here) so the README images resolve immediately on
 #   GitHub and Typst Universe without needing a local rebuild.

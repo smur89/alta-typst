@@ -1,7 +1,7 @@
 // Multi-page demonstration of every documented feature surface. Free
 // to spill onto a second or third page — this is the reference for a
-// fully-populated CV, distinct from the one-page `example.typ` that
-// drives the README preview.
+// fully-populated CV, distinct from `template/cv.typ` (the one-page
+// canonical demo that drives `examples/cv.png` and `thumbnail.png`).
 //
 // What this renders:
 //   • Header: name (uppercase), label, summary, contact bar covering

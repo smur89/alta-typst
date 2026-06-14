@@ -7,7 +7,7 @@
 // empty input are skipped, so deleting an entry is enough to hide it.
 //
 // This file is also the canonical demo for the project — what
-// renders as `examples/preview.png` (README static preview) and as
+// renders as `examples/cv.png` (README static preview) and as
 // `thumbnail.png` (Typst Universe package card).
 
 #import "@preview/altacv:1.0.0": alta, avatar-placeholder // x-release-please-version

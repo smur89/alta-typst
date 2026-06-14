@@ -142,16 +142,20 @@ examples/%.png: examples/%.typ
 # package installed. The PDF is gitignored (workflow / release
 # artifact); the PNG is tracked because the README references it via
 # raw.githubusercontent without a local rebuild.
+#
+# Each rule uses its own temp source file (`.cv-pdf-src.typ` /
+# `.cv-png-src.typ`) so a parallel `make -j2 cv` doesn't race on a
+# shared `.cv-src.typ`.
 examples/cv.pdf: template/cv.typ lib.typ
-	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-src.typ
-	$(TYPST) compile --root $(ROOT) .cv-src.typ $@
-	rm -f .cv-src.typ
+	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-pdf-src.typ
+	$(TYPST) compile --root $(ROOT) .cv-pdf-src.typ $@
+	rm -f .cv-pdf-src.typ
 
 examples/cv.png: template/cv.typ lib.typ
-	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-src.typ
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-src.typ 'examples/cv-{p}.png'
+	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-png-src.typ
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
 	mv examples/cv-1.png $@
-	rm -f .cv-src.typ examples/cv-*.png
+	rm -f .cv-png-src.typ examples/cv-*.png
 
 # Animated README hero — one frame per preference variation defined
 # in examples/preview-frames.typ. The frames file emits one page per
@@ -204,7 +208,7 @@ check: test
 # regenerated from `template/cv.typ` — run `make cv` (or
 # `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-src.typ
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ
 
 help:
 	@echo "Targets:"
