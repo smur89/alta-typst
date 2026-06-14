@@ -20,6 +20,19 @@
 
 #import "internal/presets.typ": palettes, maps-providers
 #import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
+
+// Default portrait — a generic head-and-shoulders silhouette baked
+// into the package. Exposed so the `typst init` template (and any
+// downstream consumer) can render a working `basics.image` without
+// shipping its own SVG. Pre-loaded as bytes so the consumer just
+// passes it through:
+//
+//   #import "@preview/altacv:<version>": alta, avatar-placeholder
+//   basics: (..., image: avatar-placeholder)
+//
+// Replace with `read("your-photo.png", encoding: none)` (or `none`
+// to drop the portrait entirely).
+#let avatar-placeholder = read("icons/avatar-placeholder.svg", encoding: none)
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": _strict_merge, _check_bool
 #import "internal/text.typ": _present, styled-link

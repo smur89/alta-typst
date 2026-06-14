@@ -10,7 +10,7 @@
 
 <p align="center">A Typst CV template inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX). Data-driven via a <a href="https://jsonresume.org/">JSON Resume</a>-style dict; configurable theme, labels, and sections.</p>
 
-<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/preview.png is also committed for places that don't render animated GIFs. -->
+<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/cv.png is the tracked static fallback for places that don't render animated GIFs. -->
 <p align="center">
   <img alt="Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif">
 </p>
@@ -27,10 +27,9 @@
 
 Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ); rendered output: [`examples/example_full.pdf`](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full.pdf).
 
-<p align="center">
-  <img alt="example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-1.png" width="48%">
-  <img alt="example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests" src="https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-2.png" width="48%">
-</p>
+| Page 1 | Page 2 |
+| :---: | :---: |
+| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/example_full-2.png) |
 
 ## Installation
 
@@ -101,7 +100,7 @@ Run `typst fonts` to list what Typst can see on your system.
 #alta(cv)
 ```
 
-See [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ) for a multi-page CV exercising every section and every documented input form (see [Gallery](#gallery) for the rendered output). [`examples/example.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example.typ) is the single-page variant that drives the README preview image. Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+[`template/cv.typ`](https://github.com/smur89/alta-typst/blob/main/template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](https://github.com/smur89/alta-typst/blob/main/examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/main/examples/example_full.typ) is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
@@ -471,15 +470,15 @@ The contact bar is rendered from `basics.email`, `basics.phone`, `basics.locatio
 ## Building the examples
 
 ```sh
-typst compile --root . examples/example.typ examples/example.pdf
 typst compile --root . examples/example_full.typ examples/example_full.pdf
 ```
 
-To regenerate the preview artifacts (the static page-1 PNG, the animated GIF that cycles through preference variations, and the multi-page gallery PNGs):
+To regenerate the preview artifacts (the canonical cv render, the animated GIF that cycles through preference variations, the multi-page gallery PNGs, and the Universe package-card thumbnail):
 
 ```sh
-make example        # examples/example.pdf + examples/preview.png
+make cv             # examples/cv.pdf + examples/cv.png from template/cv.typ
 make example-full   # examples/example_full.pdf + examples/example_full-{1,2,…}.png
+make thumbnail      # thumbnail.png (Universe package card, 250 PPI)
 make preview-gif    # examples/preview.gif (requires ffmpeg)
 ```
 

@@ -3,9 +3,10 @@
 # CONTRIBUTING.md doesn't drift from `.github/workflows/build.yml`.
 #
 # Usage:
-#   make             # build every example PDF + the README preview image
-#                    # + a rendered PDF per fixture under examples/tests/
-#   make example     # build examples/example.pdf + examples/preview.png
+#   make             # build every example PDF, the cv preview, and a
+#                    # rendered PDF per fixture under examples/tests/
+#   make cv          # build examples/cv.pdf + examples/cv.png from
+#                    # template/cv.typ (the canonical demo)
 #   make example-full # build examples/example_full.pdf + per-page PNGs
 #                    # used as the static README gallery
 #   make thumbnail   # build thumbnail.png from template/cv.typ
@@ -38,25 +39,29 @@ PREVIEW_FPS ?= 0.4
 # helpers `#import`-ed by the real examples — not standalone documents
 # — so they're excluded from the PDF/PNG sweep.
 #
-# `example_full.typ` is in the PDF sweep but excluded from the PNG
-# sweep — the standard `examples/%.png` rule keeps only page 1, while
-# example_full needs every page rendered (one PNG per page, used as
-# the static gallery in README.md). The dedicated rule below handles
-# both its PDF and its multi-page PNG output in one step.
+# `example_full.typ` and `preview-frames.typ` are in the PDF sweep but
+# excluded from the PNG sweep — the standard `examples/%.png` rule
+# keeps only page 1, which isn't useful for example_full (gallery
+# needs every page) or preview-frames (page 1 alone has no consumer).
+# example_full has a dedicated rule below that emits per-page PNGs.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
-EXAMPLES_PNG  := $(filter-out examples/example_full.typ,$(EXAMPLES))
+EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview-frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
 PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all example example-full preview-gif pdfs previews test-pdfs test check clean help
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test check clean help
 
-all: pdfs examples/preview.png test-pdfs thumbnail.png
+all: pdfs cv test-pdfs
 
 preview-gif: examples/preview.gif
 
-example: examples/example.pdf examples/preview.png
+# The canonical demo: template/cv.typ rendered as PDF + page-1 PNG.
+# Used both as a workflow artifact (PR-reviewer download) and as the
+# tracked README preview image. See the `examples/cv.pdf` rule below
+# for why it sed-swaps the package import.
+cv: examples/cv.pdf examples/cv.png
 
 # Multi-page gallery — one PNG per page of example_full, alongside the
 # rendered PDF. The PDF doubles as the freshness stamp for the PNGs:
@@ -72,16 +77,18 @@ example-full: examples/example_full.pdf
 # as initialised (not an example), rendered at 250 PPI, longer edge
 # at least 1080 px, ≤3 MiB.
 #
-# template/cv.typ uses `#import "@preview/altacv:1.0.0"` so it works
-# after `typst init` on a user's machine, but that path doesn't
+# template/cv.typ uses `#import "@preview/altacv:<version>"` so it
+# works after `typst init` on a user's machine, but that path doesn't
 # resolve in this repo. The recipe swaps the import to the local
 # `lib.typ`, renders page 1, and cleans up the temp source — keeping
 # template/cv.typ untouched on disk so it ships verbatim.
+#
+# The `[^"]*` pattern matches any version string so release-please
+# bumps (1.0.0 → 1.1.0 → …) don't break the rule.
 thumbnail: thumbnail.png
-.PHONY: thumbnail
 
 thumbnail.png: template/cv.typ lib.typ
-	sed 's|@preview/altacv:1.0.0|/lib.typ|' template/cv.typ > .thumbnail-src.typ
+	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .thumbnail-src.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi 250 .thumbnail-src.typ '.thumbnail-{p}.png'
 	mv .thumbnail-1.png $@
 	rm -f .thumbnail-src.typ .thumbnail-*.png
@@ -129,14 +136,22 @@ examples/%.png: examples/%.typ
 	mv 'examples/$*-1.png' $@
 	rm -f 'examples/$*-'*.png
 
-# README / Typst Universe preview image. Pinned to example.typ's page
-# one so the stable filename always reflects the canonical example.
-# Listed explicitly so `make` rebuilds it even when no examples/*.typ
-# changed (e.g. after a lib.typ tweak).
-examples/preview.png: examples/example.typ lib.typ
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/preview-{p}.png'
-	mv examples/preview-1.png $@
-	rm -f examples/preview-*.png
+# The canonical demo, derived from template/cv.typ. Same sed trick as
+# `thumbnail.png` — swap the `@preview/altacv:<version>` import for
+# the local `lib.typ` so we can compile inside the repo without the
+# package installed. The PDF is gitignored (workflow / release
+# artifact); the PNG is tracked because the README references it via
+# raw.githubusercontent without a local rebuild.
+examples/cv.pdf: template/cv.typ lib.typ
+	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-src.typ
+	$(TYPST) compile --root $(ROOT) .cv-src.typ $@
+	rm -f .cv-src.typ
+
+examples/cv.png: template/cv.typ lib.typ
+	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-src.typ
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-src.typ 'examples/cv-{p}.png'
+	mv examples/cv-1.png $@
+	rm -f .cv-src.typ examples/cv-*.png
 
 # Animated README hero — one frame per preference variation defined
 # in examples/preview-frames.typ. The frames file emits one page per
@@ -144,14 +159,14 @@ examples/preview.png: examples/example.typ lib.typ
 # `ls`), and ffmpeg stitches them with `palettegen` + `paletteuse`
 # for higher-quality colour quantisation than a default GIF.
 #
-# Local-only target — committed alongside `preview.png`; CI does not
+# Local-only target — committed alongside `cv.png`; CI does not
 # regenerate the GIF on every push (ffmpeg install + multi-page typst
 # compile is too slow for the lint job).
 #
 # Prerequisites include every file `preview-frames.typ` reads —
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
-examples/preview.gif: examples/preview-frames.typ examples/_dates.typ examples/avatar-placeholder.svg lib.typ
+examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
@@ -184,19 +199,18 @@ test:
 # Alias for `make test` — matches the conceptual "CI lint" target name.
 check: test
 
-# Removes every generated artifact, including `examples/preview.png`.
-# That file is tracked in git for stable README image hosting, but
-# it's regenerated from `examples/example.typ` — run `make example`
-# (or `git checkout examples/preview.png`) after `make clean` to put
-# it back.
+# Removes every generated artifact, including `examples/cv.png`. That
+# file is tracked in git for stable README image hosting, but it's
+# regenerated from `template/cv.typ` — run `make cv` (or
+# `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-src.typ
 
 help:
 	@echo "Targets:"
-	@echo "  all          Build every example PDF, the README preview,"
+	@echo "  all          Build every example PDF, the cv preview,"
 	@echo "               and the per-fixture PDFs (default)"
-	@echo "  example      Build examples/example.pdf + examples/preview.png"
+	@echo "  cv           Build examples/cv.pdf + examples/cv.png"
 	@echo "  example-full Build examples/example_full.pdf + per-page gallery PNGs"
 	@echo "  thumbnail    Build thumbnail.png from template/cv.typ (Universe card)"
 	@echo "  preview-gif  Build the animated README hero (needs ffmpeg)"

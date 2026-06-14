@@ -14,6 +14,7 @@
 // alternates between with-photo and without-photo frames to reflect
 // what most users actually ship).
 
+#import "../lib.typ": avatar-placeholder
 #import "_dates.typ": ago
 
 #let cv = (
@@ -29,7 +30,7 @@
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     url: "https://seanomurchu.dev",
-    image: read("avatar-placeholder.svg", encoding: none),
+    image: avatar-placeholder,
     profiles: (
       (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
     ),

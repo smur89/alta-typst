@@ -86,14 +86,22 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Build example.pdf + example_full.pdf + preview.png
-        run: make example example-full
+      - name: Build cv.pdf + cv.png + example_full.pdf
+        run: make cv example-full
 
-      - name: Upload example.pdf
+      # `make thumbnail` regenerates the Universe package-card image
+      # from template/cv.typ (sed-swapping the @preview import). Acts
+      # as a compile-check for the typst-init starter — output isn't
+      # bit-compared since font rendering varies across systems, but
+      # a non-zero exit fails the build.
+      - name: Compile-check template/cv.typ (via thumbnail)
+        run: make thumbnail
+
+      - name: Upload cv.pdf
         uses: actions/upload-artifact@v7
         with:
-          name: example-pdf
-          path: examples/example.pdf
+          name: cv-pdf
+          path: examples/cv.pdf
           retention-days: 30
           if-no-files-found: error
 
@@ -102,14 +110,6 @@ jobs:
         with:
           name: example-full-pdf
           path: examples/example_full.pdf
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload preview.png
-        uses: actions/upload-artifact@v7
-        with:
-          name: preview-png
-          path: examples/preview.png
           retention-days: 30
           if-no-files-found: error
 
@@ -169,8 +169,8 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Rebuild example.pdf + example_full.pdf + preview.png at the tag
-        run: make example example-full
+      - name: Rebuild cv.pdf + cv.png + example_full.pdf at the tag
+        run: make cv example-full
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
@@ -200,9 +200,9 @@ jobs:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
             ${{ env.PACKAGE_NAME }}-*.tar.gz
-            examples/example.pdf
+            examples/cv.pdf
+            examples/cv.png
             examples/example_full.pdf
-            examples/preview.png
           make_latest: 'true'
 
   # When release-please cuts a new tag, automatically open a PR on

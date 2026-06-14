@@ -1,10 +1,10 @@
 // Source for `examples/preview.gif` — the animated README hero.
-// Seven frames, each layering a small override on top of
-// `example.typ`'s preferences baseline so the GIF reads as
-// "example.typ with one or two knobs turned" rather than seven
+// Seven frames, each layering a small override on top of the
+// shared `base` preferences below so the GIF reads as "the
+// template with one or two knobs turned" rather than seven
 // independent configurations.
 //
-// Frame 1 is example.typ minus the portrait. Frames 2-7 each
+// Frame 1 is the baseline minus the portrait. Frames 2-7 each
 // re-arrange the section columns (moving work to the right,
 // pulling volunteer or interests in, dropping one section in
 // favour of another) on top of their accent / image / date
@@ -20,9 +20,25 @@
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
-#import "../lib.typ": alta, palettes
+#import "../lib.typ": alta, palettes, maps-providers
 #import "_cv.typ": cv, no-image
-#import "example.typ": preferences as base
+
+// Baseline preferences the per-frame overrides patch on top of. A
+// richer-than-defaults setup (navy palette, ISO short-date,
+// OSM maps, auto footer, CEFR-style 6-dot rating) gives the GIF
+// more visual surface to vary — frames flip palettes, swap columns,
+// invert layouts on top of this same starting point.
+#let base = (
+  accent: palettes.navy,
+  dateFormat: "[day padding:none] [month repr:short] [year]",
+  mapsProvider: maps-providers.osm,
+  pageFooter: "auto",
+  maxRating: 6,
+  leftColumnSections: ("work", "volunteer", "projects", "publications", "interests"),
+  rightColumnSections: (
+    "focusAreas", "skills", "languages", "education", "certificates", "awards",
+  ),
+)
 
 // Each entry is `(cv-to-render, preferences-dict)`. Frames using
 // `no-image(cv)` drop the portrait; frames using `cv` keep it.

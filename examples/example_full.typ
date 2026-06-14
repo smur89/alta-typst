@@ -29,7 +29,7 @@
 //     palette, ISO-date formatting, custom maps provider, page footer,
 //     and a non-default `maxRating` for the language scale.
 
-#import "../lib.typ": alta, palettes, maps-providers
+#import "../lib.typ": alta, palettes, maps-providers, avatar-placeholder
 #import "_dates.typ": today, ago
 
 #let cv = (
@@ -54,7 +54,7 @@
       countryCode: "IE",
     ),
     url: "https://seanomurchu.dev",
-    image: read("avatar-placeholder.svg", encoding: none),
+    image: avatar-placeholder,
     // Every built-in profile network so the icon set gets a full
     // visual sweep. `Link` is the generic-URL fallback.
     profiles: (
