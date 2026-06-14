@@ -21,7 +21,10 @@ TYPST     ?= typst
 ROOT      := .
 PPI       ?= 150
 
-EXAMPLES  := $(wildcard examples/*.typ)
+# Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
+# helpers `#import`-ed by the real examples — not standalone documents
+# — so they're excluded from the PDF/PNG sweep.
+EXAMPLES  := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
 TESTS     := $(wildcard tests/*.typ)
 PDFS      := $(EXAMPLES:.typ=.pdf)
 PNGS      := $(EXAMPLES:.typ=.png)
