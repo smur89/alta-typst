@@ -3,7 +3,7 @@
 // from `lib.typ` for callers composing custom layouts; the leading-
 // underscore helpers are used internally by the section renderers.
 
-#import "state.typ": _body_size_state, _accent_state, _body_colour, _divider_colour
+#import "state.typ": _body_size_state, _accent_state, _spacing_scale_state, _body_colour, _divider_colour
 #import "icons.typ": icon
 
 // Bold accent-coloured line — designed for the company / institution
@@ -11,9 +11,10 @@
 #let name(body) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
+  let scale = _spacing_scale_state.get()
   block(
     above: 0pt,
-    below: 0.6 * body-size,
+    below: 0.6 * scale * body-size,
     text(weight: "bold", fill: accent, body),
   )
 }
@@ -23,9 +24,10 @@
 #let term(period, location: none) = context {
   if period == none and location == none { return }
   let body-size = _body_size_state.get()
+  let scale = _spacing_scale_state.get()
   block(
     above: 0pt,
-    below: 0.8 * body-size,
+    below: 0.8 * scale * body-size,
     inset: (left: 0.3 * body-size),
     text(0.9 * body-size, {
       if period != none {
@@ -77,12 +79,13 @@
 #let divider() = context {
   let body-size = _body_size_state.get()
   if here().position().y < 2cm { return }
-  v(0.3 * body-size)
+  let scale = _spacing_scale_state.get()
+  v(0.3 * scale * body-size)
   line(
     length: 100%,
     stroke: (paint: _divider_colour, thickness: 0.6pt, dash: "dashed"),
   )
-  v(0.3 * body-size)
+  v(0.3 * scale * body-size)
 }
 
 // Like `divider()` but with a leading label that sits slightly indented
@@ -94,8 +97,9 @@
 // the parent section title.
 #let _labelled_divider(label) = context {
   let body-size = _body_size_state.get()
+  let scale = _spacing_scale_state.get()
   let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
-  v(0.3 * body-size)
+  v(0.3 * scale * body-size)
   pad(left: 0.6 * body-size, grid(
     columns: (1.3em, auto, 1fr),
     column-gutter: 0.5 * body-size,
@@ -108,7 +112,7 @@
     ),
     line(length: 100%, stroke: stroke),
   ))
-  v(0.3 * body-size)
+  v(0.3 * scale * body-size)
 }
 
 // Interleaves `divider()` between items; the trailing one is suppressed

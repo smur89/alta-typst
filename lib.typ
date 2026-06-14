@@ -19,7 +19,7 @@
 // independent of text size.
 
 #import "internal/presets.typ": palettes, maps-providers
-#import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
+#import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _spacing_scale_state, _density_scales, _body_colour, _emphasis_colour
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": _strict_merge, _check_bool
 #import "internal/text.typ": _present, styled-link
@@ -140,9 +140,19 @@
   }
   let accent = preferences.accent
   let body-size = preferences.bodySize
+  let density = preferences.density
+  if density not in _density_scales {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "density must be one of " + _density_scales.keys().map(quote).join(", ")
+        + ", got: " + repr(density),
+    )
+  }
+  let scale = _density_scales.at(density)
   _accent_state.update(accent)
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
+  _spacing_scale_state.update(scale)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
@@ -191,12 +201,12 @@
     margin: preferences.margin,
     footer: resolved-footer,
   )
-  set par(leading: 0.55em, spacing: 0.7em)
+  set par(leading: 0.55 * scale * 1em, spacing: 0.7 * scale * 1em)
   set list(
     marker: text(0.85em, "•"),
     indent: 0pt,
     body-indent: 0.4 * body-size,
-    spacing: 0.55em,
+    spacing: 0.55 * scale * 1em,
   )
 
   // Heading levels map to semantic CV roles:
@@ -204,21 +214,21 @@
   //   ===  role / qualification line
   //   ==== sub-grouping (publication type)
   show heading.where(level: 2): it => block(sticky: true)[
-    #v(0.6 * body-size)
+    #v(0.6 * scale * body-size)
     #text(1.7 * body-size, fill: accent, weight: "bold", upper(it.body))
-    #v(-0.7 * body-size)
+    #v(-0.7 * scale * body-size)
     #line(length: 100%, stroke: 2pt + accent)
-    #v(0.2 * body-size)
+    #v(0.2 * scale * body-size)
   ]
   show heading.where(level: 3): it => block(
-    above: 1.0 * body-size,
-    below: 0.8 * body-size,
+    above: 1.0 * scale * body-size,
+    below: 0.8 * scale * body-size,
     sticky: true,
     text(1.2 * body-size, fill: _emphasis_colour, weight: "regular", it.body),
   )
   show heading.where(level: 4): it => block(
-    above: 0.6 * body-size,
-    below: 0.6 * body-size,
+    above: 0.6 * scale * body-size,
+    below: 0.6 * scale * body-size,
     sticky: true,
     text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
   )

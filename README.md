@@ -299,6 +299,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 |---|---|---|
 | `font` | `"Lato"` | Primary font family. Must be installed. |
 | `bodySize` | `10pt` | Base text size. Sub-elements scale via em-multipliers. |
+| `density` | `"comfortable"` | Single knob that scales every vertical-spacing em-token uniformly — block above/below, `v()` gaps, `par` leading/spacing, `list` spacing. `"compact"` (× 0.85) tightens for a one-page fit, `"comfortable"` (× 1.0) is the historical default, `"spacious"` (× 1.15) opens it up for print presentation. Text sizes, icon dimensions, and rating-dot geometry are unaffected — use `bodySize` for those. Unknown values panic. |
 | `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. Use a built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |

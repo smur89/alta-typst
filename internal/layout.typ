@@ -90,6 +90,12 @@
   // Every spacing token is an em-multiplier of this, so changing one
   // knob scales the whole document proportionally.
   bodySize: 10pt,
+  // Scales every spacing em-token uniformly (see `_density_scales`
+  // in `internal/state.typ`). `"comfortable"` (1.0×) preserves the
+  // historical layout byte-for-byte; `"compact"` (0.85×) tightens
+  // for one-page CVs; `"spacious"` (1.15×) opens it up for print
+  // presentation. Text sizes are unaffected.
+  density: "comfortable",
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
   // `palettes.teal` — see the `palettes` dict for the curated set
