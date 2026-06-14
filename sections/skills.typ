@@ -4,7 +4,7 @@
 // `_name_keywords_section`; the two public renderers differ only in
 // which `labels.*` heading they pass.
 
-#import "../internal/state.typ": _body_size_state
+#import "../internal/state.typ": _body_size_state, _spacing_scale_state
 #import "../internal/primitives.typ": tag, _tag_row
 
 // `text("-")` (not `[-]`) — markup-bracketed `-` parses as a list-item
@@ -20,7 +20,8 @@
   if visible.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
-    let row-gap = 0.7 * body-size
+    let scale = _spacing_scale_state.get()
+    let row-gap = 0.7 * scale * body-size
     [== #heading]
     for group in visible {
       block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {

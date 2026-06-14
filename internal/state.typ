@@ -11,6 +11,23 @@
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", palettes.teal)
 #let _max_rating_state = state("alta-max-rating", 5)
+// Multiplier applied to every spacing em-token (block above/below,
+// `v()`, par.spacing/leading, list.spacing). Driven by
+// `preferences.density`; defaults to 1.0 so "comfortable" reproduces
+// the historical layout byte-for-byte.
+#let _spacing_scale_state = state("alta-spacing-scale", 1.0)
+
+// `preferences.density` → multiplier on every spacing em-token.
+// 0.85 / 1.0 / 1.15 keeps the three presets visibly distinct without
+// either crushing lines together or pushing the one-page CV onto two.
+// Text sizes, icon dimensions, and rating-dot geometry are
+// deliberately left alone — density is purely vertical whitespace,
+// so font-size scaling stays the job of `bodySize`.
+#let _density_scales = (
+  compact: 0.85,
+  comfortable: 1.0,
+  spacious: 1.15,
+)
 
 // Accent is configurable via `alta(preferences: (accent: ...))`; the
 // rest are opinionated visual constants.
