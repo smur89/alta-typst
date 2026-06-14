@@ -62,6 +62,13 @@
   // must keep length 12 (validated in alta()).
   months: ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  // Per-`publications[].type` icon overrides. Keys match the `type`
+  // string (case-insensitive); values are utility-icon names. The
+  // module ships sensible defaults for `Articles`, `Books`, `Talks`,
+  // `Conference Papers`, etc. — see `_default_publication_icons` —
+  // and falls back to `file` for unknown types. Override here to add
+  // custom types or remap built-ins.
+  publicationIcons: (:),
 )
 
 // Exported so callers can write `mapsProvider: maps-providers.google`
@@ -155,10 +162,13 @@
 // swap by string replace at call time. Any new icon vendored into
 // `icons/` must follow that convention.
 #let _utility_icon_sources = (
+  book: read("icons/book.svg"),
   calendar: read("icons/calendar.svg"),
   email: read("icons/email.svg"),
   file: read("icons/file.svg"),
   location: read("icons/location.svg"),
+  microphone: read("icons/microphone.svg"),
+  newspaper: read("icons/newspaper.svg"),
   phone: read("icons/phone.svg"),
 )
 #let _network_icon_sources = (
@@ -1148,11 +1158,37 @@
   }))
 }
 
+// Built-in icon hints for common publication `type` strings. The
+// lookup is case-insensitive so callers don't need to commit to a
+// particular casing; users can extend it via `labels.publicationIcons`
+// (e.g. `(Posters: "newspaper")`). Anything not matched here falls back
+// to the generic `file` icon — same behaviour as before the type-icon
+// mapping was added.
+#let _default_publication_icons = (
+  articles: "newspaper",
+  article: "newspaper",
+  "blog posts": "newspaper",
+  "blog post": "newspaper",
+  books: "book",
+  book: "book",
+  talks: "microphone",
+  talk: "microphone",
+  presentations: "microphone",
+  presentation: "microphone",
+  "conference papers": "newspaper",
+  "conference paper": "newspaper",
+  papers: "newspaper",
+  paper: "newspaper",
+)
+
 // `pub.type` is a local extension. The grouping key is rendered
 // verbatim as the subheading, so localisers either override
 // `labels.articles` (the default for untyped entries) or pre-translate
 // the `type` strings. Groups render in first-occurrence order — Typst
-// dicts preserve insertion order.
+// dicts preserve insertion order. Each group's subheading carries a
+// type-appropriate icon resolved from `labels.publicationIcons` first,
+// then the built-in `_default_publication_icons`, with `file` as the
+// final fallback.
 #let _publications(pubs, labels, prefs) = if pubs.len() > 0 {
   context {
     let body-size = _body_size_state.get()
@@ -1163,7 +1199,16 @@
     }
     [== #labels.publications]
     for (group, items) in groups.pairs() [
-      ==== #icon("file", size: 1.2 * body-size, shift: 0pt) #group
+      #let user-icons = labels.at("publicationIcons", default: (:))
+      #let lookup-key = lower(group)
+      #let group-icon = user-icons.at(
+        group,
+        default: user-icons.at(
+          lookup-key,
+          default: _default_publication_icons.at(lookup-key, default: "file"),
+        ),
+      )
+      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #group
 
       #for pub in items [
         #block(breakable: false)[

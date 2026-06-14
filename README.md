@@ -385,8 +385,11 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
+| `publicationIcons` | `(:)` |
 
 `labels.months` carries twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens when rendering ISO date inputs. Override to localise; the array must keep length 12.
+
+`labels.publicationIcons` is an opt-in dict mapping `publications[].type` values to icon names. The template ships sensible defaults — `Articles` / `Article` / `Blog Posts` → `newspaper`, `Books` / `Book` → `book`, `Talks` / `Presentations` → `microphone`, `Conference Papers` / `Papers` → `newspaper`, everything else → `file`. Keys are matched case-insensitively (so `Talks`, `talks`, `TALKS` resolve to the same icon). Override here to add a custom type or remap a built-in; the supplied dict layers over the defaults rather than replacing them.
 
 Example (German + rename "Skills" to "Core Technologies"):
 
