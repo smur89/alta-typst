@@ -88,8 +88,8 @@
 
   education: (
     (
-      institution: "Example University",
-      url: "https://example.edu",
+      institution: "Tallaght Institute of Technology",
+      url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
       startDate: "2017",
       endDate: "2019",

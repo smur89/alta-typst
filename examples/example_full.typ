@@ -1,22 +1,35 @@
-// Multi-page demonstration that exercises every section + every
-// notable value variation the template supports — useful as a
-// reference for a fuller CV and as a render target for features
-// that don't fit inside the one-page `example.typ`. Free to
-// overflow onto extra pages.
+// Multi-page demonstration of every documented feature surface. Free
+// to spill onto a second or third page — this is the reference for a
+// fully-populated CV, distinct from the one-page `example.typ` that
+// drives the README preview.
 //
-// Sections show: every supported profile network, both ongoing
-// and closed-range work entries, fluency-string and numeric (incl.
-// fractional) language ratings, education with and without score
-// (and `area` vs `studyType`) and with `courses` pill tags,
-// multi-issuer certificate grouping,
-// awards with and without each optional field, every projects
-// field variant, publication grouping by `type`, and a
-// `preferences` override to demonstrate the API surface.
-//
-// Build locally with:
-//   typst compile --root .. example_full.typ example_full.pdf
+// What this renders:
+//   • Header: name (uppercase), label, summary, contact bar covering
+//     every channel — email, phone, structured `basics.location`,
+//     `basics.url`, and every built-in profile network.
+//   • `meta` populates the PDF metadata date / keywords / description.
+//   • Work: open-ended + closed roles, `summary` preamble, highlights.
+//   • Volunteer: distinct organisation/position shape.
+//   • Skills: two pill-tag groups, exercises tag overflow.
+//   • Languages: every input form — `fluency` strings, integer
+//     `rating`, fractional half-dot `rating`.
+//   • Education: `studyType` + `score` + `courses` pills, plus the
+//     `area` fallback for entries missing `studyType`.
+//   • Certificates: multi-issuer grouping with inline date + linked
+//     pill (per-cert `date` and `url`), plus an issuer-less cert that
+//     pools into the trailing unlabelled group.
+//   • Awards: full entry with `url`, plus a title-only minimal entry.
+//   • Projects: complete + ongoing + minimal + description-only.
+//   • Publications: grouped by `type` (Articles, Books, Talks,
+//     Conference Papers) — each subheading carries its own
+//     type-specific icon — plus an untyped entry that falls under
+//     `labels.articles`.
+//   • Interests: structured `{name, keywords}` form.
+//   • Preferences override: bundled tweaks demonstrating accent
+//     palette, ISO-date formatting, custom maps provider, page footer,
+//     and a non-default `maxRating` for the language scale.
 
-#import "../lib.typ": alta
+#import "../lib.typ": alta, palettes, maps-providers
 
 #let cv = (
   basics: (
@@ -29,9 +42,20 @@
     ],
     email: "shane@example.com",
     phone: "+353 1 555 0100",
-    location: "Tallaght, Dublin",
+    // Structured location dict — `city`/`region`/`countryCode` are
+    // joined with ", ", the other JSON Resume keys round-trip but
+    // aren't rendered (a CV header isn't a mailing label).
+    location: (
+      address: "1 Sample Street",
+      postalCode: "D24 X123",
+      city: "Tallaght",
+      region: "Dublin",
+      countryCode: "IE",
+    ),
+    url: "https://shanemurphy.dev",
     image: read("avatar-placeholder.svg", encoding: none),
-    // One entry per built-in network so the icon set gets a full visual sweep. `Link` is the generic-URL fallback
+    // Every built-in profile network so the icon set gets a full
+    // visual sweep. `Link` is the generic-URL fallback.
     profiles: (
       (network: "LinkedIn",      username: "shanemurphy",     url: "https://linkedin.com/in/shanemurphy"),
       (network: "GitHub",        username: "shanemurphy",     url: "https://github.com/shanemurphy"),
@@ -41,9 +65,18 @@
       (network: "Medium",        username: "@shanemurphy",    url: "https://medium.com/@shanemurphy"),
       (network: "Stackoverflow", username: "shanemurphy",     url: "https://stackoverflow.com/u/1"),
       (network: "X",             username: "@shanemurphy",    url: "https://x.com/shanemurphy"),
-      (network: "Website",       username: "shanemurphy.dev", url: "https://shanemurphy.dev"),
       (network: "Link",          username: "talk recording",  url: "https://example.com/talk"),
     ),
+  ),
+
+  // PDF document metadata. `lastModified` accepts a bare ISO date or
+  // a full timestamp; only the calendar part is used for `set
+  // document(date:)`. Also surfaces optionally in a page footer when
+  // `preferences.lastModifiedFooter: true`.
+  meta: (
+    canonical: "https://example.com/cv.json",
+    version: "1.0.0",
+    lastModified: "2026-06-14",
   ),
 
   focusAreas: (
@@ -55,11 +88,14 @@
 
   work: (
     (
-      // Ongoing role — `endDate` omitted → renders as "Present".
       name: "Acme Corp",
+      url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "Jan 2022",
+      startDate: "2022-01",
+      // `endDate` omitted → renders as "Present".
+      summary: [Platform team lead. Owns the event-sourcing stack
+        underpinning the wider product surface.],
       highlights: (
         [Led the migration of a customer-facing monolith into a set of
           event-driven microservices, halving p99 latency.],
@@ -69,12 +105,11 @@
       ),
     ),
     (
-      // Closed-range role with both dates.
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: "Jun 2019",
-      endDate: "Dec 2021",
+      startDate: "2019-06",
+      endDate: "2021-12",
       highlights: (
         [Built and shipped the first version of a SaaS product from
           scratch alongside a two-person team.],
@@ -84,13 +119,25 @@
     ),
   ),
 
+  volunteer: (
+    (
+      organization: "CoderDojo Dublin",
+      position: "Mentor",
+      startDate: "2020-01",
+      highlights: (
+        [Weekly mentoring sessions for 10–14 year-olds learning to code.],
+        [Curate the Scala / functional-programming track.],
+      ),
+    ),
+  ),
+
   skills: (
-    (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go")),
+    (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go", "Rust")),
     (name: "Infra",     keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes")),
   ),
 
-  // Languages exercise both inputs: named `fluency` strings and
-  // numeric `rating` (with fractional half-dot precision).
+  // Languages exercise every supported input: named `fluency` strings
+  // and numeric `rating` (with fractional half-dot precision).
   languages: (
     (language: "English",    fluency: "Native"),
     (language: "Irish",      fluency: "Professional Working"),
@@ -101,7 +148,8 @@
   education: (
     (
       // Full entry with `studyType`, `score`, and `courses` pills.
-      institution: "Example University",
+      institution: "Tallaght Institute of Technology",
+      url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
       startDate: "2017",
       endDate: "2019",
@@ -109,7 +157,7 @@
       courses: ("Distributed Systems", "Type Theory", "Concurrency"),
     ),
     (
-      // `area` fallback (used when `studyType` is absent), no score.
+      // `area` fallback used when `studyType` is absent; no score.
       institution: "Trinity College Dublin",
       area: "Computer Science",
       startDate: "2014",
@@ -117,41 +165,78 @@
     ),
   ),
 
-  // Multiple issuers + multiple certs per issuer so the
-  // `groupCertificates: true` default visibly clusters them. Singletons
-  // (Hashicorp) pool into the trailing "other" group.
+  // Multi-issuer grouping: two 2-cert issuer clusters (CNCF, AWS) get
+  // their own labelled dashed divider; three singleton certs from
+  // distinct issuers (Hashicorp, Linux Foundation, Google Cloud) pool
+  // into a trailing unlabelled group. Each entry carries `date` + `url`
+  // so the inline-date pill + linked pill features render.
   certificates: (
-    (name: "Certified Kubernetes Administrator",        issuer: "CNCF"),
-    (name: "Certified Kubernetes Application Developer", issuer: "CNCF"),
-    (name: "AWS Solutions Architect — Professional",    issuer: "AWS"),
-    (name: "AWS DevOps Engineer — Professional",        issuer: "AWS"),
-    (name: "Hashicorp Terraform Associate",             issuer: "Hashicorp"),
+    (
+      name: "Certified Kubernetes Administrator",
+      issuer: "CNCF",
+      date: "2023-08",
+      url: "https://www.cncf.io/training/certification/cka/",
+    ),
+    (
+      name: "Certified Kubernetes Application Developer",
+      issuer: "CNCF",
+      date: "2024-01",
+      url: "https://www.cncf.io/training/certification/ckad/",
+    ),
+    (
+      name: "AWS Solutions Architect — Professional",
+      issuer: "AWS",
+      date: "2023-04",
+    ),
+    (
+      name: "AWS DevOps Engineer — Professional",
+      issuer: "AWS",
+      date: "2024-09",
+    ),
+    (
+      // Singleton — pools into the trailing unlabelled group.
+      name: "Hashicorp Terraform Associate",
+      issuer: "Hashicorp",
+      date: "2022-11",
+    ),
+    (
+      // Second singleton, distinct issuer — joins the same trailing
+      // group, demonstrating that the pool collects across issuers.
+      name: "Certified Kubernetes Security Specialist",
+      issuer: "Linux Foundation",
+      date: "2024-03",
+    ),
+    (
+      // Third singleton.
+      name: "Google Cloud Professional Architect",
+      issuer: "Google Cloud",
+      date: "2023-11",
+    ),
   ),
 
-  // Awards: complete entry plus title-only minimal entry.
+  // Full entry with `url`, plus a title-only minimal entry to
+  // demonstrate the all-optional surface.
   awards: (
     (
       title: "Best Paper Award",
-      date: "Sep 2024",
+      date: "2024-09",
       awarder: "ScalaConf",
-      // Content-form summary so emphasis markup renders.
+      url: "https://example.com/awards/scalaconf-2024",
       summary: [For _Idempotent Kafka Consumers_.],
     ),
     (
-      // Title-only minimal — every other field absent.
       title: "Dean's List",
     ),
   ),
 
-  // Projects exercise every documented field combination:
-  // a complete entry, an ongoing entry, a minimal name-only entry,
-  // and a description+keywords-only entry (no URL or dates).
+  // Every documented field combination: complete + ongoing + minimal
+  // + description-only.
   projects: (
     (
       name: "Hyperion",
       description: "Distributed task scheduler in Rust",
-      startDate: "Jan 2024",
-      endDate: "Aug 2024",
+      startDate: "2024-01",
+      endDate: "2024-08",
       url: "https://github.com/shanemurphy/hyperion",
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
@@ -163,7 +248,7 @@
       // Ongoing — `endDate` omitted, renders as "Present".
       name: "Crucible",
       description: "Migration tool for legacy databases",
-      startDate: "Sep 2024",
+      startDate: "2024-09",
       highlights: ([Schema diffing across PostgreSQL and MySQL.],),
     ),
     (
@@ -178,43 +263,74 @@
     ),
   ),
 
-  // Structured `interests[]` — same `{name, keywords}` shape as
-  // `skills[]`, renders the same way. Coexists with `focusAreas`
-  // (prose) above.
+  // Structured `{name, keywords}` shape — same as `skills[]` but
+  // semantically a personal-interests block. Coexists with the prose
+  // `focusAreas` block above.
   interests: (
     (name: "Music",  keywords: ("Trad", "Jazz")),
     (name: "Sport",  keywords: ("Hurling", "Climbing")),
     (name: "Travel", keywords: ("Japan", "Iceland")),
   ),
 
-  // Publications split across explicit `type` values + an untyped
-  // entry that falls under `labels.articles`. Dict insertion order
-  // controls the rendered group order.
+  // Four groups: explicit `Articles`, `Books`, `Talks`, `Conference
+  // Papers`, plus one untyped entry that falls into the default
+  // `labels.articles` group. Each rendered subheading carries its
+  // type-specific icon (newspaper / book / microphone / newspaper /
+  // newspaper) — see `_default_publication_icons` in lib.typ.
   publications: (
     (
       name: "Event Sourcing in Practice",
       type: "Articles",
       publisher: "Personal Blog",
-      releaseDate: "Jun 2024",
+      releaseDate: "2024-06-15",
       url: "https://example.com/posts/event-sourcing",
+      summary: [A walk-through of idempotent Kafka consumers and the
+        replay strategy that ships with them.],
+    ),
+    (
+      name: "Idempotent Kafka Consumers at Scale",
+      type: "Conference Papers",
+      publisher: "EuroSys 2024",
+      releaseDate: "2024-04",
+      url: "https://example.com/eurosys-2024",
     ),
     (
       name: "Designing for Failure",
       type: "Talks",
-      releaseDate: "Sep 2023",
+      publisher: "ScalaIO 2023",
+      releaseDate: "2023-09",
       url: "https://example.com/talks/failure",
+    ),
+    (
+      name: "Functional Domain Modelling",
+      type: "Books",
+      publisher: "Self-published",
+      releaseDate: "2022",
     ),
     (
       // No `type` → falls into the default `labels.articles` group.
       name: "Untyped Note",
-      releaseDate: "Jan 2024",
+      releaseDate: "2024-01",
       url: "https://example.com/untyped",
     ),
   ),
 )
 
-// `preferences` override demonstrating the API surface — keeps the
-// defaults visually close so the render stays readable.
+// Preferences override exercising a meaningful slice of the API
+// surface — accent palette swap, ISO-date short formatter, OSM maps
+// provider, auto page footer (renders on multi-page output), and a
+// non-default `maxRating: 6` for a CEFR-style language scale.
+//
+// `interests` is moved into the left column to fill space below the
+// long-form blocks; the rest of the layout takes the shipped defaults.
 #alta(cv, preferences: (
-  imageSize: 6em,
+  accent: palettes.navy,
+  dateFormat: "[day padding:none] [month repr:short] [year]",
+  mapsProvider: maps-providers.osm,
+  pageFooter: "auto",
+  maxRating: 6,
+  leftColumnSections: ("work", "volunteer", "projects", "publications", "interests"),
+  rightColumnSections: (
+    "focusAreas", "skills", "languages", "education", "certificates", "awards",
+  ),
 ))

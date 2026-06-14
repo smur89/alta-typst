@@ -348,8 +348,17 @@
   if trailing { h(0.25 * body-size) }
 }
 
+// Inter-entry dashed rule. Suppressed when it would render near the
+// top of a page — Typst has no "stick to previous block" attribute, so
+// when an entry overflows onto a new page the divider that preceded
+// it would otherwise orphan above the first item on that page. The
+// `2cm` threshold covers the default `margin.y` (1.5cm) plus a small
+// buffer for any section heading that immediately follows; callers
+// running tighter margins still see the divider only between
+// in-flow neighbours.
 #let divider() = context {
   let body-size = _body_size_state.get()
+  if here().position().y < 2cm { return }
   v(0.3 * body-size)
   line(
     length: 100%,
@@ -407,13 +416,21 @@
   emph(text(fill: accent, link(dest, content)))
 }
 
-// Wraps `title` in `styled-link` when a URL is supplied. Used by every
-// section renderer that wants the same "linked when possible, plain
-// when not" behaviour; the `fallback` opt-out lets callers tweak the
-// unlinked variant (e.g. `_publications` italicises the bare title).
-#let _titled_link(title, url, fallback: auto) = {
-  let plain = if fallback == auto { title } else { fallback }
-  if url != none { styled-link(url, title) } else { plain }
+// Same italic-accent treatment as `styled-link` but without the link
+// wrap. Used by `_titled_link` when a URL is absent so the visual
+// stays consistent across linked/unlinked entries — the only
+// difference at a call site is whether the heading is clickable.
+#let _styled_text(content) = context {
+  let accent = _accent_state.get()
+  emph(text(fill: accent, content))
+}
+
+// Wraps `title` in `styled-link` when a URL is supplied, otherwise
+// applies the same italic + accent styling via `_styled_text`. Every
+// section renderer that uses this gets a uniform look for the entry
+// title; URL presence is purely a clickability concern.
+#let _titled_link(title, url) = {
+  if url != none { styled-link(url, title) } else { _styled_text(title) }
 }
 
 // ─── Meta helpers ────────────────────────────────────────────────────
@@ -1071,11 +1088,14 @@
 // supplied, a middot separator + small calendar icon + date — all in
 // the pill's own text rendering. The icon and date are wrapped in a
 // box so they never break across lines; only the middot's surrounding
-// space is a valid break point if the pill has to wrap.
-#let _cert_tag(item) = context {
+// space is a valid break point if the pill has to wrap. The date is
+// routed through `_format_date` so it honours `preferences.dateFormat`
+// the same way the work / education / awards / publications dates do.
+#let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
   let body = if item.date != none {
-    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#item.date]]
+    let formatted = _format_date(item.date, prefs, labels)
+    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#formatted]]
   } else {
     [#item.name]
   }
@@ -1083,7 +1103,7 @@
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
-#let _certificates(certs, labels, group: true) = {
+#let _certificates(certs, labels, prefs, group: true) = {
   if certs.len() == 0 { return }
   // Decide whether to emit the heading *after* filtering — otherwise
   // a list of certs whose `name` is empty would still render a bare
@@ -1110,7 +1130,7 @@
   for (i, g) in groups.enumerate() {
     if g.issuer != none { _labelled_divider(g.issuer) }
     else if i > 0 { divider() }
-    block(breakable: false, { for item in g.items { _cert_tag(item) } })
+    block(breakable: false, { for item in g.items { _cert_tag(item, prefs, labels) } })
   }
 }
 
@@ -1149,8 +1169,11 @@
     if _present(description) {
       // Softer than `name()` (which is bold + accent) so the
       // description doesn't compete visually with a linked title.
-      emph(description)
-      linebreak()
+      // Wrapped in a block so the gap to the term row below matches
+      // the institution-line → term spacing in `_experience` /
+      // `_education`; using a bare `linebreak()` here leaves no
+      // paragraph spacing.
+      block(below: 0.6em, emph(description))
     }
     term(_format_date_range(project, labels, prefs))
     for bullet in project.at("highlights", default: ()) [- #bullet]
@@ -1217,7 +1240,7 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          - #_titled_link(title, url, fallback: emph(title)).
+          - #_titled_link(title, url).
             #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
             #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]
@@ -1283,6 +1306,7 @@
     render: (cv, labels, prefs) => _certificates(
       cv.at("certificates", default: ()),
       labels,
+      prefs,
       group: prefs.groupCertificates,
     ),
   ),
