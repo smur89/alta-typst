@@ -8,6 +8,7 @@
 #import "state.typ": _body_size_state, _accent_state, _emphasis_colour
 #import "presets.typ": maps-providers
 #import "icons.typ": icon, _profile_networks, _network_aliases
+#import "qr.typ": _resolve_qr_url, _qr_render
 
 // JSON Resume's structured `location` dict collapsed to a single
 // header line. `address`/`postalCode` round-trip but aren't rendered
@@ -122,6 +123,7 @@
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
+  qr-code: none,
 ) = {
   if image-position not in ("left", "right", "center") {
     panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
@@ -143,6 +145,7 @@
     }
   )
   let link-config = _resolve_link_config(link-contact-info)
+  let qr-url = _resolve_qr_url(qr-code, basics)
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
@@ -277,51 +280,68 @@
         "basics.image must be a string path or bytes, got: " + repr(image-src),
       )
     }
-    if has-image {
-      // Swapping the column order moves the photo to the opposite
-      // side without changing the alignment of the text within its
-      // column — both branches keep `1fr` on the text side.
-      let photo = _portrait(image-src, image-size)
-      if image-position == "left" {
-        grid(
-          columns: (auto, 1fr),
-          align: top,
-          column-gutter: 1em,
-          photo,
-          header-text,
-        )
-      } else if image-position == "right" {
-        grid(
-          columns: (1fr, auto),
-          align: top,
-          column-gutter: 1em,
-          header-text,
-          photo,
-        )
+    let photo = if has-image { _portrait(image-src, image-size) }
+    // 3.5em ≈ small enough to stay out of the way of the contact bar,
+    // large enough to remain scannable at typical print DPIs. The QR
+    // inherits `accent` so it sits with the rest of the header's
+    // coloured ornaments instead of fighting them with pure black.
+    let qr = if qr-url != none { _qr_render(qr-url, 3.5 * body-size, accent) }
+
+    // Centred portrait: photo stacks on its own row above or below the
+    // text block. The photo is a fixed-size `box` (inline-level), so a
+    // bare `align(center, box)` would lay it at the default inline
+    // position. Wrapping the centring `align` in a full-width `block`
+    // computes the alignment against the document width, regardless of
+    // how the text row above / below is aligned. The QR — when present
+    // — joins the text row beside `header-text` so it stays scannable
+    // without disrupting the centred-photo composition.
+    if image-position == "center" {
+      let centred-photo = if photo != none {
+        block(spacing: 0.8 * body-size, width: 100%, align(center, photo))
+      }
+      let text-row = if qr == none {
+        header-text
       } else {
-        // Centred: stack the photo on its own row above or below the
-        // text block. The photo itself is a fixed-size `box` (inline-
-        // level); a bare `align(center, box)` lays the box at the
-        // default inline position because there's no block context
-        // defining what to centre within. Wrap the centring `align`
-        // in a full-width `block` so the alignment computes against
-        // the document width, regardless of how the text above /
-        // below is aligned.
-        let centred-photo = block(
-          spacing: 0.8 * body-size,
-          width: 100%,
-          align(center, photo),
-        )
-        if image-stack-order == "above" {
-          centred-photo
-          header-text
-        } else {
-          header-text
-          centred-photo
-        }
+        grid(columns: (1fr, auto), align: top, column-gutter: 1em, header-text, qr)
+      }
+      if centred-photo == none {
+        text-row
+      } else if image-stack-order == "above" {
+        centred-photo
+        text-row
+      } else {
+        text-row
+        centred-photo
       }
     } else {
-      header-text
+      // Horizontal layout: photo on the requested side, QR opposite.
+      // With no portrait, "opposite of imagePosition" still applies —
+      // a default (imagePosition: "right") CV with only a QR puts it
+      // on the left, matching where it would land if a photo were
+      // added later.
+      let (left-ornament, right-ornament) = if image-position == "left" {
+        (photo, qr)
+      } else {
+        (qr, photo)
+      }
+      // Build columns + cells from the ornaments present. Dropping
+      // absent ornaments (rather than rendering empty cells) avoids
+      // an extra 1em of column-gutter padding on the surviving side.
+      let cells = (
+        (left-ornament, auto),
+        (header-text, 1fr),
+        (right-ornament, auto),
+      ).filter(((cell, _)) => cell != none)
+      if cells.len() == 1 {
+        header-text
+      } else {
+        grid(
+          columns: cells.map(((_, col)) => col),
+          align: top,
+          column-gutter: 1em,
+          ..cells.map(((cell, _)) => cell),
+        )
+      }
     }
   }
 }
