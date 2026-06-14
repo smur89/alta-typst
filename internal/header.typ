@@ -285,33 +285,31 @@
     // large enough to remain scannable at typical print DPIs. The QR
     // inherits `accent` so it sits with the rest of the header's
     // coloured ornaments instead of fighting them with pure black.
-    let qr = if qr-url != none { _qr_render(qr-url, 3.5 * body-size, accent) }
+    let qr-size = 3.5 * body-size
+    let qr = if qr-url != none { _qr_render(qr-url, qr-size, accent) }
 
     // Centred portrait: photo stacks on its own row above or below the
     // text block. The photo is a fixed-size `box` (inline-level), so a
     // bare `align(center, box)` would lay it at the default inline
     // position. Wrapping the centring `align` in a full-width `block`
     // computes the alignment against the document width, regardless of
-    // how the text row above / below is aligned. The QR — when present
-    // — joins the text row beside `header-text` so it stays scannable
-    // without disrupting the centred-photo composition.
+    // how the text row above / below is aligned. When a QR is present
+    // it sits at the page edge (left by default) outside the text block
+    // — a `qr-size`-wide spacer on the opposite side preserves the
+    // centred-header axis instead of letting the text drift toward
+    // whichever edge the QR isn't on.
     if image-position == "center" {
       let centred-photo = if photo != none {
         block(spacing: 0.8 * body-size, width: 100%, align(center, photo))
       }
-      // Three-column `(1fr, auto, 1fr)` with the QR pinned right and
-      // an empty spacer mirroring it on the left keeps `header-text`
-      // page-centred — a bare `(1fr, auto)` would only centre the
-      // text within its own column, drifting left of the page midline
-      // under `headerTextAlign: "center"`.
       let text-row = if qr == none {
         header-text
       } else {
         grid(
-          columns: (1fr, auto, 1fr),
+          columns: (auto, 1fr, auto),
           align: top,
           column-gutter: 1em,
-          [], header-text, qr,
+          qr, header-text, box(width: qr-size),
         )
       }
       if centred-photo == none {

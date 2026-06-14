@@ -14,16 +14,15 @@
 //      follows the photo and ends up on the right.
 //   5. QR themed by a custom `accent` colour — exercises the
 //      `fill: accent` path through the QR helper.
-//   6. QR alongside a centred portrait — QR joins the text row beside
-//      `header-text` while the photo stays stacked above the row.
-//   7. QR with no portrait + `imagePosition: "center"` — the centred-
-//      photo slot is empty, so the text-row carries the QR alone.
+//   6. QR alongside a centred portrait — QR rides the page-left edge
+//      while the photo stays stacked above the centred-header text.
+//   7. QR with no portrait + `imagePosition: "center"` — QR at the
+//      page-left edge, centred-header text spans the rest.
 //   8. Centred portrait + QR with `imageStackOrder: "below"` — photo
-//      stacks under the text-row, QR still rides the text-row beside
-//      the contact info.
+//      stacks under the text-row; QR still rides the page-left edge.
 //   9. Centred portrait + QR + `headerTextAlign: "left"` — orthogonal
-//      case: centred-photo axis preserved while header text + QR
-//      compose left-aligned in their row.
+//      case: centred-photo axis preserved while header text sits flush
+//      left of the QR's column-mate spacer.
 
 #import "../lib.typ": alta
 
@@ -92,7 +91,7 @@
 #alta(
   (basics: (
     name: "Centred Portrait + QR",
-    label: "QR joins the text row beside the centred photo",
+    label: "QR rides page-left, photo stacks centred above",
     email: "qr@example.com",
     url: "https://example.com/cv",
     image: read("../icons/avatar-placeholder.svg", encoding: none),
@@ -109,7 +108,7 @@
 #alta(
   (basics: (
     name: "Centred Text + QR (No Photo)",
-    label: "QR rides the text row when no portrait is supplied",
+    label: "QR rides page-left, centred header spans the rest",
     email: "qr@example.com",
     url: "https://example.com/cv",
   )),
@@ -125,7 +124,7 @@
 #alta(
   (basics: (
     name: "Centred Photo Below + QR",
-    label: "imageStackOrder: \"below\" — photo trails the text-row",
+    label: "imageStackOrder: \"below\" — photo trails the text block",
     email: "qr@example.com",
     url: "https://example.com/cv",
     image: read("../icons/avatar-placeholder.svg", encoding: none),
