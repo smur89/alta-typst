@@ -24,3 +24,32 @@
   duckduckgo: "https://duckduckgo.com/?q={q}&iaxm=maps",
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
+
+// Vetted preset bundles spread over caller overrides via dict-merge:
+//
+//   #alta(cv, preferences: themes.modern + (imageSize: 7em))
+//
+// `classic` re-declares the current defaults rather than aliasing them
+// — themes are bundles by name, not pointers to "whatever the default
+// is right now", so a future default shift won't silently move `classic`.
+// `imagePosition` is omitted because it's only meaningful with a portrait.
+#let themes = (
+  classic: (
+    font: "Lato",
+    accent: palettes.teal,
+    columnRatio: 0.65,
+    headerTextAlign: "left",
+  ),
+  modern: (
+    font: "Inter",
+    accent: palettes.navy,
+    columnRatio: 0.50,
+    headerTextAlign: "center",
+  ),
+  minimal: (
+    font: "Source Sans 3",
+    accent: palettes.charcoal,
+    columnRatio: 0.55,
+    headerTextAlign: "left",
+  ),
+)

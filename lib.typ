@@ -18,7 +18,7 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
-#import "internal/presets.typ": palettes, maps-providers
+#import "internal/presets.typ": palettes, maps-providers, themes
 #import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": _strict_merge, _check_bool
