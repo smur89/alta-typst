@@ -112,6 +112,9 @@
   // the centred portrait stacks above or below the header text block.
   imageStackOrder: "above",
   headerTextAlign: "left",
+  // `auto` encodes `basics.url`; any non-empty string is encoded
+  // verbatim. Backed by `@preview/zebra` via `internal/qr.typ`.
+  qrCode: none,
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
   uppercaseName: true,
