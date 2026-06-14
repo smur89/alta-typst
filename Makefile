@@ -8,6 +8,8 @@
 #   make example     # build examples/example.pdf + examples/preview.png
 #   make example-full # build examples/example_full.pdf + per-page PNGs
 #                    # used as the static README gallery
+#   make thumbnail   # build thumbnail.png from template/cv.typ
+#                    # (Universe package-card image — 250 PPI)
 #   make preview-gif # build the animated README hero (needs ffmpeg)
 #   make pdfs        # build PDFs for every examples/*.typ
 #   make previews    # build a page-1 PNG for every examples/*.typ
@@ -50,7 +52,7 @@ TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
 .PHONY: all example example-full preview-gif pdfs previews test-pdfs test check clean help
 
-all: pdfs examples/preview.png test-pdfs
+all: pdfs examples/preview.png test-pdfs thumbnail.png
 
 preview-gif: examples/preview.gif
 
@@ -64,6 +66,25 @@ example: examples/example.pdf examples/preview.png
 # page; this way the page count can change and `make` still does the
 # right thing.
 example-full: examples/example_full.pdf
+
+# Universe package-card thumbnail. Per the typst/packages submission
+# rules, the thumbnail must depict one of the pages of the *template*
+# as initialised (not an example), rendered at 250 PPI, longer edge
+# at least 1080 px, ≤3 MiB.
+#
+# template/cv.typ uses `#import "@preview/altacv:1.0.0"` so it works
+# after `typst init` on a user's machine, but that path doesn't
+# resolve in this repo. The recipe swaps the import to the local
+# `lib.typ`, renders page 1, and cleans up the temp source — keeping
+# template/cv.typ untouched on disk so it ships verbatim.
+thumbnail: thumbnail.png
+.PHONY: thumbnail
+
+thumbnail.png: template/cv.typ lib.typ
+	sed 's|@preview/altacv:1.0.0|/lib.typ|' template/cv.typ > .thumbnail-src.typ
+	$(TYPST) compile --root $(ROOT) --format png --ppi 250 .thumbnail-src.typ '.thumbnail-{p}.png'
+	mv .thumbnail-1.png $@
+	rm -f .thumbnail-src.typ .thumbnail-*.png
 
 pdfs: $(PDFS)
 
@@ -169,7 +190,7 @@ check: test
 # (or `git checkout examples/preview.png`) after `make clean` to put
 # it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/preview.png examples/preview-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png
 
 help:
 	@echo "Targets:"
@@ -177,6 +198,7 @@ help:
 	@echo "               and the per-fixture PDFs (default)"
 	@echo "  example      Build examples/example.pdf + examples/preview.png"
 	@echo "  example-full Build examples/example_full.pdf + per-page gallery PNGs"
+	@echo "  thumbnail    Build thumbnail.png from template/cv.typ (Universe card)"
 	@echo "  preview-gif  Build the animated README hero (needs ffmpeg)"
 	@echo "  pdfs         Build PDFs for every examples/*.typ"
 	@echo "  previews     Build page-1 PNGs for every examples/*.typ"
