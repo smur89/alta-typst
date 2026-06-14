@@ -94,9 +94,13 @@ examples/preview.png: examples/example.typ lib.typ
 # for higher-quality colour quantisation than a default GIF.
 #
 # Local-only target — committed alongside `preview.png`; CI does not
-# regenerate the GIF on every push (ffmpeg install + 18-page typst
+# regenerate the GIF on every push (ffmpeg install + multi-page typst
 # compile is too slow for the lint job).
-examples/preview.gif: examples/preview-frames.typ lib.typ
+#
+# Prerequisites include every file `preview-frames.typ` reads —
+# transitive `#import`/`read()` targets — so editing any of them
+# triggers a fresh GIF on the next `make preview-gif`.
+examples/preview.gif: examples/preview-frames.typ examples/_dates.typ examples/avatar-placeholder.svg lib.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \

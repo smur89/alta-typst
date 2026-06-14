@@ -1,7 +1,7 @@
 // Source for `examples/preview.gif` — the animated README hero. Each
-// page in this document is one frame of the GIF; the `frames` array
-// below enumerates the preference variations. Compiled to a series of
-// PNGs via `typst compile --format png … '{p}.png'`, then stitched by
+// entry in the `frames` array below is one preference variation; the
+// document emits one page per entry. Compiled to a series of PNGs
+// via `typst compile --format png … '{p}.png'`, then stitched by
 // `make preview-gif` (ffmpeg with high-quality palette generation).
 //
 // Cycles the six accent palettes through the frames as a secondary
@@ -10,9 +10,19 @@
 // fresh accent so the colour story is woven into the layout story
 // instead of taking dedicated frames.
 //
-// Add a new frame by appending a `(accent: …, …)` dict to `frames`.
-// Keep the base `cv` deep enough to exercise every demonstrated
-// surface (languages for ratings, certificates for grouping, etc.).
+// The base `cv` is tuned so every variation — including the
+// `columnRatio: 1` single-column variation, which stacks every
+// section vertically — fits in exactly one page. If you add
+// content here (an extra work highlight, another skill group),
+// verify the single-column frame still renders as a single page
+// (`pdfinfo .../preview-frames.pdf | grep Pages` should match the
+// `frames` array length); otherwise the GIF carries an orphan
+// continuation frame.
+//
+// Add a new variation by appending a `(accent: …, …)` dict to
+// `frames`. Keep the base `cv` deep enough to exercise every
+// demonstrated surface (languages for ratings, certificates for
+// grouping, etc.) but small enough to fit in single-column.
 
 #import "../lib.typ": alta, palettes, maps-providers
 #import "_dates.typ": ago, today
@@ -48,6 +58,11 @@
     [Distributed systems and functional programming.],
   ),
 
+  // CV tuned so every variation — including the `columnRatio: 1`
+  // single-column variation, which stacks every section vertically
+  // — fits on one page. The two-column variations leave some
+  // whitespace on the right column at this size; that's fine, since
+  // they're demonstrating layout not bulk.
   work: (
     (
       name: "Acme Corp",
@@ -58,18 +73,6 @@
       summary: [Platform team lead. Owns the event-sourcing stack.],
       highlights: (
         [Migrated a customer-facing monolith to event-driven services, halving p99 latency.],
-        [Rolled out an event-sourcing platform now used by four product teams.],
-      ),
-    ),
-    (
-      name: "Liffey Labs",
-      position: "Software Engineer",
-      location: "Remote",
-      startDate: ago(years: 7),
-      endDate: ago(years: 4),
-      highlights: (
-        [Shipped the first version of a SaaS product alongside a two-person team.],
-        [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
       ),
     ),
   ),
@@ -79,12 +82,11 @@
     (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
   ),
 
-  // Mix fluency strings + numeric ratings so the maxRating frame
+  // Mix fluency string + numeric ratings so the maxRating frame
   // (which switches to a CEFR-style 6-dot scale) needs only the
   // numeric values to scale correctly.
   languages: (
     (language: "English", fluency: "Native"),
-    (language: "Irish",   rating: 3),
     (language: "French",  rating: 2.5),
   ),
 
@@ -106,13 +108,11 @@
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
       date: ago(years: 3),
-      url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
       date: ago(years: 2),
-      url: "https://www.cncf.io/training/certification/ckad/",
     ),
   ),
 
@@ -121,16 +121,6 @@
       title: "Best Paper — Distributed Systems Track",
       awarder: "EuroSys",
       date: ago(years: 2),
-      url: "https://example.com/eurosys",
-    ),
-  ),
-
-  publications: (
-    (
-      name: "Event Sourcing in Practice",
-      publisher: "Personal Blog",
-      releaseDate: ago(years: 2, precision: "day"),
-      url: "https://example.com/posts/event-sourcing",
     ),
   ),
 )
