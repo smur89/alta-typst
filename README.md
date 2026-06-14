@@ -402,7 +402,7 @@ Drop the portrait via `basics.image: none` for a fully text-only header.
 
 | Theme | Accent | Font | Layout |
 |---|---|---|---|
-| `classic` | `palettes.teal` | `Lato` | 64/36 split, left-aligned header |
+| `classic` | `palettes.teal` | `Lato` | 65/35 split, left-aligned header |
 | `modern` | `palettes.navy` | `Inter` | 50/50 split, centred header |
 | `minimal` | `palettes.charcoal` | `Source Sans 3` | 55/45 split, left-aligned header |
 
