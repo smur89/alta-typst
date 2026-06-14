@@ -69,7 +69,7 @@ See `examples/example.typ` in the [source repository](https://github.com/smur89/
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three practical extensions:
 
 - `focusAreas`: top-level array of prose items. This is an intentional altacv addition, distinct from JSON Resume's `interests` (which is structured `{name, keywords}` per entry — also supported, see below). Rendered as a bulleted "Areas of Focus" section.
-- `languages[].rating`: numeric 0–`preferences.maxRating` (default 5; JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
+- `languages[].rating`: numeric 0–`preferences.maxRating` (default 5; JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present). Fractional values must be in 0.5 increments — the renderer expresses only full or half dots, so any other fraction panics up front rather than silently rounding.
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise either by overriding `labels.articles` or by supplying already-translated `type` values directly.
 
 Each `publications[]` entry renders as title, then (if supplied) `publisher` on the line below in body colour, `releaseDate` in a lighter shade, and `summary` as a paragraph. `name`, `publisher`, `releaseDate`, `url`, and `summary` are all optional — omitted fields simply drop their line.
@@ -106,8 +106,9 @@ basics: (
 )
 
 // Alternative: a root-relative path (leading "/", anchored to the
-// `--root` directory passed to `typst compile`). String paths without
-// a leading "/" resolve relative to `lib.typ` and are not portable.
+// `--root` directory passed to `typst compile`). Paths without a
+// leading "/" resolve relative to an internal package file and are
+// not portable — use one of these two forms.
 basics: (
   image: "/avatar.png",
   ...
@@ -228,7 +229,7 @@ interests: (
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `lib.typ`.
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `internal/icons.typ`.
 
 ### PDF metadata
 
@@ -428,10 +429,10 @@ Example (German + rename "Skills" to "Core Technologies"):
 | `icon(name, size: auto, shift: auto, fill: auto)` | Render a vendored SVG. `name` is any key from the built-in icon set (utility or network). |
 | `name(body)` | Bold accent-coloured line — designed for the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with their leading icon. |
-| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5). Drives the language fluency dots; works for any row on the configured scale. (Shares a name with the `languages[].rating` data field because both describe the same scale — the function isn't auto-fed from the data; pass the value explicitly.) |
+| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2`, `2.5`, `3` are valid; `2.3` panics — the renderer only expresses full or half steps). Drives the language fluency dots; works for any row on the configured scale. (Shares a name with the `languages[].rating` data field because both describe the same scale — the function isn't auto-fed from the data; pass the value explicitly.) |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses the trailing horizontal space — used when a tag is the last item in a row so it doesn't push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |
-| `styled-link(dest, content)` | Accent-coloured italic link — used for publication / award / project titles. |
+| `styled-link(content, dest: none)` | Accent-coloured italic styling for entry titles. Wraps in a link when `dest` is supplied; renders just the styled content when `dest: none`. Used for publication / award / project titles. |
 | `palettes` | Dict of curated accent presets — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`. Use as `accent: palettes.navy`. |
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 

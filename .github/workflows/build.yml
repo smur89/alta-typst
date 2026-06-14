@@ -178,12 +178,16 @@ jobs:
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
       # (CI, examples, .gitignore) is repo-only and intentionally
       # excluded from the package payload.
+      #
+      # `internal/` and `sections/` carry the modules that lib.typ
+      # `#import`s; they must ship with the package or compile fails
+      # at the user's site with "file not found".
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
-            typst.toml lib.typ icons/ LICENSE README.md
+            typst.toml lib.typ internal/ sections/ icons/ LICENSE README.md
 
       - name: Attach assets to release
         uses: softprops/action-gh-release@v3
