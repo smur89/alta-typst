@@ -1,11 +1,20 @@
-// Demonstration of the altacv template. Renders a one-page fictional
-// CV exercising the main sections. The publications section is
-// covered by tests/publication_types.typ.
+// Demonstration of the altacv template. Renders a fictional CV
+// covering the sections users hit most often, with the high-signal
+// surfaces (work, skills, languages, education, certificates, awards,
+// publications) shaped to fit on page 1 — that page is the README
+// preview image. Lower-priority sections (projects, volunteer,
+// interests) sit on page 2 so they're still exercised by the build
+// but don't crowd the preview.
+//
+// Dates use the `ago()` helper from `_dates.typ`, anchored to a
+// shared `today` constant. Bump `today` there to rebase every
+// relative date in every example at once.
 //
 // Build locally with:
 //   typst compile --root .. example.typ example.pdf
 
 #import "../lib.typ": alta
+#import "_dates.typ": ago
 
 #let cv = (
   basics: (
@@ -19,19 +28,15 @@
     email: "sean@example.com",
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
+    url: "https://seanomurchu.dev",
     image: read("avatar-placeholder.svg", encoding: none),
     profiles: (
-      (network: "LinkedIn", username: "seanomurchu",     url: "https://linkedin.com/in/seanomurchu"),
-      (network: "GitHub",   username: "seanomurchu",     url: "https://github.com/seanomurchu"),
-      (network: "Website",  username: "seanomurchu.dev", url: "https://seanomurchu.dev"),
+      (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
     ),
   ),
 
   focusAreas: (
-    [Distributed systems: Kafka, CDC, idempotent consumers, event sourcing.],
-    [Functional programming and type-driven design in Scala and Haskell.],
-    [Developer experience: tooling, CI/CD, observability.],
-    [Engineering culture: ADRs, RFCs, mentoring.],
+    [Distributed systems and functional programming.],
   ),
 
   work: (
@@ -40,61 +45,40 @@
       url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "Jan 2022",
+      startDate: ago(years: 4),
       // endDate omitted → renders as "Present"
-      summary: [Platform team lead. Owns the event-sourcing stack
-        underpinning the wider product surface.],
+      summary: [Platform team lead. Owns the event-sourcing stack.],
       highlights: (
-        [Led the migration of a customer-facing monolith into a set of
-          event-driven microservices, halving p99 latency.],
-        [Designed and rolled out an event-sourcing platform now used by
-          four product teams.],
-        [Mentored three engineers from mid to senior level.],
+        [Migrated a customer-facing monolith to event-driven services, halving p99 latency.],
+        [Rolled out an event-sourcing platform now used by four product teams.],
       ),
     ),
     (
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: "Jun 2019",
-      endDate: "Dec 2021",
+      startDate: ago(years: 7),
+      endDate: ago(years: 4),
       highlights: (
-        [Built and shipped the first version of a SaaS product from
-          scratch alongside a two-person team.],
-        [Introduced the CI/CD pipeline and developer-onboarding flow
-          that scaled the engineering org from 3 to 15.],
+        [Shipped the first version of a SaaS product alongside a two-person team.],
+        [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
       ),
     ),
     (
       name: "Grand Canal Systems",
       position: "Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "Aug 2017",
-      endDate: "May 2019",
+      startDate: ago(years: 9),
+      endDate: ago(years: 7),
       highlights: (
-        [Built internal tooling adopted by the wider engineering org.],
-        [Led the migration of services from VMs to containerised
-          deployments on Kubernetes.],
-      ),
-    ),
-    (
-      name: "Pembroke Software",
-      position: "Software Engineering Intern",
-      location: "Dublin, Ireland",
-      startDate: "May 2016",
-      endDate: "Jul 2017",
-      highlights: (
-        [Maintained a legacy reporting service serving daily
-          extracts to enterprise customers across two pricing tiers.],
-        [Automated a manual release process previously taking half
-          a day, freeing the team for higher-leverage work.],
+        [Led the migration of services from VMs to Kubernetes.],
       ),
     ),
   ),
 
   skills: (
-    (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go")),
-    (name: "Infra",     keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes")),
+    (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
+    (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
   ),
 
   languages: (
@@ -104,19 +88,11 @@
 
   education: (
     (
-      institution: "Example University",
-      url: "https://example.edu",
+      institution: "Tallaght Institute of Technology",
+      url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
-      startDate: "2017",
-      endDate: "2019",
-      score: "Distinction",
-    ),
-    (
-      institution: "Example University",
-      url: "https://example.edu",
-      studyType: "B.Sc. in Computer Science",
-      startDate: "2014",
-      endDate: "2017",
+      startDate: ago(years: 9, precision: "year"),
+      endDate: ago(years: 7, precision: "year"),
     ),
   ),
 
@@ -124,14 +100,23 @@
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
-      date: "Aug 2023",
+      date: ago(years: 3),
       url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
-      date: "Jan 2024",
+      date: ago(years: 2),
       url: "https://www.cncf.io/training/certification/ckad/",
+    ),
+  ),
+
+  awards: (
+    (
+      title: "Best Paper — Distributed Systems Track",
+      awarder: "EuroSys",
+      date: ago(years: 2),
+      url: "https://example.com/eurosys",
     ),
   ),
 
@@ -139,9 +124,42 @@
     (
       name: "Event Sourcing in Practice",
       publisher: "Personal Blog",
-      releaseDate: "Jun 2024",
+      releaseDate: ago(years: 2, precision: "day"),
       url: "https://example.com/posts/event-sourcing",
     ),
+  ),
+
+  // The sections below sit on page 2 of the rendered PDF; they're
+  // here so the example build exercises every section renderer, but
+  // they're outside the page-1 preview that ships with the README.
+
+  projects: (
+    (
+      name: "open-source: kafka-idempotent",
+      url: "https://example.com/projects/kafka-idempotent",
+      description: "Small Scala library for idempotent consumers.",
+      startDate: ago(years: 3),
+      keywords: ("Scala", "Kafka", "OSS"),
+      highlights: (
+        [Underpins the awarded EuroSys paper above.],
+      ),
+    ),
+  ),
+
+  volunteer: (
+    (
+      organization: "CoderDojo Dublin",
+      position: "Mentor",
+      startDate: ago(years: 6),
+      highlights: (
+        [Weekly mentoring sessions for 10–14 year-olds learning to code.],
+      ),
+    ),
+  ),
+
+  interests: (
+    (name: "Music", keywords: ("Trad", "Jazz")),
+    (name: "Sport", keywords: ("Hurling", "Climbing")),
   ),
 )
 

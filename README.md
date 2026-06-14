@@ -82,7 +82,14 @@ Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`
 
 `basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
 
-JSON Resume keys **not yet rendered** by this template: `references`. Track or upvote feature requests on the issue tracker if you need any of them.
+JSON Resume fields **accepted but not yet rendered** by this template:
+
+- top-level: `references`
+- `volunteer[].summary`, `volunteer[].url`
+- `projects[].entity`, `projects[].type`, `projects[].roles`
+- `meta.canonical`, `meta.version`
+
+Round-tripping a verbatim `resume.json` won't panic on these — they're silently ignored. Open or upvote an issue if you need one rendered.
 
 `basics.location` accepts either a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed to a single line by joining the CV-relevant subset — `city`, `region`, `countryCode` — with `", "`, skipping any field that's missing or empty (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` renders as `Dublin, Leinster, IE`, and `(city: "Tokyo")` renders as `Tokyo`). `address` and `postalCode` are accepted (so a verbatim `resume.json` dict round-trips without panicking) but not rendered — a CV header isn't a mailing label. The same joined string also drives the maps deep link, so display and link stay in sync. Unknown keys panic. If you need the legacy verbatim behaviour for a value that doesn't fit the dict shape, pass it as a string.
 
@@ -151,8 +158,6 @@ Each `projects[]` entry follows JSON Resume's schema. Practical subset supported
 | `highlights` | array of content | Bulleted list of accomplishments / contributions. |
 | `keywords` | array of strings | Renders as a row of pill tags below the highlights. |
 
-`entity`, `type`, and `roles` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
-
 ### Volunteer
 
 Each `volunteer[]` entry follows JSON Resume's schema — the same shape as `work[]`, but with `organization` in place of `name`:
@@ -164,8 +169,6 @@ Each `volunteer[]` entry follows JSON Resume's schema — the same shape as `wor
 | `location` | string | Optional location, rendered next to the date range. |
 | `startDate` / `endDate` | string | Date range, same conventions as `work` entries (omit `endDate` → "Present"). |
 | `highlights` | array of content | Bulleted list of accomplishments / contributions. |
-
-`summary` and `url` from the JSON Resume spec are accepted (silently ignored) but not yet rendered. Open an issue if you need them.
 
 By default `volunteer` renders in the left column directly below `work`, so volunteering reads as a continuation of the experience block. Move it to the right column (or reorder it within the left) via `preferences.leftColumnSections` / `preferences.rightColumnSections` like any other section.
 
@@ -239,8 +242,6 @@ The rendered PDF carries metadata in its document properties — what your OS sh
 | Keywords | `skills[].keywords` | Flattened across every skill group and de-duplicated, insertion order preserved. |
 | Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — either `YYYY-MM-DD` or a full `YYYY-MM-DDTHH:MM:SSZ` timestamp; only the calendar part is used. Falls back to compile time when `meta.lastModified` is absent or unparseable. |
 
-The `meta` block is otherwise unrendered — `canonical` and `version` are accepted (for round-trip with JSON Resume sources) but currently have no visible or metadata effect.
-
 To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true` — see the [preferences table](#preferences).
 
 ```typst
@@ -271,7 +272,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `bodySize` | `10pt` | Base text size. Every sub-element scales from this via em-multipliers. |
 | `paper` | `"a4"` | Standard paper size — string passed to Typst's `set page(paper: ...)`. Supports `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts works. |
-| `accent` | `palettes.teal` (`rgb("#00796B")`) | Theme colour for headings, accent rules, tags, dots. Use a built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}`, all exported from the module — or pass any `rgb(...)` value. |
+| `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. Use a built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}`, all exported from the module — or pass any `rgb(...)` value. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster under a darker issuer-label pill; singletons across distinct issuers pool into a trailing unlabelled group). When false, render flat — each cert sits next to its own issuer label. Certificates with no `issuer` render unlabelled either way. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 | `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
@@ -284,8 +285,8 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use the complement (`1 - r`) to invert the layout, or set to `1` for a [single-column layout](#single-column-layout). |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer (default). `"auto"` — emits a footer on **multi-page** documents only, with `basics.name` flush left and `Page N / M` flush right, sized at `0.8em` in the body colour; the single-page case stays clean. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim as the footer on every page. Anything else panics. When set (non-`none`), takes precedence over `lastModifiedFooter` — the two prefs target overlapping surface so a non-default `pageFooter` wins; combine the "last updated" line yourself in a content footer if you want both. |
-| `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. |
+| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. The defaults put the long-form / bulleted sections on the (wider) left so their highlights and summary paragraphs aren't crammed into the narrower right column. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests")` | Sections to render in the right column, in order. The defaults put the compact / horizontal-by-nature sections (pill rows, dot ratings, short metadata blocks) on the right. |
 | `maxRating` | `5` | Number of dots on the language fluency scale. Must be a positive integer. The default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, or any other positive integer for a custom scale. Fluency strings remain anchored to the 0–5 LinkedIn scale, so callers using a non-5 `maxRating` must supply numeric `languages[].rating` values. |
 
 Both column arrays draw from the same set of section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`. Sections omitted from both arrays are not rendered, even if their data is present; sections listed in both render twice. Unknown keys panic.
@@ -330,26 +331,6 @@ Example — invert the template (side panel on the narrow left, experience on th
 ))
 ```
 
-### Single-column layout
-
-Set `columnRatio: 1` to collapse the grid to a single full-width column. By default every section from both `leftColumnSections` and `rightColumnSections` streams top-to-bottom in left-then-right order — no redistribution needed. With the defaults, that order is `work → volunteer → focusAreas → skills → languages → education → certificates → awards → projects → publications → interests`:
-
-```typst
-#alta(cv, preferences: (columnRatio: 1))
-```
-
-Useful for plain CV layouts (e.g. when piping through ATS parsers that struggle with multi-column PDFs) without a separate entrypoint. Reorder the stream by overriding either array; both are concatenated in order, so the same section keys still apply:
-
-```typst
-#alta(cv, preferences: (
-  columnRatio: 1,
-  leftColumnSections: ("work", "education"),
-  rightColumnSections: ("skills", "languages", "certificates"),
-))
-```
-
-Drop the portrait via `basics.image: none` for a fully text-only header.
-
 Example — opt out of links per channel (everything stays linked except phone):
 
 ```typst
@@ -361,6 +342,26 @@ Example — opt out of links per channel (everything stays linked except phone):
   linkContactInfo: (phone: false),
 ))
 ```
+
+### Single-column layout
+
+Useful for plain CV layouts — e.g. when piping through ATS parsers that struggle with multi-column PDFs — without a separate entrypoint. Set `columnRatio: 1` to collapse the grid to a single full-width column. By default every section from both `leftColumnSections` and `rightColumnSections` streams top-to-bottom in left-then-right order — no redistribution needed. With the defaults, that order is `work → volunteer → projects → publications → focusAreas → skills → languages → education → certificates → awards → interests`:
+
+```typst
+#alta(cv, preferences: (columnRatio: 1))
+```
+
+Reorder the stream by overriding either array; both are concatenated in order, so the same section keys still apply:
+
+```typst
+#alta(cv, preferences: (
+  columnRatio: 1,
+  leftColumnSections: ("work", "education"),
+  rightColumnSections: ("skills", "languages", "certificates"),
+))
+```
+
+Drop the portrait via `basics.image: none` for a fully text-only header.
 
 ### Labels
 
@@ -384,7 +385,22 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
-| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` | Twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter when rendering ISO date inputs. Override to localise; the array must keep length 12. |
+| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
+| `publicationIcons` | `(:)` |
+
+`labels.months` carries twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens when rendering ISO date inputs. Override to localise; the array must keep length 12.
+
+`labels.publicationIcons` is an opt-in dict mapping `publications[].type` values to icon names. Built-in defaults (matched case-insensitively — `Talks`, `talks`, `TALKS` all resolve to the same icon; both singular and plural variants are listed so callers can use either):
+
+| `type` value | Icon |
+|---|---|
+| `article` / `articles` / `blog post` / `blog posts` | `newspaper` |
+| `book` / `books` | `book` |
+| `talk` / `talks` / `presentation` / `presentations` | `microphone` |
+| `paper` / `papers` / `conference paper` / `conference papers` | `newspaper` |
+| anything else | `file` |
+
+The supplied dict layers over the defaults rather than replacing them, so override here only to add a custom type or remap a built-in.
 
 Example (German + rename "Skills" to "Core Technologies"):
 
@@ -405,7 +421,7 @@ Example (German + rename "Skills" to "Core Technologies"):
 
 ### Helpers
 
-The template also exports lower-level helpers for callers who want to compose custom layouts:
+`alta()` uses these internally; importing them lets you compose a custom section (or preview a single helper in isolation):
 
 | Helper | Purpose |
 |---|---|
@@ -413,12 +429,14 @@ The template also exports lower-level helpers for callers who want to compose cu
 | `name(body)` | Bold accent-coloured line — designed for the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with their leading icon. |
 | `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5). Drives the language fluency dots; works for any row on the configured scale. (Shares a name with the `languages[].rating` data field because both describe the same scale — the function isn't auto-fed from the data; pass the value explicitly.) |
-| `tag(body, label: false)` | Pill-style tag; `label: true` for a darker, bold "category" variant. |
+| `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses the trailing horizontal space — used when a tag is the last item in a row so it doesn't push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |
-| `styled-link(dest, content)` | Accent-coloured italic underlined link — used for publication titles. |
+| `styled-link(dest, content)` | Accent-coloured italic link — used for publication / award / project titles. |
+| `palettes` | Dict of curated accent presets — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`. Use as `accent: palettes.navy`. |
+| `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.0.0": tag, divider // x-release-please-version
+#import "@preview/altacv:1.0.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
 ```
 
 The contact bar (rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, and `basics.profiles`) wires each entry to a deep link: `mailto:` for email, `tel:` for phone (visual separators stripped from the dialable part), the configured maps URL for location, and the supplied URL for the homepage and each profile. Suppress or swap any of them via `preferences.linkContactInfo` and `preferences.mapsProvider` above.

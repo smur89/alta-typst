@@ -9,14 +9,10 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
-// Curated accent presets. Each is dark enough to stay legible on
-// white against the grey body text (`#666666`) and to survive a
-// black-and-white photocopy as a distinguishable mid-tone. `teal`
-// matches the historical default; the rest were eyeballed against
-// the heading rule, tag fills (accent.lighten(85%)), and link colour.
-// Callers reference them as `accent: palettes.navy` after importing.
-// Defined up here (above the state and the default-preferences dict)
-// so both can reference `palettes.teal` instead of duplicating the hex.
+// Curated accent presets — each dark enough to remain legible against
+// the grey body text and to survive a B&W photocopy as a distinct
+// mid-tone. `teal` is the default. Declared above the state + prefs
+// dicts so both can reference `palettes.teal` without duplicating hex.
 #let palettes = (
   teal:     rgb("#00796B"),
   navy:     rgb("#1A3A6C"),
@@ -62,6 +58,13 @@
   // must keep length 12 (validated in alta()).
   months: ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  // Per-`publications[].type` icon overrides. Keys match the `type`
+  // string (case-insensitive); values are utility-icon names. The
+  // module ships sensible defaults for `Articles`, `Books`, `Talks`,
+  // `Conference Papers`, etc. — see `_default_publication_icons` —
+  // and falls back to `file` for unknown types. Override here to add
+  // custom types or remap built-ins.
+  publicationIcons: (:),
 )
 
 // Exported so callers can write `mapsProvider: maps-providers.google`
@@ -75,8 +78,7 @@
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
 
-// Merge user overrides over defaults, panicking on unknown keys so
-// typos in `labels` / `preferences` surface as errors instead of being
+// Panics on unknown keys so typos surface as errors instead of being
 // silently absorbed.
 #let _strict_merge(defaults, overrides, name) = {
   let unknown = overrides.keys().filter(k => k not in defaults)
@@ -89,18 +91,20 @@
   defaults + overrides
 }
 
-// JSON Resume defines `basics.location` as a structured dict —
-// `{address, postalCode, city, countryCode, region}`. The CV header
-// wants a single line, not five fields, so the dict form is collapsed
-// into a string by joining the CV-relevant subset (`city`, `region`,
-// `countryCode`) with ", ", skipping any field that's missing or
-// empty. `address` and `postalCode` are accepted (so a verbatim
-// `resume.json` dict round-trips without panicking) but not rendered
-// — a CV header isn't a mailing label.
-//
-// The resulting string drives both the displayed text and the maps
-// deep link, so the link target stays consistent with what the reader
-// sees. Unknown keys panic to surface typos.
+// Shared validator for bool-typed preferences — keeps panic messages
+// uniform and avoids the same five-line `if type(...) != bool` block
+// across every new pref.
+#let _check_bool(name, value) = {
+  if type(value) != bool {
+    panic(name + " must be a bool, got: " + repr(value))
+  }
+}
+
+// JSON Resume's structured `location` dict collapsed to a single
+// header line. `address`/`postalCode` round-trip but aren't rendered
+// — a CV header isn't a mailing label. Unknown keys panic to surface
+// typos. The result drives both the displayed text and the maps
+// deep link, so reader and link target stay in sync.
 #let _location_fields = ("address", "postalCode", "city", "countryCode", "region")
 #let _location_display_order = ("city", "region", "countryCode")
 #let _format_location(value) = {
@@ -147,10 +151,13 @@
 // swap by string replace at call time. Any new icon vendored into
 // `icons/` must follow that convention.
 #let _utility_icon_sources = (
+  book: read("icons/book.svg"),
   calendar: read("icons/calendar.svg"),
   email: read("icons/email.svg"),
   file: read("icons/file.svg"),
   location: read("icons/location.svg"),
+  microphone: read("icons/microphone.svg"),
+  newspaper: read("icons/newspaper.svg"),
   phone: read("icons/phone.svg"),
 )
 #let _network_icon_sources = (
@@ -176,8 +183,9 @@
 
 // ─── Public helpers ──────────────────────────────────────────────────
 
-// Measurements default to body-size-relative values so icons scale
-// with the surrounding text.
+// Renders a vendored SVG sized to the surrounding text. Emits a small
+// trailing `h(...)` so callers don't need to add inter-icon spacing
+// themselves; suppress it by wrapping in `box(...)` if undesired.
 #let icon(name, size: auto, shift: auto, fill: auto) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
@@ -260,9 +268,7 @@
 // read the configured `_max_rating_state`); this function only handles
 // the numeric-vs-fluency dispatch.
 #let _resolve_rating(entry) = {
-  // Bound to `value` rather than `rating` so the module-scope public
-  // `rating()` helper isn't shadowed inside this function.
-  let value = entry.at("rating", default: none)
+  let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
   if fluency != none {
@@ -329,8 +335,17 @@
   if trailing { h(0.25 * body-size) }
 }
 
+// Inter-entry dashed rule. Suppressed when it would render near the
+// top of a page — Typst has no "stick to previous block" attribute, so
+// when an entry overflows onto a new page the divider that preceded
+// it would otherwise orphan above the first item on that page. The
+// `2cm` threshold covers the default `margin.y` (1.5cm) plus a small
+// buffer for any section heading that immediately follows; callers
+// running tighter margins still see the divider only between
+// in-flow neighbours.
 #let divider() = context {
   let body-size = _body_size_state.get()
+  if here().position().y < 2cm { return }
   v(0.3 * body-size)
   line(
     length: 100%,
@@ -374,8 +389,8 @@
   }
 }
 
-// Renders a row of tag pills, suppressing the inter-tag gap after the
-// last one so the row doesn't end on dead horizontal space.
+// Suppresses the inter-tag gap on the final pill so rows don't end
+// in dead horizontal space.
 #let _tag_row(items) = {
   for (i, item) in items.enumerate() {
     tag(item, trailing: i < items.len() - 1)
@@ -388,30 +403,16 @@
   emph(text(fill: accent, link(dest, content)))
 }
 
-// ─── Meta helpers ────────────────────────────────────────────────────
-
-// JSON Resume's `meta.lastModified` is ISO 8601 — either a bare date
-// ("2026-06-12") or a full timestamp ("2026-06-12T14:00:00Z"). We only
-// need the calendar part for `set document(date: ...)` (PDF readers
-// surface day-level precision in their metadata panel). Returns `none`
-// for malformed input so callers can fall back to omitting the field;
-// the visible footer renders the original string verbatim, so a
-// non-parseable timestamp still surfaces to the reader.
-#let _parse_iso_datetime(s) = {
-  if type(s) != str { return none }
-  let m = s.match(regex("^(\d{4})-(\d{2})-(\d{2})"))
-  if m == none { return none }
-  let (y, mo, d) = m.captures.map(int)
-  if mo < 1 or mo > 12 or d < 1 { return none }
-  // Reject calendar-invalid days *before* calling datetime(), which
-  // panics (unrecoverably) on e.g. Feb 31 or Feb 29 in a non-leap
-  // year. Falling back to `none` here lets the caller drop the field
-  // and use compile time, matching the documented behaviour.
-  let is-leap = calc.rem(y, 4) == 0 and (calc.rem(y, 100) != 0 or calc.rem(y, 400) == 0)
-  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  if d > days-in-month.at(mo - 1) { return none }
-  datetime(year: y, month: mo, day: d)
+// Italic + accent styling for entry titles, with the link wrap added
+// only when a URL is supplied. Every renderer that uses this gets a
+// uniform visual; URL presence is purely a clickability concern.
+#let _titled_link(title, url) = context {
+  let accent = _accent_state.get()
+  let styled = emph(text(fill: accent, title))
+  if url != none { link(url, styled) } else { styled }
 }
+
+// ─── Meta helpers ────────────────────────────────────────────────────
 
 // Flatten every skill group's `keywords` into a de-duplicated array
 // for the PDF `Keywords` field. Insertion order is preserved so the
@@ -467,32 +468,36 @@
   (year: year-num, month: month-num, day: day-num)
 }
 
-// Built-in named formatters. Each takes a parsed ISO date dict and
-// the labels dict (for `months` localisation) and returns a string.
-// `"iso"` is a passthrough — the caller renders the original string,
-// so we never reach these for that case.
-#let _format_iso_long(parts, labels) = {
-  if parts.month == none { return str(parts.year) }
-  let month-name = labels.months.at(parts.month - 1)
-  if parts.day == none {
-    month-name + " " + str(parts.year)
-  } else {
-    str(parts.day) + " " + month-name + " " + str(parts.year)
-  }
+// `meta.lastModified` is ISO 8601 — accept both a bare date and a
+// full timestamp with any separator after the date prefix (`T` per
+// the spec; space per RFC 3339 §5.6, also what `Python datetime
+// .isoformat(sep=" ")` and Postgres emit). Match the date prefix and
+// discard the rest, so `_parse_iso_date` itself stays strict — other
+// callers (cert dates, work dates …) reject malformed inputs cleanly.
+// Returns `none` for partial or calendar-invalid dates so the caller
+// can drop the field instead of panicking inside `datetime()` on
+// e.g. Feb 29 in a non-leap year.
+#let _iso_datetime(s) = {
+  if type(s) != str { return none }
+  let prefix = s.match(regex("^\d{4}-\d{2}-\d{2}"))
+  if prefix == none { return none }
+  let parts = _parse_iso_date(prefix.text)
+  if parts == none { return none }
+  let is-leap = calc.rem(parts.year, 4) == 0 and (calc.rem(parts.year, 100) != 0 or calc.rem(parts.year, 400) == 0)
+  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  if parts.day > days-in-month.at(parts.month - 1) { return none }
+  datetime(year: parts.year, month: parts.month, day: parts.day)
 }
-#let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
-#let _format_iso_short(parts, labels) = {
-  if parts.month == none { return str(parts.year) }
-  if parts.day == none {
-    _pad2(parts.month) + "/" + str(parts.year)
-  } else {
-    _pad2(parts.day) + "/" + _pad2(parts.month) + "/" + str(parts.year)
-  }
-}
-#let _named_date_formatters = (
-  long: _format_iso_long,
-  short: _format_iso_short,
+
+// `"long"` and `"short"` are name aliases for the bracketed templates
+// below — kept so callers can write `dateFormat: "long"` without
+// reaching for the template syntax. Missing-token elision in
+// `_apply_date_template` handles year-only and year-month inputs.
+#let _date_format_aliases = (
+  long: "[day padding:none] [month repr:long] [year]",
+  short: "[day]/[month]/[year]",
 )
+#let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
 
 // Resolves a single bracketed token from a Typst-style format template
 // (e.g. "year", "month repr:long", "day padding:none") against the
@@ -518,8 +523,11 @@
     if has("repr:long") {
       labels.months.at(parts.month - 1)
     } else if has("repr:short") {
-      let full = labels.months.at(parts.month - 1)
-      full.slice(0, calc.min(3, full.len()))
+      // Slice by cluster, not byte, so localised names beginning with
+      // a multi-byte character (e.g. German "März", French "août")
+      // don't panic on a non-char boundary at byte index 3.
+      let clusters = labels.months.at(parts.month - 1).clusters()
+      clusters.slice(0, calc.min(3, clusters.len())).join("")
     } else if has("padding:none") {
       str(parts.month)
     } else {
@@ -564,39 +572,33 @@
 // Non-string and non-ISO inputs pass through verbatim (back-compat with
 // pre-formatted strings like "Jan 2022"). A closure formatter receives
 // the parsed `(year, month, day)` dict and must return a string. The
-// `"iso"` named formatter is just passthrough of the original input.
-// String values containing `[` are treated as bracketed format
-// templates (see `_apply_date_template`); other strings are looked up
-// in `_named_date_formatters`.
+// `"iso"` value passes the original input through unchanged; named
+// aliases (`"long"`, `"short"`) and bracketed templates resolve via
+// `_apply_date_template`.
 #let _format_date(value, prefs, labels) = {
   if value == none or value == "" { return value }
   let format = prefs.dateFormat
   if format == "iso" { return value }
   let parts = _parse_iso_date(value)
   if parts == none { return value }
-  if type(format) == str {
-    if "[" in format {
-      _apply_date_template(format, parts, labels)
-    } else {
-      (_named_date_formatters.at(format))(parts, labels)
-    }
-  } else {
-    // Closure contract: `(parts) -> str`. Validated up front in
-    // alta(); we just call it here.
-    format(parts)
-  }
+  if type(format) == function { return format(parts) }
+  // Strings: name aliases resolve to their template; everything else
+  // is already a bracketed template (`alta()` validates this).
+  let template = _date_format_aliases.at(format, default: format)
+  _apply_date_template(template, parts, labels)
 }
 
 // Returns `none` when neither date is supplied so callers can skip
 // emitting the term row, rather than falsely rendering "Present" for
-// a fully undated entry.
-#let _format_date_range(entry, labels, prefs) = {
-  let is-empty(v) = v == none or v == ""
+// a fully undated entry. Argument order matches `_format_date`
+// (`value/entry, prefs, labels`) so callers can't accidentally swap
+// the two helpers' last two args.
+#let _format_date_range(entry, prefs, labels) = {
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
-  if is-empty(start) and is-empty(end) { return none }
-  let start-text = if is-empty(start) { none } else { _format_date(start, prefs, labels) }
-  let end-text = if is-empty(end) { labels.present } else { _format_date(end, prefs, labels) }
+  if not _present(start) and not _present(end) { return none }
+  let start-text = if _present(start) { _format_date(start, prefs, labels) }
+  let end-text = if _present(end) { _format_date(end, prefs, labels) } else { labels.present }
   if start-text == none { [#end-text] } else { [#start-text – #end-text] }
 }
 
@@ -879,7 +881,7 @@
       // italic / underline treatment used for publication titles.
       #let url = job.at("url", default: none)
       #name[#if url != none { link(url, job.name) } else { job.name }]
-      #term(_format_date_range(job, labels, prefs), location: job.at("location", default: none))
+      #term(_format_date_range(job, prefs, labels), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
       #if _present(preamble) [
@@ -906,7 +908,7 @@
     #block(breakable: false)[
       === #entry.position
       #name[#entry.at("organization", default: "")]
-      #term(_format_date_range(entry, labels, prefs), location: entry.at("location", default: none))
+      #term(_format_date_range(entry, prefs, labels), location: entry.at("location", default: none))
 
       #for bullet in entry.at("highlights", default: ()) [- #bullet]
     ]
@@ -973,7 +975,7 @@
       // institution becomes clickable. An empty-string url is treated
       // as absent so a missing JSON field doesn't render a dead link.
       #if _present(url) and institution != "" { link(url, body) } else { body }
-      #term(_format_date_range(edu, labels, prefs))
+      #term(_format_date_range(edu, prefs, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
       // Courses render as pill tags — same treatment as `skills[].keywords`
@@ -1043,11 +1045,18 @@
 // supplied, a middot separator + small calendar icon + date — all in
 // the pill's own text rendering. The icon and date are wrapped in a
 // box so they never break across lines; only the middot's surrounding
-// space is a valid break point if the pill has to wrap.
-#let _cert_tag(item) = context {
+// space is a valid break point if the pill has to wrap. The date is
+// routed through `_format_date` so it honours `preferences.dateFormat`
+// the same way the work / education / awards / publications dates do.
+#let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  let body = if item.date != none {
-    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#item.date]]
+  // Guard on _present so an empty-string `date` doesn't render an
+  // orphan bullet + calendar icon followed by no text.
+  let body = if _present(item.at("date", default: none)) {
+    let formatted = _format_date(item.date, prefs, labels)
+    let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
+    let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
+    [#item.name#bullet#box[#cal#formatted]]
   } else {
     [#item.name]
   }
@@ -1055,7 +1064,7 @@
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
-#let _certificates(certs, labels, group: true) = {
+#let _certificates(certs, labels, prefs, group: true) = {
   if certs.len() == 0 { return }
   // Decide whether to emit the heading *after* filtering — otherwise
   // a list of certs whose `name` is empty would still render a bare
@@ -1082,7 +1091,7 @@
   for (i, g) in groups.enumerate() {
     if g.issuer != none { _labelled_divider(g.issuer) }
     else if i > 0 { divider() }
-    block(breakable: false, { for item in g.items { _cert_tag(item) } })
+    block(breakable: false, { for item in g.items { _cert_tag(item, prefs, labels) } })
   }
 }
 
@@ -1095,9 +1104,8 @@
   if valid.len() == 0 { return }
   [== #labels.awards]
   _join_with_dividers(valid, award => block(breakable: false, {
-    let title = award.title
     let url = award.at("url", default: none)
-    [=== #if url != none { styled-link(url, title) } else { title }]
+    [=== #_titled_link(award.title, url)]
     let awarder = award.at("awarder", default: none)
     if _present(awarder) { name[#awarder] }
     let date = award.at("date", default: none)
@@ -1116,27 +1124,51 @@
   if valid.len() == 0 { return }
   [== #labels.projects]
   _join_with_dividers(valid, project => block(breakable: false, {
-    let title = project.name
     let url = project.at("url", default: none)
-    [=== #if url != none { styled-link(url, title) } else { title }]
+    [=== #_titled_link(project.name, url)]
     let description = project.at("description", default: none)
     if _present(description) {
       // Softer than `name()` (which is bold + accent) so the
       // description doesn't compete visually with a linked title.
-      emph(description)
-      linebreak()
+      // Wrapped in a block so the gap to the term row below matches
+      // the institution-line → term spacing in `_experience` /
+      // `_education`; using a bare `linebreak()` here leaves no
+      // paragraph spacing.
+      block(below: 0.6em, emph(description))
     }
-    term(_format_date_range(project, labels, prefs))
+    term(_format_date_range(project, prefs, labels))
     for bullet in project.at("highlights", default: ()) [- #bullet]
     _tag_row(project.at("keywords", default: ()))
   }))
 }
 
+// Built-in icon hints for common publication `type` strings. Lookup
+// is case-insensitive (`"Talks"` and `"talks"` both match) but not
+// number-insensitive — singular and plural forms are listed explicitly
+// so callers can use either without thinking. Extend via
+// `labels.publicationIcons`; unmatched types fall back to `file`.
+#let _default_publication_icons = (
+  articles: "newspaper",
+  article: "newspaper",
+  "blog posts": "newspaper",
+  "blog post": "newspaper",
+  books: "book",
+  book: "book",
+  talks: "microphone",
+  talk: "microphone",
+  presentations: "microphone",
+  presentation: "microphone",
+  "conference papers": "newspaper",
+  "conference paper": "newspaper",
+  papers: "newspaper",
+  paper: "newspaper",
+)
+
 // `pub.type` is a local extension. The grouping key is rendered
-// verbatim as the subheading, so localisers either override
-// `labels.articles` (the default for untyped entries) or pre-translate
-// the `type` strings. Groups render in first-occurrence order — Typst
-// dicts preserve insertion order.
+// verbatim as the subheading; groups appear in first-occurrence order
+// (Typst dicts preserve insertion order). Untyped entries fall under
+// `labels.articles`. Subheading icons resolve via
+// `labels.publicationIcons` → `_default_publication_icons` → `file`.
 #let _publications(pubs, labels, prefs) = if pubs.len() > 0 {
   context {
     let body-size = _body_size_state.get()
@@ -1146,8 +1178,31 @@
       groups.insert(key, groups.at(key, default: ()) + (pub,))
     }
     [== #labels.publications]
+    // Normalise user-supplied override keys to lowercase up front so
+    // the case-insensitive contract holds symmetrically: `(Talks: ...)`
+    // matches `type: "talks"` and vice versa. The built-in defaults
+    // dict already uses lowercase keys. Length-mismatch after the fold
+    // means two source keys collapsed onto one (e.g. `Talks` + `talks`
+    // → `talks`); panic so the silent last-write-wins behaviour
+    // surfaces as a configuration error.
+    let user-icons = labels.at("publicationIcons", default: (:))
+    let user-icons-lc = user-icons.pairs().fold(
+      (:), (acc, (k, v)) => acc + ((lower(k)): v),
+    )
+    if user-icons-lc.len() != user-icons.len() {
+      panic(
+        "labels.publicationIcons has keys that collide after lowercasing — "
+          + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
+          + "Source keys: " + repr(user-icons.keys()),
+      )
+    }
     for (group, items) in groups.pairs() [
-      ==== #icon("file", size: 1.2 * body-size, shift: 0pt) #group
+      #let lookup-key = lower(group)
+      #let group-icon = user-icons-lc.at(
+        lookup-key,
+        default: _default_publication_icons.at(lookup-key, default: "file"),
+      )
+      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #group
 
       #for pub in items [
         #block(breakable: false)[
@@ -1156,7 +1211,7 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          - #if url != none { styled-link(url, title) } else { emph(title) }.
+          - #_titled_link(title, url).
             #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
             #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]
@@ -1187,14 +1242,11 @@
 
 // ─── Section catalogue + default preferences ────────────────────────
 //
-// Single source of truth for the dispatch lookup, default render order,
-// and default column membership. Adding a section here is enough to
-// place it in the default layout — no parallel order array to keep in
-// sync. (Still need to write the renderer and add a label key.)
-//
-// Defined *after* the section renderers because Typst closures bind
-// identifiers eagerly at creation time; insertion order doubles as
-// the default render order within each column.
+// Single source of truth for dispatch, default render order, and
+// default column membership. Adding an entry here places the section
+// in the default layout — still need to write the renderer and add a
+// `labels` key. Defined after the renderers because Typst binds
+// closure identifiers eagerly.
 #let _sections = (
   work: (
     column: "left",
@@ -1225,6 +1277,7 @@
     render: (cv, labels, prefs) => _certificates(
       cv.at("certificates", default: ()),
       labels,
+      prefs,
       group: prefs.groupCertificates,
     ),
   ),
@@ -1233,11 +1286,11 @@
     render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels, prefs),
   ),
   projects: (
-    column: "right",
+    column: "left",
     render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels, prefs),
   ),
   publications: (
-    column: "right",
+    column: "left",
     render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels, prefs),
   ),
   interests: (
@@ -1319,11 +1372,9 @@
 
 // ─── Main template ───────────────────────────────────────────────────
 //
-// Parameters:
-//   cv          — data dict following JSON Resume; see
-//                 examples/example.typ for a worked schema.
-//   labels      — partial dict; merged over `_default_labels`.
-//   preferences — partial dict; merged over `_default_preferences`.
+// `cv` follows the JSON Resume schema (see `examples/example.typ`).
+// `labels` and `preferences` are partial dicts merged over the
+// defaults; unknown keys panic.
 #let alta(
   cv,
   labels: (:),
@@ -1350,19 +1401,11 @@
       )
     }
   }
-  if type(preferences.uppercaseName) != bool {
-    panic(
-      "uppercaseName must be a bool, got: " + repr(preferences.uppercaseName),
-    )
-  }
+  _check_bool("uppercaseName", preferences.uppercaseName)
+  _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
-  }
-  if type(preferences.lastModifiedFooter) != bool {
-    panic(
-      "lastModifiedFooter must be a bool, got: " + repr(preferences.lastModifiedFooter),
-    )
   }
   // `pageFooter` accepts `none`, the string `"auto"`, or any content
   // value. Any other type — bools, dicts, numbers — panics so a typo
@@ -1385,7 +1428,7 @@
     // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
     // `_apply_date_template`; bare strings must be one of the named
     // formatters or the literal `"iso"` passthrough.
-    if "[" not in df and df != "iso" and df not in _named_date_formatters {
+    if "[" not in df and df != "iso" and df not in _date_format_aliases {
       panic(
         "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
           + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
@@ -1416,18 +1459,18 @@
   _max_rating_state.update(max-rating)
 
   // PDF metadata is sourced from `basics` (title, author, description)
-  // and the JSON Resume `meta` block (date, keywords). Each field is
-  // only set when its source is non-empty — `set document(...)` rejects
-  // `none` for `date`, and emitting empty strings for `description` /
-  // `keywords` would still write a present-but-empty entry.
-  //
-  // `uppercaseName` is purely visual — PDF metadata stays canonical.
+  // and the JSON Resume `meta` block (date, keywords). Each optional
+  // field is only set when its source is non-empty — `set document(...)`
+  // rejects `none` for `date`, and emitting empty strings for
+  // `description` / `keywords` would still write a present-but-empty
+  // entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
-  let doc-date = _parse_iso_datetime(last-modified-raw)
+  let doc-date = _iso_datetime(last-modified-raw)
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
   let doc-description = cv.basics.at("summary", default: none)
   set document(
+    // `uppercaseName` is purely visual — PDF metadata stays canonical.
     title: cv.basics.name + " --- CV",
     author: cv.basics.name,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
