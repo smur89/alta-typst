@@ -505,7 +505,7 @@ Layout: same masthead as `alta` (name, label, contact bar, optional portrait), t
 | `salutation` | `none` | Optional greeting line, e.g. `[Dear Hiring Manager,]`. No default — no defensible neutral works across languages and registers. |
 | `closing` | `auto` | Valediction printed above the signature. `auto` uses `labels.closing` (default `"Sincerely,"`); pass `none` to suppress the closing + signature entirely; pass a string / content to override inline without touching `labels`. |
 | `labels` | `(:)` | Same shape as `alta`. The new `closing` key sources the default valediction. |
-| `preferences` | `(:)` | Same shape as `alta`. Cover letter is single-column, so `columnRatio` / `leftColumnSections` / `rightColumnSections` are accepted (for a single shared preferences dict across both documents) but ignored here. |
+| `preferences` | `(:)` | Same shape as `alta`. Theme / typography / header keys apply; CV-only keys (`columnRatio`, `leftColumnSections` / `rightColumnSections`, `pageFooter`, `lastModifiedFooter`, `groupCertificates`, `maxRating`) are accepted — so the same prefs dict drives both documents — but inert here. `dateFormat` and `labels.months` still apply to the `date: auto` substitution. |
 
 ## Building the examples
 

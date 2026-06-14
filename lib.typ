@@ -265,10 +265,14 @@
 //                 `date: auto / none` sentinel pair.
 //   labels      — partial dict; merged over `_default_labels`.
 //   preferences — partial dict; merged over `_default_preferences`.
-//                 Cover-letter is single-column, so `columnRatio` /
-//                 `leftColumnSections` / `rightColumnSections` are
-//                 accepted (so the same prefs dict drives both
-//                 documents) but ignored here.
+//                 Theme / typography / header keys apply here as they
+//                 do in alta(); CV-only keys (`columnRatio`,
+//                 `leftColumnSections`, `rightColumnSections`,
+//                 `pageFooter`, `lastModifiedFooter`,
+//                 `groupCertificates`, `maxRating`) are accepted so
+//                 the same prefs dict drives both documents, but
+//                 inert here. `dateFormat` + `labels.months` still
+//                 apply to the `date: auto` substitution.
 #let cover-letter(
   cv,
   body,
@@ -315,8 +319,7 @@
   // conventional business-letter shape; not tied to `headerTextAlign`
   // because the date is its own visual unit.
   let resolved-date = if date == auto {
-    let today = datetime.today()
-    _format_date(today.display("[year]-[month]-[day]"), preferences, labels)
+    _format_date(datetime.today().display("[year]-[month]-[day]"), preferences, labels)
   } else { date }
   if _present(resolved-date) {
     align(right, text(fill: _emphasis_colour, resolved-date))
