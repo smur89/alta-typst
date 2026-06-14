@@ -299,10 +299,20 @@
       let centred-photo = if photo != none {
         block(spacing: 0.8 * body-size, width: 100%, align(center, photo))
       }
+      // Three-column `(1fr, auto, 1fr)` with the QR pinned right and
+      // an empty spacer mirroring it on the left keeps `header-text`
+      // page-centred — a bare `(1fr, auto)` would only centre the
+      // text within its own column, drifting left of the page midline
+      // under `headerTextAlign: "center"`.
       let text-row = if qr == none {
         header-text
       } else {
-        grid(columns: (1fr, auto), align: top, column-gutter: 1em, header-text, qr)
+        grid(
+          columns: (1fr, auto, 1fr),
+          align: top,
+          column-gutter: 1em,
+          [], header-text, qr,
+        )
       }
       if centred-photo == none {
         text-row
@@ -318,15 +328,14 @@
       // With no portrait, "opposite of imagePosition" still applies —
       // a default (imagePosition: "right") CV with only a QR puts it
       // on the left, matching where it would land if a photo were
-      // added later.
+      // added later. Dropping absent ornaments (rather than rendering
+      // empty cells) avoids an extra 1em column-gutter on the
+      // surviving side.
       let (left-ornament, right-ornament) = if image-position == "left" {
         (photo, qr)
       } else {
         (qr, photo)
       }
-      // Build columns + cells from the ornaments present. Dropping
-      // absent ornaments (rather than rendering empty cells) avoids
-      // an extra 1em of column-gutter padding on the surviving side.
       let cells = (
         (left-ornament, auto),
         (header-text, 1fr),

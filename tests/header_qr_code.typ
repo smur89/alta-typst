@@ -2,7 +2,7 @@
 // side opposite the portrait — restoring one click of digital-PDF
 // affordance when the CV is printed. Documents exercise:
 //
-//   1. `"url"` form — encodes `basics.url`, no portrait. QR lands on
+//   1. `auto` form — encodes `basics.url`, no portrait. QR lands on
 //      the side opposite `imagePosition` (default `"right"` → QR on
 //      the left).
 //   2. Explicit URL string — distinct from `basics.url`, so the
@@ -16,17 +16,19 @@
 //      `fill: accent` path through the QR helper.
 //   6. QR alongside a centred portrait — QR joins the text row beside
 //      `header-text` while the photo stays stacked above the row.
+//   7. QR with no portrait + `imagePosition: "center"` — the centred-
+//      photo slot is empty, so the text-row carries the QR alone.
 
 #import "../lib.typ": alta
 
 #alta(
   (basics: (
     name: "QR From basics.url",
-    label: "preferences.qrCode: \"url\"",
+    label: "preferences.qrCode: auto",
     email: "qr@example.com",
     url: "https://example.com/cv",
   )),
-  preferences: (qrCode: "url"),
+  preferences: (qrCode: auto),
 )
 
 #pagebreak()
@@ -51,7 +53,7 @@
     url: "https://example.com/cv",
     image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
-  preferences: (qrCode: "url"),
+  preferences: (qrCode: auto),
 )
 
 #pagebreak()
@@ -64,7 +66,7 @@
     url: "https://example.com/cv",
     image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
-  preferences: (qrCode: "url", imagePosition: "left"),
+  preferences: (qrCode: auto, imagePosition: "left"),
 )
 
 #pagebreak()
@@ -76,7 +78,7 @@
     email: "qr@example.com",
     url: "https://example.com/cv",
   )),
-  preferences: (qrCode: "url", accent: rgb("#1976D2")),
+  preferences: (qrCode: auto, accent: rgb("#1976D2")),
 )
 
 #pagebreak()
@@ -90,7 +92,23 @@
     image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
-    qrCode: "url",
+    qrCode: auto,
+    imagePosition: "center",
+    headerTextAlign: "center",
+  ),
+)
+
+#pagebreak()
+
+#alta(
+  (basics: (
+    name: "Centred Text + QR (No Photo)",
+    label: "QR rides the text row when no portrait is supplied",
+    email: "qr@example.com",
+    url: "https://example.com/cv",
+  )),
+  preferences: (
+    qrCode: auto,
     imagePosition: "center",
     headerTextAlign: "center",
   ),

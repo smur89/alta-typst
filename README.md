@@ -117,7 +117,7 @@ ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume
 
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Sections with empty input are skipped — no orphan headings.
 
-`basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: "url"` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
+`basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
 
 JSON Resume fields **accepted but not yet rendered** by this template:
 
@@ -163,15 +163,15 @@ Printed CVs lose the clickability of digital PDFs — a reader looking at a pape
     url: "https://janedoe.dev",  // canonical home page
     // …
   )),
-  preferences: (qrCode: "url"),  // encode basics.url
+  preferences: (qrCode: auto),  // encode basics.url
 )
 ```
 
 `preferences.qrCode` accepts three shapes:
 
 - `none` (default) — no QR rendered.
-- `"url"` — encode `basics.url`. Panics if `basics.url` is missing or empty.
-- any other non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page that's distinct from the canonical `basics.url`.
+- `auto` — encode `basics.url`. Panics if `basics.url` is missing or empty.
+- any non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page that's distinct from the canonical `basics.url`.
 
 The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` layout puts the QR on the left). With no portrait, the QR still lands on the side opposite `imagePosition` — adding a photo later doesn't shift the QR. With `imagePosition: "center"` the photo stays stacked above / below the text block and the QR joins the text row beside the contact info. The matrix inherits `preferences.accent` for its module colour and renders at roughly `3.5em` — small enough to stay out of the way, large enough to scan reliably at typical print DPIs. The matrix is also wrapped in `link()` so digital readers can click through to the same destination.
 
@@ -341,7 +341,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
-| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `"url"` encodes `basics.url` (panicking if it's missing or empty). Any other non-empty string is encoded verbatim — handy for pointing a printed CV at a tracked landing page distinct from `basics.url`. Generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra), the only third-party dependency this package pulls in. See [Header QR code](#header-qr-code-preferencesqrcode) for layout details. |
+| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `auto` encodes `basics.url` (panicking if it's missing or empty). Any non-empty string is encoded verbatim — handy for pointing a printed CV at a tracked landing page distinct from `basics.url`. Generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra), the only third-party dependency this package pulls in. See [Header QR code](#header-qr-code-preferencesqrcode) for layout details. |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. When `false` (the default) an empty section is suppressed entirely, matching every other section. |

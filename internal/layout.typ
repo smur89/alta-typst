@@ -112,13 +112,8 @@
   // the centred portrait stacks above or below the header text block.
   imageStackOrder: "above",
   headerTextAlign: "left",
-  // Renders a small accent-coloured QR matrix in the header on the
-  // side opposite the portrait. `none` (default) skips it. `"url"`
-  // encodes `basics.url` (and panics if it's missing). Any other
-  // string is encoded verbatim — handy for pointing a printed CV at
-  // a landing-page redirect that's distinct from `basics.url`. QR
-  // generation is delegated to `@preview/zebra` (see `internal/qr.typ`),
-  // the only third-party Typst dependency this package pulls in.
+  // `auto` encodes `basics.url`; any non-empty string is encoded
+  // verbatim. Backed by `@preview/zebra` via `internal/qr.typ`.
   qrCode: none,
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
