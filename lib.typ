@@ -1110,9 +1110,10 @@
   // (date / keywords / description) is populated from `meta` and
   // `basics` independently of this flag.
   lastModifiedFooter: false,
-  // Fraction strictly between 0 and 1 (validated in alta()). Halving
-  // it and swapping the column-section arrays gives an inverted layout.
-  columnRatio: 0.64,
+  // Fraction in (0, 1] (validated in alta()). Use the complement
+  // (`1 - r`) and swap the column-section arrays to invert the layout;
+  // exactly 1 collapses the grid to a single full-width column.
+  columnRatio: 0.65,
   // `none` (default) — no footer. `"auto"` — name + "Page N / M" on
   // multi-page documents only (single-page stays clean). Any content
   // value — rendered verbatim as the footer on every page.
@@ -1145,8 +1146,8 @@
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
   let column-ratio = preferences.columnRatio
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
-    panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
+  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
+    panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
   }
   let mp = preferences.mapsProvider
   if mp != none {
@@ -1316,15 +1317,25 @@
     }
   }
 
+  // Three layout shapes: full-width merge when columnRatio is 1,
+  // left-only when the right side is empty, otherwise the canonical
+  // two-column grid.
+  //
   // Swapping the column-section arrays and inverting `columnRatio`
-  // together gives a mirrored layout.
-  let gutter = 12pt
-  let left-width = column-ratio * 100%
-  let right-width = (1 - column-ratio) * 100% - gutter
-  grid(
-    columns: (left-width, right-width),
-    column-gutter: gutter,
-    render-column(preferences.leftColumnSections),
-    render-column(preferences.rightColumnSections),
-  )
+  // gives a mirrored layout.
+  if column-ratio == 1 {
+    render-column(preferences.leftColumnSections + preferences.rightColumnSections)
+  } else if preferences.rightColumnSections.len() == 0 {
+    render-column(preferences.leftColumnSections)
+  } else {
+    let gutter = 12pt
+    let left-width = column-ratio * 100%
+    let right-width = (1 - column-ratio) * 100% - gutter
+    grid(
+      columns: (left-width, right-width),
+      column-gutter: gutter,
+      render-column(preferences.leftColumnSections),
+      render-column(preferences.rightColumnSections),
+    )
+  }
 }

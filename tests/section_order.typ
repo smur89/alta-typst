@@ -53,7 +53,7 @@
 //    left column, work moves to the (now wider) right column.
 //    `columnRatio` lives alongside the section arrays in preferences.
 #alta(cv, preferences: (
-  columnRatio: 0.36,
+  columnRatio: 0.35,
   leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
   rightColumnSections: ("work", "publications"),
 ))
