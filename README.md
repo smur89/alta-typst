@@ -10,13 +10,13 @@ A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantz
 Available on [Typst Universe](https://typst.app/universe/package/altacv):
 
 ```typst
-#import "@preview/altacv:1.0.0": alta // x-release-please-version
+#import "@preview/altacv:1.1.0": alta // x-release-please-version
 ```
 
 ## Quick start
 
 ```typst
-#import "@preview/altacv:1.0.0": alta // x-release-please-version
+#import "@preview/altacv:1.1.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -280,7 +280,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
-#import "@preview/altacv:1.0.0": alta, maps-providers, palettes // x-release-please-version
+#import "@preview/altacv:1.1.0": alta, maps-providers, palettes // x-release-please-version
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -419,7 +419,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.0.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.1.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
 ```
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
