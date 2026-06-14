@@ -72,6 +72,8 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 - `languages[].rating`: numeric 0–`preferences.maxRating` (default 5; JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present).
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise either by overriding `labels.articles` or by supplying already-translated `type` values directly.
 
+Each `publications[]` entry renders as title, then (if supplied) `publisher` on the line below in body colour, `releaseDate` in a lighter shade, and `summary` as a paragraph. `name`, `publisher`, `releaseDate`, `url`, and `summary` are all optional — omitted fields simply drop their line.
+
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
@@ -186,12 +188,11 @@ Each `publications[]` entry follows JSON Resume's schema, with one altacv-specif
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Publication title. Rendered as the bullet body; linked to `url` when supplied, italicised when not. |
-| `releaseDate` | string | Single date (not a range). Rendered above the title in a lighter shade. |
+| `publisher` | string | Rendered as a subtitle below the title, in body colour at 0.85em. |
+| `releaseDate` | string | Single date (not a range). Rendered below the publisher in a lighter shade. |
 | `url` | string | If supplied, wraps the title in an accent-coloured link. |
-| `summary` | string or content | Short description, rendered as a paragraph below the title. Pass `[...]` content (e.g. `[A walk-through of _idempotent Kafka consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
+| `summary` | string or content | Short description, rendered as a paragraph below the date. Pass `[...]` content (e.g. `[A walk-through of _idempotent Kafka consumers_.]`) to get markup like emphasis; plain strings render verbatim. |
 | `type` | string | altacv extension. Optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. |
-
-`publisher` from the JSON Resume spec is accepted (silently ignored) but not yet rendered. Open an issue if you need it.
 
 ### Certificates
 
