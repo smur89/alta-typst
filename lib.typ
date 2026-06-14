@@ -316,6 +316,32 @@
   v(0.3 * body-size)
 }
 
+// Like `divider()` but with a leading label that sits slightly indented
+// from the left edge, followed by the dashed segment running to the
+// right margin. Used to announce a sub-grouping (e.g. the certificates'
+// issuer above its row of cert pills). The label borrows the section-
+// heading register (uppercase, tracked) at a smaller scale and in body
+// colour so it reads as a quiet sub-heading rather than competing with
+// the parent section title.
+#let _labelled_divider(label) = context {
+  let body-size = _body_size_state.get()
+  let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
+  v(0.3 * body-size)
+  pad(left: 0.6 * body-size, grid(
+    columns: (1.3em, auto, 1fr),
+    column-gutter: 0.5 * body-size,
+    align: horizon,
+    line(length: 100%, stroke: stroke),
+    text(
+      0.7 * body-size,
+      fill: _body_colour.lighten(15%),
+      label,
+    ),
+    line(length: 100%, stroke: stroke),
+  ))
+  v(0.3 * body-size)
+}
+
 // Interleaves `divider()` between items; the trailing one is suppressed
 // so sections don't end on a stray rule.
 #let _join_with_dividers(items, render) = {
@@ -804,24 +830,37 @@
 }
 
 // Buckets by issuer in insertion order; multi-issuer clusters survive
-// as their own group, singletons pool into a trailing "other" group.
-// The issuer key is never rendered — it exists purely for grouping.
-// Each group carries full cert records (name + date + url) so the
-// renderer can wire links and inline dates without re-reading the source.
+// as their own group keyed by the shared issuer, singletons pool into
+// a trailing heterogeneous group with no issuer label.
+//
+// Returns an array of `(issuer, items)` records. `items` carries full
+// `_normalise_cert` triples (name + date + url) so the renderer can
+// emit inline dates and link wrapping without re-reading the source.
+// `issuer` is `none` for the trailing singleton group (its certs come
+// from different issuers, so no single label fits) or for clusters
+// whose `issuer` field is missing / empty.
 #let _build_cert_groups(certs) = {
+  // Normalise "no issuer" (key missing, explicit `none`, or empty
+  // string) to the literal "" key so they all bucket together; we
+  // can't key the dict on `none` (Typst dicts require string keys).
   let by-issuer = (:)
   for cert in certs {
     let item = _normalise_cert(cert)
     if item == none { continue }
-    let issuer = cert.at("issuer", default: "")
+    let raw = cert.at("issuer", default: "")
+    let issuer = if raw == none { "" } else { raw }
     by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (item,))
   }
   let groups = ()
   let singletons = ()
-  for (_, items) in by-issuer.pairs() {
-    if items.len() > 1 { groups.push(items) } else { singletons.push(items.first()) }
+  for (issuer, items) in by-issuer.pairs() {
+    if items.len() > 1 {
+      groups.push((issuer: if issuer == "" { none } else { issuer }, items: items))
+    } else {
+      singletons.push(items.first())
+    }
   }
-  if singletons.len() > 0 { groups.push(singletons) }
+  if singletons.len() > 0 { groups.push((issuer: none, items: singletons)) }
   groups
 }
 
@@ -846,21 +885,30 @@
   // Decide whether to emit the heading *after* filtering — otherwise
   // a list of certs whose `name` is empty would still render a bare
   // "Certifications" heading with nothing under it.
+  //
+  // Each group is `(issuer, items)` where `items` carries full
+  // `_normalise_cert` triples. In flat (non-grouped) mode each cert
+  // becomes its own one-element "group" with no issuer label so the
+  // row flows as a single uniformly-pilled strip.
   let groups = if group {
     _build_cert_groups(certs)
   } else {
     let items = certs.map(_normalise_cert).filter(c => c != none)
-    if items.len() > 0 { (items,) } else { () }
+    if items.len() > 0 { ((issuer: none, items: items),) } else { () }
   }
   if groups.len() == 0 { return }
   [== #labels.certificates]
-  // Each pill is self-contained — the date (when present) renders
-  // inside the pill alongside the name, so all certs flow as a single
-  // row of uniformly-shaped pills regardless of which ones carry dates.
-  _join_with_dividers(groups, items => block(
-    breakable: false,
-    { for item in items { _cert_tag(item) } },
-  ))
+  // Each group's issuer (when present) leads its row as a labelled
+  // dashed divider — replacing the plain inter-group divider with one
+  // that names the issuer. Groups without an issuer (the pooled
+  // singletons cluster, or every group in flat mode) get the plain
+  // divider; the first group is preceded by no divider regardless so
+  // the section starts flush against the heading.
+  for (i, g) in groups.enumerate() {
+    if g.issuer != none { _labelled_divider(g.issuer) }
+    else if i > 0 { divider() }
+    block(breakable: false, { for item in g.items { _cert_tag(item) } })
+  }
 }
 
 // Follows JSON Resume's `awards[]` shape, plus an `url` extension that
