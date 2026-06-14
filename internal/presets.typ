@@ -25,36 +25,19 @@
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
 
-// Vetted preset bundles of preferences that hang together visually.
-// Each theme is a partial `preferences` dict — accent + font + the
-// layout knobs that interact with them. Callers spread a theme over
-// their own overrides:
+// Vetted preset bundles spread over caller overrides via dict-merge:
 //
 //   #alta(cv, preferences: themes.modern + (imageSize: 7em))
 //
-// Themes only touch the knobs that interact (accent, font, columnRatio,
-// headerTextAlign); everything else falls back to `_default_preferences`,
-// so a theme stays a small, focused identity rather than a full config.
-//
-// `imagePosition` is deliberately omitted — it's only meaningful when
-// `basics.image` is set, and baking it into every theme would either
-// force image-only assumptions or no-op for image-less CVs. Users add
-// `imagePosition` themselves via the spread-and-override pattern.
-//
-// `classic` re-declares the current defaults rather than being an alias.
-// Themes are bundles by name, not pointers to "whatever the default is
-// right now" — `classic` is allowed to drift from defaults so the named
-// look stays stable.
-//
-// Fonts on `modern` (Inter) and `minimal` (Source Sans 3) are aspirational
-// — neither is installed on the CI host. Typst falls back rather than
-// panicking, so a user without the font still gets a working render; the
-// README flags this so the user can install or override.
+// `classic` re-declares the current defaults rather than aliasing them
+// — themes are bundles by name, not pointers to "whatever the default
+// is right now", so a future default shift won't silently move `classic`.
+// `imagePosition` is omitted because it's only meaningful with a portrait.
 #let themes = (
   classic: (
     font: "Lato",
     accent: palettes.teal,
-    columnRatio: 0.64,
+    columnRatio: 0.65,
     headerTextAlign: "left",
   ),
   modern: (
