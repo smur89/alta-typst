@@ -3,18 +3,26 @@
 // surfaces (work, skills, languages, education, certificates, awards,
 // publications) shaped to fit on page 1 — that page is the README
 // preview image. Lower-priority sections (projects, volunteer,
-// interests) spill onto page 2 so they're still exercised by the
-// build but don't crowd the preview.
+// interests) sit on page 2 so they're still exercised by the build
+// but don't crowd the preview.
 //
-// Dates are ISO 8601 (YYYY-MM / YYYY-MM-DD / YYYY) so the default
-// `dateFormat: "long"` formatter does the rendering work; mix in any
-// pre-formatted string ("Jan 2022", "Q3 2023") to fall back to
-// verbatim rendering.
+// Dates use the `years-ago` / `year-only` / `date-ago` helpers below,
+// anchored to a static `today` constant. Bump `today` annually to
+// rebase every relative date in one place — the CV always reads as
+// "current" without rewriting the example.
 //
 // Build locally with:
 //   typst compile --root .. example.typ example.pdf
 
 #import "../lib.typ": alta
+
+// Static anchor — bump annually so the example dates stay roughly
+// current. Every relative-date helper below derives from this so we
+// only have to edit one place.
+#let today = datetime(year: 2026, month: 6, day: 14)
+#let years-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]")
+#let year-only(n) = (today - duration(days: 365 * n)).display("[year]")
+#let date-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]-[day]")
 
 #let cv = (
   basics: (
@@ -45,7 +53,7 @@
       url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "2022-01",
+      startDate: years-ago(4),
       // endDate omitted → renders as "Present"
       summary: [Platform team lead. Owns the event-sourcing stack.],
       highlights: (
@@ -57,8 +65,8 @@
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: "2019-06",
-      endDate: "2021-12",
+      startDate: years-ago(7),
+      endDate: years-ago(4),
       highlights: (
         [Shipped the first version of a SaaS product alongside a two-person team.],
         [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
@@ -68,8 +76,8 @@
       name: "Grand Canal Systems",
       position: "Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "2017-08",
-      endDate: "2019-05",
+      startDate: years-ago(9),
+      endDate: years-ago(7),
       highlights: (
         [Led the migration of services from VMs to Kubernetes.],
       ),
@@ -91,8 +99,8 @@
       institution: "Tallaght Institute of Technology",
       url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
-      startDate: "2017",
-      endDate: "2019",
+      startDate: year-only(9),
+      endDate: year-only(7),
     ),
   ),
 
@@ -100,13 +108,13 @@
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
-      date: "2023-08",
+      date: years-ago(3),
       url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
-      date: "2024-01",
+      date: years-ago(2),
       url: "https://www.cncf.io/training/certification/ckad/",
     ),
   ),
@@ -114,9 +122,9 @@
   awards: (
     (
       title: "Best Paper — Distributed Systems Track",
-      awarder: "EuroSys 2024",
-      date: "2024-04",
-      url: "https://example.com/eurosys-2024",
+      awarder: "EuroSys",
+      date: years-ago(2),
+      url: "https://example.com/eurosys",
     ),
   ),
 
@@ -124,7 +132,7 @@
     (
       name: "Event Sourcing in Practice",
       publisher: "Personal Blog",
-      releaseDate: "2024-06-15",
+      releaseDate: date-ago(2),
       url: "https://example.com/posts/event-sourcing",
     ),
   ),
@@ -138,7 +146,7 @@
       name: "open-source: kafka-idempotent",
       url: "https://example.com/projects/kafka-idempotent",
       description: "Small Scala library for idempotent consumers.",
-      startDate: "2023-09",
+      startDate: years-ago(3),
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (
         [Underpins the awarded EuroSys paper above.],
@@ -150,7 +158,7 @@
     (
       organization: "CoderDojo Dublin",
       position: "Mentor",
-      startDate: "2020-01",
+      startDate: years-ago(6),
       highlights: (
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
       ),

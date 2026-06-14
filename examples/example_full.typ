@@ -31,6 +31,15 @@
 
 #import "../lib.typ": alta, palettes, maps-providers
 
+// Static anchor — bump annually so dates stay roughly current. Every
+// relative helper below derives from this so a single edit rebases
+// the whole CV.
+#let today = datetime(year: 2026, month: 6, day: 14)
+#let years-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]")
+#let months-ago(n) = (today - duration(days: 30 * n)).display("[year]-[month]")
+#let year-only(n) = (today - duration(days: 365 * n)).display("[year]")
+#let date-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]-[day]")
+
 #let cv = (
   basics: (
     name: "Shane Murphy",
@@ -76,7 +85,7 @@
   meta: (
     canonical: "https://example.com/cv.json",
     version: "1.0.0",
-    lastModified: "2026-06-14",
+    lastModified: today.display("[year]-[month]-[day]"),
   ),
 
   focusAreas: (
@@ -92,7 +101,7 @@
       url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: "2022-01",
+      startDate: years-ago(4),
       // `endDate` omitted → renders as "Present".
       summary: [Platform team lead. Owns the event-sourcing stack
         underpinning the wider product surface.],
@@ -108,8 +117,8 @@
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: "2019-06",
-      endDate: "2021-12",
+      startDate: years-ago(7),
+      endDate: years-ago(5),
       highlights: (
         [Built and shipped the first version of a SaaS product from
           scratch alongside a two-person team.],
@@ -123,7 +132,7 @@
     (
       organization: "CoderDojo Dublin",
       position: "Mentor",
-      startDate: "2020-01",
+      startDate: years-ago(6),
       highlights: (
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
         [Curate the Scala / functional-programming track.],
@@ -151,8 +160,8 @@
       institution: "Tallaght Institute of Technology",
       url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
-      startDate: "2017",
-      endDate: "2019",
+      startDate: year-only(9),
+      endDate: year-only(7),
       score: "Distinction",
       courses: ("Distributed Systems", "Type Theory", "Concurrency"),
     ),
@@ -160,8 +169,8 @@
       // `area` fallback used when `studyType` is absent; no score.
       institution: "Trinity College Dublin",
       area: "Computer Science",
-      startDate: "2014",
-      endDate: "2017",
+      startDate: year-only(12),
+      endDate: year-only(9),
     ),
   ),
 
@@ -174,43 +183,43 @@
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
-      date: "2023-08",
+      date: months-ago(34),
       url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
-      date: "2024-01",
+      date: months-ago(29),
       url: "https://www.cncf.io/training/certification/ckad/",
     ),
     (
       name: "AWS Solutions Architect — Professional",
       issuer: "AWS",
-      date: "2023-04",
+      date: months-ago(38),
     ),
     (
       name: "AWS DevOps Engineer — Professional",
       issuer: "AWS",
-      date: "2024-09",
+      date: months-ago(21),
     ),
     (
       // Singleton — pools into the trailing unlabelled group.
       name: "Hashicorp Terraform Associate",
       issuer: "Hashicorp",
-      date: "2022-11",
+      date: months-ago(43),
     ),
     (
       // Second singleton, distinct issuer — joins the same trailing
       // group, demonstrating that the pool collects across issuers.
       name: "Certified Kubernetes Security Specialist",
       issuer: "Linux Foundation",
-      date: "2024-03",
+      date: months-ago(27),
     ),
     (
       // Third singleton.
       name: "Google Cloud Professional Architect",
       issuer: "Google Cloud",
-      date: "2023-11",
+      date: months-ago(31),
     ),
   ),
 
@@ -219,7 +228,7 @@
   awards: (
     (
       title: "Best Paper Award",
-      date: "2024-09",
+      date: months-ago(21),
       awarder: "ScalaConf",
       url: "https://example.com/awards/scalaconf-2024",
       summary: [For _Idempotent Kafka Consumers_.],
@@ -235,8 +244,8 @@
     (
       name: "Hyperion",
       description: "Distributed task scheduler in Rust",
-      startDate: "2024-01",
-      endDate: "2024-08",
+      startDate: months-ago(29),
+      endDate: months-ago(22),
       url: "https://github.com/shanemurphy/hyperion",
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
@@ -248,7 +257,7 @@
       // Ongoing — `endDate` omitted, renders as "Present".
       name: "Crucible",
       description: "Migration tool for legacy databases",
-      startDate: "2024-09",
+      startDate: months-ago(21),
       highlights: ([Schema diffing across PostgreSQL and MySQL.],),
     ),
     (
@@ -282,7 +291,7 @@
       name: "Event Sourcing in Practice",
       type: "Articles",
       publisher: "Personal Blog",
-      releaseDate: "2024-06-15",
+      releaseDate: date-ago(2),
       url: "https://example.com/posts/event-sourcing",
       summary: [A walk-through of idempotent Kafka consumers and the
         replay strategy that ships with them.],
@@ -291,26 +300,26 @@
       name: "Idempotent Kafka Consumers at Scale",
       type: "Conference Papers",
       publisher: "EuroSys 2024",
-      releaseDate: "2024-04",
+      releaseDate: months-ago(26),
       url: "https://example.com/eurosys-2024",
     ),
     (
       name: "Designing for Failure",
       type: "Talks",
       publisher: "ScalaIO 2023",
-      releaseDate: "2023-09",
+      releaseDate: months-ago(33),
       url: "https://example.com/talks/failure",
     ),
     (
       name: "Functional Domain Modelling",
       type: "Books",
       publisher: "Self-published",
-      releaseDate: "2022",
+      releaseDate: year-only(4),
     ),
     (
       // No `type` → falls into the default `labels.articles` group.
       name: "Untyped Note",
-      releaseDate: "2024-01",
+      releaseDate: months-ago(29),
       url: "https://example.com/untyped",
     ),
   ),

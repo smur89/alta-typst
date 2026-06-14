@@ -1221,15 +1221,19 @@
       groups.insert(key, groups.at(key, default: ()) + (pub,))
     }
     [== #labels.publications]
+    // Normalise user-supplied override keys to lowercase up front so
+    // the case-insensitive contract holds symmetrically: `(Talks: ...)`
+    // matches `type: "talks"` and vice versa. The built-in defaults
+    // dict already uses lowercase keys.
+    let user-icons = labels.at("publicationIcons", default: (:))
+    let user-icons-lc = user-icons.pairs().fold(
+      (:), (acc, pair) => acc + ((lower(pair.at(0))): pair.at(1)),
+    )
     for (group, items) in groups.pairs() [
-      #let user-icons = labels.at("publicationIcons", default: (:))
       #let lookup-key = lower(group)
-      #let group-icon = user-icons.at(
-        group,
-        default: user-icons.at(
-          lookup-key,
-          default: _default_publication_icons.at(lookup-key, default: "file"),
-        ),
+      #let group-icon = user-icons-lc.at(
+        lookup-key,
+        default: _default_publication_icons.at(lookup-key, default: "file"),
       )
       ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #group
 
