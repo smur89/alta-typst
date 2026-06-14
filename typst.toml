@@ -9,6 +9,14 @@ repository = "https://github.com/smur89/alta-typst"
 keywords = ["cv", "resume", "altacv", "json-resume"]
 categories = ["cv"]
 compiler = "0.13.0"
+# The README links to documentation assets under `examples/` (rendered
+# previews, the multi-page demo, the Irish translation). Per
+# typst/packages docs (Group 2 — "commit & exclude"), those files ship
+# in the typst/packages directory so the README's local links resolve
+# on Universe, but `exclude` keeps them out of the compiler bundle so
+# `#import "@preview/altacv:..."` doesn't pull a megabyte of GIF /
+# PDF / PNG that the renderer never touches.
+exclude = ["/examples/**"]
 
 # `typst init @preview/altacv` copies the contents of `template/` into
 # the user's project as a working starter. `entrypoint` is the file

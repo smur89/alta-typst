@@ -10,7 +10,8 @@
 #   make example-full # build examples/example_full.pdf + per-page PNGs
 #                    # used as the static README gallery
 #   make thumbnail   # build thumbnail.png from template/cv.typ
-#                    # (Universe package-card image — 250 PPI)
+#                    # (Universe package-card image — 180 PPI;
+#                    # override with THUMB_PPI=...)
 #   make preview-gif # build the animated README hero (needs ffmpeg)
 #   make pdfs        # build PDFs for every examples/*.typ
 #   make previews    # build a page-1 PNG for every examples/*.typ
