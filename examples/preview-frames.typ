@@ -95,14 +95,17 @@
     rightColumnSections: ("work", "projects", "publications", "awards"),
   ), (:)),
 
-  // ── Frame 4 ─ crimson + portrait left + Irish labels ────────────
-  // Image swung to the left of the header; section columns swap
-  // emphasis (compact / support blocks lead, work + projects move
+  // ── Frame 4 ─ crimson + portrait left + QR right + Irish labels ─
+  // Image swung to the left of the header with a QR matrix mirrored
+  // on the right — the flipped twin of frame 6's QR layout, exercising
+  // the same feature under `imagePosition: "left"`. Section columns
+  // swap emphasis (compact / support blocks lead, work + projects move
   // right). Section headings render in Irish via `labels-ga.toml`
   // — the same data dict, just localised display strings.
   (cv, base + (
     accent: palettes.crimson,
     imagePosition: "left",
+    qrCode: auto,
     leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates", "awards"),
     rightColumnSections: ("work", "projects"),
   ), ga-labels),
