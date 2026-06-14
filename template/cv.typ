@@ -10,7 +10,7 @@
 // renders as `examples/cv.png` (README static preview) and as
 // `thumbnail.png` (Typst Universe package card).
 
-#import "@preview/altacv:1.1.0": alta, avatar-placeholder // x-release-please-version
+#import "@preview/altacv:1.1.1": alta, avatar-placeholder // x-release-please-version
 
 #let cv = (
   basics: (
