@@ -18,15 +18,17 @@
 #   make TYPST=/path/to/typst    # use a non-default typst binary
 #   make FFMPEG=/path/to/ffmpeg  # use a non-default ffmpeg binary
 #   make PPI=300                 # raise preview resolution (default 150)
-#   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.67)
+#   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.4)
 
 TYPST     ?= typst
 FFMPEG    ?= ffmpeg
 ROOT      := .
 PPI       ?= 150
-# Seconds-per-frame for the animated README preview. `ffmpeg`'s
-# `-framerate` is the inverse — 0.67 → ~1.5s/frame.
-PREVIEW_FPS ?= 0.67
+# Animated-preview frame rate. `ffmpeg`'s `-framerate` is the
+# inverse of seconds-per-frame, so 0.4 → 2.5s/frame — long enough
+# for the eye to register each frame's layout change without
+# dragging.
+PREVIEW_FPS ?= 0.4
 
 # Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
 # helpers `#import`-ed by the real examples — not standalone documents

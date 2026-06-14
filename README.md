@@ -3,7 +3,7 @@
 A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
 
 <!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/preview.png is also committed for places that don't render animated GIFs. -->
-![Animated preview of the altacv template cycling through 17 preference variations — accent palettes, image positions, column ratios, date formats, single-column layout, and more](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif)
+![Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout) to show what's tunable](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif)
 
 ## Installation
 
