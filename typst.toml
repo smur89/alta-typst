@@ -9,3 +9,12 @@ repository = "https://github.com/smur89/alta-typst"
 keywords = ["cv", "resume", "altacv", "json-resume"]
 categories = ["cv"]
 compiler = "0.13.0"
+
+# `typst init @preview/altacv` copies the contents of `template/` into
+# the user's project as a working starter. `entrypoint` is the file
+# they compile first; `thumbnail` is the image Typst Universe shows on
+# the package card.
+[template]
+path = "template"
+entrypoint = "cv.typ"
+thumbnail = "thumbnail.png"

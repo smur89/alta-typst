@@ -1,23 +1,16 @@
-// Shared CV data for the animated multi-frame preview
-// (`preview-frames.typ` → `examples/preview.gif`). Every frame of
-// the GIF renders the SAME fictional CV — only the preferences
-// differ — so accent / layout / column-arrangement changes read as
-// preference customisation rather than data differences.
+// Starter CV produced by `typst init @preview/altacv`. Edit in place.
 //
-// The static README preview (`examples/cv.png`) and the Universe
-// thumbnail are rendered from `template/cv.typ` instead, which
-// carries its own inline data; that's the file `typst init` copies
-// into the user's project, so it ships standalone.
+// The full data schema is documented in the package README:
+//   https://github.com/smur89/alta-typst#data-schema
 //
-// `no-image` is a helper that returns the CV with `basics.image`
-// suppressed, used by frames that demonstrate the image-less header
-// (most real-world CVs don't include a photo — ATS systems and
-// anti-bias hiring practices both discourage it — so the GIF
-// alternates between with-photo and without-photo frames to reflect
-// what most users actually ship).
+// Every field below is optional except `basics.name`. Sections with
+// empty input are skipped, so deleting an entry is enough to hide it.
+//
+// This file is also the canonical demo for the project — what
+// renders as `examples/cv.png` (README static preview) and as
+// `thumbnail.png` (Typst Universe package card).
 
-#import "../lib.typ": avatar-placeholder
-#import "_dates.typ": ago
+#import "@preview/altacv:1.0.0": alta, avatar-placeholder // x-release-please-version
 
 #let cv = (
   basics: (
@@ -32,9 +25,14 @@
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     url: "https://seanomurchu.dev",
+    // Drop or replace with your own image. `none` removes the
+    // portrait; `read("your-photo.png", encoding: none)` embeds
+    // bytes from a local file. `avatar-placeholder` is the
+    // package's built-in silhouette.
     image: avatar-placeholder,
     profiles: (
       (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
+      (network: "LinkedIn", username: "seanomurchu", url: "https://linkedin.com/in/seanomurchu"),
     ),
   ),
 
@@ -48,7 +46,7 @@
       url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: ago(years: 4),
+      startDate: "2022-01",
       summary: [Platform team lead. Owns the event-sourcing stack.],
       highlights: (
         [Migrated a customer-facing monolith to event-driven services, halving p99 latency.],
@@ -59,8 +57,8 @@
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: ago(years: 7),
-      endDate: ago(years: 4),
+      startDate: "2019-06",
+      endDate: "2022-01",
       highlights: (
         [Shipped the first version of a SaaS product alongside a two-person team.],
         [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
@@ -70,8 +68,8 @@
       name: "Grand Canal Systems",
       position: "Software Engineer",
       location: "Dublin, Ireland",
-      startDate: ago(years: 9),
-      endDate: ago(years: 7),
+      startDate: "2017-09",
+      endDate: "2019-06",
       highlights: (
         [Led the migration of services from VMs to Kubernetes.],
       ),
@@ -93,8 +91,8 @@
       institution: "Tallaght Institute of Technology",
       url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
-      startDate: ago(years: 9, precision: "year"),
-      endDate: ago(years: 7, precision: "year"),
+      startDate: "2015",
+      endDate: "2017",
     ),
   ),
 
@@ -102,13 +100,13 @@
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
-      date: ago(years: 3),
+      date: "2023-09",
       url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
-      date: ago(years: 2),
+      date: "2024-04",
       url: "https://www.cncf.io/training/certification/ckad/",
     ),
   ),
@@ -117,7 +115,7 @@
     (
       title: "Best Paper — Distributed Systems Track",
       awarder: "EuroSys",
-      date: ago(years: 2),
+      date: "2024-09",
       url: "https://example.com/eurosys",
     ),
   ),
@@ -126,7 +124,7 @@
     (
       name: "Event Sourcing in Practice",
       publisher: "Personal Blog",
-      releaseDate: ago(years: 2, precision: "day"),
+      releaseDate: "2024-06-15",
       url: "https://example.com/posts/event-sourcing",
     ),
   ),
@@ -136,7 +134,7 @@
       name: "open-source: kafka-idempotent",
       url: "https://example.com/projects/kafka-idempotent",
       description: "Small Scala library for idempotent consumers.",
-      startDate: ago(years: 3),
+      startDate: "2023-04",
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (
         [Underpins the awarded EuroSys paper above.],
@@ -148,7 +146,7 @@
     (
       organization: "CoderDojo Dublin",
       position: "Mentor",
-      startDate: ago(years: 6),
+      startDate: "2020-09",
       highlights: (
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
       ),
@@ -161,10 +159,15 @@
   ),
 )
 
-// Returns the CV with `basics.image` suppressed — i.e. the header
-// renders without a portrait. Override-to-`none` rather than
-// `.remove()` so the helper is idempotent (calling it twice doesn't
-// panic on a missing key) and reads as an expression rather than a
-// statement sequence.
-#let no-image(cv) = cv + (basics: cv.basics + (image: none))
+// Visual preferences for this starter. The portrait stacks above a
+// centred header; the rest takes the template's shipped defaults
+// (teal accent, two-column layout, long-form dates). Edit any
+// preference you like — `alta(cv, preferences: (...))` accepts any
+// subset, with unknown keys panicking so typos surface immediately.
+#let preferences = (
+  imagePosition: "center",
+  imageStackOrder: "above",
+  headerTextAlign: "center",
+)
 
+#alta(cv, preferences: preferences)

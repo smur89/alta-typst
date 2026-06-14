@@ -31,6 +31,19 @@
 #import "internal/footer.typ": _auto_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
 
+// Default portrait — a generic head-and-shoulders silhouette baked
+// into the package. Exposed so the `typst init` template (and any
+// downstream consumer) can render a working `basics.image` without
+// shipping its own SVG. Pre-loaded as bytes so the consumer just
+// passes it through:
+//
+//   #import "@preview/altacv:<version>": alta, avatar-placeholder
+//   basics: (..., image: avatar-placeholder)
+//
+// Replace with `read("your-photo.png", encoding: none)` (or `none`
+// to drop the portrait entirely).
+#let avatar-placeholder = read("icons/avatar-placeholder.svg", encoding: none)
+
 // Flatten every skill group's `keywords` into a de-duplicated array
 // for the PDF `Keywords` field. Insertion order is preserved so the
 // metadata reflects the author's curated ordering.
@@ -44,9 +57,10 @@
   seen
 }
 
-// `cv` follows the JSON Resume schema (see `examples/example.typ`).
-// `labels` and `preferences` are partial dicts merged over the
-// defaults; unknown keys panic.
+// `cv` follows the JSON Resume schema (see `examples/example_full.typ`
+// for a fully-populated demo, or `template/cv.typ` for the starter
+// `typst init` produces). `labels` and `preferences` are partial
+// dicts merged over the defaults; unknown keys panic.
 #let alta(
   cv,
   labels: (:),
