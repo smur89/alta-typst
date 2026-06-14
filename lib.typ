@@ -786,24 +786,20 @@
   groups
 }
 
-// Wraps the cert pill in a link when `url` is present. Suppresses the
-// trailing inter-tag gap so a following inline date sits flush with
-// the pill; the caller is responsible for adding spacing between pairs.
-#let _cert_tag(item) = {
-  let pill = tag(item.name, trailing: false)
-  if item.url != none { link(item.url, pill) } else { pill }
-}
-
-// Small body-coloured inline date emitted immediately to the right of
-// the pill — mirrors publications' release-date colour. The leading
-// gap matches `tag()`'s inter-pill gap (`0.25 * body-size`) so the
-// date sits with the same rhythm as other adjacent pills would; a
-// larger trailing gap separates the pair from the next pill.
-#let _cert_date(date) = context {
+// Builds a pill body containing the cert name and, when a date is
+// supplied, a middot separator + small calendar icon + date — all in
+// the pill's own text rendering. The icon and date are wrapped in a
+// box so they never break across lines; only the middot's surrounding
+// space is a valid break point if the pill has to wrap.
+#let _cert_tag(item) = context {
   let body-size = _body_size_state.get()
-  h(0.25 * body-size)
-  text(0.85 * body-size, fill: _body_colour.lighten(35%), date)
-  h(0.5 * body-size)
+  let body = if item.date != none {
+    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#item.date]]
+  } else {
+    [#item.name]
+  }
+  let pill = tag(body)
+  if item.url != none { link(item.url, pill) } else { pill }
 }
 
 #let _certificates(certs, labels, group: true) = {
@@ -819,24 +815,12 @@
   }
   if groups.len() == 0 { return }
   [== #labels.certificates]
+  // Each pill is self-contained — the date (when present) renders
+  // inside the pill alongside the name, so all certs flow as a single
+  // row of uniformly-shaped pills regardless of which ones carry dates.
   _join_with_dividers(groups, items => block(
     breakable: false,
-    context {
-      let body-size = _body_size_state.get()
-      // Pills and dates flow as natural row pairs. Each pill suppresses
-      // its trailing gap so an inline date sits flush; the date helper
-      // handles the spacing on either side. Dateless certs in a dated
-      // group keep a small trailing gap so they don't collide with the
-      // next pill.
-      for (i, item) in items.enumerate() {
-        _cert_tag(item)
-        if item.date != none {
-          _cert_date(item.date)
-        } else if i < items.len() - 1 {
-          h(0.25 * body-size)
-        }
-      }
-    },
+    { for item in items { _cert_tag(item) } },
   ))
 }
 
