@@ -339,10 +339,13 @@ jobs:
       # still tidies up stragglers.
       #
       # Safety:
-      #   - `--author "@me"` scopes to PRs opened by the bot identity
+      #   - `--author "@me"` scopes to PRs opened by the PAT identity
       #     (whoever owns TYPST_UNIVERSE_TOKEN), so we never touch
       #     anyone else's submissions even in the unlikely case of a
-      #     name collision.
+      #     name collision. **Caveat**: rotating TYPST_UNIVERSE_TOKEN
+      #     to a different account orphans PRs opened under the old
+      #     identity from this filter — close those manually if a
+      #     rotation happens while prior-version PRs are still open.
       #   - Filtering on the head branch starting with `altacv-` is a
       #     belt-and-braces check against any non-altacv PR the bot
       #     might also have opened against typst/packages.
@@ -352,28 +355,29 @@ jobs:
         env:
           CURRENT_PR_URL: ${{ steps.check.outputs.pr_url || steps.open.outputs.pr_url }}
         run: |
-          if [ -z "$CURRENT_PR_URL" ]; then
-            echo "No current PR URL — current-version submission did not run successfully. Skipping supersede."
-            exit 0
-          fi
-          # Command substitution propagates gh's exit code to set -e,
-          # so a transient API failure aborts the step instead of
-          # silently shipping zero stale PRs. Process substitution
-          # (`mapfile < <(gh ...)`) would mask the failure.
+          # `set -o pipefail` propagates the gh failure through the
+          # pipe to set -e; jq's `--arg cur` passes VERSION via jq's
+          # own quoting so a future release-please change that emits
+          # an unusual character in the version string can't break the
+          # jq expression by escaping out of the string literal.
           stale=$(gh pr list \
             --repo "$UPSTREAM_REPO" \
             --author "@me" \
             --state open \
             --json number,headRefName \
-            --jq ".[] | select(.headRefName | startswith(\"altacv-\")) | select(.headRefName != \"altacv-${VERSION}\") | .number")
+            | jq -r --arg cur "altacv-${VERSION}" \
+                '.[] | select(.headRefName | startswith("altacv-")) | select(.headRefName != $cur) | .number')
           if [ -z "$stale" ]; then
             echo "No older altacv submissions open — nothing to supersede."
             exit 0
           fi
           release_notes="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          body="Closing in favour of \`altacv:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
           for pr in $stale; do
-            body="Closing in favour of \`altacv:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
-            gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body "$body"
-            gh pr close   "$pr" --repo "$UPSTREAM_REPO"
+            # `--comment` fuses comment + close into one atomic API call,
+            # avoiding the inter-call race where a manual close between
+            # `gh pr comment` and `gh pr close` would leave behind a
+            # supersede comment on an already-closed PR.
+            gh pr close "$pr" --repo "$UPSTREAM_REPO" --comment "$body"
             echo "Superseded PR #$pr"
           done
