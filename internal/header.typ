@@ -289,20 +289,19 @@
     let qr = if qr-url != none { _qr_render(qr-url, qr-size, accent) }
 
     // Centred portrait: photo stacks on its own row above or below the
-    // text block. The photo is a fixed-size `box` (inline-level), so a
-    // bare `align(center, box)` would lay it at the default inline
-    // position. Wrapping the centring `align` in a full-width `block`
-    // computes the alignment against the document width, regardless of
-    // how the text row above / below is aligned. When a QR is present
-    // it pins the page-left edge of whichever element sits on the top
-    // row (photo when `imageStackOrder: "above"`, text otherwise), so
-    // the QR stays anchored to the header's top corner instead of
-    // drifting down with the text when the photo stacks above it. A
-    // `qr-size`-wide spacer on the opposite side preserves the
-    // centred-header axis.
+    // text block. Full-width `block` centres the photo against the
+    // document width (a bare `align(center, box)` would centre against
+    // the default inline position). When a QR is present, the top row
+    // is wrapped in a `(auto, 1fr, auto)` grid — QR on the left,
+    // content centred page-wise in the 1fr column, `qr-size` spacer on
+    // the right — so the QR stays anchored to the header's top corner
+    // regardless of stack order. The inter-row gap is applied
+    // externally via `v(...)` so it survives the grid wrap (block
+    // spacing inside a grid cell is consumed by the cell, not the
+    // surrounding flow).
     if image-position == "center" {
       let centred-photo = if photo != none {
-        block(spacing: 0.8 * body-size, width: 100%, align(center, photo))
+        block(width: 100%, align(center, photo))
       }
       let with-qr(content) = if qr == none {
         content
@@ -314,14 +313,17 @@
           qr, content, box(width: qr-size),
         )
       }
-      if centred-photo == none {
-        with-qr(header-text)
+      let (top, bottom) = if centred-photo == none {
+        (header-text, none)
       } else if image-stack-order == "above" {
-        with-qr(centred-photo)
-        header-text
+        (centred-photo, header-text)
       } else {
-        with-qr(header-text)
-        centred-photo
+        (header-text, centred-photo)
+      }
+      with-qr(top)
+      if bottom != none {
+        v(0.8 * body-size)
+        bottom
       }
     } else {
       // Horizontal layout: photo on the requested side, QR opposite.

@@ -109,7 +109,7 @@
 #alta(
   (basics: (
     name: "Centred Text + QR (No Photo)",
-    label: "QR rides page-left, centred header spans the rest",
+    label: "QR pins top-left, centred header fills the row",
     email: "qr@example.com",
     url: "https://example.com/cv",
   )),
@@ -151,5 +151,6 @@
   preferences: (
     qrCode: auto,
     imagePosition: "center",
+    headerTextAlign: "left",
   ),
 )
