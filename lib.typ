@@ -497,33 +497,37 @@
 // Resolves a single bracketed token from a Typst-style format template
 // (e.g. "year", "month repr:long", "day padding:none") against the
 // parsed parts. Missing components (month/day on a year-only or
-// year-month input) substitute the empty string so the surrounding
-// separators can be trimmed by the caller. Mirrors a subset of Typst's
-// own `datetime.display()` token syntax — the supported tokens are
-// `year`, `month`, and `day`, with `repr:long`/`repr:short`/`repr:numerical`
-// for `month` (the long/short forms read from `labels.months` so they
-// localise) and `padding:none`/`padding:zero` for the numeric forms.
+// year-month input) substitute a sentinel marker (see SEP_DROP below)
+// so adjacent separators can be collapsed by the caller. Mirrors a
+// subset of Typst's own `datetime.display()` token syntax — the
+// supported tokens are `year`, `month`, and `day`, with
+// `repr:long`/`repr:short`/`repr:numerical` for `month` (the long/short
+// forms read from `labels.months` so they localise) and
+// `padding:none`/`padding:zero` for the numeric forms.
+#let _DATE_TOKEN_DROP = "\u{FFFD}"  // Private placeholder for missing parts.
 #let _resolve_date_token(token, parts, labels) = {
   let parts-list = token.split(" ")
   let head = parts-list.first()
-  let modifier = parts-list.slice(1).join(" ")
+  let modifiers = parts-list.slice(1)
+  let has(m) = modifiers.contains(m)
   if head == "year" {
+    // Year is always 4 digits from the regex, so `padding:` is a no-op.
     str(parts.year)
   } else if head == "month" {
-    if parts.month == none { return "" }
-    if "repr:long" in modifier {
+    if parts.month == none { return _DATE_TOKEN_DROP }
+    if has("repr:long") {
       labels.months.at(parts.month - 1)
-    } else if "repr:short" in modifier {
+    } else if has("repr:short") {
       let full = labels.months.at(parts.month - 1)
       full.slice(0, calc.min(3, full.len()))
-    } else if "padding:none" in modifier {
+    } else if has("padding:none") {
       str(parts.month)
     } else {
       _pad2(parts.month)
     }
   } else if head == "day" {
-    if parts.day == none { return "" }
-    if "padding:none" in modifier {
+    if parts.day == none { return _DATE_TOKEN_DROP }
+    if has("padding:none") {
       str(parts.day)
     } else {
       _pad2(parts.day)
@@ -534,22 +538,25 @@
 }
 
 // Applies a Typst-style bracketed template like "[day]/[month]/[year]"
-// to the parsed parts. Missing components emit empty strings; the
-// surrounding whitespace and stray separators left behind are then
-// collapsed so a year-only input under template `[day] [month repr:short] [year]`
-// renders as just `2024` rather than `  2024`.
+// to the parsed parts. Missing components emit a private sentinel
+// marker; a final pass strips each sentinel together with the
+// whitespace and surrounding non-alphanumeric separator characters
+// that bordered it, so a year-only input under template
+// `[day] · [month repr:short] [year]` renders as just `2024` rather
+// than `· · 2024`.
 #let _apply_date_template(template, parts, labels) = {
   let body = template.replace(
     regex("\[([^\]]+)\]"),
     m => _resolve_date_token(m.captures.at(0), parts, labels),
   )
-  // Collapse runs of whitespace, then trim, then strip dangling
-  // separators (slash, dash, comma, dot) that bordered a now-empty
-  // component on either edge.
+  // Strip the sentinel together with any run of separator-class chars
+  // on either side. "Separator" here is anything that isn't a letter
+  // or digit — covers ASCII (`/`, `-`, `,`, `.`, space) and Unicode
+  // (`·`, `—`, `–`, etc.) so callers can use exotic glyphs without
+  // worrying about whether we know about them.
   body
+    .replace(regex("[^\p{L}\p{N}]*" + _DATE_TOKEN_DROP + "[^\p{L}\p{N}]*"), " ")
     .replace(regex("\s+"), " ")
-    .trim()
-    .replace(regex("^[\s/\-,.]+|[\s/\-,.]+$"), "")
     .trim()
 }
 
@@ -1391,11 +1398,13 @@
         + "or a closure, got: " + repr(df),
     )
   }
-  // `labels.months` is consumed by the "long" formatter; validate its
-  // shape up front so a malformed override panics with a clear message
-  // rather than failing inside `array.at()` at render time.
+  // `labels.months` is consumed by the "long" formatter and by the
+  // bracketed-template `[month repr:long]` / `[month repr:short]`
+  // tokens; validate shape and element types up front so a malformed
+  // override panics with a clear message rather than failing inside
+  // `array.at()` or string slicing at render time.
   let months = labels.months
-  if type(months) != array or months.len() != 12 {
+  if type(months) != array or months.len() != 12 or months.any(m => type(m) != str) {
     panic(
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )

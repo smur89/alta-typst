@@ -99,6 +99,16 @@
 
 #pagebreak()
 
+// 5b. Bracketed template with `[month repr:long]` and `[day padding:zero]`
+//     — exercises the localised-full-name path and the zero-padded day
+//     variant, plus a non-ASCII middot separator that the new
+//     unicode-aware separator-strip handles cleanly on partials.
+#alta(base-cv, preferences: (
+  dateFormat: "[day padding:zero] · [month repr:long] · [year]",
+))
+
+#pagebreak()
+
 // 6. labels.months override (German abbreviations) feeding the default
 //    "long" formatter — ISO inputs render with localised month names,
 //    pre-formatted "Jan 2015" still passes through verbatim.
