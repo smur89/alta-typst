@@ -1,5 +1,11 @@
 # altacv
 
+[![Typst Universe](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Ftypst.app%2Funiverse%2Fpackage%2Faltacv&query=%2Fhtml%2Fbody%2Fdiv%2Fmain%2Fdiv%5B2%5D%2Faside%2Fsection%5B2%5D%2Fdl%2Fdd%5B3%5D&logo=typst&label=Universe&color=%23239DAE&style=flat-square)](https://typst.app/universe/package/altacv)
+[![Release](https://img.shields.io/github/v/release/smur89/alta-typst?style=flat-square)](https://github.com/smur89/alta-typst/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/smur89/alta-typst/build.yml?style=flat-square)](https://github.com/smur89/alta-typst/actions/workflows/build.yml)
+[![License](https://img.shields.io/github/license/smur89/alta-typst?style=flat-square)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square)](https://github.com/smur89/alta-typst/stargazers)
+
 A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
 
 <!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/preview.png is also committed for places that don't render animated GIFs. -->
