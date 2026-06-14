@@ -294,31 +294,33 @@
     // position. Wrapping the centring `align` in a full-width `block`
     // computes the alignment against the document width, regardless of
     // how the text row above / below is aligned. When a QR is present
-    // it sits at the page edge (left by default) outside the text block
-    // — a `qr-size`-wide spacer on the opposite side preserves the
-    // centred-header axis instead of letting the text drift toward
-    // whichever edge the QR isn't on.
+    // it pins the page-left edge of whichever element sits on the top
+    // row (photo when `imageStackOrder: "above"`, text otherwise), so
+    // the QR stays anchored to the header's top corner instead of
+    // drifting down with the text when the photo stacks above it. A
+    // `qr-size`-wide spacer on the opposite side preserves the
+    // centred-header axis.
     if image-position == "center" {
       let centred-photo = if photo != none {
         block(spacing: 0.8 * body-size, width: 100%, align(center, photo))
       }
-      let text-row = if qr == none {
-        header-text
+      let with-qr(content) = if qr == none {
+        content
       } else {
         grid(
           columns: (auto, 1fr, auto),
           align: top,
           column-gutter: 1em,
-          qr, header-text, box(width: qr-size),
+          qr, content, box(width: qr-size),
         )
       }
       if centred-photo == none {
-        text-row
+        with-qr(header-text)
       } else if image-stack-order == "above" {
-        centred-photo
-        text-row
+        with-qr(centred-photo)
+        header-text
       } else {
-        text-row
+        with-qr(header-text)
         centred-photo
       }
     } else {

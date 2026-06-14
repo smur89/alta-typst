@@ -14,15 +14,16 @@
 //      follows the photo and ends up on the right.
 //   5. QR themed by a custom `accent` colour — exercises the
 //      `fill: accent` path through the QR helper.
-//   6. QR alongside a centred portrait — QR rides the page-left edge
-//      while the photo stays stacked above the centred-header text.
-//   7. QR with no portrait + `imagePosition: "center"` — QR at the
-//      page-left edge, centred-header text spans the rest.
-//   8. Centred portrait + QR with `imageStackOrder: "below"` — photo
-//      stacks under the text-row; QR still rides the page-left edge.
+//   6. QR alongside a centred portrait — QR pins the top-left corner
+//      next to the photo (top row), with the centred-header text in a
+//      separate row below.
+//   7. QR with no portrait + `imagePosition: "center"` — top row is the
+//      header text; QR pins its top-left corner.
+//   8. Centred portrait + QR with `imageStackOrder: "below"` — text on
+//      top, photo trails below; QR pins the text row's top-left corner.
 //   9. Centred portrait + QR + `headerTextAlign: "left"` — orthogonal
-//      case: centred-photo axis preserved while header text sits flush
-//      left of the QR's column-mate spacer.
+//      case: photo + QR share the top row (photo centred page-wise,
+//      QR top-left), text sits flush-left in a row below.
 
 #import "../lib.typ": alta
 
@@ -91,7 +92,7 @@
 #alta(
   (basics: (
     name: "Centred Portrait + QR",
-    label: "QR rides page-left, photo stacks centred above",
+    label: "QR pins top-left next to the photo, text below",
     email: "qr@example.com",
     url: "https://example.com/cv",
     image: read("../icons/avatar-placeholder.svg", encoding: none),
