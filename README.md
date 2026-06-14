@@ -279,7 +279,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `Last updated: <meta.lastModified>` line in the page footer. The label text is localisable via `labels.lastModified`; the timestamp is rendered as supplied (the full ISO 8601 string flows through verbatim). PDF metadata (date / keywords / description) is enriched from `meta` / `basics` independently of this flag — see [PDF metadata](#pdf-metadata). |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
-| `columnRatio` | `0.64` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Halve it to invert the layout, or set to `1` (with `rightColumnSections: ()`) for a [single-column layout](#single-column-layout). |
+| `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use the complement (`1 - r`) to invert the layout, or set to `1` (with `rightColumnSections: ()`) for a [single-column layout](#single-column-layout). |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer (default). `"auto"` — emits a footer on **multi-page** documents only, with `basics.name` flush left and `Page N / M` flush right, sized at `0.8em` in the body colour; the single-page case stays clean. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim as the footer on every page. Anything else panics. When set (non-`none`), takes precedence over `lastModifiedFooter` — the two prefs target overlapping surface so a non-default `pageFooter` wins; combine the "last updated" line yourself in a content footer if you want both. |
 | `leftColumnSections` | `("work", "volunteer")` | Sections to render in the left column, in order. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "projects", "publications", "interests")` | Sections to render in the right column, in order. |
@@ -312,11 +312,11 @@ Example — invert the template (side panel on the narrow left, experience on th
 
 ```typst
 #alta(cv, preferences: (
-  // columnRatio is the LEFT column's width fraction. The historic
-  // experience-left layout uses 0.64; halving it to 0.36 turns the
-  // left column into the narrow side panel and gives the (now
-  // right-hand) experience block the wider share.
-  columnRatio: 0.36,
+  // columnRatio is the LEFT column's width fraction. The default
+  // experience-left layout uses 0.65; using its complement (0.35)
+  // turns the left column into the narrow side panel and gives the
+  // (now right-hand) experience block the wider share.
+  columnRatio: 0.35,
   leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
   rightColumnSections: ("work", "publications"),
 ))

@@ -1112,7 +1112,7 @@
   lastModifiedFooter: false,
   // Fraction strictly between 0 and 1 (validated in alta()). Halving
   // it and swapping the column-section arrays gives an inverted layout.
-  columnRatio: 0.64,
+  columnRatio: 0.65,
   // `none` (default) — no footer. `"auto"` — name + "Page N / M" on
   // multi-page documents only (single-page stays clean). Any content
   // value — rendered verbatim as the footer on every page.

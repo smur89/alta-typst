@@ -1,8 +1,8 @@
 // Canonical "inverted template" layout: the side-panel sections
 // (focus areas, skills, languages, education, certificates) move to
 // a narrow left column; the experience block + publications take the
-// wide right column. Halving `columnRatio` from the default 0.64 to
-// 0.36 swaps which column is the wide one; rearranging
+// wide right column. Using the complement of the default `columnRatio`
+// (0.35 instead of 0.65) swaps which column is the wide one; rearranging
 // `leftColumnSections` / `rightColumnSections` decides what lives
 // where. Uses a real-shape CV (multiple work entries, multiple skill
 // categories, a publication) so the rendered output is a meaningful
@@ -101,7 +101,7 @@
     // Halve the left-column fraction so the (now side-panel) left
     // column becomes the narrow one and the (now experience) right
     // column gets the wider share.
-    columnRatio: 0.36,
+    columnRatio: 0.35,
     // Photo flips to the left as part of the inverted layout. The
     // default left-aligned header text keeps every line starting at
     // a consistent edge regardless of the photo position.
