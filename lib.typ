@@ -9,14 +9,10 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
-// Curated accent presets. Each is dark enough to stay legible on
-// white against the grey body text (`#666666`) and to survive a
-// black-and-white photocopy as a distinguishable mid-tone. `teal`
-// matches the historical default; the rest were eyeballed against
-// the heading rule, tag fills (accent.lighten(85%)), and link colour.
-// Callers reference them as `accent: palettes.navy` after importing.
-// Defined up here (above the state and the default-preferences dict)
-// so both can reference `palettes.teal` instead of duplicating the hex.
+// Curated accent presets — each dark enough to remain legible against
+// the grey body text and to survive a B&W photocopy as a distinct
+// mid-tone. `teal` is the default. Declared above the state + prefs
+// dicts so both can reference `palettes.teal` without duplicating hex.
 #let palettes = (
   teal:     rgb("#00796B"),
   navy:     rgb("#1A3A6C"),
@@ -104,18 +100,11 @@
   }
 }
 
-// JSON Resume defines `basics.location` as a structured dict —
-// `{address, postalCode, city, countryCode, region}`. The CV header
-// wants a single line, not five fields, so the dict form is collapsed
-// into a string by joining the CV-relevant subset (`city`, `region`,
-// `countryCode`) with ", ", skipping any field that's missing or
-// empty. `address` and `postalCode` are accepted (so a verbatim
-// `resume.json` dict round-trips without panicking) but not rendered
-// — a CV header isn't a mailing label.
-//
-// The resulting string drives both the displayed text and the maps
-// deep link, so the link target stays consistent with what the reader
-// sees. Unknown keys panic to surface typos.
+// JSON Resume's structured `location` dict collapsed to a single
+// header line. `address`/`postalCode` round-trip but aren't rendered
+// — a CV header isn't a mailing label. Unknown keys panic to surface
+// typos. The result drives both the displayed text and the maps
+// deep link, so reader and link target stay in sync.
 #let _location_fields = ("address", "postalCode", "city", "countryCode", "region")
 #let _location_display_order = ("city", "region", "countryCode")
 #let _format_location(value) = {
@@ -279,9 +268,7 @@
 // read the configured `_max_rating_state`); this function only handles
 // the numeric-vs-fluency dispatch.
 #let _resolve_rating(entry) = {
-  // Bound to `value` rather than `rating` so the module-scope public
-  // `rating()` helper isn't shadowed inside this function.
-  let value = entry.at("rating", default: none)
+  let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
   if fluency != none {
@@ -416,47 +403,16 @@
   emph(text(fill: accent, link(dest, content)))
 }
 
-// Same italic-accent treatment as `styled-link` but without the link
-// wrap. Used by `_titled_link` when a URL is absent so the visual
-// stays consistent across linked/unlinked entries — the only
-// difference at a call site is whether the heading is clickable.
-#let _styled_text(content) = context {
+// Italic + accent styling for entry titles, with the link wrap added
+// only when a URL is supplied. Every renderer that uses this gets a
+// uniform visual; URL presence is purely a clickability concern.
+#let _titled_link(title, url) = context {
   let accent = _accent_state.get()
-  emph(text(fill: accent, content))
-}
-
-// Wraps `title` in `styled-link` when a URL is supplied, otherwise
-// applies the same italic + accent styling via `_styled_text`. Every
-// section renderer that uses this gets a uniform look for the entry
-// title; URL presence is purely a clickability concern.
-#let _titled_link(title, url) = {
-  if url != none { styled-link(url, title) } else { _styled_text(title) }
+  let styled = emph(text(fill: accent, title))
+  if url != none { link(url, styled) } else { styled }
 }
 
 // ─── Meta helpers ────────────────────────────────────────────────────
-
-// JSON Resume's `meta.lastModified` is ISO 8601 — either a bare date
-// ("2026-06-12") or a full timestamp ("2026-06-12T14:00:00Z"). We only
-// need the calendar part for `set document(date: ...)` (PDF readers
-// surface day-level precision in their metadata panel). Returns `none`
-// for malformed input so callers can fall back to omitting the field;
-// the visible footer renders the original string verbatim, so a
-// non-parseable timestamp still surfaces to the reader.
-#let _parse_iso_datetime(s) = {
-  if type(s) != str { return none }
-  let m = s.match(regex("^(\d{4})-(\d{2})-(\d{2})"))
-  if m == none { return none }
-  let (y, mo, d) = m.captures.map(int)
-  if mo < 1 or mo > 12 or d < 1 { return none }
-  // Reject calendar-invalid days *before* calling datetime(), which
-  // panics (unrecoverably) on e.g. Feb 31 or Feb 29 in a non-leap
-  // year. Falling back to `none` here lets the caller drop the field
-  // and use compile time, matching the documented behaviour.
-  let is-leap = calc.rem(y, 4) == 0 and (calc.rem(y, 100) != 0 or calc.rem(y, 400) == 0)
-  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  if d > days-in-month.at(mo - 1) { return none }
-  datetime(year: y, month: mo, day: d)
-}
 
 // Flatten every skill group's `keywords` into a de-duplicated array
 // for the PDF `Keywords` field. Insertion order is preserved so the
@@ -512,32 +468,32 @@
   (year: year-num, month: month-num, day: day-num)
 }
 
-// Built-in named formatters. Each takes a parsed ISO date dict and
-// the labels dict (for `months` localisation) and returns a string.
-// `"iso"` is a passthrough — the caller renders the original string,
-// so we never reach these for that case.
-#let _format_iso_long(parts, labels) = {
-  if parts.month == none { return str(parts.year) }
-  let month-name = labels.months.at(parts.month - 1)
-  if parts.day == none {
-    month-name + " " + str(parts.year)
-  } else {
-    str(parts.day) + " " + month-name + " " + str(parts.year)
-  }
+// `meta.lastModified` is ISO 8601 — accept both a bare date and a
+// full timestamp ("2026-06-12T14:00:00Z"). Composes a Typst `datetime`
+// (needed by `set document(date: ...)`); returns `none` for partial
+// or calendar-invalid dates so the caller can drop the field instead
+// of panicking inside `datetime()` on Feb 29 in a non-leap year.
+#let _iso_datetime(s) = {
+  if type(s) != str { return none }
+  let date-only = if "T" in s { s.split("T").first() } else { s }
+  let parts = _parse_iso_date(date-only)
+  if parts == none or parts.month == none or parts.day == none { return none }
+  let (year, month, day) = (parts.year, parts.month, parts.day)
+  let is-leap = calc.rem(year, 4) == 0 and (calc.rem(year, 100) != 0 or calc.rem(year, 400) == 0)
+  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  if day > days-in-month.at(month - 1) { return none }
+  datetime(year: year, month: month, day: day)
 }
-#let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
-#let _format_iso_short(parts, labels) = {
-  if parts.month == none { return str(parts.year) }
-  if parts.day == none {
-    _pad2(parts.month) + "/" + str(parts.year)
-  } else {
-    _pad2(parts.day) + "/" + _pad2(parts.month) + "/" + str(parts.year)
-  }
-}
-#let _named_date_formatters = (
-  long: _format_iso_long,
-  short: _format_iso_short,
+
+// `"long"` and `"short"` are name aliases for the bracketed templates
+// below — kept so callers can write `dateFormat: "long"` without
+// reaching for the template syntax. Missing-token elision in
+// `_apply_date_template` handles year-only and year-month inputs.
+#let _date_format_aliases = (
+  long: "[day padding:none] [month repr:long] [year]",
+  short: "[day]/[month]/[year]",
 )
+#let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
 
 // Resolves a single bracketed token from a Typst-style format template
 // (e.g. "year", "month repr:long", "day padding:none") against the
@@ -609,27 +565,20 @@
 // Non-string and non-ISO inputs pass through verbatim (back-compat with
 // pre-formatted strings like "Jan 2022"). A closure formatter receives
 // the parsed `(year, month, day)` dict and must return a string. The
-// `"iso"` named formatter is just passthrough of the original input.
-// String values containing `[` are treated as bracketed format
-// templates (see `_apply_date_template`); other strings are looked up
-// in `_named_date_formatters`.
+// `"iso"` value passes the original input through unchanged; named
+// aliases (`"long"`, `"short"`) and bracketed templates resolve via
+// `_apply_date_template`.
 #let _format_date(value, prefs, labels) = {
   if value == none or value == "" { return value }
   let format = prefs.dateFormat
   if format == "iso" { return value }
   let parts = _parse_iso_date(value)
   if parts == none { return value }
-  if type(format) == str {
-    if "[" in format {
-      _apply_date_template(format, parts, labels)
-    } else {
-      (_named_date_formatters.at(format))(parts, labels)
-    }
-  } else {
-    // Closure contract: `(parts) -> str`. Validated up front in
-    // alta(); we just call it here.
-    format(parts)
-  }
+  if type(format) == function { return format(parts) }
+  // Strings: name aliases resolve to their template; everything else
+  // is already a bracketed template (`alta()` validates this).
+  let template = _date_format_aliases.at(format, default: format)
+  _apply_date_template(template, parts, labels)
 }
 
 // Returns `none` when neither date is supplied so callers can skip
@@ -1093,13 +1042,13 @@
 // the same way the work / education / awards / publications dates do.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  let body = if item.date != none {
+  let date-block = if item.date != none {
     let formatted = _format_date(item.date, prefs, labels)
-    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#formatted]]
-  } else {
-    [#item.name]
+    let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
+    let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
+    bullet + box[#cal#formatted]
   }
-  let pill = tag(body)
+  let pill = tag([#item.name#date-block])
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
@@ -1181,12 +1130,11 @@
   }))
 }
 
-// Built-in icon hints for common publication `type` strings. The
-// lookup is case-insensitive so callers don't need to commit to a
-// particular casing; users can extend it via `labels.publicationIcons`
-// (e.g. `(Posters: "newspaper")`). Anything not matched here falls back
-// to the generic `file` icon — same behaviour as before the type-icon
-// mapping was added.
+// Built-in icon hints for common publication `type` strings. Lookup
+// is case-insensitive (`"Talks"` and `"talks"` both match) but not
+// number-insensitive — singular and plural forms are listed explicitly
+// so callers can use either without thinking. Extend via
+// `labels.publicationIcons`; unmatched types fall back to `file`.
 #let _default_publication_icons = (
   articles: "newspaper",
   article: "newspaper",
@@ -1205,13 +1153,10 @@
 )
 
 // `pub.type` is a local extension. The grouping key is rendered
-// verbatim as the subheading, so localisers either override
-// `labels.articles` (the default for untyped entries) or pre-translate
-// the `type` strings. Groups render in first-occurrence order — Typst
-// dicts preserve insertion order. Each group's subheading carries a
-// type-appropriate icon resolved from `labels.publicationIcons` first,
-// then the built-in `_default_publication_icons`, with `file` as the
-// final fallback.
+// verbatim as the subheading; groups appear in first-occurrence order
+// (Typst dicts preserve insertion order). Untyped entries fall under
+// `labels.articles`. Subheading icons resolve via
+// `labels.publicationIcons` → `_default_publication_icons` → `file`.
 #let _publications(pubs, labels, prefs) = if pubs.len() > 0 {
   context {
     let body-size = _body_size_state.get()
@@ -1461,7 +1406,7 @@
     // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
     // `_apply_date_template`; bare strings must be one of the named
     // formatters or the literal `"iso"` passthrough.
-    if "[" not in df and df != "iso" and df not in _named_date_formatters {
+    if "[" not in df and df != "iso" and df not in _date_format_aliases {
       panic(
         "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
           + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
@@ -1492,18 +1437,18 @@
   _max_rating_state.update(max-rating)
 
   // PDF metadata is sourced from `basics` (title, author, description)
-  // and the JSON Resume `meta` block (date, keywords). Each field is
-  // only set when its source is non-empty — `set document(...)` rejects
-  // `none` for `date`, and emitting empty strings for `description` /
-  // `keywords` would still write a present-but-empty entry.
-  //
-  // `uppercaseName` is purely visual — PDF metadata stays canonical.
+  // and the JSON Resume `meta` block (date, keywords). Each optional
+  // field is only set when its source is non-empty — `set document(...)`
+  // rejects `none` for `date`, and emitting empty strings for
+  // `description` / `keywords` would still write a present-but-empty
+  // entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
-  let doc-date = _parse_iso_datetime(last-modified-raw)
+  let doc-date = _iso_datetime(last-modified-raw)
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
   let doc-description = cv.basics.at("summary", default: none)
   set document(
+    // `uppercaseName` is purely visual — PDF metadata stays canonical.
     title: cv.basics.name + " --- CV",
     author: cv.basics.name,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
