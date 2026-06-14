@@ -1,9 +1,10 @@
-// Exercises preferences.dateFormat across the four supported variants:
+// Exercises preferences.dateFormat across every supported variant:
 // - default "long" formatter on ISO inputs (yyyy / yyyy-mm / yyyy-mm-dd)
 // - non-ISO strings pass through verbatim (back-compat)
 // - "short" formatter (dd/mm/yyyy and mm/yyyy)
 // - "iso" passthrough
 // - closure formatter (caller-supplied date => str)
+// - bracketed template (Typst `datetime.display()`-style tokens)
 // - labels.months override (German abbreviations) feeding "long"
 //
 // Each invocation is a separate alta() call so a panic in one variant
@@ -88,7 +89,17 @@
 
 #pagebreak()
 
-// 5. labels.months override (German abbreviations) feeding the default
+// 5. Bracketed template — Typst's `datetime.display()` syntax with the
+//    same modifier vocabulary. Missing components (year-only inputs
+//    miss month/day) substitute empty strings and the surrounding
+//    separators are stripped so partials degrade gracefully.
+#alta(base-cv, preferences: (
+  dateFormat: "[day padding:none] [month repr:short] [year]",
+))
+
+#pagebreak()
+
+// 6. labels.months override (German abbreviations) feeding the default
 //    "long" formatter — ISO inputs render with localised month names,
 //    pre-formatted "Jan 2015" still passes through verbatim.
 #alta(

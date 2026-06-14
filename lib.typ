@@ -432,6 +432,21 @@
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
+// ── Date formatting ─────────────────────────────────────────────────
+//
+// JSON Resume's iso8601 pattern accepts three partial shapes:
+// `YYYY-MM-DD`, `YYYY-MM`, and `YYYY` (verified against the schema's
+// `iso8601` regex). Typst's built-in `datetime` type cannot represent
+// the latter two — it stores either a full date, a time, or a full
+// datetime, with no year-only or year-month variant — so we keep a
+// custom `(year, month: opt int, day: opt int)` dict for partials.
+// `datetime.display()` is also locked to English month/weekday names
+// today (Typst plans localisation in the future), which would defeat
+// `labels.months`, so we render names from the labels dict instead of
+// delegating. We still mirror Typst's bracketed format-string syntax
+// (`[year]`, `[month repr:long]`, …) so call sites can carry the same
+// template into other Typst code if they need to.
+
 // Tries to parse `s` as an ISO 8601 calendar date prefix — `yyyy`,
 // `yyyy-mm`, or `yyyy-mm-dd`. Returns a `(year, month, day)` dict
 // (month/day may be `none`) on success, or `none` if the input doesn't
@@ -479,11 +494,73 @@
   short: _format_iso_short,
 )
 
+// Resolves a single bracketed token from a Typst-style format template
+// (e.g. "year", "month repr:long", "day padding:none") against the
+// parsed parts. Missing components (month/day on a year-only or
+// year-month input) substitute the empty string so the surrounding
+// separators can be trimmed by the caller. Mirrors a subset of Typst's
+// own `datetime.display()` token syntax — the supported tokens are
+// `year`, `month`, and `day`, with `repr:long`/`repr:short`/`repr:numerical`
+// for `month` (the long/short forms read from `labels.months` so they
+// localise) and `padding:none`/`padding:zero` for the numeric forms.
+#let _resolve_date_token(token, parts, labels) = {
+  let parts-list = token.split(" ")
+  let head = parts-list.first()
+  let modifier = parts-list.slice(1).join(" ")
+  if head == "year" {
+    str(parts.year)
+  } else if head == "month" {
+    if parts.month == none { return "" }
+    if "repr:long" in modifier {
+      labels.months.at(parts.month - 1)
+    } else if "repr:short" in modifier {
+      let full = labels.months.at(parts.month - 1)
+      full.slice(0, calc.min(3, full.len()))
+    } else if "padding:none" in modifier {
+      str(parts.month)
+    } else {
+      _pad2(parts.month)
+    }
+  } else if head == "day" {
+    if parts.day == none { return "" }
+    if "padding:none" in modifier {
+      str(parts.day)
+    } else {
+      _pad2(parts.day)
+    }
+  } else {
+    panic("Unknown dateFormat token: [" + token + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).")
+  }
+}
+
+// Applies a Typst-style bracketed template like "[day]/[month]/[year]"
+// to the parsed parts. Missing components emit empty strings; the
+// surrounding whitespace and stray separators left behind are then
+// collapsed so a year-only input under template `[day] [month repr:short] [year]`
+// renders as just `2024` rather than `  2024`.
+#let _apply_date_template(template, parts, labels) = {
+  let body = template.replace(
+    regex("\[([^\]]+)\]"),
+    m => _resolve_date_token(m.captures.at(0), parts, labels),
+  )
+  // Collapse runs of whitespace, then trim, then strip dangling
+  // separators (slash, dash, comma, dot) that bordered a now-empty
+  // component on either edge.
+  body
+    .replace(regex("\s+"), " ")
+    .trim()
+    .replace(regex("^[\s/\-,.]+|[\s/\-,.]+$"), "")
+    .trim()
+}
+
 // Single entry point used by every renderer that surfaces a date.
 // Non-string and non-ISO inputs pass through verbatim (back-compat with
 // pre-formatted strings like "Jan 2022"). A closure formatter receives
 // the parsed `(year, month, day)` dict and must return a string. The
 // `"iso"` named formatter is just passthrough of the original input.
+// String values containing `[` are treated as bracketed format
+// templates (see `_apply_date_template`); other strings are looked up
+// in `_named_date_formatters`.
 #let _format_date(value, prefs, labels) = {
   if value == none or value == "" { return value }
   let format = prefs.dateFormat
@@ -491,7 +568,11 @@
   let parts = _parse_iso_date(value)
   if parts == none { return value }
   if type(format) == str {
-    (_named_date_formatters.at(format))(parts, labels)
+    if "[" in format {
+      _apply_date_template(format, parts, labels)
+    } else {
+      (_named_date_formatters.at(format))(parts, labels)
+    }
   } else {
     // Closure contract: `(parts) -> str`. Validated up front in
     // alta(); we just call it here.
@@ -1294,16 +1375,20 @@
   }
   let df = preferences.dateFormat
   if type(df) == str {
-    if df != "iso" and df not in _named_date_formatters {
+    // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
+    // `_apply_date_template`; bare strings must be one of the named
+    // formatters or the literal `"iso"` passthrough.
+    if "[" not in df and df != "iso" and df not in _named_date_formatters {
       panic(
-        "dateFormat must be one of \"long\", \"short\", \"iso\", or a closure, got: "
+        "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
+          + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
           + repr(df),
       )
     }
   } else if type(df) != function {
     panic(
-      "dateFormat must be a string (\"long\" / \"short\" / \"iso\") or a closure, got: "
-        + repr(df),
+      "dateFormat must be a string (named formatter or bracketed template) "
+        + "or a closure, got: " + repr(df),
     )
   }
   // `labels.months` is consumed by the "long" formatter; validate its
