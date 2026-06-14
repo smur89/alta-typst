@@ -1110,8 +1110,9 @@
   // (date / keywords / description) is populated from `meta` and
   // `basics` independently of this flag.
   lastModifiedFooter: false,
-  // Fraction strictly between 0 and 1 (validated in alta()). Halving
-  // it and swapping the column-section arrays gives an inverted layout.
+  // Fraction in (0, 1] (validated in alta()). Use the complement
+  // (`1 - r`) and swap the column-section arrays to invert the layout;
+  // exactly 1 collapses the grid to a single full-width column.
   columnRatio: 0.65,
   // `none` (default) — no footer. `"auto"` — name + "Page N / M" on
   // multi-page documents only (single-page stays clean). Any content
