@@ -56,6 +56,12 @@
   articles: "Articles",
   present: "Present",
   lastModified: "Last updated",
+  // Twelve abbreviated month names, January–December. Used by the
+  // built-in `dateFormat: "long"` formatter to render ISO 8601 inputs
+  // (e.g. "2024-06" → "Jun 2024"). Override to localise; the array
+  // must keep length 12 (validated in alta()).
+  months: ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
 )
 
 // Exported so callers can write `mapsProvider: maps-providers.google`
@@ -391,7 +397,7 @@
 // for malformed input so callers can fall back to omitting the field;
 // the visible footer renders the original string verbatim, so a
 // non-parseable timestamp still surfaces to the reader.
-#let _parse_iso_date(s) = {
+#let _parse_iso_datetime(s) = {
   if type(s) != str { return none }
   let m = s.match(regex("^(\d{4})-(\d{2})-(\d{2})"))
   if m == none { return none }
@@ -426,21 +432,173 @@
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
+// ── Date formatting ─────────────────────────────────────────────────
+//
+// JSON Resume's iso8601 pattern accepts three partial shapes:
+// `YYYY-MM-DD`, `YYYY-MM`, and `YYYY` (verified against the schema's
+// `iso8601` regex). Typst's built-in `datetime` type cannot represent
+// the latter two — it stores either a full date, a time, or a full
+// datetime, with no year-only or year-month variant — so we keep a
+// custom `(year, month: opt int, day: opt int)` dict for partials.
+// `datetime.display()` is also locked to English month/weekday names
+// today (Typst plans localisation in the future), which would defeat
+// `labels.months`, so we render names from the labels dict instead of
+// delegating. We still mirror Typst's bracketed format-string syntax
+// (`[year]`, `[month repr:long]`, …) so call sites can carry the same
+// template into other Typst code if they need to.
+
+// Tries to parse `s` as an ISO 8601 calendar date prefix — `yyyy`,
+// `yyyy-mm`, or `yyyy-mm-dd`. Returns a `(year, month, day)` dict
+// (month/day may be `none`) on success, or `none` if the input doesn't
+// match. Matching is strict on shape (zero-padded, hyphen-separated)
+// and on calendar validity (months 1–12, days 1–31). Anything else —
+// "Jan 2022", "2024/06", "May 2016 – Jul 2017" — falls through to
+// verbatim rendering by callers.
+#let _parse_iso_date(s) = {
+  if type(s) != str { return none }
+  let m = s.match(regex("^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$"))
+  if m == none { return none }
+  let (year, month, day) = m.captures
+  let year-num = int(year)
+  let month-num = if month == none { none } else { int(month) }
+  let day-num = if day == none { none } else { int(day) }
+  if month-num != none and (month-num < 1 or month-num > 12) { return none }
+  if day-num != none and (day-num < 1 or day-num > 31) { return none }
+  (year: year-num, month: month-num, day: day-num)
+}
+
+// Built-in named formatters. Each takes a parsed ISO date dict and
+// the labels dict (for `months` localisation) and returns a string.
+// `"iso"` is a passthrough — the caller renders the original string,
+// so we never reach these for that case.
+#let _format_iso_long(parts, labels) = {
+  if parts.month == none { return str(parts.year) }
+  let month-name = labels.months.at(parts.month - 1)
+  if parts.day == none {
+    month-name + " " + str(parts.year)
+  } else {
+    str(parts.day) + " " + month-name + " " + str(parts.year)
+  }
+}
+#let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
+#let _format_iso_short(parts, labels) = {
+  if parts.month == none { return str(parts.year) }
+  if parts.day == none {
+    _pad2(parts.month) + "/" + str(parts.year)
+  } else {
+    _pad2(parts.day) + "/" + _pad2(parts.month) + "/" + str(parts.year)
+  }
+}
+#let _named_date_formatters = (
+  long: _format_iso_long,
+  short: _format_iso_short,
+)
+
+// Resolves a single bracketed token from a Typst-style format template
+// (e.g. "year", "month repr:long", "day padding:none") against the
+// parsed parts. Missing components (month/day on a year-only or
+// year-month input) substitute a sentinel marker (see SEP_DROP below)
+// so adjacent separators can be collapsed by the caller. Mirrors a
+// subset of Typst's own `datetime.display()` token syntax — the
+// supported tokens are `year`, `month`, and `day`, with
+// `repr:long`/`repr:short`/`repr:numerical` for `month` (the long/short
+// forms read from `labels.months` so they localise) and
+// `padding:none`/`padding:zero` for the numeric forms.
+#let _DATE_TOKEN_DROP = "\u{FFFD}"  // Private placeholder for missing parts.
+#let _resolve_date_token(token, parts, labels) = {
+  let parts-list = token.split(" ")
+  let head = parts-list.first()
+  let modifiers = parts-list.slice(1)
+  let has(m) = modifiers.contains(m)
+  if head == "year" {
+    // Year is always 4 digits from the regex, so `padding:` is a no-op.
+    str(parts.year)
+  } else if head == "month" {
+    if parts.month == none { return _DATE_TOKEN_DROP }
+    if has("repr:long") {
+      labels.months.at(parts.month - 1)
+    } else if has("repr:short") {
+      let full = labels.months.at(parts.month - 1)
+      full.slice(0, calc.min(3, full.len()))
+    } else if has("padding:none") {
+      str(parts.month)
+    } else {
+      _pad2(parts.month)
+    }
+  } else if head == "day" {
+    if parts.day == none { return _DATE_TOKEN_DROP }
+    if has("padding:none") {
+      str(parts.day)
+    } else {
+      _pad2(parts.day)
+    }
+  } else {
+    panic("Unknown dateFormat token: [" + token + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).")
+  }
+}
+
+// Applies a Typst-style bracketed template like "[day]/[month]/[year]"
+// to the parsed parts. Missing components emit a private sentinel
+// marker; a final pass strips each sentinel together with the
+// whitespace and surrounding non-alphanumeric separator characters
+// that bordered it, so a year-only input under template
+// `[day] · [month repr:short] [year]` renders as just `2024` rather
+// than `· · 2024`.
+#let _apply_date_template(template, parts, labels) = {
+  let body = template.replace(
+    regex("\[([^\]]+)\]"),
+    m => _resolve_date_token(m.captures.at(0), parts, labels),
+  )
+  // Strip the sentinel together with any run of separator-class chars
+  // on either side. "Separator" here is anything that isn't a letter
+  // or digit — covers ASCII (`/`, `-`, `,`, `.`, space) and Unicode
+  // (`·`, `—`, `–`, etc.) so callers can use exotic glyphs without
+  // worrying about whether we know about them.
+  body
+    .replace(regex("[^\p{L}\p{N}]*" + _DATE_TOKEN_DROP + "[^\p{L}\p{N}]*"), " ")
+    .replace(regex("\s+"), " ")
+    .trim()
+}
+
+// Single entry point used by every renderer that surfaces a date.
+// Non-string and non-ISO inputs pass through verbatim (back-compat with
+// pre-formatted strings like "Jan 2022"). A closure formatter receives
+// the parsed `(year, month, day)` dict and must return a string. The
+// `"iso"` named formatter is just passthrough of the original input.
+// String values containing `[` are treated as bracketed format
+// templates (see `_apply_date_template`); other strings are looked up
+// in `_named_date_formatters`.
+#let _format_date(value, prefs, labels) = {
+  if value == none or value == "" { return value }
+  let format = prefs.dateFormat
+  if format == "iso" { return value }
+  let parts = _parse_iso_date(value)
+  if parts == none { return value }
+  if type(format) == str {
+    if "[" in format {
+      _apply_date_template(format, parts, labels)
+    } else {
+      (_named_date_formatters.at(format))(parts, labels)
+    }
+  } else {
+    // Closure contract: `(parts) -> str`. Validated up front in
+    // alta(); we just call it here.
+    format(parts)
+  }
+}
+
 // Returns `none` when neither date is supplied so callers can skip
 // emitting the term row, rather than falsely rendering "Present" for
 // a fully undated entry.
-#let _format_date_range(entry, labels) = {
+#let _format_date_range(entry, labels, prefs) = {
   let is-empty(v) = v == none or v == ""
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
   if is-empty(start) and is-empty(end) { return none }
-  let end-text = if is-empty(end) { labels.present } else { end }
-  if is-empty(start) { [#end-text] } else { [#start – #end-text] }
+  let start-text = if is-empty(start) { none } else { _format_date(start, prefs, labels) }
+  let end-text = if is-empty(end) { labels.present } else { _format_date(end, prefs, labels) }
+  if start-text == none { [#end-text] } else { [#start-text – #end-text] }
 }
-
-// Rejects `none`, the empty string, and the empty content block —
-// the three ways a section field can be effectively absent.
-#let _present(v) = v != none and v != "" and v != []
 
 // String-path sources resolve relative to lib.typ (not the user's
 // document), so callers should prefer a leading "/" for a root-
@@ -709,7 +867,7 @@
 // We treat them as alternatives that fill the same slot between the
 // term row and the highlights list — `summary` wins when both are
 // present so callers can opt into either field name without surprises.
-#let _experience(work, labels) = if work.len() > 0 [
+#let _experience(work, labels, prefs) = if work.len() > 0 [
   == #labels.work
 
   #_join_with_dividers(work, job => [
@@ -721,7 +879,7 @@
       // italic / underline treatment used for publication titles.
       #let url = job.at("url", default: none)
       #name[#if url != none { link(url, job.name) } else { job.name }]
-      #term(_format_date_range(job, labels), location: job.at("location", default: none))
+      #term(_format_date_range(job, labels, prefs), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
       #if _present(preamble) [
@@ -741,14 +899,14 @@
 // identical to `_experience`: position heading, accent-coloured
 // organisation line, optional date range + location, bulleted
 // highlights.
-#let _volunteer(entries, labels) = if entries.len() > 0 [
+#let _volunteer(entries, labels, prefs) = if entries.len() > 0 [
   == #labels.volunteer
 
   #_join_with_dividers(entries, entry => [
     #block(breakable: false)[
       === #entry.position
       #name[#entry.at("organization", default: "")]
-      #term(_format_date_range(entry, labels), location: entry.at("location", default: none))
+      #term(_format_date_range(entry, labels, prefs), location: entry.at("location", default: none))
 
       #for bullet in entry.at("highlights", default: ()) [- #bullet]
     ]
@@ -800,7 +958,7 @@
   ))
 ]
 
-#let _education(entries, labels) = if entries.len() > 0 [
+#let _education(entries, labels, prefs) = if entries.len() > 0 [
   == #labels.education
 
   #_join_with_dividers(entries, edu => [
@@ -815,7 +973,7 @@
       // institution becomes clickable. An empty-string url is treated
       // as absent so a missing JSON field doesn't render a dead link.
       #if _present(url) and institution != "" { link(url, body) } else { body }
-      #term(_format_date_range(edu, labels))
+      #term(_format_date_range(edu, labels, prefs))
 
       #if "score" in edu and edu.score != none [#edu.score]
       // Courses render as pill tags — same treatment as `skills[].keywords`
@@ -932,7 +1090,7 @@
 // wraps the title in an accent-coloured link (same treatment as
 // `projects[].url`). Entries without a `title` are skipped so a stray
 // entry can't emit an orphan heading.
-#let _awards(entries, labels) = {
+#let _awards(entries, labels, prefs) = {
   let valid = entries.filter(a => _present(a.at("title", default: none)))
   if valid.len() == 0 { return }
   [== #labels.awards]
@@ -943,7 +1101,7 @@
     let awarder = award.at("awarder", default: none)
     if _present(awarder) { name[#awarder] }
     let date = award.at("date", default: none)
-    if _present(date) { term(date) }
+    if _present(date) { term(_format_date(date, prefs, labels)) }
     let summary = award.at("summary", default: none)
     if _present(summary) { par(summary) }
   }))
@@ -953,7 +1111,7 @@
 // url, dates, highlights, keywords. `entity`, `type`, `roles` are
 // accepted but unrendered (open an issue if you need them). Entries
 // without a `name` are skipped to avoid an orphan heading.
-#let _projects(entries, labels) = {
+#let _projects(entries, labels, prefs) = {
   let valid = entries.filter(p => _present(p.at("name", default: none)))
   if valid.len() == 0 { return }
   [== #labels.projects]
@@ -968,7 +1126,7 @@
       emph(description)
       linebreak()
     }
-    term(_format_date_range(project, labels))
+    term(_format_date_range(project, labels, prefs))
     for bullet in project.at("highlights", default: ()) [- #bullet]
     _tag_row(project.at("keywords", default: ()))
   }))
@@ -979,7 +1137,7 @@
 // `labels.articles` (the default for untyped entries) or pre-translate
 // the `type` strings. Groups render in first-occurrence order — Typst
 // dicts preserve insertion order.
-#let _publications(pubs, labels) = if pubs.len() > 0 {
+#let _publications(pubs, labels, prefs) = if pubs.len() > 0 {
   context {
     let body-size = _body_size_state.get()
     let groups = (:)
@@ -1000,7 +1158,7 @@
           #let summary = pub.at("summary", default: none)
           - #if url != none { styled-link(url, title) } else { emph(title) }.
             #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
-            #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), date)]
+            #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]
         ]
       ]
@@ -1040,11 +1198,11 @@
 #let _sections = (
   work: (
     column: "left",
-    render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels),
+    render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels, prefs),
   ),
   volunteer: (
     column: "left",
-    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels),
+    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels, prefs),
   ),
   focusAreas: (
     column: "right",
@@ -1060,7 +1218,7 @@
   ),
   education: (
     column: "right",
-    render: (cv, labels, prefs) => _education(cv.at("education", default: ()), labels),
+    render: (cv, labels, prefs) => _education(cv.at("education", default: ()), labels, prefs),
   ),
   certificates: (
     column: "right",
@@ -1072,15 +1230,15 @@
   ),
   awards: (
     column: "right",
-    render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels),
+    render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels, prefs),
   ),
   projects: (
     column: "right",
-    render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels),
+    render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels, prefs),
   ),
   publications: (
     column: "right",
-    render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels),
+    render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels, prefs),
   ),
   interests: (
     column: "right",
@@ -1129,6 +1287,15 @@
   // (date / keywords / description) is populated from `meta` and
   // `basics` independently of this flag.
   lastModifiedFooter: false,
+  // Controls how ISO 8601 date strings ("2024", "2024-06", "2024-06-15")
+  // are rendered wherever the template surfaces a date. Non-ISO strings
+  // (e.g. "Jan 2022", "May 2016 – Jul 2017") pass through verbatim
+  // regardless of this setting, so pre-formatted data keeps working.
+  //   "long"  — "Jun 2024" / "15 Jun 2024" (month names from labels.months)
+  //   "short" — "06/2024"  / "15/06/2024"
+  //   "iso"   — passthrough of the original string
+  //   closure — (parts) -> str, where parts is (year, month?, day?)
+  dateFormat: "long",
   // Fraction in (0, 1] (validated in alta()). Use the complement
   // (`1 - r`) and swap the column-section arrays to invert the layout;
   // exactly 1 collapses the grid to a single full-width column.
@@ -1213,6 +1380,35 @@
         + repr(page-footer),
     )
   }
+  let df = preferences.dateFormat
+  if type(df) == str {
+    // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
+    // `_apply_date_template`; bare strings must be one of the named
+    // formatters or the literal `"iso"` passthrough.
+    if "[" not in df and df != "iso" and df not in _named_date_formatters {
+      panic(
+        "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
+          + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
+          + repr(df),
+      )
+    }
+  } else if type(df) != function {
+    panic(
+      "dateFormat must be a string (named formatter or bracketed template) "
+        + "or a closure, got: " + repr(df),
+    )
+  }
+  // `labels.months` is consumed by the "long" formatter and by the
+  // bracketed-template `[month repr:long]` / `[month repr:short]`
+  // tokens; validate shape and element types up front so a malformed
+  // override panics with a clear message rather than failing inside
+  // `array.at()` or string slicing at render time.
+  let months = labels.months
+  if type(months) != array or months.len() != 12 or months.any(m => type(m) != str) {
+    panic(
+      "labels.months must be an array of 12 strings, got: " + repr(months),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -1228,7 +1424,7 @@
   // `uppercaseName` is purely visual — PDF metadata stays canonical.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
-  let doc-date = _parse_iso_date(last-modified-raw)
+  let doc-date = _parse_iso_datetime(last-modified-raw)
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
   let doc-description = cv.basics.at("summary", default: none)
   set document(

@@ -76,6 +76,8 @@ Each `publications[]` entry renders as title, then (if supplied) `publisher` on 
 
 An empty or missing `endDate` is interpreted as the role still being current and renders as `Present` (localisable via `labels.present`).
 
+ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"`) — the JSON Resume canonical shape — are formatted according to `preferences.dateFormat` (default `"long"`: e.g. `"Jun 2024"`). Any string that doesn't parse as an ISO date (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) passes through verbatim, so pre-formatted data keeps rendering identically. See `preferences.dateFormat` below for the available formats and the closure form.
+
 Top-level keys recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)). Any section with empty input is skipped — no orphan headings.
 
 `basics.url` (JSON Resume's canonical "personal homepage" field) is rendered in the contact bar with the generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It's distinct from a `basics.profiles` entry with `network: "Website"` (which represents a profile *on* a third-party site); supply both if you want both rendered.
@@ -277,6 +279,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). Applies whether or not `basics.image` is set, so it also centres the header on image-less CVs. One of `"left"`, `"right"`, `"center"`. The default keeps every line starting at the same edge regardless of which side the photo is on; flip to `"right"` for the mirrored "text hugs the opposite edge" look. |
 | `uppercaseName` | `true` | When `true` (the default — matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` to render the name as supplied. Useful for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts that have no case at all, or simply when the loud uppercase look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `Last updated: <meta.lastModified>` line in the page footer. The label text is localisable via `labels.lastModified`; the timestamp is rendered as supplied (the full ISO 8601 string flows through verbatim). PDF metadata (date / keywords / description) is enriched from `meta` / `basics` independently of this flag — see [PDF metadata](#pdf-metadata). |
+| `dateFormat` | `"long"` | How ISO 8601 date strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the three shapes the [JSON Resume `iso8601` definition](https://github.com/jsonresume/resume-schema/blob/master/schema.json) accepts) are rendered wherever the template surfaces a date (`startDate`, `endDate`, `awards[].date`, `publications[].releaseDate`, …). Non-ISO strings (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) always pass through verbatim regardless of this setting — back-compat with pre-formatted data. Accepted values: `"long"` (`"Jun 2024"` / `"15 Jun 2024"`, month names sourced from `labels.months`), `"short"` (`"06/2024"` / `"15/06/2024"`), `"iso"` (passthrough), **a bracketed template** in [Typst's `datetime.display()` syntax](https://typst.app/docs/reference/foundations/datetime/#definitions-display) (e.g. `"[day padding:none] [month repr:short] [year]"` → `"15 Jun 2024"`; supported tokens are `year`/`month`/`day` with `padding:` and `repr:long`/`repr:short`/`repr:numerical` modifiers, with `month repr:long`/`repr:short` reading from `labels.months` so they localise), or a closure `parts => str` receiving a `(year, month, day)` dict (`month` and `day` are `none` for year-only / year-month inputs). |
 | `linkContactInfo` | `true` | Controls whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location — see `mapsProvider`, the supplied URL for `basics.url` and for each profile). Accepts a **boolean** (`true` / `false`, applied uniformly to every channel) or a **partial dict** keyed by channel — `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` — so you can opt out per channel without touching the data. E.g. `linkContactInfo: (phone: false)` keeps email / location / homepage / profile links but renders the phone as plain text. Omitted channels stay linked; unknown channel keys panic. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. The `{q}` placeholder is replaced with the URL-encoded location at render time. Use a built-in template — `maps-providers.{google,apple,bing,duckduckgo,osm}`, all exported from the module — or pass any other URL template string for a provider that isn't built in (no code change required). Pass `none` to suppress the link entirely (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
 | `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use the complement (`1 - r`) to invert the layout, or set to `1` for a [single-column layout](#single-column-layout). |
@@ -381,6 +384,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
+| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` | Twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter when rendering ISO date inputs. Override to localise; the array must keep length 12. |
 
 Example (German + rename "Skills" to "Core Technologies"):
 
@@ -394,6 +398,8 @@ Example (German + rename "Skills" to "Core Technologies"):
   certificates: "Zertifikate",
   publications: "Veröffentlichungen",
   present:      "Heute",
+  months:       ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+                 "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
 ))
 ```
 
