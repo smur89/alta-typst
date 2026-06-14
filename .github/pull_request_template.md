@@ -1,3 +1,5 @@
+<!-- New here? See CONTRIBUTING.md#submitting-a-pr for the fork → branch → PR workflow. -->
+
 ## Summary
 
 <!-- One or two sentences: what does this change and why? Link the issue if any. -->
