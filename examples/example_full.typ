@@ -30,20 +30,7 @@
 //     and a non-default `maxRating` for the language scale.
 
 #import "../lib.typ": alta, palettes, maps-providers
-
-// Static anchor — bump annually so dates stay roughly current. The
-// `ago()` helper below derives every relative date from this single
-// point so we only have to edit one place.
-#let today = datetime(year: 2026, month: 6, day: 14)
-#let ago(months: 0, years: 0, precision: "month") = {
-  let d = today - duration(days: 365 * years + 30 * months)
-  let fmt = (
-    year: "[year]",
-    month: "[year]-[month]",
-    day: "[year]-[month]-[day]",
-  ).at(precision)
-  d.display(fmt)
-}
+#import "_dates.typ": today, ago
 
 #let cv = (
   basics: (

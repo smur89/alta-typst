@@ -469,20 +469,24 @@
 }
 
 // `meta.lastModified` is ISO 8601 — accept both a bare date and a
-// full timestamp ("2026-06-12T14:00:00Z"). Composes a Typst `datetime`
-// (needed by `set document(date: ...)`); returns `none` for partial
-// or calendar-invalid dates so the caller can drop the field instead
-// of panicking inside `datetime()` on Feb 29 in a non-leap year.
+// full timestamp with any separator after the date prefix (`T` per
+// the spec; space per RFC 3339 §5.6, also what `Python datetime
+// .isoformat(sep=" ")` and Postgres emit). Match the date prefix and
+// discard the rest, so `_parse_iso_date` itself stays strict — other
+// callers (cert dates, work dates …) reject malformed inputs cleanly.
+// Returns `none` for partial or calendar-invalid dates so the caller
+// can drop the field instead of panicking inside `datetime()` on
+// e.g. Feb 29 in a non-leap year.
 #let _iso_datetime(s) = {
   if type(s) != str { return none }
-  let date-only = if "T" in s { s.split("T").first() } else { s }
-  let parts = _parse_iso_date(date-only)
-  if parts == none or parts.month == none or parts.day == none { return none }
-  let (year, month, day) = (parts.year, parts.month, parts.day)
-  let is-leap = calc.rem(year, 4) == 0 and (calc.rem(year, 100) != 0 or calc.rem(year, 400) == 0)
+  let prefix = s.match(regex("^\d{4}-\d{2}-\d{2}"))
+  if prefix == none { return none }
+  let parts = _parse_iso_date(prefix.text)
+  if parts == none { return none }
+  let is-leap = calc.rem(parts.year, 4) == 0 and (calc.rem(parts.year, 100) != 0 or calc.rem(parts.year, 400) == 0)
   let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  if day > days-in-month.at(month - 1) { return none }
-  datetime(year: year, month: month, day: day)
+  if parts.day > days-in-month.at(parts.month - 1) { return none }
+  datetime(year: parts.year, month: parts.month, day: parts.day)
 }
 
 // `"long"` and `"short"` are name aliases for the bracketed templates
@@ -519,8 +523,11 @@
     if has("repr:long") {
       labels.months.at(parts.month - 1)
     } else if has("repr:short") {
-      let full = labels.months.at(parts.month - 1)
-      full.slice(0, calc.min(3, full.len()))
+      // Slice by cluster, not byte, so localised names beginning with
+      // a multi-byte character (e.g. German "März", French "août")
+      // don't panic on a non-char boundary at byte index 3.
+      let clusters = labels.months.at(parts.month - 1).clusters()
+      clusters.slice(0, calc.min(3, clusters.len())).join("")
     } else if has("padding:none") {
       str(parts.month)
     } else {
@@ -583,14 +590,15 @@
 
 // Returns `none` when neither date is supplied so callers can skip
 // emitting the term row, rather than falsely rendering "Present" for
-// a fully undated entry.
-#let _format_date_range(entry, labels, prefs) = {
-  let is-empty(v) = v == none or v == ""
+// a fully undated entry. Argument order matches `_format_date`
+// (`value/entry, prefs, labels`) so callers can't accidentally swap
+// the two helpers' last two args.
+#let _format_date_range(entry, prefs, labels) = {
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
-  if is-empty(start) and is-empty(end) { return none }
-  let start-text = if is-empty(start) { none } else { _format_date(start, prefs, labels) }
-  let end-text = if is-empty(end) { labels.present } else { _format_date(end, prefs, labels) }
+  if not _present(start) and not _present(end) { return none }
+  let start-text = if _present(start) { _format_date(start, prefs, labels) }
+  let end-text = if _present(end) { _format_date(end, prefs, labels) } else { labels.present }
   if start-text == none { [#end-text] } else { [#start-text – #end-text] }
 }
 
@@ -873,7 +881,7 @@
       // italic / underline treatment used for publication titles.
       #let url = job.at("url", default: none)
       #name[#if url != none { link(url, job.name) } else { job.name }]
-      #term(_format_date_range(job, labels, prefs), location: job.at("location", default: none))
+      #term(_format_date_range(job, prefs, labels), location: job.at("location", default: none))
 
       #let preamble = job.at("summary", default: job.at("description", default: none))
       #if _present(preamble) [
@@ -900,7 +908,7 @@
     #block(breakable: false)[
       === #entry.position
       #name[#entry.at("organization", default: "")]
-      #term(_format_date_range(entry, labels, prefs), location: entry.at("location", default: none))
+      #term(_format_date_range(entry, prefs, labels), location: entry.at("location", default: none))
 
       #for bullet in entry.at("highlights", default: ()) [- #bullet]
     ]
@@ -967,7 +975,7 @@
       // institution becomes clickable. An empty-string url is treated
       // as absent so a missing JSON field doesn't render a dead link.
       #if _present(url) and institution != "" { link(url, body) } else { body }
-      #term(_format_date_range(edu, labels, prefs))
+      #term(_format_date_range(edu, prefs, labels))
 
       #if "score" in edu and edu.score != none [#edu.score]
       // Courses render as pill tags — same treatment as `skills[].keywords`
@@ -1042,13 +1050,17 @@
 // the same way the work / education / awards / publications dates do.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  let date-block = if item.date != none {
+  // Guard on _present so an empty-string `date` doesn't render an
+  // orphan bullet + calendar icon followed by no text.
+  let body = if _present(item.at("date", default: none)) {
     let formatted = _format_date(item.date, prefs, labels)
     let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
     let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
-    bullet + box[#cal#formatted]
+    [#item.name#bullet#box[#cal#formatted]]
+  } else {
+    [#item.name]
   }
-  let pill = tag([#item.name#date-block])
+  let pill = tag(body)
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
@@ -1124,7 +1136,7 @@
       // paragraph spacing.
       block(below: 0.6em, emph(description))
     }
-    term(_format_date_range(project, labels, prefs))
+    term(_format_date_range(project, prefs, labels))
     for bullet in project.at("highlights", default: ()) [- #bullet]
     _tag_row(project.at("keywords", default: ()))
   }))
@@ -1169,11 +1181,21 @@
     // Normalise user-supplied override keys to lowercase up front so
     // the case-insensitive contract holds symmetrically: `(Talks: ...)`
     // matches `type: "talks"` and vice versa. The built-in defaults
-    // dict already uses lowercase keys.
+    // dict already uses lowercase keys. Length-mismatch after the fold
+    // means two source keys collapsed onto one (e.g. `Talks` + `talks`
+    // → `talks`); panic so the silent last-write-wins behaviour
+    // surfaces as a configuration error.
     let user-icons = labels.at("publicationIcons", default: (:))
     let user-icons-lc = user-icons.pairs().fold(
-      (:), (acc, pair) => acc + ((lower(pair.at(0))): pair.at(1)),
+      (:), (acc, (k, v)) => acc + ((lower(k)): v),
     )
+    if user-icons-lc.len() != user-icons.len() {
+      panic(
+        "labels.publicationIcons has keys that collide after lowercasing — "
+          + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
+          + "Source keys: " + repr(user-icons.keys()),
+      )
+    }
     for (group, items) in groups.pairs() [
       #let lookup-key = lower(group)
       #let group-icon = user-icons-lc.at(

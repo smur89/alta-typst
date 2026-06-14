@@ -6,29 +6,15 @@
 // interests) sit on page 2 so they're still exercised by the build
 // but don't crowd the preview.
 //
-// Dates use the `ago()` helper below, anchored to a static `today`
-// constant. Bump `today` annually to rebase every relative date in
-// one place — the CV always reads as "current" without rewriting
-// the example.
+// Dates use the `ago()` helper from `_dates.typ`, anchored to a
+// shared `today` constant. Bump `today` there to rebase every
+// relative date in every example at once.
 //
 // Build locally with:
 //   typst compile --root .. example.typ example.pdf
 
 #import "../lib.typ": alta
-
-// Static anchor — bump annually so the example dates stay roughly
-// current. The `ago()` helper below derives every relative date from
-// this single point so we only have to edit one place.
-#let today = datetime(year: 2026, month: 6, day: 14)
-#let ago(months: 0, years: 0, precision: "month") = {
-  let d = today - duration(days: 365 * years + 30 * months)
-  let fmt = (
-    year: "[year]",
-    month: "[year]-[month]",
-    day: "[year]-[month]-[day]",
-  ).at(precision)
-  d.display(fmt)
-}
+#import "_dates.typ": ago
 
 #let cv = (
   basics: (
