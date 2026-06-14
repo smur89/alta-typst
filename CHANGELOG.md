@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/smur89/alta-typst/compare/v1.1.1...v1.2.0) (2026-06-14)
+
+
+### Features
+
+* render JSON Resume references section ([#121](https://github.com/smur89/alta-typst/issues/121)) ([7473ee4](https://github.com/smur89/alta-typst/commit/7473ee4ce713cc1cb6932ccfddab3410f3df8ce7))
+
 ## [1.1.1](https://github.com/smur89/alta-typst/compare/v1.1.0...v1.1.1) (2026-06-14)
 
 

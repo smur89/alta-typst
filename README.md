@@ -42,7 +42,7 @@ typst init @preview/altacv
 Or `#import` it from an existing `.typ`:
 
 ```typst
-#import "@preview/altacv:1.1.1": alta // x-release-please-version
+#import "@preview/altacv:1.2.0": alta // x-release-please-version
 ```
 
 ## Fonts
@@ -59,7 +59,7 @@ Run `typst fonts` to list what Typst can see on your system.
 ## Quick start
 
 ```typst
-#import "@preview/altacv:1.1.1": alta // x-release-please-version
+#import "@preview/altacv:1.2.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -332,7 +332,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
-#import "@preview/altacv:1.1.1": alta, maps-providers, palettes // x-release-please-version
+#import "@preview/altacv:1.2.0": alta, maps-providers, palettes // x-release-please-version
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -473,7 +473,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.1.1": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.2.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
 ```
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
