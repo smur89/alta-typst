@@ -149,7 +149,7 @@ Each per-section entry below follows JSON Resume's schema. Tables show the pract
 
 ### Volunteer
 
-Same shape as `work[]`, but with `organization` in place of `name`.
+Same shape as `work[]`, but with `organization` (JSON Resume's spelling) in place of `name`.
 
 | Field | Type | Effect |
 |---|---|---|

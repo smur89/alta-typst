@@ -1,22 +1,21 @@
 // Source for `examples/preview.gif` — the animated README hero.
 // Seven frames, each layering a small override on top of
 // `example.typ`'s preferences baseline so the GIF reads as
-// "example.typ with one or two knobs turned" rather than "seven
-// independent configurations". Frame 1 is literally example.typ
-// minus the portrait; subsequent frames vary accent, image
-// position, column ratio, date format, and so on.
+// "example.typ with one or two knobs turned" rather than seven
+// independent configurations.
+//
+// Frame 1 is example.typ minus the portrait. Frames 2-7 each
+// re-arrange the section columns (moving work to the right,
+// pulling volunteer or interests in, dropping one section in
+// favour of another) on top of their accent / image / date
+// variations. The body layout shifts visibly frame-to-frame so
+// the GIF reads as more than just a colour cycle.
 //
 // Image presence alternates frame-to-frame: odd frames render
 // without a portrait (realistic for ATS / anti-bias CVs), even
 // frames render with one in a different position (centred above,
 // left, right). The alternation reinforces that the portrait is
 // optional — one more knob among many, not the visual anchor.
-//
-// Each frame's `leftColumnSections` + `rightColumnSections` is
-// either inherited from `example.typ`'s preferences (full section
-// list) or trimmed where needed to keep that specific frame on a
-// single page. Single-column (`columnRatio: 1`) is the only frame
-// that requires a substantial trim.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
@@ -25,19 +24,6 @@
 #import "_cv.typ": cv, no-image
 #import "example.typ": preferences as base
 
-// Section selection used by every two-column frame — trims
-// `volunteer` from example.typ's left column (the heaviest
-// secondary section the rich CV carries) so each frame fits on
-// one page. Frames that re-arrange columns more aggressively
-// (inverted layout, single column) override this with their own
-// section lists inline.
-#let trimmed-sections = (
-  leftColumnSections: ("work", "projects", "publications", "interests"),
-  rightColumnSections: (
-    "focusAreas", "skills", "languages", "education", "certificates", "awards",
-  ),
-)
-
 // Each entry is `(cv-to-render, preferences-dict)`. Frames using
 // `no-image(cv)` drop the portrait; frames using `cv` keep it.
 // Dict spread (`base + (key: value)`) is Typst's equivalent of
@@ -45,25 +31,34 @@
 // patch over the baseline.
 #let frames = (
   // ── Frame 1 ─ example.typ, no image ─────────────────────────────
-  // Identical to example.typ's output minus the portrait — the
-  // realistic baseline most users ship (ATS-friendly, anti-bias).
-  (no-image(cv), base + trimmed-sections),
+  // Baseline arrangement: work-heavy left, support sections on the
+  // right. Identical to example.typ's output minus the portrait —
+  // the realistic baseline most users ship.
+  (no-image(cv), base + (
+    leftColumnSections: ("work", "projects", "publications", "interests"),
+    rightColumnSections: (
+      "focusAreas", "skills", "languages", "education", "certificates", "awards",
+    ),
+  )),
 
-  // ── Frame 2 ─ example.typ + portrait centred above ──────────────
-  // Same configuration as frame 1, the portrait reappears stacked
-  // above a centred header text block.
-  (cv, base + trimmed-sections + (
+  // ── Frame 2 ─ same body + portrait centred above ────────────────
+  // Section arrangement matches frame 1, the portrait reappears
+  // stacked above a centred header text block. Paired with frame 1
+  // to isolate the photo-position change.
+  (cv, base + (
     imagePosition: "center",
     imageStackOrder: "above",
     headerTextAlign: "center",
+    leftColumnSections: ("work", "projects", "publications", "interests"),
+    rightColumnSections: (
+      "focusAreas", "skills", "languages", "education", "certificates", "awards",
+    ),
   )),
 
   // ── Frame 3 ─ teal + no image + inverted columns ────────────────
-  // Different accent (teal — the lib default), narrow side-panel
-  // layout (`columnRatio: 0.35`); the compact sections lead the
-  // (now narrow) left column and work + projects sit on the wide
-  // right side. Name cased naturally. Volunteer is dropped (same
-  // reason as the trimmed-sections baseline — heaviest secondary).
+  // Narrow side-panel layout (`columnRatio: 0.35`) — compact
+  // sections lead the narrow left column; work + projects +
+  // publications take the wide right side. Name cased naturally.
   (no-image(cv), base + (
     accent: palettes.teal,
     uppercaseName: false,
@@ -72,36 +67,52 @@
     rightColumnSections: ("work", "projects", "publications", "awards"),
   )),
 
-  // ── Frame 4 ─ crimson + portrait left ───────────────────────────
-  // Image on the left of the header (the mirror of the default
-  // right position).
-  (cv, base + trimmed-sections + (
+  // ── Frame 4 ─ crimson + portrait left + work flipped right ──────
+  // Image swung to the left of the header; section columns swap
+  // emphasis — the compact / support blocks lead the left column,
+  // work + projects move to the right. Demonstrates that any
+  // section can sit in any column.
+  (cv, base + (
     accent: palettes.crimson,
     imagePosition: "left",
+    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates", "awards"),
+    rightColumnSections: ("work", "projects"),
   )),
 
-  // ── Frame 5 ─ forest + no image + right-aligned ─────────────────
+  // ── Frame 5 ─ forest + no image + right-aligned + volunteer up ──
   // Header text aligned right; certificates ungrouped (flat pill
-  // strip — distinct from the default grouped issuer rows).
-  (no-image(cv), base + trimmed-sections + (
+  // strip). Volunteer + interests pulled up alongside work in the
+  // left column. Drops publications + awards to fit on one page —
+  // the volunteer arrangement is the distinctive shape here.
+  (no-image(cv), base + (
     accent: palettes.forest,
     headerTextAlign: "right",
     groupCertificates: false,
+    leftColumnSections: ("work", "volunteer", "interests"),
+    rightColumnSections: (
+      "focusAreas", "skills", "languages", "education", "certificates",
+    ),
   )),
 
-  // ── Frame 6 ─ plum + portrait right + short dates ───────────────
+  // ── Frame 6 ─ plum + portrait right + short dates + education up ─
   // Image on the right (canonical default); compact European-style
-  // `[day]/[month]/[year]` date format.
-  (cv, base + trimmed-sections + (
+  // `[day]/[month]/[year]` date format. Education + certificates
+  // promoted to the left column alongside work; the right column
+  // becomes a compact support panel.
+  (cv, base + (
     accent: palettes.plum,
     dateFormat: "[day]/[month]/[year]",
+    leftColumnSections: ("work", "education", "certificates"),
+    rightColumnSections: (
+      "focusAreas", "skills", "languages", "projects", "publications", "awards",
+    ),
   )),
 
   // ── Frame 7 ─ charcoal + no image + single column ───────────────
   // Single-column layout (`columnRatio: 1`) stacks every section
-  // vertically — the only frame that needs an aggressive section
-  // trim to fit one page. Closure-formatted dates ("Q3 2024"-style
-  // quarterly labels) round out the frame.
+  // vertically — needs an aggressive section trim to fit one page.
+  // Closure-formatted quarterly date labels ("Q3 2024") round out
+  // the frame.
   (no-image(cv), base + (
     accent: palettes.charcoal,
     columnRatio: 1,
