@@ -1,6 +1,7 @@
 // Publications with mixed `type` values group under their own
 // subheadings; entries without `type` fall into the default group
-// (labels.articles).
+// (labels.articles). Also exercises `publisher` rendering — present
+// on most entries, omitted on one to confirm the field is optional.
 
 #import "../lib.typ": alta
 
@@ -40,9 +41,9 @@
       summary: "Short field notes on running a personal blog at scale.",
     ),
     (
+      // publisher omitted → the line is skipped, only title + date render
       name: "Second Article",
       type: "Articles",
-      publisher: "Personal Blog",
       releaseDate: "Nov 2023",
       url: "https://example.com/second",
     ),
