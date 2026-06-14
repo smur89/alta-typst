@@ -4,16 +4,12 @@ Thanks for taking the time to look. This project is small enough that almost any
 
 ## Submitting a PR
 
-If you don't have write access to this repository (the default for everyone but the maintainer), the workflow is:
-
 1. Fork the repository on GitHub.
 2. Clone your fork locally and create a branch for your change.
 3. Make the changes, commit, and push to your fork.
 4. Open a Pull Request against `main` on this repository.
 
-PRs from the maintainer follow the same shape — branch off `main`, push, open a PR — but skip the fork step. Either way every change lands via PR; `main` is protected against direct pushes.
-
-Read on for setup, checks, and the conventional-commit style we use for release-please. Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) instead of as a PR or issue.
+Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) instead of as a PR or issue.
 
 ## Project layout
 
