@@ -269,7 +269,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `bodySize` | `10pt` | Base text size. Every sub-element scales from this via em-multipliers. |
 | `paper` | `"a4"` | Standard paper size — string passed to Typst's `set page(paper: ...)`. Supports `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts works. |
-| `accent` | `rgb("#00796B")` | Theme colour for headings, accent rules, tags, dots. |
+| `accent` | `palettes.teal` (`rgb("#00796B")`) | Theme colour for headings, accent rules, tags, dots. Use a built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}`, all exported from the module — or pass any `rgb(...)` value. |
 | `groupCertificates` | `true` | When true, group certificates by issuer (2+ certs from the same issuer cluster under a darker issuer-label pill; singletons across distinct issuers pool into a trailing unlabelled group). When false, render flat — each cert sits next to its own issuer label. Certificates with no `issuer` render unlabelled either way. |
 | `imageSize` | `6em` | Diameter of the circular portrait when `basics.image` is set. Ignored when no image is supplied. |
 | `imagePosition` | `"right"` | Where the portrait sits in the header — `"left"` or `"right"` (two-column header) or `"center"` (portrait on its own centred row, stacked with the text block). Ignored when no image is supplied. |
@@ -292,9 +292,14 @@ Section renderers are width-agnostic — they fill whichever column they end up 
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
+#import "@preview/altacv:1.0.0": alta, maps-providers, palettes // x-release-please-version
+
 #alta(cv, preferences: (
   paper: "us-letter",
-  accent: rgb("#1976D2"),
+  // Built-in accent preset — see the `palettes` dict for the full set
+  // (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`). Pass any
+  // `rgb(...)` value for an accent not in the curated list.
+  accent: palettes.navy,
   groupCertificates: false,
   imageSize: 7em,
   // Render the contact bar as plain text (no mailto:/tel:/maps links).
