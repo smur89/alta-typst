@@ -68,7 +68,25 @@ PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help
+# Documentation assets the README links to — single source of truth
+# shared by `make package-assets-list` (consumed by build.yml's
+# release tarball step) and `make check-readme-assets` (CI gate that
+# fails when README links and this list drift apart). Universe shows
+# README at the package version's snapshot; anything linked from
+# README must ship under packages/preview/altacv/<version>/ or the
+# link 404s. `exclude` in typst.toml keeps these files out of the
+# compiler bundle a downstream `#import` pulls.
+PACKAGE_ASSETS := \
+  examples/preview.gif \
+  examples/cv.png \
+  examples/example_full.typ \
+  examples/example_full.pdf \
+  examples/example_full-1.png \
+  examples/example_full-2.png \
+  examples/example_ga.typ \
+  examples/labels-ga.toml
+
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help package-assets-list check-readme-assets
 
 all: pdfs cv test-pdfs thumbnail
 
@@ -235,16 +253,48 @@ test-template:
 	if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
 	exit $$status
 
+# Emit `PACKAGE_ASSETS` one per line. Consumed by build.yml's tarball
+# step: `tar czf ... $$(make -s package-assets-list)`. The `-s` flag
+# suppresses Make's recipe echo so only the file list flows into the
+# command substitution.
+package-assets-list:
+	@printf '%s\n' $(PACKAGE_ASSETS)
+
+# Fail when README links `examples/...` paths that aren't in
+# `PACKAGE_ASSETS` (would 404 on Universe — the typst/packages
+# directory only ships what we tar in), or when `PACKAGE_ASSETS`
+# carries files no README link references (dead weight). Only
+# real links count — Markdown `](path)` link targets and HTML
+# `<img src="path">` values — so prose mentions inside Makefile
+# usage comments or feature descriptions aren't false positives.
+# Two sed passes instead of one with `(a|b)` keeps the recipe
+# portable across BSD sed (macOS) and GNU sed (CI).
+check-readme-assets:
+	@grep -oE '(\]\(|src=")examples/[A-Za-z0-9_./-]+\.[A-Za-z0-9]+' README.md \
+	  | sed -E 's/^\]\(//' \
+	  | sed -E 's/^src="//' \
+	  | sort -u > .readme-assets
+	@printf '%s\n' $(PACKAGE_ASSETS) | sort -u > .package-assets
+	@if ! diff -u .readme-assets .package-assets > .package-assets.diff; then \
+	  echo "::error::README examples/ links and PACKAGE_ASSETS in Makefile have drifted:"; \
+	  cat .package-assets.diff; \
+	  rm -f .readme-assets .package-assets .package-assets.diff; \
+	  exit 1; \
+	fi
+	@rm -f .readme-assets .package-assets .package-assets.diff
+	@printf 'README ↔ PACKAGE_ASSETS: %d assets, consistent.\n' "$$(printf '%s\n' $(PACKAGE_ASSETS) | wc -l | tr -d ' ')"
+
 # Alias for `make test` — matches the conceptual "CI lint" target name.
-# Composes with `test-template` so a broken starter fails the lint.
-check: test test-template
+# Composes with `test-template` and `check-readme-assets` so a broken
+# starter or a stale package-assets manifest fails the lint.
+check: test test-template check-readme-assets
 
 # Removes every generated artifact, including `examples/cv.png`. That
 # file is tracked in git for stable README image hosting, but it's
 # regenerated from `template/cv.typ` — run `make cv` (or
 # `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ .test-template-src.typ
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ .test-template-src.typ .readme-assets .package-assets .package-assets.diff
 
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \

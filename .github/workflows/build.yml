@@ -68,6 +68,14 @@ jobs:
             exit 1
           fi
 
+      # README links `examples/...` paths get shipped into the
+      # typst/packages directory at release time (see build.yml's
+      # tarball step). If the Makefile's `PACKAGE_ASSETS` list and the
+      # README's link set drift, the link 404s on Universe — catch
+      # that here, on every PR.
+      - name: Verify README ↔ PACKAGE_ASSETS consistency
+        run: make check-readme-assets
+
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and
   # inspect the rendered output without checking it out locally.
@@ -173,10 +181,14 @@ jobs:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - name: Install Typst + Lato font
+      # `ffmpeg` is needed for the preview-gif rebuild below — every
+      # release job regenerates examples/preview.gif from the tag's
+      # `lib.typ` + `examples/preview-frames.typ` so the GIF in the
+      # tarball never lags the published version's renderer.
+      - name: Install Typst + Lato font + ffmpeg
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
+          sudo apt-get install -y --no-install-recommends fonts-lato ffmpeg
           TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
           URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
           curl -sSfL "$URL" | sudo tar -xJ \
@@ -184,8 +196,8 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
-        run: make cv example-full thumbnail
+      - name: Rebuild documentation assets at the tag
+        run: make cv example-full thumbnail preview-gif
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
@@ -208,8 +220,11 @@ jobs:
       # README's local links resolve on Universe at the matching
       # version, but they are listed under `exclude` in typst.toml so
       # the compiler bundle a downstream `#import` pulls stays small.
-      # Update this list (and the README) when adding new README
-      # links — anything not listed here will 404 from Universe.
+      # The exact file list is the Makefile's `PACKAGE_ASSETS`
+      # variable, surfaced via `make -s package-assets-list`; the
+      # `check-readme-assets` lint step gates drift against the
+      # README. Update the Makefile to add a new asset — both the
+      # tarball and the consistency check pick it up automatically.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
@@ -217,11 +232,7 @@ jobs:
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
             typst.toml lib.typ internal/ sections/ icons/ template/ \
             thumbnail.png LICENSE README.md \
-            examples/preview.gif \
-            examples/cv.png \
-            examples/example_full.typ examples/example_full.pdf \
-            examples/example_full-1.png examples/example_full-2.png \
-            examples/example_ga.typ examples/labels-ga.toml
+            $(make -s package-assets-list)
 
       - name: Attach assets to release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
