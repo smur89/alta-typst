@@ -6,10 +6,10 @@
 // interests) sit on page 2 so they're still exercised by the build
 // but don't crowd the preview.
 //
-// Dates use the `years-ago` / `year-only` / `date-ago` helpers below,
-// anchored to a static `today` constant. Bump `today` annually to
-// rebase every relative date in one place — the CV always reads as
-// "current" without rewriting the example.
+// Dates use the `ago()` helper below, anchored to a static `today`
+// constant. Bump `today` annually to rebase every relative date in
+// one place — the CV always reads as "current" without rewriting
+// the example.
 //
 // Build locally with:
 //   typst compile --root .. example.typ example.pdf
@@ -17,12 +17,18 @@
 #import "../lib.typ": alta
 
 // Static anchor — bump annually so the example dates stay roughly
-// current. Every relative-date helper below derives from this so we
-// only have to edit one place.
+// current. The `ago()` helper below derives every relative date from
+// this single point so we only have to edit one place.
 #let today = datetime(year: 2026, month: 6, day: 14)
-#let years-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]")
-#let year-only(n) = (today - duration(days: 365 * n)).display("[year]")
-#let date-ago(n) = (today - duration(days: 365 * n)).display("[year]-[month]-[day]")
+#let ago(months: 0, years: 0, precision: "month") = {
+  let d = today - duration(days: 365 * years + 30 * months)
+  let fmt = (
+    year: "[year]",
+    month: "[year]-[month]",
+    day: "[year]-[month]-[day]",
+  ).at(precision)
+  d.display(fmt)
+}
 
 #let cv = (
   basics: (
@@ -53,7 +59,7 @@
       url: "https://acme.example.com",
       position: "Senior Software Engineer",
       location: "Dublin, Ireland",
-      startDate: years-ago(4),
+      startDate: ago(years: 4),
       // endDate omitted → renders as "Present"
       summary: [Platform team lead. Owns the event-sourcing stack.],
       highlights: (
@@ -65,8 +71,8 @@
       name: "Liffey Labs",
       position: "Software Engineer",
       location: "Remote",
-      startDate: years-ago(7),
-      endDate: years-ago(4),
+      startDate: ago(years: 7),
+      endDate: ago(years: 4),
       highlights: (
         [Shipped the first version of a SaaS product alongside a two-person team.],
         [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
@@ -76,8 +82,8 @@
       name: "Grand Canal Systems",
       position: "Software Engineer",
       location: "Dublin, Ireland",
-      startDate: years-ago(9),
-      endDate: years-ago(7),
+      startDate: ago(years: 9),
+      endDate: ago(years: 7),
       highlights: (
         [Led the migration of services from VMs to Kubernetes.],
       ),
@@ -99,8 +105,8 @@
       institution: "Tallaght Institute of Technology",
       url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",
-      startDate: year-only(9),
-      endDate: year-only(7),
+      startDate: ago(years: 9, precision: "year"),
+      endDate: ago(years: 7, precision: "year"),
     ),
   ),
 
@@ -108,13 +114,13 @@
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
-      date: years-ago(3),
+      date: ago(years: 3),
       url: "https://www.cncf.io/training/certification/cka/",
     ),
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
-      date: years-ago(2),
+      date: ago(years: 2),
       url: "https://www.cncf.io/training/certification/ckad/",
     ),
   ),
@@ -123,7 +129,7 @@
     (
       title: "Best Paper — Distributed Systems Track",
       awarder: "EuroSys",
-      date: years-ago(2),
+      date: ago(years: 2),
       url: "https://example.com/eurosys",
     ),
   ),
@@ -132,7 +138,7 @@
     (
       name: "Event Sourcing in Practice",
       publisher: "Personal Blog",
-      releaseDate: date-ago(2),
+      releaseDate: ago(years: 2, precision: "day"),
       url: "https://example.com/posts/event-sourcing",
     ),
   ),
@@ -146,7 +152,7 @@
       name: "open-source: kafka-idempotent",
       url: "https://example.com/projects/kafka-idempotent",
       description: "Small Scala library for idempotent consumers.",
-      startDate: years-ago(3),
+      startDate: ago(years: 3),
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (
         [Underpins the awarded EuroSys paper above.],
@@ -158,7 +164,7 @@
     (
       organization: "CoderDojo Dublin",
       position: "Mentor",
-      startDate: years-ago(6),
+      startDate: ago(years: 6),
       highlights: (
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
       ),
