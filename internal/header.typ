@@ -5,7 +5,7 @@
 // `_format_location` / `_url_encode` helpers that feed the maps deep
 // link (single-caller helpers, kept adjacent to their consumer).
 
-#import "state.typ": _body_size_state, _accent_state, _emphasis_colour
+#import "state.typ": _body_size_state, _accent_state, _spacing_scale_state, _emphasis_colour
 #import "presets.typ": maps-providers
 #import "icons.typ": icon, _profile_networks, _network_aliases
 #import "qr.typ": _resolve_qr_url, _qr_render
@@ -148,11 +148,12 @@
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
+    let scale = _spacing_scale_state.get()
 
     let header-text = align(text-align, {
       block(
         spacing: 0pt,
-        below: 1.2 * body-size,
+        below: 1.2 * scale * body-size,
         text(
           2.5 * body-size,
           fill: accent,
@@ -164,7 +165,7 @@
       if "label" in basics and basics.label != none {
         block(
           spacing: 0pt,
-          below: 0.8 * body-size,
+          below: 0.8 * scale * body-size,
           text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", basics.label),
         )
       }
@@ -300,7 +301,7 @@
     // surrounding flow).
     if image-position == "center" {
       let centred-photo = if photo != none {
-        block(width: 100%, align(center, photo))
+        block(spacing: 0.8 * scale * body-size, width: 100%, align(center, photo))
       }
       let with-qr(content) = if qr == none {
         content
@@ -365,7 +366,8 @@
   let summary = basics.at("summary", default: none)
   if summary == none or summary == "" or summary == [] { return }
   let body-size = _body_size_state.get()
-  v(0.8 * body-size)
+  let scale = _spacing_scale_state.get()
+  v(0.8 * scale * body-size)
   par(summary)
-  v(0.4 * body-size)
+  v(0.4 * scale * body-size)
 }
