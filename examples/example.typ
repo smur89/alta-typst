@@ -121,7 +121,12 @@
   ),
 
   certificates: (
-    (name: "Certified Kubernetes Administrator", issuer: "CNCF"),
+    (
+      name: "Certified Kubernetes Administrator",
+      issuer: "CNCF",
+      date: "Aug 2023",
+      url: "https://www.cncf.io/training/certification/cka/",
+    ),
   ),
 
   publications: (
