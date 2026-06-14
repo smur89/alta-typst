@@ -943,6 +943,25 @@
   }
 }
 
+// Renders the auto footer: `basics.name` flush left, "Page N / M"
+// flush right, both in body colour at 0.8em. Suppressed on
+// single-page documents so the common one-page case stays clean —
+// the page-count check is reactive (the counter resolves to the
+// final value after layout), so adding content that pushes onto a
+// second page brings the footer with it without any caller change.
+#let _auto_page_footer(name) = context {
+  let total = counter(page).final().first()
+  if total <= 1 { return }
+  let body-size = _body_size_state.get()
+  set text(0.8 * body-size, fill: _body_colour)
+  grid(
+    columns: (1fr, auto),
+    align: (left, right),
+    name,
+    [Page #counter(page).display() / #total],
+  )
+}
+
 // ─── Section catalogue + default preferences ────────────────────────
 //
 // Single source of truth for the dispatch lookup, default render order,
@@ -1046,6 +1065,10 @@
   // Fraction strictly between 0 and 1 (validated in alta()). Halving
   // it and swapping the column-section arrays gives an inverted layout.
   columnRatio: 0.64,
+  // `none` (default) — no footer. `"auto"` — name + "Page N / M" on
+  // multi-page documents only (single-page stays clean). Any content
+  // value — rendered verbatim as the footer on every page.
+  pageFooter: none,
   // Sections omitted from BOTH arrays don't render even if their data
   // is present; sections listed in both render twice. Defaults derive
   // from `_sections` so adding a section there places it automatically.
@@ -1106,6 +1129,22 @@
       "lastModifiedFooter must be a bool, got: " + repr(preferences.lastModifiedFooter),
     )
   }
+  // `pageFooter` accepts `none`, the string `"auto"`, or any content
+  // value. Any other type — bools, dicts, numbers — panics so a typo
+  // like `pageFooter: true` surfaces at the call site rather than
+  // falling through to a render-time failure inside `set page(...)`.
+  let page-footer = preferences.pageFooter
+  let footer-ok = (
+    page-footer == none
+      or page-footer == "auto"
+      or type(page-footer) == content
+  )
+  if not footer-ok {
+    panic(
+      "pageFooter must be `none`, the string \"auto\", or a content value, got: "
+        + repr(page-footer),
+    )
+  }
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -1132,14 +1171,33 @@
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
   )
   set text(body-size, font: preferences.font, fill: _body_colour)
-  let footer-content = if preferences.lastModifiedFooter and _present(last-modified-raw) {
+  // Resolve the page footer. `pageFooter` is the general mechanism and
+  // takes precedence when set; `lastModifiedFooter` is sugar for one
+  // specific use case and only applies when `pageFooter` is `none`
+  // (its default). Resulting value passed to `set page(...)`:
+  //   `none`             — no footer
+  //   auto renderer      — name + "Page N / M", multi-page only
+  //   verbatim content   — rendered on every page
+  let resolved-footer = if page-footer != none {
+    if page-footer == "auto" {
+      _auto_page_footer(cv.basics.name)
+    } else {
+      page-footer
+    }
+  } else if preferences.lastModifiedFooter and _present(last-modified-raw) {
     align(right, text(0.8 * body-size, fill: _body_colour, {
       labels.lastModified
       ": "
       last-modified-raw
     }))
-  } else { none }
-  set page(paper: preferences.paper, margin: preferences.margin, footer: footer-content)
+  } else {
+    none
+  }
+  set page(
+    paper: preferences.paper,
+    margin: preferences.margin,
+    footer: resolved-footer,
+  )
   set par(leading: 0.55em, spacing: 0.7em)
   set list(
     marker: text(0.85em, "•"),
