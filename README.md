@@ -2,8 +2,8 @@
 
 A Typst CV template inspired by LianTze Lim's [AltaCV](https://github.com/liantze/AltaCV) (LaTeX). Data-driven via a [JSON Resume](https://jsonresume.org/)-style dict; configurable theme, labels, and sections.
 
-<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). -->
-![Two-column CV rendered by the altacv template — left column shows experience; right column shows areas of focus, skills, languages, education, certifications, and publications](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.png)
+<!-- Absolute raw.githubusercontent URL so the image resolves on both GitHub and Typst Universe (the package archive excludes examples/, so a relative path would not resolve on Universe). examples/preview.png is also committed for places that don't render animated GIFs. -->
+![Animated preview of the altacv template cycling through 17 preference variations — accent palettes, image positions, column ratios, date formats, single-column layout, and more](https://raw.githubusercontent.com/smur89/alta-typst/main/examples/preview.gif)
 
 ## Installation
 
@@ -430,12 +430,14 @@ The contact bar is rendered from `basics.email`, `basics.phone`, `basics.locatio
 typst compile --root . examples/example.typ examples/example.pdf
 ```
 
-To regenerate the preview image:
+To regenerate the preview artifacts (both the static page-1 PNG and the animated GIF that cycles through preference variations):
 
 ```sh
-typst compile --root . --format png --ppi 150 examples/example.typ 'examples/preview-{p}.png'
-mv examples/preview-1.png examples/preview.png && rm examples/preview-*.png
+make example        # examples/example.pdf + examples/preview.png
+make preview-gif    # examples/preview.gif (requires ffmpeg)
 ```
+
+The GIF is sourced from `examples/preview-frames.typ` — one page per variation, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
 
 ## Credits
 
