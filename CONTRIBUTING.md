@@ -5,25 +5,15 @@ Thanks for taking the time to look. This project is small enough that almost any
 ## Project layout
 
 ```text
-lib.typ           # public entry — re-exports + `alta()` + _collect_keywords
-internal/         # shared infrastructure
-                  #   presets.typ      — palettes, maps-providers (public)
-                  #   state.typ        — state cells, colour constants
-                  #   defaults.typ     — _default_labels
-                  #   validation.typ   — _strict_merge, _check_bool
-                  #   text.typ         — _present, styled-link
-                  #   icons.typ        — icon dicts + icon()
-                  #   primitives.typ   — name, term, tag, divider, joiners
-                  #   ratings.typ      — rating system
-                  #   dates.typ        — date parse / format / range
-                  #   header.typ       — _header + _summary + location helpers
-                  #   footer.typ       — _auto_page_footer
-                  #   layout.typ       — _sections + _default_preferences
-sections/         # one renderer per dispatched CV section — the "component" layer
+lib.typ           # public entry — re-exports + `alta()`
+internal/         # shared infrastructure, one concern per file
+sections/         # one renderer per dispatched CV section
 icons/            # vendored Font Awesome SVGs
-examples/         # example CVs and shared _dates.typ helper
-tests/            # fixtures — each compiled by CI and rendered to examples/tests/*.pdf
+examples/         # example CVs + shared `_dates.typ` helper
+tests/            # fixtures — CI renders each into examples/tests/*.pdf
 ```
+
+Each `internal/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ` for a quick directory.
 
 Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
 
