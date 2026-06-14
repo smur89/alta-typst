@@ -25,6 +25,14 @@
 #   make PPI=300                 # raise preview resolution (default 150)
 #   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.4)
 
+# Delete the target of any recipe that exits non-zero. Without this,
+# a `typst compile` that writes partial output before failing leaves
+# the target on disk with mtime newer than the source, so the next
+# `make` thinks it's fresh and skips the rebuild — shipping a corrupt
+# artifact. With this, make removes partial files so the next run
+# re-fires the recipe.
+.DELETE_ON_ERROR:
+
 TYPST     ?= typst
 FFMPEG    ?= ffmpeg
 ROOT      := .
@@ -34,6 +42,14 @@ PPI       ?= 150
 # for the eye to register each frame's layout change without
 # dragging.
 PREVIEW_FPS ?= 0.4
+
+# The sed expression that swaps `#import "@preview/altacv:<version>"`
+# for an in-tree `#import "/lib.typ"` so we can compile template/cv.typ
+# locally without resolving the package against typst.app. Three
+# recipes use this — keep them in lockstep via this single source of
+# truth. The `[^"]*` wildcard tolerates whatever version-string
+# release-please writes.
+LOCAL_IMPORT_SED := s|@preview/altacv:[^"]*|/lib.typ|
 
 # Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
 # helpers `#import`-ed by the real examples — not standalone documents
@@ -51,9 +67,9 @@ PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test check clean help
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help
 
-all: pdfs cv test-pdfs
+all: pdfs cv test-pdfs thumbnail
 
 preview-gif: examples/preview.gif
 
@@ -63,14 +79,14 @@ preview-gif: examples/preview.gif
 # for why it sed-swaps the package import.
 cv: examples/cv.pdf examples/cv.png
 
-# Multi-page gallery — the rendered PDF plus per-page PNGs. PDF and
-# PNGs both depend on the same source set, so a stale PNG can no
-# longer linger when the PDF is current (a hazard of the old
-# PDF-as-stamp pattern). Listing every page would drift if content
-# grows, so we list the first two (the README's gallery embeds page
-# 1 + 2) and accept that adding a 3rd page is a deliberate edit that
-# also adds `examples/example_full-3.png` here.
-example-full: examples/example_full.pdf examples/example_full-1.png examples/example_full-2.png
+# Multi-page gallery — single PDF target whose recipe emits all
+# outputs (PDF + per-page PNGs) in one invocation. The PNGs are
+# produced as side-effects of the recipe; they appear stale only if
+# someone deletes one manually without bumping a source mtime, which
+# is rare enough to skip from the dep graph. Listing PNGs as
+# additional rule targets would be parsed as N independent rules by
+# pre-4.3 GNU Make and race under `make -j` — see commit history.
+example-full: examples/example_full.pdf
 
 # Universe package-card thumbnail. Per the typst/packages submission
 # rules, the thumbnail must depict one of the pages of the *template*
@@ -79,16 +95,14 @@ example-full: examples/example_full.pdf examples/example_full-1.png examples/exa
 #
 # template/cv.typ uses `#import "@preview/altacv:<version>"` so it
 # works after `typst init` on a user's machine, but that path doesn't
-# resolve in this repo. The recipe swaps the import to the local
-# `lib.typ`, renders page 1, and cleans up the temp source — keeping
-# template/cv.typ untouched on disk so it ships verbatim.
-#
-# The `[^"]*` pattern matches any version string so release-please
-# bumps (1.0.0 → 1.1.0 → …) don't break the rule.
+# resolve in this repo. The recipe swaps the import (via the shared
+# `$(LOCAL_IMPORT_SED)` expression) to the local `lib.typ`, renders
+# page 1, and cleans up the temp source — keeping template/cv.typ
+# untouched on disk so it ships verbatim.
 thumbnail: thumbnail.png
 
 thumbnail.png: template/cv.typ lib.typ
-	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .thumbnail-src.typ
+	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .thumbnail-src.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi 250 .thumbnail-src.typ '.thumbnail-{p}.png'
 	mv .thumbnail-1.png $@
 	rm -f .thumbnail-src.typ .thumbnail-*.png
@@ -118,19 +132,18 @@ examples/tests/%.pdf: tests/%.typ | examples/tests
 examples/%.pdf: examples/%.typ
 	$(TYPST) compile --root $(ROOT) $< $@
 
-# Explicit rule for example_full: PDF + per-page PNG gallery in one
-# recipe. The PDF is written to a `.tmp` first and only renamed to
-# its final path if the PNG compile also succeeds — so a partial
-# failure leaves `examples/example_full.pdf` stale and the rule
-# fires again on the next `make` (rather than skipping the rule
-# because a half-built PDF is newer than the source). The `{p}`
-# placeholder emits one file per page; the standard `examples/%.png`
-# rule only keeps page 1, so this is the only place that holds the
-# multi-page gallery.
-examples/example_full.pdf examples/example_full-1.png examples/example_full-2.png: examples/example_full.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
-	$(TYPST) compile --root $(ROOT) --format pdf $< examples/example_full.pdf.tmp
+# Explicit rule for example_full: a single canonical target (the PDF)
+# whose recipe also writes the per-page PNG gallery. The PNGs are
+# side-effects — they don't appear as additional rule targets because
+# pre-4.3 GNU Make would parse `A B C: deps` as N independent rules
+# and race under `make -j`. `.DELETE_ON_ERROR:` (top of file) deletes
+# partial outputs if either compile fails. `rm -f examples/example_full-*.png`
+# pre-cleans stale page PNGs so a shrink (e.g. 3-page content trimmed
+# to 2) doesn't leave an orphan example_full-3.png.
+examples/example_full.pdf: examples/example_full.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
+	rm -f examples/example_full-*.png
+	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
-	mv examples/example_full.pdf.tmp examples/example_full.pdf
 
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
 # Typst's PNG export needs a `{p}` placeholder; we render to a numbered
@@ -140,23 +153,20 @@ examples/%.png: examples/%.typ
 	mv 'examples/$*-1.png' $@
 	rm -f 'examples/$*-'*.png
 
-# The canonical demo, derived from template/cv.typ. Same sed trick as
-# `thumbnail.png` — swap the `@preview/altacv:<version>` import for
-# the local `lib.typ` so we can compile inside the repo without the
-# package installed. The PDF is gitignored (workflow / release
-# artifact); the PNG is tracked because the README references it via
-# raw.githubusercontent without a local rebuild.
-#
-# Each rule uses its own temp source file (`.cv-pdf-src.typ` /
-# `.cv-png-src.typ`) so a parallel `make -j2 cv` doesn't race on a
-# shared `.cv-src.typ`.
+# The canonical demo, derived from template/cv.typ. Each rule uses
+# the shared `$(LOCAL_IMPORT_SED)` swap to compile inside the repo
+# without the package installed. The PDF is gitignored (workflow /
+# release artifact); the PNG is tracked because the README references
+# it via raw.githubusercontent without a local rebuild. Each rule
+# uses its own temp source file (`.cv-pdf-src.typ` / `.cv-png-src.typ`)
+# so a parallel `make -j2 cv` doesn't race on a shared `.cv-src.typ`.
 examples/cv.pdf: template/cv.typ lib.typ
-	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-pdf-src.typ
+	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-pdf-src.typ
 	$(TYPST) compile --root $(ROOT) .cv-pdf-src.typ $@
 	rm -f .cv-pdf-src.typ
 
 examples/cv.png: template/cv.typ lib.typ
-	sed 's|@preview/altacv:[^"]*|/lib.typ|' template/cv.typ > .cv-png-src.typ
+	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-png-src.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
 	mv examples/cv-1.png $@
 	rm -f .cv-png-src.typ examples/cv-*.png
@@ -174,7 +184,7 @@ examples/cv.png: template/cv.typ lib.typ
 # Prerequisites include every file `preview-frames.typ` reads —
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
-examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
+examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml icons/avatar-placeholder.svg lib.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
@@ -204,15 +214,30 @@ test:
 	done; \
 	exit $$status
 
+# Compile-check `template/cv.typ` via the same sed-swap the
+# thumbnail / cv.pdf rules use. The standard `make test` sweep
+# can't reach template/cv.typ because its `@preview/altacv` import
+# won't resolve locally; this target plugs that hole so a broken
+# `typst init` starter trips before release.
+test-template:
+	@if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' template/cv.typ; \
+	else printf '  %s\n' template/cv.typ; fi
+	@sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .test-template-src.typ
+	@$(TYPST) compile --root $(ROOT) --format pdf .test-template-src.typ /dev/null; status=$$?; \
+	rm -f .test-template-src.typ; \
+	if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
+	exit $$status
+
 # Alias for `make test` — matches the conceptual "CI lint" target name.
-check: test
+# Composes with `test-template` so a broken starter fails the lint.
+check: test test-template
 
 # Removes every generated artifact, including `examples/cv.png`. That
 # file is tracked in git for stable README image hosting, but it's
 # regenerated from `template/cv.typ` — run `make cv` (or
 # `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png examples/example_full.pdf.tmp thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ .test-template-src.typ
 
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \

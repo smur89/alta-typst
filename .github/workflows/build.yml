@@ -31,7 +31,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
 
@@ -48,6 +48,13 @@ jobs:
 
       - name: Compile example + test fixtures
         run: make test
+
+      # template/cv.typ imports `@preview/altacv:<version>` and so
+      # can't be reached by `make test`; this step compile-checks it
+      # via the same sed-swap thumbnail/cv recipes use. Catches a
+      # broken `typst init` starter before release.
+      - name: Compile-check template/cv.typ
+        run: make test-template
 
       # Re-render every fixture under examples/tests/ and fail if any
       # committed PDF is out of date. Keeps the visible reference in
@@ -71,7 +78,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
 
@@ -89,12 +96,11 @@ jobs:
       - name: Build cv.pdf + cv.png + example_full.pdf
         run: make cv example-full
 
-      # `make thumbnail` regenerates the Universe package-card image
-      # from template/cv.typ (sed-swapping the @preview import). Acts
-      # as a compile-check for the typst-init starter — output isn't
-      # bit-compared since font rendering varies across systems, but
-      # a non-zero exit fails the build.
-      - name: Compile-check template/cv.typ (via thumbnail)
+      # Regenerate the Universe package-card image — also serves as
+      # a render-check (`test-template` in the lint job is the
+      # compile gate). Output isn't bit-compared since font rendering
+      # varies across systems; a non-zero exit fails the build.
+      - name: Build thumbnail.png
         run: make thumbnail
 
       - name: Upload cv.pdf
@@ -102,6 +108,14 @@ jobs:
         with:
           name: cv-pdf
           path: examples/cv.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload cv.png
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: cv-png
+          path: examples/cv.png
           retention-days: 30
           if-no-files-found: error
 
@@ -133,7 +147,7 @@ jobs:
       tag_name: ${{ steps.rp.outputs.tag_name }}
       version: ${{ steps.rp.outputs.version }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: rp
         with:
           config-file: release-please-config.json
@@ -142,8 +156,9 @@ jobs:
   # Runs only on the workflow run where release-please just created a
   # release. Builds a `altacv-<version>.tar.gz` containing the package
   # files that should be submitted to typst/packages (typst.toml,
-  # lib.typ, icons/, LICENSE, README.md) and attaches it to the
-  # release alongside example.pdf and preview.png.
+  # lib.typ, internal/, sections/, icons/, template/, thumbnail.png,
+  # LICENSE, README.md) and attaches it to the release alongside the
+  # rendered cv.pdf / cv.png / example_full.pdf.
   attach-release-artifacts:
     needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
@@ -153,7 +168,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
@@ -169,8 +184,8 @@ jobs:
             -C /usr/local/bin \
             typst-x86_64-unknown-linux-musl/typst
 
-      - name: Rebuild cv.pdf + cv.png + example_full.pdf at the tag
-        run: make cv example-full
+      - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
+        run: make cv example-full thumbnail
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
@@ -195,7 +210,7 @@ jobs:
             thumbnail.png LICENSE README.md
 
       - name: Attach assets to release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
@@ -272,7 +287,7 @@ jobs:
       # manually, so this job only ever opens version-bump PRs.
       - name: Checkout PR body template
         if: steps.check.outputs.skip != 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
           sparse-checkout: .github/typst-universe-pr-body.md

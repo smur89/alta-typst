@@ -159,12 +159,11 @@
   ),
 )
 
-// Preferences are exported so `preview-frames.typ` (the GIF source)
-// can layer per-frame overrides on top of the same baseline this
-// file renders with. Defaults applied where suitable — the
-// portrait stacks above a centred header, the rest takes the
-// template's shipped defaults (teal accent, two-column layout,
-// long-form dates).
+// Visual preferences for this starter. The portrait stacks above a
+// centred header; the rest takes the template's shipped defaults
+// (teal accent, two-column layout, long-form dates). Edit any
+// preference you like — `alta(cv, preferences: (...))` accepts any
+// subset, with unknown keys panicking so typos surface immediately.
 #let preferences = (
   imagePosition: "center",
   imageStackOrder: "above",

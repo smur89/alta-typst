@@ -30,7 +30,7 @@ make example-full # build examples/example_full.pdf + per-page gallery PNGs
 make thumbnail   # build thumbnail.png (Universe package-card image)
 make test        # compile every example + fixture (same shape as CI lint)
 make clean       # remove generated PDFs and PNGs
-make help        # list every target
+make help        # summarise the available targets
 ```
 
 `make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
