@@ -747,24 +747,59 @@
   ])
 ]
 
+// Normalises a cert into the (name, date, url) triple the renderer
+// consumes. Returns `none` for entries with no usable name so callers
+// can filter them in one pass. `date` / `url` are normalised to `none`
+// when absent or empty so downstream `!= none` checks don't render an
+// orphan date snippet or a link with an empty target.
+#let _normalise_cert(cert) = {
+  let name = cert.at("name", default: "")
+  if not _present(name) { return none }
+  let date = cert.at("date", default: none)
+  let url = cert.at("url", default: none)
+  (
+    name: name,
+    date: if _present(date) { date } else { none },
+    url: if _present(url) { url } else { none },
+  )
+}
+
 // Buckets by issuer in insertion order; multi-issuer clusters survive
 // as their own group, singletons pool into a trailing "other" group.
 // The issuer key is never rendered — it exists purely for grouping.
+// Each group carries full cert records (name + date + url) so the
+// renderer can wire links and inline dates without re-reading the source.
 #let _build_cert_groups(certs) = {
   let by-issuer = (:)
   for cert in certs {
+    let item = _normalise_cert(cert)
+    if item == none { continue }
     let issuer = cert.at("issuer", default: "")
-    let name = cert.at("name", default: "")
-    if name == "" { continue }
-    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (name,))
+    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (item,))
   }
   let groups = ()
   let singletons = ()
-  for (_, names) in by-issuer.pairs() {
-    if names.len() > 1 { groups.push(names) } else { singletons.push(names.first()) }
+  for (_, items) in by-issuer.pairs() {
+    if items.len() > 1 { groups.push(items) } else { singletons.push(items.first()) }
   }
   if singletons.len() > 0 { groups.push(singletons) }
   groups
+}
+
+// Builds a pill body containing the cert name and, when a date is
+// supplied, a middot separator + small calendar icon + date — all in
+// the pill's own text rendering. The icon and date are wrapped in a
+// box so they never break across lines; only the middot's surrounding
+// space is a valid break point if the pill has to wrap.
+#let _cert_tag(item) = context {
+  let body-size = _body_size_state.get()
+  let body = if item.date != none {
+    [#item.name#h(0.35 * body-size)·#h(0.35 * body-size)#box[#icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)#item.date]]
+  } else {
+    [#item.name]
+  }
+  let pill = tag(body)
+  if item.url != none { link(item.url, pill) } else { pill }
 }
 
 #let _certificates(certs, labels, group: true) = {
@@ -775,14 +810,17 @@
   let groups = if group {
     _build_cert_groups(certs)
   } else {
-    let names = certs.map(c => c.at("name", default: "")).filter(n => n != "")
-    if names.len() > 0 { (names,) } else { () }
+    let items = certs.map(_normalise_cert).filter(c => c != none)
+    if items.len() > 0 { (items,) } else { () }
   }
   if groups.len() == 0 { return }
   [== #labels.certificates]
-  _join_with_dividers(groups, names => block(
+  // Each pill is self-contained — the date (when present) renders
+  // inside the pill alongside the name, so all certs flow as a single
+  // row of uniformly-shaped pills regardless of which ones carry dates.
+  _join_with_dividers(groups, items => block(
     breakable: false,
-    _tag_row(names),
+    { for item in items { _cert_tag(item) } },
   ))
 }
 
