@@ -1145,8 +1145,8 @@
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
   let column-ratio = preferences.columnRatio
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio >= 1 {
-    panic("columnRatio must be a number strictly between 0 and 1, got: " + repr(column-ratio))
+  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
+    panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
   }
   let mp = preferences.mapsProvider
   if mp != none {
@@ -1317,14 +1317,27 @@
   }
 
   // Swapping the column-section arrays and inverting `columnRatio`
-  // together gives a mirrored layout.
-  let gutter = 12pt
-  let left-width = column-ratio * 100%
-  let right-width = (1 - column-ratio) * 100% - gutter
-  grid(
-    columns: (left-width, right-width),
-    column-gutter: gutter,
-    render-column(preferences.leftColumnSections),
-    render-column(preferences.rightColumnSections),
-  )
+  // together gives a mirrored layout. When `columnRatio` is exactly 1
+  // the grid collapses to a single full-width column streaming every
+  // requested section top-to-bottom in left-then-right order — so
+  // callers get a sensible single-column rendering from `columnRatio:
+  // 1` alone, without having to redistribute the default section
+  // arrays. Explicit overrides of either array still apply. When
+  // `rightColumnSections` is empty but `columnRatio < 1`, the grid
+  // also collapses to avoid a zero-width right cell.
+  if column-ratio == 1 {
+    render-column(preferences.leftColumnSections + preferences.rightColumnSections)
+  } else if preferences.rightColumnSections.len() == 0 {
+    render-column(preferences.leftColumnSections)
+  } else {
+    let gutter = 12pt
+    let left-width = column-ratio * 100%
+    let right-width = (1 - column-ratio) * 100% - gutter
+    grid(
+      columns: (left-width, right-width),
+      column-gutter: gutter,
+      render-column(preferences.leftColumnSections),
+      render-column(preferences.rightColumnSections),
+    )
+  }
 }
