@@ -89,6 +89,7 @@
   }
   _check_bool("uppercaseName", preferences.uppercaseName)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
+  _check_bool("referencesAvailableOnRequest", preferences.referencesAvailableOnRequest)
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))

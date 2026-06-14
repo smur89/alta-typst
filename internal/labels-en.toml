@@ -24,6 +24,8 @@ publications = "Publications"
 awards       = "Awards"
 projects     = "Projects"
 interests    = "Interests"
+references   = "References"
+referencesAvailableOnRequest = "References available upon request."
 
 # Cluster heading for publications without an explicit `type`.
 articles = "Articles"

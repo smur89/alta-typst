@@ -25,6 +25,9 @@
 //     type-specific icon — plus an untyped entry that falls under
 //     `labels.articles`.
 //   • Interests: structured `{name, keywords}` form.
+//   • References: a populated entry plus an anonymous (no `name`)
+//     quote — exercises the divider rule and the level-3 heading
+//     above the italic quote.
 //   • Preferences override: bundled tweaks demonstrating accent
 //     palette, ISO-date formatting, custom maps provider, page footer,
 //     and a non-default `maxRating` for the language scale.
@@ -273,6 +276,22 @@
     (name: "Travel", keywords: ("Japan", "Iceland")),
   ),
 
+  // Populated entry + an anonymous (no `name`) quote — exercises both
+  // the named-referee path and the fallback-to-bare-quote path.
+  references: (
+    (
+      name: "Dr Ada Lovelace",
+      reference: [
+        Seán is a calm, methodical engineer who left every system he
+        touched in a better state than he found it. Recommended without
+        reservation.
+      ],
+    ),
+    (
+      reference: "Pragmatic, curious, unfailingly kind — would hire again in a heartbeat.",
+    ),
+  ),
+
   // Four groups: explicit `Articles`, `Books`, `Talks`, `Conference
   // Papers`, plus one untyped entry that falls into the default
   // `labels.articles` group. Each rendered subheading carries its
@@ -332,6 +351,6 @@
   maxRating: 6,
   leftColumnSections: ("work", "volunteer", "projects", "publications", "interests"),
   rightColumnSections: (
-    "focusAreas", "skills", "languages", "education", "certificates", "awards",
+    "focusAreas", "skills", "languages", "education", "certificates", "awards", "references",
   ),
 ))

@@ -21,6 +21,7 @@
 #import "../sections/awards.typ": _awards
 #import "../sections/projects.typ": _projects
 #import "../sections/publications.typ": _publications
+#import "../sections/references.typ": _references
 
 // Defined after the renderers because Typst binds closure identifiers
 // eagerly.
@@ -73,6 +74,10 @@
   interests: (
     column: "right",
     render: (cv, labels, prefs) => _interests(cv.at("interests", default: ()), labels),
+  ),
+  references: (
+    column: "right",
+    render: (cv, labels, prefs) => _references(cv.at("references", default: ()), labels, prefs),
   ),
 )
 
@@ -137,6 +142,10 @@
   // from `_sections` so adding a section there places it automatically.
   leftColumnSections: _keys_for_column("left"),
   rightColumnSections: _keys_for_column("right"),
+  // Opt-in: emit `labels.referencesAvailableOnRequest` under the
+  // References heading when no entry has a `reference` quote, instead
+  // of suppressing the section.
+  referencesAvailableOnRequest: false,
   // Number of dots on the language fluency scale. Default 5 matches
   // LinkedIn's scale (and the built-in `fluency` string map). Override
   // to suit other scales — CEFR (6: A1–C2), ILR (5), or custom.
