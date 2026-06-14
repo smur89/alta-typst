@@ -77,6 +77,89 @@
 
 #let _contact_channels = ("email", "phone", "location", "url", "profiles")
 
+// Build the ordered list of contact-bar entries from `basics`. One
+// dict per displayed channel: `{channel, icon, value, url}`, where
+// `url` may be `none` (no deep link). Pulled out of `_header` so the
+// caller can suppress the entire bar (e.g. `preferences.anonymous`)
+// with a single conditional rather than wrapping ~90 lines in
+// `if not anonymous { ... }` and bloating the diff with pure
+// indentation churn.
+#let _build_contact_entries(basics, maps-provider) = {
+  let entries = ()
+  let email = basics.at("email", default: none)
+  if email != none {
+    entries.push((
+      channel: "email",
+      icon: "email",
+      value: email,
+      url: "mailto:" + email,
+    ))
+  }
+  let phone = basics.at("phone", default: none)
+  if phone != none {
+    // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
+    // from the dialable URI; the displayed value keeps them intact.
+    let dialable = phone.replace(regex("[\s()\-.]"), "")
+    entries.push((
+      channel: "phone",
+      icon: "phone",
+      value: phone,
+      url: "tel:" + dialable,
+    ))
+  }
+  // `_format_location` collapses the JSON Resume dict form
+  // `{address, postalCode, city, countryCode, region}` to a single
+  // line, leaves an already-flat string untouched, and returns `none`
+  // when every relevant field is empty. Both the display value and
+  // the maps deep link are fed from the same result so they cannot
+  // drift.
+  let location = _format_location(basics.at("location", default: none))
+  if location != none {
+    let url = if maps-provider == none { none } else {
+      maps-provider.replace("{q}", _url_encode(location))
+    }
+    entries.push((
+      channel: "location",
+      icon: "location",
+      value: location,
+      url: url,
+    ))
+  }
+  let url = basics.at("url", default: none)
+  if url != none {
+    entries.push((
+      channel: "url",
+      icon: "link",
+      value: url,
+      url: url,
+    ))
+  }
+  for profile in basics.at("profiles", default: ()) {
+    let raw = lower(profile.network)
+    let network = _network_aliases.at(raw, default: raw)
+    if network not in _profile_networks {
+      panic(
+        "Unknown profile network: " + repr(profile.network)
+          + ". Supported: " + _profile_networks.join(", ")
+          + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources (internal/icons.typ).",
+      )
+    }
+    entries.push((
+      channel: "profiles",
+      icon: network,
+      // Partial profiles (no `url`) keep working: the display value
+      // falls back to `url` then "", and the link wrap is gated on
+      // `entry.url != none` at the call site — using
+      // `.at("url", default: none)` instead of direct access means
+      // a profile with only `network` + `username` renders the
+      // username and skips the link.
+      value: profile.at("username", default: profile.at("url", default: "")),
+      url: profile.at("url", default: none),
+    ))
+  }
+  entries
+}
+
 // Returns a fully-populated per-channel dict so downstream code can
 // always `link-config.at(channel)` without missing-key guards.
 #let _resolve_link_config(value) = {
@@ -122,6 +205,7 @@
   link-contact-info: true,
   maps-provider: maps-providers.google,
   uppercase-name: true,
+  anonymous: false,
 ) = {
   if image-position not in ("left", "right", "center") {
     panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
@@ -148,16 +232,24 @@
     let accent = _accent_state.get()
 
     let header-text = align(text-align, {
-      block(
-        spacing: 0pt,
-        below: 1.2 * body-size,
-        text(
-          2.5 * body-size,
-          fill: accent,
-          weight: "bold",
-          if uppercase-name { upper(basics.name) } else { basics.name },
-        ),
-      )
+      // Anonymous mode suppresses name + contact bar wholesale (every
+      // channel — email, phone, location, URL, profiles — carries
+      // identifying signal; per-channel opt-out already exists via
+      // `linkContactInfo`). Only `basics.label` survives, since a
+      // role title like "Senior Software Engineer" is the only
+      // header field that conveys candidate fit without identity.
+      if not anonymous {
+        block(
+          spacing: 0pt,
+          below: 1.2 * body-size,
+          text(
+            2.5 * body-size,
+            fill: accent,
+            weight: "bold",
+            if uppercase-name { upper(basics.name) } else { basics.name },
+          ),
+        )
+      }
 
       if "label" in basics and basics.label != none {
         block(
@@ -167,98 +259,27 @@
         )
       }
 
-      set text(0.8 * body-size, weight: "bold")
-      let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
+      if not anonymous {
+        set text(0.8 * body-size, weight: "bold")
+        let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
 
-      let entries = ()
-      let email = basics.at("email", default: none)
-      if email != none {
-        entries.push((
-          channel: "email",
-          icon: "email",
-          value: email,
-          url: "mailto:" + email,
-        ))
+        // Each entry is wrapped in `box(...)` so the icon and its
+        // display text stay together when the contact bar wraps —
+        // line breaks fall on the inter-entry `h(...)` joins, never
+        // between an icon and the text it labels.
+        _build_contact_entries(basics, maps-provider)
+          .map(entry => box({
+            bar-icon(entry.icon)
+            let value = [#entry.value]
+            if link-config.at(entry.channel) and entry.url != none {
+              link(entry.url, value)
+            } else { value }
+          }))
+          .join(h(1.2 * body-size))
+        // Inherits par.spacing, so the gap stays in sync with the rest
+        // of the document even when bodySize is tweaked.
+        parbreak()
       }
-      let phone = basics.at("phone", default: none)
-      if phone != none {
-        // Strip RFC 3966 visual separators (spaces, parens, hyphens, dots)
-        // from the dialable URI; the displayed value keeps them intact.
-        let dialable = phone.replace(regex("[\s()\-.]"), "")
-        entries.push((
-          channel: "phone",
-          icon: "phone",
-          value: phone,
-          url: "tel:" + dialable,
-        ))
-      }
-      // `_format_location` collapses the JSON Resume dict form
-      // `{address, postalCode, city, countryCode, region}` to a
-      // single line, leaves an already-flat string untouched, and
-      // returns `none` when every relevant field is empty. Both the
-      // display value and the maps deep link are fed from the same
-      // result so they cannot drift.
-      let location = _format_location(basics.at("location", default: none))
-      if location != none {
-        let url = if maps-provider == none { none } else {
-          maps-provider.replace("{q}", _url_encode(location))
-        }
-        entries.push((
-          channel: "location",
-          icon: "location",
-          value: location,
-          url: url,
-        ))
-      }
-      let url = basics.at("url", default: none)
-      if url != none {
-        entries.push((
-          channel: "url",
-          icon: "link",
-          value: url,
-          url: url,
-        ))
-      }
-      for profile in basics.at("profiles", default: ()) {
-        let raw = lower(profile.network)
-        let network = _network_aliases.at(raw, default: raw)
-        if network not in _profile_networks {
-          panic(
-            "Unknown profile network: " + repr(profile.network)
-              + ". Supported: " + _profile_networks.join(", ")
-              + ". To add another, vendor its SVG into icons/ and register it in _network_icon_sources (internal/icons.typ).",
-          )
-        }
-        entries.push((
-          channel: "profiles",
-          icon: network,
-          // Partial profiles (no `url`) keep working: the display
-          // value falls back to `url` then "", and the link wrap
-          // is gated on `entry.url != none` below — using
-          // `.at("url", default: none)` instead of direct access
-          // means a profile with only `network` + `username`
-          // renders the username and skips the link.
-          value: profile.at("username", default: profile.at("url", default: "")),
-          url: profile.at("url", default: none),
-        ))
-      }
-
-      // Each entry is wrapped in `box(...)` so the icon and its
-      // display text stay together when the contact bar wraps —
-      // line breaks fall on the inter-entry `h(...)` joins, never
-      // between an icon and the text it labels.
-      entries
-        .map(entry => box({
-          bar-icon(entry.icon)
-          let value = [#entry.value]
-          if link-config.at(entry.channel) and entry.url != none {
-            link(entry.url, value)
-          } else { value }
-        }))
-        .join(h(1.2 * body-size))
-      // Inherits par.spacing, so the gap stays in sync with the rest
-      // of the document even when bodySize is tweaked.
-      parbreak()
     })
 
     let image-src = basics.at("image", default: none)
@@ -267,8 +288,10 @@
     // Anything else panics with a clear message instead of falling
     // through to a cryptic `image()` failure or — worse — silently
     // dropping the photo (which is what an empty array would do under
-    // a bare `.len()` check).
-    let has-image = if image-src == none {
+    // a bare `.len()` check). Validation runs even under `anonymous`
+    // so a malformed `basics.image` still surfaces — the anonymity
+    // toggle only suppresses rendering, never validation.
+    let image-present = if image-src == none {
       false
     } else if type(image-src) in (str, bytes) {
       image-src.len() > 0
@@ -277,6 +300,7 @@
         "basics.image must be a string path or bytes, got: " + repr(image-src),
       )
     }
+    let has-image = image-present and not anonymous
     if has-image {
       // Swapping the column order moves the photo to the opposite
       // side without changing the alignment of the text within its
