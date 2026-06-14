@@ -18,6 +18,12 @@
 //      `header-text` while the photo stays stacked above the row.
 //   7. QR with no portrait + `imagePosition: "center"` — the centred-
 //      photo slot is empty, so the text-row carries the QR alone.
+//   8. Centred portrait + QR with `imageStackOrder: "below"` — photo
+//      stacks under the text-row, QR still rides the text-row beside
+//      the contact info.
+//   9. Centred portrait + QR + `headerTextAlign: "left"` — orthogonal
+//      case: centred-photo axis preserved while header text + QR
+//      compose left-aligned in their row.
 
 #import "../lib.typ": alta
 
@@ -111,5 +117,39 @@
     qrCode: auto,
     imagePosition: "center",
     headerTextAlign: "center",
+  ),
+)
+
+#pagebreak()
+
+#alta(
+  (basics: (
+    name: "Centred Photo Below + QR",
+    label: "imageStackOrder: \"below\" — photo trails the text-row",
+    email: "qr@example.com",
+    url: "https://example.com/cv",
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
+  )),
+  preferences: (
+    qrCode: auto,
+    imagePosition: "center",
+    imageStackOrder: "below",
+    headerTextAlign: "center",
+  ),
+)
+
+#pagebreak()
+
+#alta(
+  (basics: (
+    name: "Centred Photo + Left Text + QR",
+    label: "Orthogonal axes — photo centred, header text left-aligned",
+    email: "qr@example.com",
+    url: "https://example.com/cv",
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
+  )),
+  preferences: (
+    qrCode: auto,
+    imagePosition: "center",
   ),
 )
