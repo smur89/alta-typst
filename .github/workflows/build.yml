@@ -208,8 +208,11 @@ jobs:
   #      on smur89/alta-typst.
   #
   # The job is idempotent: re-running for an already-submitted version
-  # detects the existing PR and exits cleanly. To re-submit after a
-  # maintainer rejection, close the previous PR first.
+  # detects the existing PR, captures its URL, and skips creation.
+  # Older `altacv:*` PRs we own are then auto-closed with a supersede
+  # comment pointing at the current submission — the typst/packages
+  # review queue runs slower than this repo's release cadence, so
+  # stacking version PRs wastes reviewer time and merges stale bugs.
   submit-to-typst-universe:
     needs: [release-please, attach-release-artifacts]
     if: needs.release-please.outputs.release_created == 'true'
@@ -239,8 +242,12 @@ jobs:
             --state open \
             --json url --jq '.[0].url // empty')
           if [ -n "$existing" ]; then
-            echo "PR already open: $existing — skipping"
+            echo "PR already open: $existing — skipping submission"
             echo "skip=true" >> "$GITHUB_OUTPUT"
+            # Surface the existing URL so the supersede step below can
+            # reference *this* version's PR regardless of whether we
+            # created it on this run or a previous one.
+            echo "pr_url=$existing" >> "$GITHUB_OUTPUT"
           fi
 
       # Sparse-checkout the PR-body template; full checkout would
@@ -304,14 +311,69 @@ jobs:
       # incidental $-references in the template (e.g. a stray $PATH)
       # are not silently expanded.
       - name: Open PR upstream
+        id: open
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
+          # `gh pr create` prints the new PR's URL on stdout; capture
+          # it for the supersede step below.
+          new_pr_url=$(envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
             < "$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md" \
             | gh pr create \
                 --repo "$UPSTREAM_REPO" \
                 --base main \
                 --head "${FORK_REPO%%/*}:altacv-${VERSION}" \
                 --title "altacv:${VERSION}" \
-                --body-file -
+                --body-file -)
+          echo "Opened: $new_pr_url"
+          echo "pr_url=$new_pr_url" >> "$GITHUB_OUTPUT"
+
+      # The typst/packages review queue moves slower than releases here
+      # — a v1.0.0 submission can sit pending while v1.1.0 is ready
+      # to go. Once a *newer* submission is open, the older one is
+      # stale (its bugs are fixed in the newer release, and merging
+      # both wastes reviewer time). We close every other open altacv:*
+      # PR we own with a supersede comment pointing at the current
+      # one. Runs regardless of whether this run *created* the current
+      # PR or detected it from a previous run, so a retried workflow
+      # still tidies up stragglers.
+      #
+      # Safety:
+      #   - `--author "@me"` scopes to PRs opened by the bot identity
+      #     (whoever owns TYPST_UNIVERSE_TOKEN), so we never touch
+      #     anyone else's submissions even in the unlikely case of a
+      #     name collision.
+      #   - Filtering on the head branch starting with `altacv-` is a
+      #     belt-and-braces check against any non-altacv PR the bot
+      #     might also have opened against typst/packages.
+      #   - We exclude `altacv-${VERSION}` (the current submission)
+      #     from the close list so it survives.
+      - name: Supersede earlier altacv PRs
+        env:
+          CURRENT_PR_URL: ${{ steps.check.outputs.pr_url || steps.open.outputs.pr_url }}
+        run: |
+          if [ -z "$CURRENT_PR_URL" ]; then
+            echo "No current PR URL — current-version submission did not run successfully. Skipping supersede."
+            exit 0
+          fi
+          # Command substitution propagates gh's exit code to set -e,
+          # so a transient API failure aborts the step instead of
+          # silently shipping zero stale PRs. Process substitution
+          # (`mapfile < <(gh ...)`) would mask the failure.
+          stale=$(gh pr list \
+            --repo "$UPSTREAM_REPO" \
+            --author "@me" \
+            --state open \
+            --json number,headRefName \
+            --jq ".[] | select(.headRefName | startswith(\"altacv-\")) | select(.headRefName != \"altacv-${VERSION}\") | .number")
+          if [ -z "$stale" ]; then
+            echo "No older altacv submissions open — nothing to supersede."
+            exit 0
+          fi
+          release_notes="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          for pr in $stale; do
+            body="Closing in favour of \`altacv:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
+            gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body "$body"
+            gh pr close   "$pr" --repo "$UPSTREAM_REPO"
+            echo "Superseded PR #$pr"
+          done
