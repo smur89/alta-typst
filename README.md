@@ -330,6 +330,18 @@ Example — invert the template (side panel on the narrow left, experience on th
 ))
 ```
 
+Example — opt out of links per channel (everything stays linked except phone):
+
+```typst
+#alta(cv, preferences: (
+  // Bool form would turn every contact link on or off uniformly;
+  // the dict form lets you keep some channels linked while turning
+  // others into plain text. Omitted channels stay at the default
+  // (`true` — linked).
+  linkContactInfo: (phone: false),
+))
+```
+
 ### Single-column layout
 
 Set `columnRatio: 1` to collapse the grid to a single full-width column. By default every section from both `leftColumnSections` and `rightColumnSections` streams top-to-bottom in left-then-right order — no redistribution needed. With the defaults, that order is `work → volunteer → focusAreas → skills → languages → education → certificates → awards → projects → publications → interests`:
@@ -349,18 +361,6 @@ Useful for plain CV layouts (e.g. when piping through ATS parsers that struggle 
 ```
 
 Drop the portrait via `basics.image: none` for a fully text-only header.
-
-Example — opt out of links per channel (everything stays linked except phone):
-
-```typst
-#alta(cv, preferences: (
-  // Bool form would turn every contact link on or off uniformly;
-  // the dict form lets you keep some channels linked while turning
-  // others into plain text. Omitted channels stay at the default
-  // (`true` — linked).
-  linkContactInfo: (phone: false),
-))
-```
 
 ### Labels
 
@@ -384,7 +384,9 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) so t
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
-| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` | Twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter when rendering ISO date inputs. Override to localise; the array must keep length 12. |
+| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
+
+`labels.months` carries twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens when rendering ISO date inputs. Override to localise; the array must keep length 12.
 
 Example (German + rename "Skills" to "Core Technologies"):
 

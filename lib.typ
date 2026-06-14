@@ -75,8 +75,7 @@
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
 
-// Merge user overrides over defaults, panicking on unknown keys so
-// typos in `labels` / `preferences` surface as errors instead of being
+// Panics on unknown keys so typos surface as errors instead of being
 // silently absorbed.
 #let _strict_merge(defaults, overrides, name) = {
   let unknown = overrides.keys().filter(k => k not in defaults)
@@ -87,6 +86,15 @@
     )
   }
   defaults + overrides
+}
+
+// Shared validator for bool-typed preferences — keeps panic messages
+// uniform and avoids the same five-line `if type(...) != bool` block
+// across every new pref.
+#let _check_bool(name, value) = {
+  if type(value) != bool {
+    panic(name + " must be a bool, got: " + repr(value))
+  }
 }
 
 // JSON Resume defines `basics.location` as a structured dict —
@@ -176,8 +184,9 @@
 
 // ─── Public helpers ──────────────────────────────────────────────────
 
-// Measurements default to body-size-relative values so icons scale
-// with the surrounding text.
+// Renders a vendored SVG sized to the surrounding text. Emits a small
+// trailing `h(...)` so callers don't need to add inter-icon spacing
+// themselves; suppress it by wrapping in `box(...)` if undesired.
 #let icon(name, size: auto, shift: auto, fill: auto) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
@@ -374,8 +383,8 @@
   }
 }
 
-// Renders a row of tag pills, suppressing the inter-tag gap after the
-// last one so the row doesn't end on dead horizontal space.
+// Suppresses the inter-tag gap on the final pill so rows don't end
+// in dead horizontal space.
 #let _tag_row(items) = {
   for (i, item) in items.enumerate() {
     tag(item, trailing: i < items.len() - 1)
@@ -386,6 +395,15 @@
 #let styled-link(dest, content) = context {
   let accent = _accent_state.get()
   emph(text(fill: accent, link(dest, content)))
+}
+
+// Wraps `title` in `styled-link` when a URL is supplied. Used by every
+// section renderer that wants the same "linked when possible, plain
+// when not" behaviour; the `fallback` opt-out lets callers tweak the
+// unlinked variant (e.g. `_publications` italicises the bare title).
+#let _titled_link(title, url, fallback: auto) = {
+  let plain = if fallback == auto { title } else { fallback }
+  if url != none { styled-link(url, title) } else { plain }
 }
 
 // ─── Meta helpers ────────────────────────────────────────────────────
@@ -1095,9 +1113,8 @@
   if valid.len() == 0 { return }
   [== #labels.awards]
   _join_with_dividers(valid, award => block(breakable: false, {
-    let title = award.title
     let url = award.at("url", default: none)
-    [=== #if url != none { styled-link(url, title) } else { title }]
+    [=== #_titled_link(award.title, url)]
     let awarder = award.at("awarder", default: none)
     if _present(awarder) { name[#awarder] }
     let date = award.at("date", default: none)
@@ -1116,9 +1133,8 @@
   if valid.len() == 0 { return }
   [== #labels.projects]
   _join_with_dividers(valid, project => block(breakable: false, {
-    let title = project.name
     let url = project.at("url", default: none)
-    [=== #if url != none { styled-link(url, title) } else { title }]
+    [=== #_titled_link(project.name, url)]
     let description = project.at("description", default: none)
     if _present(description) {
       // Softer than `name()` (which is bold + accent) so the
@@ -1156,7 +1172,7 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          - #if url != none { styled-link(url, title) } else { emph(title) }.
+          - #_titled_link(title, url, fallback: emph(title)).
             #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
             #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]
@@ -1187,14 +1203,11 @@
 
 // ─── Section catalogue + default preferences ────────────────────────
 //
-// Single source of truth for the dispatch lookup, default render order,
-// and default column membership. Adding a section here is enough to
-// place it in the default layout — no parallel order array to keep in
-// sync. (Still need to write the renderer and add a label key.)
-//
-// Defined *after* the section renderers because Typst closures bind
-// identifiers eagerly at creation time; insertion order doubles as
-// the default render order within each column.
+// Single source of truth for dispatch, default render order, and
+// default column membership. Adding an entry here places the section
+// in the default layout — still need to write the renderer and add a
+// `labels` key. Defined after the renderers because Typst binds
+// closure identifiers eagerly.
 #let _sections = (
   work: (
     column: "left",
@@ -1319,11 +1332,9 @@
 
 // ─── Main template ───────────────────────────────────────────────────
 //
-// Parameters:
-//   cv          — data dict following JSON Resume; see
-//                 examples/example.typ for a worked schema.
-//   labels      — partial dict; merged over `_default_labels`.
-//   preferences — partial dict; merged over `_default_preferences`.
+// `cv` follows the JSON Resume schema (see `examples/example.typ`).
+// `labels` and `preferences` are partial dicts merged over the
+// defaults; unknown keys panic.
 #let alta(
   cv,
   labels: (:),
@@ -1350,19 +1361,11 @@
       )
     }
   }
-  if type(preferences.uppercaseName) != bool {
-    panic(
-      "uppercaseName must be a bool, got: " + repr(preferences.uppercaseName),
-    )
-  }
+  _check_bool("uppercaseName", preferences.uppercaseName)
+  _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
-  }
-  if type(preferences.lastModifiedFooter) != bool {
-    panic(
-      "lastModifiedFooter must be a bool, got: " + repr(preferences.lastModifiedFooter),
-    )
   }
   // `pageFooter` accepts `none`, the string `"auto"`, or any content
   // value. Any other type — bools, dicts, numbers — panics so a typo
