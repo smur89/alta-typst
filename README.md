@@ -385,6 +385,29 @@ Reorder by overriding either array; both are concatenated in order:
 
 Drop the portrait via `basics.image: none` for a fully text-only header.
 
+### Theme presets
+
+`themes` is a dict of vetted preset bundles — coherent combinations of `accent`, `font`, `columnRatio`, and `headerTextAlign` that are tedious to dial in by hand. Each theme is a partial `preferences` dict; spread it over your own overrides:
+
+```typst
+#import "@preview/altacv:1.1.1": alta, themes // x-release-please-version
+
+#alta(cv, preferences: themes.modern)
+
+// Spread + override: any preferences key (built-in or theme) can be
+// tweaked after the spread, so you keep the theme's identity but
+// adjust individual knobs.
+#alta(cv, preferences: themes.modern + (imageSize: 7em))
+```
+
+| Theme | Accent | Font | Layout |
+|---|---|---|---|
+| `classic` | `palettes.teal` | `Lato` | 64/36 split, left-aligned header |
+| `modern` | `palettes.navy` | `Inter` | 50/50 split, centred header |
+| `minimal` | `palettes.charcoal` | `Source Sans 3` | 55/45 split, left-aligned header |
+
+Themes only touch keys that interact visually — anything they don't set (paper, margins, image sizing, section order, …) falls back to `_default_preferences`. The `Inter` and `Source Sans 3` fonts must be installed on the build host; missing fonts fall back to Typst's defaults rather than panicking, so a missing font yields a warning but still renders.
+
 ### Labels
 
 All display strings the template emits. Override any subset via `labels:`; the rest fall back to English defaults. Unknown keys panic. Use for translation or local renaming.
@@ -470,10 +493,11 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 | `divider()` | Dashed grey rule used between entries within a section. |
 | `styled-link(content, dest: none)` | Accent-coloured italic styling for entry titles (publications, awards, projects). Wraps in a link when `dest` is supplied. |
 | `palettes` | Dict of curated accent presets — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`. Use as `accent: palettes.navy`. |
+| `themes` | Dict of vetted preset bundles — `classic`, `modern`, `minimal`. Each is a partial `preferences` dict combining accent, font, and layout. Use as `preferences: themes.modern`. |
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.1.1": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.1.1": alta, tag, divider, palettes, themes, maps-providers // x-release-please-version
 ```
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
