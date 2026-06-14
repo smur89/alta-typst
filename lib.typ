@@ -1246,11 +1246,11 @@
     render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels, prefs),
   ),
   projects: (
-    column: "right",
+    column: "left",
     render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels, prefs),
   ),
   publications: (
-    column: "right",
+    column: "left",
     render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels, prefs),
   ),
   interests: (

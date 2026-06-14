@@ -31,8 +31,7 @@
     url: "https://seanomurchu.dev",
     image: read("avatar-placeholder.svg", encoding: none),
     profiles: (
-      (network: "LinkedIn", username: "seanomurchu", url: "https://linkedin.com/in/seanomurchu"),
-      (network: "GitHub",   username: "seanomurchu", url: "https://github.com/seanomurchu"),
+      (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
     ),
   ),
 
@@ -52,7 +51,6 @@
       highlights: (
         [Migrated a customer-facing monolith to event-driven services, halving p99 latency.],
         [Rolled out an event-sourcing platform now used by four product teams.],
-        [Mentored three engineers from mid to senior.],
       ),
     ),
     (
@@ -129,13 +127,6 @@
       releaseDate: "2024-06-15",
       url: "https://example.com/posts/event-sourcing",
     ),
-    (
-      name: "Idempotent Kafka Consumers at Scale",
-      publisher: "EuroSys 2024",
-      releaseDate: "2024-04",
-      type: "Conference Papers",
-      url: "https://example.com/eurosys-2024-paper",
-    ),
   ),
 
   // The sections below sit on page 2 of the rendered PDF; they're
@@ -150,7 +141,7 @@
       startDate: "2023-09",
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (
-        [Featured in the awarded EuroSys paper above.],
+        [Underpins the awarded EuroSys paper above.],
       ),
     ),
   ),
@@ -172,12 +163,4 @@
   ),
 )
 
-#alta(cv, preferences: (
-  // Surface publications above projects so the type-grouped subheading
-  // ("Articles", "Conference Papers") feature lands in the page-1
-  // preview alongside awards. Projects falls to page 2.
-  rightColumnSections: (
-    "focusAreas", "skills", "languages", "education",
-    "certificates", "awards", "publications", "projects", "interests",
-  ),
-))
+#alta(cv)
