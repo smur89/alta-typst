@@ -24,25 +24,27 @@ Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflo
 Most everyday tasks go through the `Makefile`:
 
 ```sh
-make            # build every example PDF + the README preview image
-make example    # build examples/example.pdf + examples/preview.png
-make test       # compile every example + fixture (same shape as CI lint)
-make clean      # remove generated PDFs and PNGs
-make help       # list every target
+make             # build every example PDF + cv preview + per-fixture PDFs
+make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
+make example-full # build examples/example_full.pdf + per-page gallery PNGs
+make thumbnail   # build thumbnail.png (Universe package-card image)
+make test        # compile every example + fixture (same shape as CI lint)
+make clean       # remove generated PDFs and PNGs
+make help        # summarise the available targets
 ```
 
-`make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/preview.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+`make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
 
 If you'd rather drive Typst directly, the manual incantations are:
 
 ```sh
-typst compile --root . examples/example.typ examples/example.pdf
+typst compile --root . examples/example_full.typ examples/example_full.pdf
 for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
 ```
 
 `--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
 
-CI runs the same compile sweep on every PR and uploads `example-pdf` and `preview-png` artifacts, so reviewers can see your output without checking out locally.
+CI runs the same compile sweep on every PR and uploads `cv-pdf` and `example-full-pdf` artifacts, so reviewers can see your output without checking out locally.
 
 ## Conventional commits
 

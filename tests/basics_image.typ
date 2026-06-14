@@ -20,7 +20,7 @@
     label: "Senior Software Engineer",
     email: "jane@example.com",
     location: "Dublin, Ireland",
-    image: read("../examples/avatar-placeholder.svg", encoding: none),
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
   ),
 ))
 
@@ -33,7 +33,7 @@
     email: "path@example.com",
     // Root-relative path. The leading "/" anchors resolution to the
     // --root directory rather than the caller's file location.
-    image: "/examples/avatar-placeholder.svg",
+    image: "/icons/avatar-placeholder.svg",
   ),
 ))
 
@@ -44,7 +44,7 @@
     name: "Large Photo",
     label: "imageSize: 8em override",
     email: "large@example.com",
-    image: read("../examples/avatar-placeholder.svg", encoding: none),
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (imageSize: 8em),
 )
@@ -56,7 +56,7 @@
     name: "Left Photo, Default Text",
     label: "Photo flipped; text stays left-aligned",
     email: "left@example.com",
-    image: read("../examples/avatar-placeholder.svg", encoding: none),
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (imagePosition: "left"),
 )
@@ -68,7 +68,7 @@
     name: "Left Photo, Right-Aligned Text",
     label: "Mirrored look — text hugs the right edge",
     email: "mirror@example.com",
-    image: read("../examples/avatar-placeholder.svg", encoding: none),
+    image: read("../icons/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     imagePosition: "left",
