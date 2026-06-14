@@ -388,6 +388,20 @@ Example — German, plus renaming "Skills" to "Core Technologies":
 ))
 ```
 
+#### Translation workflow
+
+The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a plain resource file a translator can be handed without learning Typst syntax. For full translations, copy that file, translate the values, and load it at the call site with the built-in `toml(...)`:
+
+```typst
+// Inline partial overrides — best for one-off renames or a few keys.
+#alta(cv, labels: (work: "Berufserfahrung", skills: "Core Technologies"))
+
+// File-based — best for full translations or strings owned by a translator.
+#alta(cv, labels: toml("labels-ga.toml"))
+```
+
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](examples/example_ga.typ) for a worked Irish translation.
+
 ### Helpers
 
 `alta()` uses these internally; importing them lets you compose a custom section (or preview a single helper in isolation):
