@@ -77,6 +77,19 @@ jobs:
             exit 1
           fi
 
+      # TEMP: upload the freshly-rendered fixtures so a maintainer on a
+      # non-Linux host can download a byte-exact set of PDFs when the
+      # local toolchain produces different font subsets than the CI
+      # runner. Remove once the artifacts are back in sync.
+      - name: Upload regenerated test fixtures (debug)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tests-pdf-regen
+          path: examples/tests/
+          retention-days: 7
+          if-no-files-found: error
+
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and
   # inspect the rendered output without checking it out locally.
