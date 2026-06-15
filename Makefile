@@ -23,7 +23,6 @@
 # Tool overrides:
 #   make TYPST=/path/to/typst    # use a non-default typst binary
 #   make FFMPEG=/path/to/ffmpeg  # use a non-default ffmpeg binary
-#   make FONT_PATH=/extra/fonts  # override the vendored FontAwesome dir
 #   make PPI=300                 # raise preview resolution (default 150)
 #   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.4)
 
@@ -38,13 +37,6 @@
 TYPST     ?= typst
 FFMPEG    ?= ffmpeg
 ROOT      := .
-# The vendored FontAwesome 6 Brands + Free Solid TTFs (used by
-# `internal/icons.typ`) live under `fonts/`. Typst's package system
-# does not auto-discover fonts inside an installed package, so every
-# `typst compile` invocation that renders an icon must point at this
-# directory via `--font-path`. Users compiling outside this Makefile
-# need the same flag, or the fonts installed system-wide.
-FONT_PATH ?= fonts
 PPI       ?= 150
 # Animated-preview frame rate. `ffmpeg`'s `-framerate` is the
 # inverse of seconds-per-frame, so 0.4 → 2.5s/frame — long enough
@@ -125,7 +117,7 @@ thumbnail: thumbnail.png
 
 thumbnail.png: template/cv.typ lib.typ
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .thumbnail-src.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format png --ppi $(THUMB_PPI) .thumbnail-src.typ '.thumbnail-{p}.png'
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(THUMB_PPI) .thumbnail-src.typ '.thumbnail-{p}.png'
 	mv .thumbnail-1.png $@
 	rm -f .thumbnail-src.typ .thumbnail-*.png
 
@@ -148,11 +140,11 @@ examples/tests:
 	mkdir -p $@
 
 examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
-	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --font-path $(FONT_PATH) $< $@
+	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) $< $@
+	$(TYPST) compile --root $(ROOT) $< $@
 
 # Explicit rule for example_full: a single canonical target (the PDF)
 # whose recipe also writes the per-page PNG gallery. The PNGs are
@@ -164,14 +156,14 @@ examples/%.pdf: examples/%.typ
 # to 2) doesn't leave an orphan example_full-3.png.
 examples/example_full.pdf: examples/example_full.typ examples/_dates.typ assets/avatar-placeholder.svg lib.typ
 	rm -f examples/example_full-*.png
-	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --font-path $(FONT_PATH) --format pdf $< $@
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
+	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
 
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
 # Typst's PNG export needs a `{p}` placeholder; we render to a numbered
 # temp file, move page 1 to the unsuffixed name, and drop the rest.
 examples/%.png: examples/%.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format png --ppi $(PPI) $< 'examples/$*-{p}.png'
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/$*-{p}.png'
 	mv 'examples/$*-1.png' $@
 	rm -f 'examples/$*-'*.png
 
@@ -184,12 +176,12 @@ examples/%.png: examples/%.typ
 # so a parallel `make -j2 cv` doesn't race on a shared `.cv-src.typ`.
 examples/cv.pdf: template/cv.typ lib.typ
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-pdf-src.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) .cv-pdf-src.typ $@
+	$(TYPST) compile --root $(ROOT) .cv-pdf-src.typ $@
 	rm -f .cv-pdf-src.typ
 
 examples/cv.png: template/cv.typ lib.typ
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-png-src.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
 	mv examples/cv-1.png $@
 	rm -f .cv-png-src.typ examples/cv-*.png
 
@@ -207,7 +199,7 @@ examples/cv.png: template/cv.typ lib.typ
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
 examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml assets/avatar-placeholder.svg lib.typ
-	$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
 	  -loop 0 -y $@
@@ -226,7 +218,7 @@ test:
 	for f in $(EXAMPLES) $(TESTS); do \
 	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$f"; \
 	  else printf '  %s\n' "$$f"; fi; \
-	  if ! $(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format pdf "$$f" /dev/null; then \
+	  if ! $(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null; then \
 	    if [ -n "$$GITHUB_ACTIONS" ]; then \
 	      printf '::error file=%s::compile failed\n' "$$f"; \
 	    fi; \
@@ -245,7 +237,7 @@ test-template:
 	@if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' template/cv.typ; \
 	else printf '  %s\n' template/cv.typ; fi
 	@sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .test-template-src.typ
-	@$(TYPST) compile --root $(ROOT) --font-path $(FONT_PATH) --format pdf .test-template-src.typ /dev/null; status=$$?; \
+	@$(TYPST) compile --root $(ROOT) --format pdf .test-template-src.typ /dev/null; status=$$?; \
 	rm -f .test-template-src.typ; \
 	if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
 	exit $$status
@@ -265,4 +257,4 @@ help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
 	  '         pdfs | previews | test-pdfs | test (alias: check) | clean' \
 	  'Per-target detail: see the header comment in this Makefile.' \
-	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg FONT_PATH=fonts PPI=300 PREVIEW_FPS=1'
+	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1'

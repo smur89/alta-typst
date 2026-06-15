@@ -229,7 +229,7 @@
           panic(
             "Unknown profile network: " + repr(profile.network)
               + ". Supported: " + _profile_networks.join(", ")
-              + ". To add another, register its FontAwesome glyph in _network_icon_glyphs (internal/icons.typ).",
+              + ". To add another, register its FontAwesome glyph in _network_icons (internal/icons.typ).",
           )
         }
         entries.push((

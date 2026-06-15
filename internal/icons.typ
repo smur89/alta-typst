@@ -1,58 +1,65 @@
-// FontAwesome 6 Free glyph renderer. The TTFs under `fonts/` ship
-// with the package — Brands for brand marks (GitHub, LinkedIn, …)
-// and Free Solid for utility icons (envelope, calendar, location, …).
-// `typst compile --font-path fonts` (or the default discovery when
-// the package root is the project root) picks them up; no system
-// font install is required.
+// FontAwesome icon renderer. Delegates the actual glyph lookup +
+// font selection to `@preview/fontawesome` (`fa-icon(name, solid:
+// ...)`), so this file owns only:
 //
-// `icon(name)` resolves a logical name to a (font, codepoint) pair
-// and renders it as a sized, baseline-shifted text glyph, so colour
-// and size flow through the standard Typst text model rather than
-// through SVG-attribute munging.
+//   * the logical-name → FA-glyph-name table (utility + network)
+//   * the contact-bar sizing / colour / baseline-shift wrapper
+//
+// `fa-icon` resolves the glyph against the desktop FA fonts at
+// compile time. They are not vendored — users must have FontAwesome
+// installed locally (brew/apt/manual) or be compiling on typst.app,
+// which ships the FA fonts in its preinstalled set.
 
+#import "@preview/fontawesome:0.6.1": fa-icon
 #import "state.typ": _body_size_state, _body_colour
 
-#let _fa_brands_font = "Font Awesome 6 Brands"
-#let _fa_solid_font = "Font Awesome 6 Free Solid"
-
-// Utility icons (Free Solid). The keys match the names the rest of
-// the template uses internally; renaming a key here is a breaking
-// change for any caller of the public `icon(...)` function.
-#let _utility_icon_glyphs = (
-  book: (font: _fa_solid_font, glyph: "\u{f02d}"),
-  calendar: (font: _fa_solid_font, glyph: "\u{f133}"),
-  email: (font: _fa_solid_font, glyph: "\u{f0e0}"),
-  file: (font: _fa_solid_font, glyph: "\u{f15b}"),
+// Utility icons. All resolve to the FA Free Solid font (passed via
+// `solid: true`). Values are FA glyph names from the canonical
+// FontAwesome catalogue — see https://fontawesome.com/search.
+// Keys are the logical names the rest of the template uses; renaming
+// a key here is a breaking change for any caller of the public
+// `icon(...)` function.
+#let _utility_icons = (
+  book: "book",
+  calendar: "calendar",
+  email: "envelope",
+  file: "file",
   // FA renamed `map-marker-alt` → `location-dot` in 6.x.
-  location: (font: _fa_solid_font, glyph: "\u{f3c5}"),
-  microphone: (font: _fa_solid_font, glyph: "\u{f130}"),
-  newspaper: (font: _fa_solid_font, glyph: "\u{f1ea}"),
-  phone: (font: _fa_solid_font, glyph: "\u{f095}"),
+  location: "location-dot",
+  microphone: "microphone",
+  newspaper: "newspaper",
+  phone: "phone",
 )
 
 // Profile-network icons. Keys are lowercase to match
-// `lower(profile.network)` in `internal/header.typ`. To add a network,
-// pick the FA Brands glyph from
-// https://fontawesome.com/v6/cheatsheet/free/brands and add a row;
-// no font install is needed because the Brands TTF ships with the
-// package. `link` and `website` use the Free Solid font (they aren't
-// brand marks); everything else is a Brands glyph.
-#let _network_icon_glyphs = (
-  bluesky: (font: _fa_brands_font, glyph: "\u{e671}"),
-  github: (font: _fa_brands_font, glyph: "\u{f09b}"),
-  gitlab: (font: _fa_brands_font, glyph: "\u{f296}"),
-  link: (font: _fa_solid_font, glyph: "\u{f0c1}"),
-  linkedin: (font: _fa_brands_font, glyph: "\u{f08c}"),
-  mastodon: (font: _fa_brands_font, glyph: "\u{f4f6}"),
-  medium: (font: _fa_brands_font, glyph: "\u{f23a}"),
-  stackoverflow: (font: _fa_brands_font, glyph: "\u{f16c}"),
-  twitter: (font: _fa_brands_font, glyph: "\u{f099}"),
-  // FA Free Solid `globe` — generic "this is a website" mark.
-  website: (font: _fa_solid_font, glyph: "\u{f0ac}"),
+// `lower(profile.network)` in `internal/header.typ`. Values are
+// canonical FA glyph names; the FA Brands font resolves them
+// automatically via the fallback list `fa-icon` consults. `link`
+// and `website` resolve to Free Solid glyphs (they aren't brand
+// marks) — encoded by the `is-brand` flag below.
+#let _network_icons = (
+  bluesky: "bluesky",
+  github: "github",
+  gitlab: "gitlab",
+  link: "link",
+  linkedin: "linkedin",
+  mastodon: "mastodon",
+  medium: "medium",
+  stackoverflow: "stack-overflow",
+  twitter: "twitter",
+  // Generic "this is a website" mark — FA Free Solid `globe`.
+  website: "globe",
 )
 
-#let _icon_glyphs = _utility_icon_glyphs + _network_icon_glyphs
-#let _profile_networks = _network_icon_glyphs.keys()
+// Track which logical names are utility (solid) vs brand glyphs so
+// `icon(name)` can flip `solid:` correctly. `link` and `website`
+// live in `_network_icons` (they're profile-bar fallbacks) but
+// render from Free Solid; everything else in `_network_icons` is a
+// brand mark.
+#let _solid_names = _utility_icons.keys() + ("link", "website")
+
+#let _icon_glyphs = _utility_icons + _network_icons
+#let _profile_networks = _network_icons.keys()
 
 // Maps renamed networks onto the icon we still ship under the old
 // name. The lookup happens after `lower(profile.network)`.
@@ -73,18 +80,19 @@
   let resolved-shift = if shift == auto { 0.15 * body-size } else { shift }
   let resolved-fill = if fill == auto { _body_colour } else { fill }
 
-  let entry = _icon_glyphs.at(name)
+  let glyph = _icon_glyphs.at(name)
+  let solid = name in _solid_names
   box(
     baseline: resolved-shift,
     width: resolved-size,
     height: resolved-size,
     align(
       center + horizon,
-      text(
-        font: entry.font,
+      fa-icon(
+        glyph,
+        solid: solid,
         size: 0.9 * resolved-size,
         fill: resolved-fill,
-        entry.glyph,
       ),
     ),
   )
