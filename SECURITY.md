@@ -8,7 +8,7 @@ Instead, open a private report via [GitHub Security Advisories](https://github.c
 
 ## Scope
 
-`altacv` is a Typst template — it renders user-supplied data to PDF/HTML. The most realistic attack surface is malicious input crafted to exploit a `typst` runtime bug; please report those upstream at [typst/typst](https://github.com/typst/typst/security). Issues *specific* to this template (e.g. an icon lookup that reads outside `icons/`, or a label string that is interpreted unsafely) are in scope here.
+`altacv` is a Typst template — it renders user-supplied data to PDF/HTML. The most realistic attack surface is malicious input crafted to exploit a `typst` runtime bug; please report those upstream at [typst/typst](https://github.com/typst/typst/security). Issues *specific* to this template (e.g. an icon lookup that reads outside the bundled `fonts/` / `assets/` directories, or a label string that is interpreted unsafely) are in scope here.
 
 ## Supported versions
 

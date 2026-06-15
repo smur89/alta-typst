@@ -23,7 +23,7 @@
       phone: "+353 1 555 0100",
       location: "Dublin, Ireland",
       // Photo placed on the LEFT to match the column inversion below.
-      image: read("../icons/avatar-placeholder.svg", encoding: none),
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
       profiles: (
         (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
         (network: "GitHub",   username: "janedoe", url: "https://github.com/janedoe"),

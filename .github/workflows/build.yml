@@ -156,9 +156,9 @@ jobs:
   # Runs only on the workflow run where release-please just created a
   # release. Builds a `altacv-<version>.tar.gz` containing the package
   # files that should be submitted to typst/packages (typst.toml,
-  # lib.typ, internal/, sections/, icons/, template/, thumbnail.png,
-  # LICENSE, README.md) and attaches it to the release alongside the
-  # rendered cv.pdf / cv.png / example_full.pdf.
+  # lib.typ, internal/, sections/, fonts/, assets/, template/,
+  # thumbnail.png, LICENSE, README.md) and attaches it to the release
+  # alongside the rendered cv.pdf / cv.png / example_full.pdf.
   attach-release-artifacts:
     needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
@@ -196,6 +196,14 @@ jobs:
       # `#import`s; they must ship with the package or compile fails
       # at the user's site with "file not found".
       #
+      # `fonts/` carries the vendored FontAwesome 6 Brands + Free Solid
+      # TTFs that `internal/icons.typ` renders contact-bar and section
+      # icons from. They must ship with the package; users compiling
+      # locally point Typst at them via `--font-path` (or install
+      # FontAwesome 6 Free system-wide). `assets/` carries the bundled
+      # avatar-placeholder SVG re-exported as `avatar-placeholder` from
+      # `lib.typ`.
+      #
       # `template/` provides the starter project that `typst init
       # @preview/altacv` copies to the user; `thumbnail.png` is the
       # image Typst Universe displays on the package card. Both are
@@ -215,7 +223,7 @@ jobs:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
-            typst.toml lib.typ internal/ sections/ icons/ template/ \
+            typst.toml lib.typ internal/ sections/ fonts/ assets/ template/ \
             thumbnail.png LICENSE README.md \
             examples/preview.gif \
             examples/cv.png \
@@ -295,7 +303,7 @@ jobs:
           fi
 
       # Sparse-checkout the PR-body template; full checkout would
-      # pull lib.typ and icons we don't need in this job. The body
+      # pull lib.typ and fonts we don't need in this job. The body
       # uses the slim "update" variant of typst/packages' PR
       # template — the first submission of altacv was opened
       # manually, so this job only ever opens version-bump PRs.

@@ -57,7 +57,7 @@
     label: "QR left, photo right",
     email: "qr@example.com",
     url: "https://example.com/cv",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (qrCode: auto),
 )
@@ -70,7 +70,7 @@
     label: "Photo left, QR right",
     email: "qr@example.com",
     url: "https://example.com/cv",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (qrCode: auto, imagePosition: "left"),
 )
@@ -95,7 +95,7 @@
     label: "QR pins top-left next to the photo, text below",
     email: "qr@example.com",
     url: "https://example.com/cv",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     qrCode: auto,
@@ -128,7 +128,7 @@
     label: "imageStackOrder: \"below\" — photo trails the text block",
     email: "qr@example.com",
     url: "https://example.com/cv",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     qrCode: auto,
@@ -146,7 +146,7 @@
     label: "Orthogonal axes — photo centred, header text left-aligned",
     email: "qr@example.com",
     url: "https://example.com/cv",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     qrCode: auto,

@@ -17,7 +17,8 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 lib.typ           # public entry — re-exports + `alta()`
 internal/         # shared infrastructure, one concern per file
 sections/         # one renderer per dispatched CV section
-icons/            # vendored Font Awesome SVGs
+fonts/            # vendored Font Awesome 6 Brands + Free Solid TTFs (OFL 1.1)
+assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` helper
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
 ```
@@ -28,7 +29,7 @@ Modules under `internal/` are leading-underscore private; only what `lib.typ` re
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. The `Lato` font must be installed for the example to render correctly.
+Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. The `Lato` font must be installed for the example to render correctly. FontAwesome 6 Free is shipped under `fonts/`; the `Makefile` passes `--font-path fonts` automatically, so no extra install is needed when you drive builds through `make`. Drive `typst compile` directly only with `--font-path fonts` (or with FontAwesome 6 Free installed system-wide), otherwise icons render as tofu.
 
 Most everyday tasks go through the `Makefile`:
 
@@ -47,11 +48,11 @@ make help        # summarise the available targets
 If you'd rather drive Typst directly, the manual incantations are:
 
 ```sh
-typst compile --root . examples/example_full.typ examples/example_full.pdf
-for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
+typst compile --root . --font-path fonts examples/example_full.typ examples/example_full.pdf
+for f in tests/*.typ; do typst compile --root . --font-path fonts --format pdf "$f" /dev/null; done
 ```
 
-`--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
+`--font-path fonts` is required for the FontAwesome icons; the `Makefile` injects it for you. `--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
 
 CI runs the same compile sweep on every PR and uploads `cv-pdf` and `example-full-pdf` artifacts, so reviewers can see your output without checking out locally.
 
@@ -70,13 +71,12 @@ PRs squash-merge with the PR title as the commit subject, so just make the **PR 
 
 ## Adding a profile-network icon
 
-This is the most common shape of contribution. Three changes:
+This is the most common shape of contribution. Two changes:
 
-1. Vendor a single-path SVG into `icons/<name>.svg`. The `fill="#666666"` attribute must be baked into the path — see `icons/github.svg` for the exact format. [Font Awesome Free](https://fontawesome.com/) (CC BY 4.0) is the existing source.
-2. Register the key in `_network_icon_sources` in `internal/icons.typ`. Use the lowercase form; the lookup `lower(profile.network)` normalises the caller's spelling.
-3. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
+1. Add a row to `_network_icon_glyphs` in `internal/icons.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and look the glyph up on the [FontAwesome 6 Brands cheatsheet](https://fontawesome.com/v6/cheatsheet/free/brands) — copy the `\u{...}` codepoint and wrap it in `(font: _fa_brands_font, glyph: "\u{...}")`. The Brands TTF already ships under `fonts/`, so no extra asset is needed.
+2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
-`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network.
+`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If you need a non-brand glyph (e.g. a generic globe-style fallback), use `_fa_solid_font` instead and pull the codepoint from the [Free Solid cheatsheet](https://fontawesome.com/v6/cheatsheet/free/solid).
 
 ## Adding a section, preference, or label
 

@@ -48,14 +48,16 @@ Or `#import` it from an existing `.typ`:
 
 ## Fonts
 
-The default font is **Lato**. The Typst web app has it preinstalled — local users need it on the system font path, or pass `preferences.font` to override.
+The default body font is **Lato**. The Typst web app has it preinstalled — local users need it on the system font path, or pass `preferences.font` to override.
 
 - **Web app**: works out of the box.
 - **Local (Linux)**: `sudo apt-get install fonts-lato` (or your distro's equivalent).
 - **Local (macOS/Windows)**: download from [Google Fonts](https://fonts.google.com/specimen/Lato) and install.
 - **Other fonts**: any installed system font works — `#alta(cv, preferences: (font: "Inter"))`.
 
-Run `typst fonts` to list what Typst can see on your system.
+The contact-bar and section icons are rendered from FontAwesome 6 Free (Brands + Solid). The TTFs ship inside the package under `fonts/`, so no separate font install is needed — the bundled `Makefile` passes `--font-path fonts` for you. If you drive `typst compile` directly, add `--font-path /path/to/altacv/fonts` (or install FontAwesome 6 Free system-wide). On the Typst web app the fonts are part of the preinstalled set and resolve without setup.
+
+Run `typst fonts` to list what Typst can see on your system; add `--font-path fonts` to include the vendored ones.
 
 ## Quick start
 
@@ -292,7 +294,9 @@ When `references[]` is empty (or every entry lacks a `reference`) and `preferenc
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `internal/icons.typ`.
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, map the new key to its FontAwesome 6 Brands codepoint in `_network_icon_glyphs` (`internal/icons.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
+
+Icons are rendered from the FontAwesome 6 Free TTFs vendored under `fonts/` (Brands TTF for brand marks, Free Solid TTF for the utility icons used in the contact bar and section accents). No system font install is required when you compile through the bundled `Makefile`, which passes `--font-path fonts` for you; if you call `typst compile` directly, add `--font-path /path/to/altacv/fonts` (or install FontAwesome 6 Free system-wide). On typst.app the fonts are already part of the web compiler's font set, so no setup is needed there.
 
 ### PDF metadata
 
@@ -489,7 +493,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 
 | Helper | Purpose |
 |---|---|
-| `icon(name, size: auto, shift: auto, fill: auto)` | Render a vendored SVG. `name` is any key from the built-in icon set (utility or network). |
+| `icon(name, size: auto, shift: auto, fill: auto)` | Render a FontAwesome glyph from the vendored Brands / Free Solid TTFs. `name` is any key from the built-in icon set (utility or network). |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].rating` data field — the function isn't auto-fed; pass the value explicitly. |

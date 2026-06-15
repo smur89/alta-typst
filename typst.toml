@@ -16,6 +16,12 @@ compiler = "0.13.0"
 # on Universe, but `exclude` keeps them out of the compiler bundle so
 # `#import "@preview/altacv:..."` doesn't pull a megabyte of GIF /
 # PDF / PNG that the renderer never touches.
+#
+# `fonts/` ships INSIDE the package — Typst auto-discovers TTFs in the
+# package root so the vendored FontAwesome 6 Brands + Free Solid TTFs
+# resolve without any user font install. Do not add `/fonts/**` to
+# `exclude`; the icon renderer in `internal/icons.typ` needs the fonts
+# present at compile time.
 exclude = ["/examples/**"]
 
 # `typst init @preview/altacv` copies the contents of `template/` into
