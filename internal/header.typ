@@ -62,12 +62,18 @@
   out
 }
 
-// Image-path sources resolve relative to THIS file (Typst's `image()`
-// path semantics). For a portable resume, prefer a leading "/" (root-
-// relative to `--root`) or pass bytes via `read("path", encoding:
-// none)` — both of those resolve relative to the caller's project
-// and work whether altacv is consumed locally or as an installed
-// package. `fit: "cover"` keeps non-square sources from distorting.
+// `image()` resolves a bare string path relative to THIS file —
+// inconvenient when altacv is consumed as a package, because that
+// resolves into the @preview cache rather than the caller's project.
+// In order of preference:
+//   1. `path("photo.png")` (Typst 0.15.0+) — resolved at construction
+//      site, so the caller's directory is the anchor regardless of
+//      how deep into the package the path eventually reaches.
+//   2. `read("photo.png", encoding: none)` — also resolves at the
+//      caller's file; passes bytes through instead of a path.
+//   3. `"/photo.png"` — root-relative against `--root`; works if the
+//      caller has set `--root` to a directory containing the photo.
+// `fit: "cover"` keeps non-square sources from distorting.
 #let _portrait(source, size) = box(
   width: size,
   height: size,
@@ -265,19 +271,22 @@
     })
 
     let image-src = basics.at("image", default: none)
-    // Contract is `str` (path) or `bytes`. Both carry `len()`, so an
-    // empty path ("") or empty bytes report 0 and skip the frame.
-    // Anything else panics with a clear message instead of falling
-    // through to a cryptic `image()` failure or — worse — silently
-    // dropping the photo (which is what an empty array would do under
-    // a bare `.len()` check).
+    // Contract is `path`, `str` (path), or `bytes`. `str` and `bytes`
+    // carry `len()`, so an empty path ("") or empty bytes report 0 and
+    // skip the frame; a `path` is always populated (Typst 0.15.0 has
+    // no public API for constructing an empty one), so the emptiness
+    // probe only applies to the other two. Anything else panics with
+    // a clear message instead of falling through to a cryptic
+    // `image()` failure or — worse — silently dropping the photo.
     let has-image = if image-src == none {
       false
+    } else if type(image-src) == path {
+      true
     } else if type(image-src) in (str, bytes) {
       image-src.len() > 0
     } else {
       panic(
-        "basics.image must be a string path or bytes, got: " + repr(image-src),
+        "basics.image must be a path, a string path, or bytes, got: " + repr(image-src),
       )
     }
     let photo = if has-image { _portrait(image-src, image-size) }

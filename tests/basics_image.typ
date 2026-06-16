@@ -1,15 +1,16 @@
 // basics.image renders a circular portrait next to the header text.
 // Documents exercise:
-//   1. Bytes form — the recommended way (path resolution stays in
-//      the caller's typ file).
-//   2. String path form (root-relative with leading "/").
-//   3. Custom imageSize preference.
-//   4. Photo on the LEFT with the default left-aligned text — the
+//   1. Bytes form — path resolution stays in the caller's typ file.
+//   2. `path()` form (Typst 0.15.0+) — same resolution guarantee as
+//      bytes, but as a reference rather than embedded bytes.
+//   3. String path form (root-relative with leading "/").
+//   4. Custom imageSize preference.
+//   5. Photo on the LEFT with the default left-aligned text — the
 //      "flipped header" layout. The text starts at a consistent edge
 //      regardless of which side the photo is on; only the photo moves.
-//   5. Photo on the left with explicit right-aligned text — the
+//   6. Photo on the left with explicit right-aligned text — the
 //      "mirrored" look where each line ends at the page edge.
-//   6. Centred header text on a no-image CV — `headerTextAlign`
+//   7. Centred header text on a no-image CV — `headerTextAlign`
 //      applies whether or not `basics.image` is set.
 
 #import "../lib.typ": alta
@@ -29,8 +30,22 @@
 #alta((
   basics: (
     name: "Path User",
-    label: "String path form",
+    label: "path() form",
     email: "path@example.com",
+    // path() carries its resolution anchor with it — even though
+    // image() ultimately runs inside internal/header.typ, the file
+    // is looked up relative to THIS test file.
+    image: path("../assets/avatar-placeholder.svg"),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (
+    name: "Root User",
+    label: "String path form",
+    email: "root@example.com",
     // Root-relative path. The leading "/" anchors resolution to the
     // --root directory rather than the caller's file location.
     image: "/assets/avatar-placeholder.svg",
