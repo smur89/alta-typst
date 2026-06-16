@@ -43,7 +43,7 @@ typst init @preview/altacv
 Or `#import` it from an existing `.typ`:
 
 ```typst
-#import "@preview/altacv:1.2.0": alta // x-release-please-version
+#import "@preview/altacv:1.3.0": alta // x-release-please-version
 ```
 
 ## Fonts
@@ -62,7 +62,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 ## Quick start
 
 ```typst
-#import "@preview/altacv:1.2.0": alta // x-release-please-version
+#import "@preview/altacv:1.3.0": alta // x-release-please-version
 
 #let cv = (
   basics: (
@@ -294,7 +294,7 @@ When `references[]` is empty (or every entry lacks a `reference`) and `preferenc
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, map the new key to its FontAwesome glyph name in `_network_icons` (`internal/icons.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, map the new key to its FontAwesome glyph name in `_network_icons` (`internal/icons.typ`) — see [CONTRIBUTING.md](https://github.com/smur89/alta-typst/blob/main/CONTRIBUTING.md#adding-a-profile-network-icon).
 
 Icons are resolved via the [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) package, which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for how to make the FA fonts available locally; on typst.app they're preinstalled.
 
@@ -363,7 +363,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
 ```typst
-#import "@preview/altacv:1.2.0": alta, maps-providers, palettes // x-release-please-version
+#import "@preview/altacv:1.3.0": alta, maps-providers, palettes // x-release-please-version
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -504,7 +504,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
 ```typst
-#import "@preview/altacv:1.2.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.3.0": alta, tag, divider, palettes, maps-providers // x-release-please-version
 ```
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.

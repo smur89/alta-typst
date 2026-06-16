@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/smur89/alta-typst/compare/v1.2.0...v1.3.0) (2026-06-16)
+
+
+### Features
+
+* switch profile-network icons to @preview/fontawesome ([#134](https://github.com/smur89/alta-typst/issues/134)) ([26ca051](https://github.com/smur89/alta-typst/commit/26ca051e2147ab51fecae2ba25c45cd59a440655))
+
 ## [1.2.0](https://github.com/smur89/alta-typst/compare/v1.1.1...v1.2.0) (2026-06-14)
 
 
