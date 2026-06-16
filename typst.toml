@@ -8,7 +8,7 @@ description = "Curriculum vitae driven by a JSON Resume-style data dict."
 repository = "https://github.com/smur89/alta-typst"
 keywords = ["cv", "resume", "altacv", "json-resume"]
 categories = ["cv"]
-compiler = "0.13.0"
+compiler = "0.15.0"
 # The README links to documentation assets under `examples/` (rendered
 # previews, the multi-page demo, the Irish translation). Per
 # typst/packages docs (Group 2 — "commit & exclude"), those files ship
