@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/smur89/alta-typst/compare/v1.3.1...v1.4.0) (2026-06-16)
+
+
+### Features
+
+* accept path() for basics.image ([#144](https://github.com/smur89/alta-typst/issues/144)) ([0f2fe07](https://github.com/smur89/alta-typst/commit/0f2fe075e4a74a1ae961a5b9a0b9e0049b7a7abd))
+
 ## [1.3.1](https://github.com/smur89/alta-typst/compare/v1.3.0...v1.3.1) (2026-06-16)
 
 
