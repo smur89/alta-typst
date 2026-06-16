@@ -44,7 +44,7 @@ Or `#import` it from an existing `.typ`:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.0": alta
+#import "@preview/altacv:1.4.1": alta
 ```
 <!-- x-release-please-end -->
 
@@ -65,7 +65,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.0": alta
+#import "@preview/altacv:1.4.1": alta
 
 #let cv = (
   basics: (
@@ -378,7 +378,7 @@ Example — reorder the right-column sections + tweak theme + use US Letter:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.0": alta, maps-providers, palettes
+#import "@preview/altacv:1.4.1": alta, maps-providers, palettes
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -521,7 +521,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.0": alta, tag, divider, palettes, maps-providers
+#import "@preview/altacv:1.4.1": alta, tag, divider, palettes, maps-providers
 ```
 <!-- x-release-please-end -->
 
