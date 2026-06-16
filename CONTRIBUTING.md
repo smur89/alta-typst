@@ -53,6 +53,17 @@ make help        # summarise the available targets
 
 `make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
 
+### Regenerating PDF fixtures (Docker)
+
+CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make test-pdfs` then `git diff --exit-code -- examples/tests`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
+
+```sh
+make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make all`
+make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
+```
+
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`) and — once the follow-up PR adds `container:` to `build.yml` — must also be kept in sync there.
+
 If you'd rather drive Typst directly, the manual incantations are:
 
 ```sh
