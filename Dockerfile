@@ -20,10 +20,12 @@
 FROM ghcr.io/typst/typst:0.14.2
 
 ARG FA_VERSION=7.0.0
-# Lato 2.015 is the latest upstream release (latofonts.com) and the
-# same payload Homebrew's `font-lato` cask ships. Pinned at this
-# version so the image is fully reproducible.
-ARG LATO_URL=https://www.latofonts.com/download/Lato2OFL.zip
+# Lato 2.015 — same upstream release Homebrew's `font-lato` cask
+# ships. Pulled from Alpine edge's `font-lato` package; the package
+# only exists in edge (not the stable Alpine repos), so we point at
+# the edge community repo explicitly and pin the exact apk version
+# so a rebuild fetches identical bytes.
+ARG LATO_APK_VERSION=2.015-r0
 
 # The upstream Typst image runs as the unprivileged `typst` user (uid
 # 1000). Drop to root for package + font installation, then leave the
@@ -45,14 +47,14 @@ RUN apk add --no-cache \
       make \
       unzip
 
-# Lato (OFL). Download from latofonts.com (the same source Homebrew's
-# cask uses). The zip extracts to `Lato2OFL/` containing both TTF and
-# OFL.txt; we ship only the TTFs into the system font path.
-RUN curl -sSfL -o /tmp/lato.zip "$LATO_URL" \
-    && unzip -q /tmp/lato.zip -d /tmp/lato \
-    && mkdir -p /usr/share/fonts/lato \
-    && cp /tmp/lato/Lato2OFL/*.ttf /usr/share/fonts/lato/ \
-    && rm -rf /tmp/lato /tmp/lato.zip
+# Lato (OFL). The `font-lato` apk only exists in Alpine's edge
+# community repo (not in stable releases), so we add the edge repo
+# for this single install and pin the exact package version. The
+# package drops the Lato TTFs into the system font path; fc-cache
+# runs once after the FA install below picks them up.
+RUN apk add --no-cache \
+      --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+      font-lato=${LATO_APK_VERSION}
 
 # FontAwesome 7 — desktop OTFs from the upstream GitHub release.
 # Matches what `@preview/fontawesome:0.6.1` resolves against.
