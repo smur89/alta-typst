@@ -24,7 +24,7 @@
 # Bumping FA_VERSION also requires refreshing FA_SHA256: fetch the
 # new desktop zip from the release page, run `sha256sum` on it, and
 # paste the digest here.
-FROM ghcr.io/typst/typst:0.14.2
+FROM ghcr.io/typst/typst:0.15.0
 
 ARG FA_VERSION=7.0.0
 # SHA256 of `fontawesome-free-${FA_VERSION}-desktop.zip` from the
