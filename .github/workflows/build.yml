@@ -15,6 +15,10 @@ env:
   # Single source of truth for the Typst version used across all jobs.
   # Bumping this requires no other edits.
   TYPST_VERSION: v0.14.2
+  # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.1
+  # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
+  # every CI job that compiles the package downloads v7 from upstream.
+  FA_VERSION: 7.0.0
   # Package name as it appears in typst.toml's `package.name`. Surfaced
   # here so branch names, tarball names, PR titles, and the supersede
   # filter all derive from one place; rename the package by editing
@@ -35,16 +39,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Typst + Lato font
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Compile example + test fixtures
         run: make test
@@ -82,16 +81,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Typst + Lato font
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Build cv.pdf + cv.png + example_full.pdf
         run: make cv example-full
@@ -156,9 +150,9 @@ jobs:
   # Runs only on the workflow run where release-please just created a
   # release. Builds a `altacv-<version>.tar.gz` containing the package
   # files that should be submitted to typst/packages (typst.toml,
-  # lib.typ, internal/, sections/, icons/, template/, thumbnail.png,
-  # LICENSE, README.md) and attaches it to the release alongside the
-  # rendered cv.pdf / cv.png / example_full.pdf.
+  # lib.typ, internal/, sections/, assets/, template/,
+  # thumbnail.png, LICENSE, README.md) and attaches it to the release
+  # alongside the rendered cv.pdf / cv.png / example_full.pdf.
   attach-release-artifacts:
     needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
@@ -173,16 +167,11 @@ jobs:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - name: Install Typst + Lato font
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
         run: make cv example-full thumbnail
@@ -194,7 +183,15 @@ jobs:
       #
       # `internal/` and `sections/` carry the modules that lib.typ
       # `#import`s; they must ship with the package or compile fails
-      # at the user's site with "file not found".
+      # at the user's site with "file not found". `assets/` carries
+      # the bundled avatar-placeholder SVG re-exported as
+      # `avatar-placeholder` from `lib.typ`.
+      #
+      # FontAwesome glyphs are resolved via `@preview/fontawesome`
+      # (pulled in transitively by `internal/icons.typ`), which reads
+      # them from the desktop FA fonts installed on the user's system
+      # or preinstalled on typst.app. No font files ship with this
+      # package.
       #
       # `template/` provides the starter project that `typst init
       # @preview/altacv` copies to the user; `thumbnail.png` is the
@@ -215,7 +212,7 @@ jobs:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
-            typst.toml lib.typ internal/ sections/ icons/ template/ \
+            typst.toml lib.typ internal/ sections/ assets/ template/ \
             thumbnail.png LICENSE README.md \
             examples/preview.gif \
             examples/cv.png \
@@ -295,7 +292,7 @@ jobs:
           fi
 
       # Sparse-checkout the PR-body template; full checkout would
-      # pull lib.typ and icons we don't need in this job. The body
+      # pull lib.typ and assets we don't need in this job. The body
       # uses the slim "update" variant of typst/packages' PR
       # template — the first submission of altacv was opened
       # manually, so this job only ever opens version-bump PRs.

@@ -43,7 +43,7 @@
 //
 // Replace with `read("your-photo.png", encoding: none)` (or `none`
 // to drop the portrait entirely).
-#let avatar-placeholder = read("icons/avatar-placeholder.svg", encoding: none)
+#let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
 // Flatten every skill group's `keywords` into a de-duplicated array
 // for the PDF `Keywords` field. Insertion order is preserved so the
