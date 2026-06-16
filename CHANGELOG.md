@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/smur89/alta-typst/compare/v1.4.0...v1.4.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* address typst-package-check warnings on 1.4.0 ([#146](https://github.com/smur89/alta-typst/issues/146)) ([9bb07ca](https://github.com/smur89/alta-typst/commit/9bb07ca5ec078501c8159856f5d749eb5bdbceb7))
+
 ## [1.4.0](https://github.com/smur89/alta-typst/compare/v1.3.1...v1.4.0) (2026-06-16)
 
 
