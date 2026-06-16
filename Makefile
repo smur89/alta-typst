@@ -75,7 +75,20 @@ TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # "examples/tests/*.pdf in sync" guard.
 LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell
+# Files that ship to typst/packages. Single source of truth for the
+# release tarball recipe AND the PR-time package-check stager — pulling
+# the list here keeps them from drifting (the drift between the two
+# is what slipped CONTRIBUTING.md past 1.4.1's typst-package-check).
+PACKAGE_FILES := \
+  typst.toml lib.typ internal sections assets template \
+  thumbnail.png LICENSE README.md CONTRIBUTING.md \
+  examples/preview.gif \
+  examples/cv.png \
+  examples/example_full.typ examples/example_full.pdf \
+  examples/example_full-1.png examples/example_full-2.png \
+  examples/example_ga.typ examples/labels-ga.toml
+
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -256,6 +269,30 @@ test-template:
 # Alias for `make test` — matches the conceptual "CI lint" target name.
 # Composes with `test-template` so a broken starter fails the lint.
 check: test test-template
+
+# Stage every file that ships to typst/packages into PKG_DIR. Used by
+# the CI package-check job (PR-time) to lay out the same file set the
+# release tarball would publish — typst-package-check then validates
+# THAT directory, so a missing file is caught at review time.
+#
+#   make stage-package-dir PKG_DIR=/tmp/.../altacv/0.0.0
+#
+# `bash -eo pipefail` so a missing file makes the tar producer fail
+# the recipe — without pipefail the consumer's clean exit would
+# silently mask a partial stage. Invoked explicitly (not via
+# .SHELLFLAGS) so this works on Make < 3.82.
+stage-package-dir:
+	@test -n "$(PKG_DIR)" || { echo "stage-package-dir: PKG_DIR=/path required" >&2; exit 2; }
+	@mkdir -p "$(PKG_DIR)"
+	@bash -eo pipefail -c 'tar cf - $(PACKAGE_FILES) | tar xf - -C "$(PKG_DIR)"'
+
+# Same file set, gzipped — the artifact attached to the GitHub Release
+# and uploaded to typst/packages.
+#
+#   make package-tarball PACKAGE_TARBALL=$(PACKAGE_NAME)-$(VERSION).tar.gz
+package-tarball:
+	@test -n "$(PACKAGE_TARBALL)" || { echo "package-tarball: PACKAGE_TARBALL=/path.tar.gz required" >&2; exit 2; }
+	tar czf "$(PACKAGE_TARBALL)" $(PACKAGE_FILES)
 
 # Removes every generated artifact, including `examples/cv.png`. That
 # file is tracked in git for stable README image hosting, but it's
