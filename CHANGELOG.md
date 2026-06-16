@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/smur89/alta-typst/compare/v1.3.0...v1.3.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **readme:** release the CONTRIBUTING.md link fix as v1.3.1 ([#138](https://github.com/smur89/alta-typst/issues/138)) ([fc10448](https://github.com/smur89/alta-typst/commit/fc10448c1a8068779d3d0cc549b3acbfb326d727))
+
 ## [1.3.0](https://github.com/smur89/alta-typst/compare/v1.2.0...v1.3.0) (2026-06-16)
 
 
