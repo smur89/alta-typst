@@ -25,11 +25,9 @@
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     url: "https://seanomurchu.dev",
-    // Drop or replace with your own image. `none` removes the
-    // portrait; `path("your-photo.png")` references a local file
-    // alongside this `.typ`. `avatar-placeholder` is the package's
-    // built-in silhouette. (`read(..., encoding: none)` and a
-    // root-relative "/photo.png" also still work.)
+    // Replace with your own: `path("your-photo.png")` for a local
+    // file, `none` to drop the portrait, or keep `avatar-placeholder`
+    // (the built-in silhouette).
     image: avatar-placeholder,
     profiles: (
       (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),

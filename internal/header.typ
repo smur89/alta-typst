@@ -62,18 +62,11 @@
   out
 }
 
-// `image()` resolves a bare string path relative to THIS file —
-// inconvenient when altacv is consumed as a package, because that
-// resolves into the @preview cache rather than the caller's project.
-// In order of preference:
-//   1. `path("photo.png")` (Typst 0.15.0+) — resolved at construction
-//      site, so the caller's directory is the anchor regardless of
-//      how deep into the package the path eventually reaches.
-//   2. `read("photo.png", encoding: none)` — also resolves at the
-//      caller's file; passes bytes through instead of a path.
-//   3. `"/photo.png"` — root-relative against `--root`; works if the
-//      caller has set `--root` to a directory containing the photo.
-// `fit: "cover"` keeps non-square sources from distorting.
+// `image()` resolves bare string paths at THIS file, which lives
+// in the @preview cache for installed users. Accepting `path` and
+// `bytes` lets callers anchor resolution at their own .typ; README
+// documents the forms. `fit: "cover"` keeps non-square sources
+// from distorting.
 #let _portrait(source, size) = box(
   width: size,
   height: size,
@@ -271,13 +264,10 @@
     })
 
     let image-src = basics.at("image", default: none)
-    // Contract is `path`, `str` (path), or `bytes`. `str` and `bytes`
-    // carry `len()`, so an empty path ("") or empty bytes report 0 and
-    // skip the frame; a `path` is always populated (Typst 0.15.0 has
-    // no public API for constructing an empty one), so the emptiness
-    // probe only applies to the other two. Anything else panics with
-    // a clear message instead of falling through to a cryptic
-    // `image()` failure or — worse — silently dropping the photo.
+    // `path` is always populated by construction (no public way to
+    // make an empty one); `str` and `bytes` can be empty and should
+    // silently skip the frame. Panicking on other types avoids a
+    // cryptic `image()` failure or a silent missing photo.
     let has-image = if image-src == none {
       false
     } else if type(image-src) == path {

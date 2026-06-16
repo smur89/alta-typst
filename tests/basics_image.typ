@@ -1,17 +1,6 @@
-// basics.image renders a circular portrait next to the header text.
-// Documents exercise:
-//   1. Bytes form — path resolution stays in the caller's typ file.
-//   2. `path()` form (Typst 0.15.0+) — same resolution guarantee as
-//      bytes, but as a reference rather than embedded bytes.
-//   3. String path form (root-relative with leading "/").
-//   4. Custom imageSize preference.
-//   5. Photo on the LEFT with the default left-aligned text — the
-//      "flipped header" layout. The text starts at a consistent edge
-//      regardless of which side the photo is on; only the photo moves.
-//   6. Photo on the left with explicit right-aligned text — the
-//      "mirrored" look where each line ends at the page edge.
-//   7. Centred header text on a no-image CV — `headerTextAlign`
-//      applies whether or not `basics.image` is set.
+// Pages exercise each accepted source form (bytes, `path()`,
+// root-relative string), an imageSize override, flipped/mirrored
+// layouts, and centred header on a no-image CV.
 
 #import "../lib.typ": alta
 
@@ -32,9 +21,7 @@
     name: "Path User",
     label: "path() form",
     email: "path@example.com",
-    // path() carries its resolution anchor with it — even though
-    // image() ultimately runs inside internal/header.typ, the file
-    // is looked up relative to THIS test file.
+    // Resolved against THIS file, not the package's internal/header.typ where image() runs.
     image: path("../assets/avatar-placeholder.svg"),
   ),
 ))
