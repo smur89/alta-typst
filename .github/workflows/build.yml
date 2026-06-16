@@ -213,7 +213,7 @@ jobs:
         run: |
           tar czf "${PACKAGE_NAME}-${VERSION}.tar.gz" \
             typst.toml lib.typ internal/ sections/ assets/ template/ \
-            thumbnail.png LICENSE README.md \
+            thumbnail.png LICENSE README.md CONTRIBUTING.md \
             examples/preview.gif \
             examples/cv.png \
             examples/example_full.typ examples/example_full.pdf \
