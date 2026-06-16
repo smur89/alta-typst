@@ -42,9 +42,11 @@ typst init @preview/altacv
 
 Or `#import` it from an existing `.typ`:
 
+<!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.3.1": alta // x-release-please-version
+#import "@preview/altacv:1.3.1": alta
 ```
+<!-- x-release-please-end -->
 
 ## Fonts
 
@@ -61,8 +63,9 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 ## Quick start
 
+<!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.3.1": alta // x-release-please-version
+#import "@preview/altacv:1.3.1": alta
 
 #let cv = (
   basics: (
@@ -102,6 +105,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 #alta(cv)
 ```
+<!-- x-release-please-end -->
 
 [`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](examples/example_full.typ) is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
@@ -362,8 +366,9 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 
 Example — reorder the right-column sections + tweak theme + use US Letter:
 
+<!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.3.1": alta, maps-providers, palettes // x-release-please-version
+#import "@preview/altacv:1.3.1": alta, maps-providers, palettes
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -376,6 +381,7 @@ Example — reorder the right-column sections + tweak theme + use US Letter:
   rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
 ))
 ```
+<!-- x-release-please-end -->
 
 Example — invert the template (side panel on the narrow left, experience on the wide right):
 
@@ -503,9 +509,11 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 | `palettes` | Dict of curated accent presets — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`. Use as `accent: palettes.navy`. |
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
 
+<!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.3.1": alta, tag, divider, palettes, maps-providers // x-release-please-version
+#import "@preview/altacv:1.3.1": alta, tag, divider, palettes, maps-providers
 ```
+<!-- x-release-please-end -->
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
 
