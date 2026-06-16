@@ -28,12 +28,16 @@ Modules under `internal/` are leading-underscore private; only what `lib.typ` re
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must be available on the system font path for renders to come out right:
+Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
 
-- **Lato** — the default body font (override via `preferences.font`).
-- **FontAwesome** — the desktop font set the [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) package reads from. Install with `brew install --cask font-fontawesome` (macOS), `sudo apt-get install fonts-font-awesome` (Debian/Ubuntu), or grab the OTFs from [fontawesome.com/download](https://fontawesome.com/download). Without it, icons render as tofu (placeholder squares).
+On macOS, one block sets up everything Homebrew can provide:
 
-Run `typst fonts` to confirm both are visible to Typst.
+```bash
+brew install typst
+brew install --cask font-lato font-fontawesome
+```
+
+Linux / Windows / manual install paths: see the [Fonts section in the README](README.md#fonts). Run `typst fonts` to confirm both are visible to Typst.
 
 Most everyday tasks go through the `Makefile`:
 

@@ -48,21 +48,16 @@ Or `#import` it from an existing `.typ`:
 
 ## Fonts
 
-The default body font is **Lato**. The Typst web app has it preinstalled — local users need it on the system font path, or pass `preferences.font` to override.
+`altacv` needs two fonts available wherever you compile: **Lato** (the default body font — override via `preferences.font`) and the desktop **FontAwesome** v7 set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for the contact-bar and section icons). Neither is vendored in the package. The Typst web app has both preinstalled.
 
-- **Web app**: works out of the box.
-- **Local (Linux)**: `sudo apt-get install fonts-lato` (or your distro's equivalent).
-- **Local (macOS/Windows)**: download from [Google Fonts](https://fonts.google.com/specimen/Lato) and install.
-- **Other fonts**: any installed system font works — `#alta(cv, preferences: (font: "Inter"))`.
+For a local setup on macOS, Homebrew covers Typst plus both fonts:
 
-The contact-bar and section icons come from the [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) package, which resolves glyphs against the desktop **FontAwesome** fonts. These fonts must be available wherever you compile — `altacv` does not vendor them.
+```bash
+brew install typst
+brew install --cask font-lato font-fontawesome
+```
 
-- **Typst web app**: works out of the box — FontAwesome is part of the preinstalled set.
-- **Local (macOS)**: `brew install --cask font-fontawesome`.
-- **Local (Linux)**: `sudo apt-get install fonts-font-awesome` (Debian/Ubuntu) or your distro's equivalent.
-- **Local (manual)**: download the desktop fonts from [fontawesome.com/download](https://fontawesome.com/download) and install the OTFs.
-
-Run `typst fonts` to confirm Typst can see `Font Awesome 7 Free`, `Font Awesome 7 Free Solid`, and `Font Awesome 7 Brands` (or the equivalent v6 names if your distro ships v6). If they're missing, icons render as tofu — install the font, then recompile.
+On other platforms, install Lato from [Google Fonts](https://fonts.google.com/specimen/Lato) and the FontAwesome v7 desktop OTFs from [fontawesome.com/download](https://fontawesome.com/download) (the apt `fonts-font-awesome` package ships v6, which the Typst package doesn't read by default). Run `typst fonts` afterwards to confirm both are visible; if FontAwesome is missing icons render as tofu. Any other body font works too: `#alta(cv, preferences: (font: "Inter"))`.
 
 ## Quick start
 
