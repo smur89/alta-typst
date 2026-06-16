@@ -8,18 +8,26 @@
 # were produced.
 #
 # Bumping versions:
-#   1. Edit FA_VERSION / LATO_APK_VERSION below and the tag in
-#      `.github/workflows/image.yml`.
-#   2. Edit the image reference (`container:`) in
-#      `.github/workflows/build.yml` to the new tag.
-#   3. Push to main — `image.yml` rebuilds and pushes the new tag,
+#   1. Edit FA_VERSION / FA_SHA256 / LATO_APK_VERSION below — and the
+#      pinned tag in `.github/workflows/build.yml`'s `container:`
+#      step (the tag in `image.yml` is derived from these ARGs).
+#   2. Push to main — `image.yml` rebuilds and pushes the new tag,
 #      then `build.yml` picks it up on the next run.
 #
 # Bumping the Typst version means picking a new upstream image tag
 # below; the typst project publishes one per release.
+#
+# Bumping FA_VERSION also requires refreshing FA_SHA256: fetch the
+# new desktop zip from the release page, run `sha256sum` on it, and
+# paste the digest here.
 FROM ghcr.io/typst/typst:0.14.2
 
 ARG FA_VERSION=7.0.0
+# SHA256 of `fontawesome-free-${FA_VERSION}-desktop.zip` from the
+# upstream GitHub release. Verified at build time so a tampered or
+# replaced upstream artifact fails the build loudly instead of
+# silently shipping different glyph bytes.
+ARG FA_SHA256=4409b8438d3b8382a502e59facc1d4ab5353b788943efaffb566a5682936c3fe
 # Lato 2.015 — same upstream release Homebrew's `font-lato` cask
 # ships. Pulled from Alpine edge's `font-lato` package; the package
 # only exists in edge (not the stable Alpine repos), so we point at
@@ -59,8 +67,12 @@ RUN apk add --no-cache \
 
 # FontAwesome 7 — desktop OTFs from the upstream GitHub release.
 # Matches what `@preview/fontawesome:0.6.1` resolves against.
+# `sha256sum -c` aborts the build if the upstream artifact has been
+# tampered with or replaced; the expected digest lives in the
+# FA_SHA256 ARG above so bumps refresh it alongside FA_VERSION.
 RUN curl -sSfL -o /tmp/fa.zip \
       "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip" \
+    && echo "${FA_SHA256}  /tmp/fa.zip" | sha256sum -c - \
     && unzip -q /tmp/fa.zip -d /tmp/fa \
     && mkdir -p /usr/share/fonts/fontawesome \
     && cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/ \

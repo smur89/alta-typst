@@ -54,20 +54,25 @@ jobs:
         with:
           persist-credentials: false
 
-      # Tag is derived from the Dockerfile so the Dockerfile remains
-      # the single source of truth for what's in the image. Bumping
-      # Typst or FontAwesome means editing the Dockerfile, full stop
-      # — this step picks up the change automatically.
+      # Tag is derived from the Dockerfile so the Dockerfile stays
+      # the single source of truth for what's in the image. All three
+      # render-critical versions (Typst, FontAwesome, Lato) go into
+      # the tag so a bump to *any* of them produces a distinct,
+      # immutable tag — avoids the "same tag, different bytes" trap
+      # if e.g. Lato is bumped on its own.
       - name: Derive image tag from Dockerfile
         id: tag
         run: |
           typst_version=$(grep -oE '^FROM ghcr\.io/typst/typst:[0-9.]+' Dockerfile | cut -d: -f2)
           fa_version=$(grep -oE '^ARG FA_VERSION=[0-9.]+' Dockerfile | cut -d= -f2)
-          if [ -z "$typst_version" ] || [ -z "$fa_version" ]; then
-            echo "::error::Could not extract Typst or FA version from Dockerfile"
+          # Lato apk versions look like `2.015-r0` — accept letters,
+          # digits, dots, hyphens, underscores after the `=`.
+          lato_version=$(grep -oE '^ARG LATO_APK_VERSION=[0-9A-Za-z._-]+' Dockerfile | cut -d= -f2)
+          if [ -z "$typst_version" ] || [ -z "$fa_version" ] || [ -z "$lato_version" ]; then
+            echo "::error::Could not extract Typst, FA, or Lato version from Dockerfile"
             exit 1
           fi
-          tag="typst-${typst_version}-fa-${fa_version}"
+          tag="typst-${typst_version}-fa-${fa_version}-lato-${lato_version}"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "full=${IMAGE_NAME}:${tag}" >> "$GITHUB_OUTPUT"
           echo "Image will be tagged as ${IMAGE_NAME}:${tag}"

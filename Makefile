@@ -78,9 +78,9 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 .PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome versions in the
-# Dockerfile (image.yml derives the same tag and pushes it).
-DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.14.2-fa-7.0.0
+# bump the tag here when bumping Typst / FontAwesome / Lato versions
+# in the Dockerfile (image.yml derives the same tag and pushes it).
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.14.2-fa-7.0.0-lato-2.015-r0
 
 # `--platform linux/amd64` is forced so output is byte-identical to
 # CI regardless of the host (Apple Silicon falls back to emulation —

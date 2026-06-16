@@ -58,7 +58,7 @@ make help        # summarise the available targets
 CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make test-pdfs` then `git diff --exit-code -- examples/tests`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
 
 ```sh
-make docker-pdfs   # pulls ghcr.io/smur89/alta-typst-ci:typst-X-fa-Y and runs `make all thumbnail`
+make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make all`
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
