@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/smur89/alta-typst/compare/v1.4.1...v1.4.2) (2026-06-16)
+
+
+### Bug Fixes
+
+* ship CONTRIBUTING.md so the README's local link resolves ([#148](https://github.com/smur89/alta-typst/issues/148)) ([60eccce](https://github.com/smur89/alta-typst/commit/60eccce336baadbb2d7297bb57eff8da6dc597fd))
+
 ## [1.4.1](https://github.com/smur89/alta-typst/compare/v1.4.0...v1.4.1) (2026-06-16)
 
 
