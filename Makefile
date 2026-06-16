@@ -75,7 +75,18 @@ TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # "examples/tests/*.pdf in sync" guard.
 LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell
+
+# Pinned CI image. Built and published by .github/workflows/image.yml;
+# bump the tag here when bumping Typst / FontAwesome versions in the
+# Dockerfile (image.yml derives the same tag and pushes it).
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.14.2-fa-7.0.0
+
+# `--platform linux/amd64` is forced so output is byte-identical to
+# CI regardless of the host (Apple Silicon falls back to emulation —
+# slow but reproducible). The workspace is bind-mounted so generated
+# PDFs/PNGs land in the host working tree.
+DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work
 
 all: pdfs cv test-pdfs thumbnail
 
@@ -256,5 +267,23 @@ clean:
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
 	  '         pdfs | previews | test-pdfs | test (alias: check) | clean' \
+	  '         docker-pdfs | docker-shell' \
 	  'Per-target detail: see the header comment in this Makefile.' \
-	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1'
+	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1' \
+	  '           DOCKER_IMAGE=ghcr.io/.../...:tag'
+
+# Regenerate every committed PDF/PNG fixture inside the pinned CI
+# image. Use before committing any change that affects rendering
+# (icon glyphs, lib.typ, sections/*.typ, font setup) — the CI's
+# "examples/tests/*.pdf in sync" guard fails otherwise. Runs
+# `make all thumbnail` so test-pdfs, cv, example-full, and the
+# thumbnail are all refreshed in one sweep.
+docker-pdfs:
+	$(DOCKER_RUN) $(DOCKER_IMAGE) make all thumbnail
+
+# Drop into a shell in the CI image with the workspace mounted —
+# handy for one-off `typst compile` invocations, font listing
+# (`typst fonts`), or debugging a rendering issue that only
+# reproduces in the container.
+docker-shell:
+	docker run --rm -it --platform linux/amd64 -v "$(CURDIR):/work" -w /work --entrypoint sh $(DOCKER_IMAGE)

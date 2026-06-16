@@ -1,0 +1,105 @@
+# Builds and publishes `ghcr.io/smur89/alta-typst-ci`, the CI/local
+# image that carries Typst + Lato + FontAwesome 7. The image tag
+# encodes both font versions so `build.yml` pins an exact, immutable
+# environment per workflow run; bumping a version means rebuilding
+# and editing the tag in `build.yml` to match.
+#
+# Triggers:
+#   * `push` to main touching the Dockerfile / this workflow → build
+#     and push the new tag.
+#   * `pull_request` touching the same paths → build only, no push.
+#     Verifies the Dockerfile still produces a working image before
+#     the change lands on main.
+#   * `workflow_dispatch` → manual rebuild (useful after a registry
+#     incident, or to publish from a feature branch during the
+#     initial rollout).
+name: Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .github/workflows/image.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .github/workflows/image.yml
+  workflow_dispatch:
+
+# Each ref serializes its own image builds. Default branch builds
+# don't cancel each other (we want every push to main to publish);
+# PR validation runs cancel-on-replace to save runner minutes.
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  # Push to ghcr.io/${owner}/* needs `packages: write`; everything
+  # else stays read-only.
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/smur89/alta-typst-ci
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # Tag is derived from the Dockerfile so the Dockerfile remains
+      # the single source of truth for what's in the image. Bumping
+      # Typst or FontAwesome means editing the Dockerfile, full stop
+      # — this step picks up the change automatically.
+      - name: Derive image tag from Dockerfile
+        id: tag
+        run: |
+          typst_version=$(grep -oE '^FROM ghcr\.io/typst/typst:[0-9.]+' Dockerfile | cut -d: -f2)
+          fa_version=$(grep -oE '^ARG FA_VERSION=[0-9.]+' Dockerfile | cut -d= -f2)
+          if [ -z "$typst_version" ] || [ -z "$fa_version" ]; then
+            echo "::error::Could not extract Typst or FA version from Dockerfile"
+            exit 1
+          fi
+          tag="typst-${typst_version}-fa-${fa_version}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "full=${IMAGE_NAME}:${tag}" >> "$GITHUB_OUTPUT"
+          echo "Image will be tagged as ${IMAGE_NAME}:${tag}"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      # Skip the login step on PR validation runs — they don't push,
+      # and GITHUB_TOKEN on a fork-originating PR can't write packages
+      # anyway. Login only when we intend to push.
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # `linux/amd64` only. CI runs amd64; pinning to a single
+      # architecture means the rendered PDF bytes are deterministic
+      # across local and CI as long as both run amd64 (Apple Silicon
+      # users get emulation via Docker Desktop, slower but
+      # byte-identical).
+      - name: Build and push
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.tag.outputs.full }}
+          # Buildx GHA cache shaves ~1 min off rebuilds where only
+          # the lower (apk / Lato / FA) layers changed.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
