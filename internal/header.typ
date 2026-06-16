@@ -62,12 +62,11 @@
   out
 }
 
-// Image-path sources resolve relative to THIS file (Typst's `image()`
-// path semantics). For a portable resume, prefer a leading "/" (root-
-// relative to `--root`) or pass bytes via `read("path", encoding:
-// none)` — both of those resolve relative to the caller's project
-// and work whether altacv is consumed locally or as an installed
-// package. `fit: "cover"` keeps non-square sources from distorting.
+// `image()` resolves bare string paths at THIS file, which lives
+// in the @preview cache for installed users. Accepting `path` and
+// `bytes` lets callers anchor resolution at their own .typ; README
+// documents the forms. `fit: "cover"` keeps non-square sources
+// from distorting.
 #let _portrait(source, size) = box(
   width: size,
   height: size,
@@ -265,19 +264,19 @@
     })
 
     let image-src = basics.at("image", default: none)
-    // Contract is `str` (path) or `bytes`. Both carry `len()`, so an
-    // empty path ("") or empty bytes report 0 and skip the frame.
-    // Anything else panics with a clear message instead of falling
-    // through to a cryptic `image()` failure or — worse — silently
-    // dropping the photo (which is what an empty array would do under
-    // a bare `.len()` check).
+    // `path` is always populated by construction (no public way to
+    // make an empty one); `str` and `bytes` can be empty and should
+    // silently skip the frame. Panicking on other types avoids a
+    // cryptic `image()` failure or a silent missing photo.
     let has-image = if image-src == none {
       false
+    } else if type(image-src) == path {
+      true
     } else if type(image-src) in (str, bytes) {
       image-src.len() > 0
     } else {
       panic(
-        "basics.image must be a string path or bytes, got: " + repr(image-src),
+        "basics.image must be a path, a string path, or bytes, got: " + repr(image-src),
       )
     }
     let photo = if has-image { _portrait(image-src, image-size) }
