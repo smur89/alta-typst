@@ -275,11 +275,11 @@ help:
 # Regenerate every committed PDF/PNG fixture inside the pinned CI
 # image. Use before committing any change that affects rendering
 # (icon glyphs, lib.typ, sections/*.typ, font setup) — the CI's
-# "examples/tests/*.pdf in sync" guard fails otherwise. Runs
-# `make all thumbnail` so test-pdfs, cv, example-full, and the
-# thumbnail are all refreshed in one sweep.
+# "examples/tests/*.pdf in sync" guard fails otherwise. `all` already
+# depends on test-pdfs, cv, pdfs (example-full and the rest), and
+# thumbnail, so a single invocation refreshes everything.
 docker-pdfs:
-	$(DOCKER_RUN) $(DOCKER_IMAGE) make all thumbnail
+	$(DOCKER_RUN) $(DOCKER_IMAGE) make all
 
 # Drop into a shell in the CI image with the workspace mounted —
 # handy for one-off `typst compile` invocations, font listing

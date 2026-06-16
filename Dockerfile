@@ -8,7 +8,7 @@
 # were produced.
 #
 # Bumping versions:
-#   1. Edit FA_VERSION / LATO_VERSION below and the tag in
+#   1. Edit FA_VERSION / LATO_APK_VERSION below and the tag in
 #      `.github/workflows/image.yml`.
 #   2. Edit the image reference (`container:`) in
 #      `.github/workflows/build.yml` to the new tag.
@@ -49,9 +49,10 @@ RUN apk add --no-cache \
 
 # Lato (OFL). The `font-lato` apk only exists in Alpine's edge
 # community repo (not in stable releases), so we add the edge repo
-# for this single install and pin the exact package version. The
-# package drops the Lato TTFs into the system font path; fc-cache
-# runs once after the FA install below picks them up.
+# for this single install and pin the exact package version. Both
+# this install and the FontAwesome install below drop fonts into
+# `/usr/share/fonts/`; we run `fc-cache -f` once at the end of the
+# two layers to register both at the same time.
 RUN apk add --no-cache \
       --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
       font-lato=${LATO_APK_VERSION}
@@ -63,9 +64,17 @@ RUN curl -sSfL -o /tmp/fa.zip \
     && unzip -q /tmp/fa.zip -d /tmp/fa \
     && mkdir -p /usr/share/fonts/fontawesome \
     && cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/ \
-    && rm -rf /tmp/fa /tmp/fa.zip
+    && rm -rf /tmp/fa /tmp/fa.zip \
+    && fc-cache -f
 
-RUN fc-cache -f
+# Mark every repo as safe for `git` inside this container. CI jobs
+# that use `container:` mount the workspace owned by the host runner
+# uid (1001) but execute as root in the container — recent git
+# refuses to operate on such mismatched ownership ("fatal: detected
+# dubious ownership in repository at '/__w/...'"). `safe.directory '*'`
+# in the system gitconfig opts out repo-wide; the image is single-purpose
+# (build alta-typst), so a global allow is the right scope.
+RUN git config --system --add safe.directory '*'
 
 # Upstream sets `ENTRYPOINT ["/bin/typst"]`. Clear it so consumers can
 # run arbitrary commands (`make test-pdfs`, `sh`, etc.) without an
