@@ -278,12 +278,19 @@ help:
 # "examples/tests/*.pdf in sync" guard fails otherwise. `all` already
 # depends on test-pdfs, cv, pdfs (example-full and the rest), and
 # thumbnail, so a single invocation refreshes everything.
+# `-u "$(shell id -u):$(shell id -g)"` makes the container process
+# match the host uid/gid so the regenerated PDFs/PNGs land in the
+# checkout owned by the contributor, not root. Docker Desktop on
+# macOS handles uid mapping transparently, but Linux hosts otherwise
+# leave root-owned outputs behind.
 docker-pdfs:
-	$(DOCKER_RUN) $(DOCKER_IMAGE) make all
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make all
 
 # Drop into a shell in the CI image with the workspace mounted —
 # handy for one-off `typst compile` invocations, font listing
 # (`typst fonts`), or debugging a rendering issue that only
-# reproduces in the container.
+# reproduces in the container. Stays as root (no `-u`) so the
+# contributor can `apk add` ad-hoc tooling for debugging; bash is
+# the Dockerfile-installed shell with line editing + history.
 docker-shell:
-	docker run --rm -it --platform linux/amd64 -v "$(CURDIR):/work" -w /work --entrypoint sh $(DOCKER_IMAGE)
+	$(DOCKER_RUN) -it --entrypoint bash $(DOCKER_IMAGE)

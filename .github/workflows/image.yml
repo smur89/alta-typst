@@ -105,6 +105,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.tag.outputs.full }}
           # Buildx GHA cache shaves ~1 min off rebuilds where only
-          # the lower (apk / Lato / FA) layers changed.
+          # the lower (apk / Lato / FA) layers changed. PR-validation
+          # runs only read the cache — they don't write back, because
+          # feature-branch caches don't propagate to main's scope and
+          # would only compete with useful entries under the 10 GiB
+          # quota before evicting.
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: ${{ github.event_name != 'pull_request' && 'type=gha,mode=max' || '' }}

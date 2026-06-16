@@ -9,10 +9,14 @@
 #
 # Bumping versions:
 #   1. Edit FA_VERSION / FA_SHA256 / LATO_APK_VERSION below — and the
-#      pinned tag in `.github/workflows/build.yml`'s `container:`
-#      step (the tag in `image.yml` is derived from these ARGs).
-#   2. Push to main — `image.yml` rebuilds and pushes the new tag,
-#      then `build.yml` picks it up on the next run.
+#      pinned tag in `Makefile`'s `DOCKER_IMAGE` (the tag in
+#      `image.yml` is derived from these ARGs). Once the follow-up
+#      PR lands that switches `build.yml` to `container:`, the same
+#      tag also needs updating there.
+#   2. Push to main — `image.yml` rebuilds and pushes the new tag.
+#      Consumers (`make docker-pdfs` locally, the future
+#      `container:` step in `build.yml`) pick up the new tag on next
+#      run.
 #
 # Bumping the Typst version means picking a new upstream image tag
 # below; the typst project publishes one per release.
@@ -57,10 +61,12 @@ RUN apk add --no-cache \
 
 # Lato (OFL). The `font-lato` apk only exists in Alpine's edge
 # community repo (not in stable releases), so we add the edge repo
-# for this single install and pin the exact package version. Both
-# this install and the FontAwesome install below drop fonts into
-# `/usr/share/fonts/`; we run `fc-cache -f` once at the end of the
-# two layers to register both at the same time.
+# for this single install and pin the exact package version. The
+# package drops Lato TTFs into `/usr/share/fonts/lato/`; the single
+# `fc-cache -f` call inside the FontAwesome RUN below sees both
+# `/usr/share/fonts/lato/` and `/usr/share/fonts/fontawesome/`, so
+# Lato gets registered by that one cache rebuild — no fc-cache call
+# is needed here.
 RUN apk add --no-cache \
       --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
       font-lato=${LATO_APK_VERSION}
@@ -70,6 +76,14 @@ RUN apk add --no-cache \
 # `sha256sum -c` aborts the build if the upstream artifact has been
 # tampered with or replaced; the expected digest lives in the
 # FA_SHA256 ARG above so bumps refresh it alongside FA_VERSION.
+# `fc-cache -f` registers both font directories at once (Lato above,
+# FontAwesome here). The trailing `git config --system safe.directory '*'`
+# is folded in here rather than its own layer: CI jobs that use
+# `container:` mount the workspace owned by the host runner uid (1001)
+# but execute as root in the container, and recent git refuses to
+# operate on the mismatch ("fatal: detected dubious ownership in
+# repository at '/__w/...'"). A repo-wide opt-out is the right scope
+# for a single-purpose image.
 RUN curl -sSfL -o /tmp/fa.zip \
       "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip" \
     && echo "${FA_SHA256}  /tmp/fa.zip" | sha256sum -c - \
@@ -77,16 +91,8 @@ RUN curl -sSfL -o /tmp/fa.zip \
     && mkdir -p /usr/share/fonts/fontawesome \
     && cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/ \
     && rm -rf /tmp/fa /tmp/fa.zip \
-    && fc-cache -f
-
-# Mark every repo as safe for `git` inside this container. CI jobs
-# that use `container:` mount the workspace owned by the host runner
-# uid (1001) but execute as root in the container — recent git
-# refuses to operate on such mismatched ownership ("fatal: detected
-# dubious ownership in repository at '/__w/...'"). `safe.directory '*'`
-# in the system gitconfig opts out repo-wide; the image is single-purpose
-# (build alta-typst), so a global allow is the right scope.
-RUN git config --system --add safe.directory '*'
+    && fc-cache -f \
+    && git config --system --add safe.directory '*'
 
 # Upstream sets `ENTRYPOINT ["/bin/typst"]`. Clear it so consumers can
 # run arbitrary commands (`make test-pdfs`, `sh`, etc.) without an
