@@ -154,7 +154,7 @@ examples/%.pdf: examples/%.typ
 # partial outputs if either compile fails. `rm -f examples/example_full-*.png`
 # pre-cleans stale page PNGs so a shrink (e.g. 3-page content trimmed
 # to 2) doesn't leave an orphan example_full-3.png.
-examples/example_full.pdf: examples/example_full.typ examples/_dates.typ icons/avatar-placeholder.svg lib.typ
+examples/example_full.pdf: examples/example_full.typ examples/_dates.typ assets/avatar-placeholder.svg lib.typ
 	rm -f examples/example_full-*.png
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
@@ -198,7 +198,7 @@ examples/cv.png: template/cv.typ lib.typ
 # Prerequisites include every file `preview-frames.typ` reads —
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
-examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml icons/avatar-placeholder.svg lib.typ
+examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml assets/avatar-placeholder.svg lib.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \

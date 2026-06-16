@@ -48,14 +48,16 @@ Or `#import` it from an existing `.typ`:
 
 ## Fonts
 
-The default font is **Lato**. The Typst web app has it preinstalled — local users need it on the system font path, or pass `preferences.font` to override.
+`altacv` needs two fonts available wherever you compile: **Lato** (the default body font — override via `preferences.font`) and the desktop **FontAwesome** v7 set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for the contact-bar and section icons). Neither is vendored in the package. The Typst web app has both preinstalled.
 
-- **Web app**: works out of the box.
-- **Local (Linux)**: `sudo apt-get install fonts-lato` (or your distro's equivalent).
-- **Local (macOS/Windows)**: download from [Google Fonts](https://fonts.google.com/specimen/Lato) and install.
-- **Other fonts**: any installed system font works — `#alta(cv, preferences: (font: "Inter"))`.
+For a local setup on macOS, Homebrew covers Typst plus both fonts:
 
-Run `typst fonts` to list what Typst can see on your system.
+```bash
+brew install typst
+brew install --cask font-lato font-fontawesome
+```
+
+On other platforms, install Lato from [Google Fonts](https://fonts.google.com/specimen/Lato) and the FontAwesome v7 desktop OTFs from [fontawesome.com/download](https://fontawesome.com/download) (the apt `fonts-font-awesome` package ships v6, which the Typst package doesn't read by default). Run `typst fonts` afterwards to confirm both are visible; if FontAwesome is missing icons render as tofu. Any other body font works too: `#alta(cv, preferences: (font: "Inter"))`.
 
 ## Quick start
 
@@ -175,7 +177,7 @@ Printed CVs lose the clickability of digital PDFs — a reader looking at a pape
 
 The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` layout puts the QR on the left). With no portrait, the QR still lands on the side opposite `imagePosition` — adding a photo later doesn't shift the QR. With `imagePosition: "center"` the QR pins the header's top-left corner regardless of `imageStackOrder`: it rides the photo row when the photo is on top, and the text row when the photo stacks below. The matrix inherits `preferences.accent` for its module colour and renders at roughly `3.5em` — small enough to stay out of the way, large enough to scan reliably at typical print DPIs. The matrix is also wrapped in `link()` so digital readers can click through to the same destination.
 
-QR generation is delegated to the [`@preview/zebra`](https://typst.app/universe/package/zebra) package — a single-file generator that emits native Typst vector paths. This is the only third-party Typst dependency `altacv` pulls in; it's fetched on first compile and cached thereafter.
+QR generation is delegated to the [`@preview/zebra`](https://typst.app/universe/package/zebra) package — a single-file generator that emits native Typst vector paths. Alongside [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) (used for the contact-bar and section icons), these are the two third-party Typst dependencies `altacv` pulls in; both are fetched on first compile and cached thereafter.
 
 Each per-section entry below follows JSON Resume's schema. Tables show the practical subset rendered. Where dates appear, `startDate` / `endDate` follow the same conventions (omit `endDate` → "Present"); `summary` accepts a string or `[...]` content for markup like emphasis.
 
@@ -292,7 +294,9 @@ When `references[]` is empty (or every entry lacks a `reference`) and `preferenc
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a vendored icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, drop its SVG (with `fill="#666666"` baked in) into `icons/` and register it in `_network_icon_sources` in `internal/icons.typ`.
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set. To add another, map the new key to its FontAwesome glyph name in `_network_icons` (`internal/icons.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
+
+Icons are resolved via the [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) package, which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for how to make the FA fonts available locally; on typst.app they're preinstalled.
 
 ### PDF metadata
 
@@ -341,7 +345,7 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
-| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `auto` encodes `basics.url` (panicking if it's missing or empty). Any non-empty string is encoded verbatim — handy for pointing a printed CV at a tracked landing page distinct from `basics.url`. Generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra), the only third-party dependency this package pulls in. See [Header QR code](#header-qr-code-preferencesqrcode) for layout details. |
+| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `auto` encodes `basics.url` (panicking if it's missing or empty). Any non-empty string is encoded verbatim — handy for pointing a printed CV at a tracked landing page distinct from `basics.url`. Generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra), one of the two third-party dependencies this package pulls in (the other is [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons). See [Header QR code](#header-qr-code-preferencesqrcode) for layout details. |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. When `false` (the default) an empty section is suppressed entirely, matching every other section. |
@@ -489,7 +493,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 
 | Helper | Purpose |
 |---|---|
-| `icon(name, size: auto, shift: auto, fill: auto)` | Render a vendored SVG. `name` is any key from the built-in icon set (utility or network). |
+| `icon(name, size: auto, shift: auto, fill: auto)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].rating` data field — the function isn't auto-fed; pass the value explicitly. |

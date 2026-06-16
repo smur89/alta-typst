@@ -17,7 +17,7 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 lib.typ           # public entry — re-exports + `alta()`
 internal/         # shared infrastructure, one concern per file
 sections/         # one renderer per dispatched CV section
-icons/            # vendored Font Awesome SVGs
+assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` helper
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
 ```
@@ -28,7 +28,16 @@ Modules under `internal/` are leading-underscore private; only what `lib.typ` re
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. The `Lato` font must be installed for the example to render correctly.
+Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
+
+On macOS, one block sets up everything Homebrew can provide:
+
+```bash
+brew install typst
+brew install --cask font-lato font-fontawesome
+```
+
+Linux / Windows / manual install paths: see the [Fonts section in the README](README.md#fonts). Run `typst fonts` to confirm both are visible to Typst.
 
 Most everyday tasks go through the `Makefile`:
 
@@ -70,13 +79,12 @@ PRs squash-merge with the PR title as the commit subject, so just make the **PR 
 
 ## Adding a profile-network icon
 
-This is the most common shape of contribution. Three changes:
+This is the most common shape of contribution. Two changes:
 
-1. Vendor a single-path SVG into `icons/<name>.svg`. The `fill="#666666"` attribute must be baked into the path — see `icons/github.svg` for the exact format. [Font Awesome Free](https://fontawesome.com/) (CC BY 4.0) is the existing source.
-2. Register the key in `_network_icon_sources` in `internal/icons.typ`. Use the lowercase form; the lookup `lower(profile.network)` normalises the caller's spelling.
-3. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
+1. Add a row to `_network_icons` in `internal/icons.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
+2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
-`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network.
+`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/icons.typ` so `fa-icon` is called with `solid: true`.
 
 ## Adding a section, preference, or label
 

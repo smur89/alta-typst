@@ -18,7 +18,7 @@
     email: "centre@example.com",
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     imagePosition: "center",
@@ -35,7 +35,7 @@
     email: "below@example.com",
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     imagePosition: "center",
@@ -55,7 +55,7 @@
     label: "Orthogonal: photo centred, text flush left",
     email: "mix@example.com",
     location: "Dublin, Ireland",
-    image: read("../icons/avatar-placeholder.svg", encoding: none),
+    image: read("../assets/avatar-placeholder.svg", encoding: none),
   )),
   preferences: (
     imagePosition: "center",
