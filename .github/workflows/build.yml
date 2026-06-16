@@ -39,24 +39,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Typst + Lato font + FontAwesome 7
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          # FontAwesome version pinned at the workflow env level so all
-          # jobs that compile the package agree on the same release.
-          curl -sSfL -o /tmp/fa.zip \
-            "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip"
-          sudo unzip -q -o /tmp/fa.zip -d /tmp/fa
-          sudo mkdir -p /usr/share/fonts/fontawesome
-          sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
-          sudo fc-cache -f
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Compile example + test fixtures
         run: make test
@@ -94,24 +81,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Typst + Lato font + FontAwesome 7
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          # FontAwesome version pinned at the workflow env level so all
-          # jobs that compile the package agree on the same release.
-          curl -sSfL -o /tmp/fa.zip \
-            "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip"
-          sudo unzip -q -o /tmp/fa.zip -d /tmp/fa
-          sudo mkdir -p /usr/share/fonts/fontawesome
-          sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
-          sudo fc-cache -f
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Build cv.pdf + cv.png + example_full.pdf
         run: make cv example-full
@@ -193,24 +167,11 @@ jobs:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - name: Install Typst + Lato font + FontAwesome 7
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-lato
-          # FontAwesome version pinned at the workflow env level so all
-          # jobs that compile the package agree on the same release.
-          curl -sSfL -o /tmp/fa.zip \
-            "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip"
-          sudo unzip -q -o /tmp/fa.zip -d /tmp/fa
-          sudo mkdir -p /usr/share/fonts/fontawesome
-          sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
-          sudo fc-cache -f
-          TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
-          URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
-          curl -sSfL "$URL" | sudo tar -xJ \
-            --strip-components=1 \
-            -C /usr/local/bin \
-            typst-x86_64-unknown-linux-musl/typst
+      - name: Setup Typst environment
+        uses: ./.github/actions/setup-typst
+        with:
+          typst-version: ${{ env.TYPST_VERSION }}
+          fa-version: ${{ env.FA_VERSION }}
 
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
         run: make cv example-full thumbnail

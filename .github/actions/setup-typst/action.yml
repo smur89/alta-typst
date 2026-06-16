@@ -1,0 +1,71 @@
+# Installs the toolchain every CI job that compiles the package needs:
+# the Typst binary, the Lato body font, and the FontAwesome desktop
+# OTFs that resolve glyphs for `@preview/fontawesome`. Extracted into
+# a composite action so the three jobs that build PDFs (lint, build,
+# attach-release-artifacts) share a single source of truth instead of
+# duplicating the install block.
+#
+# The FA zip is restored from cache when available — keyed on the
+# version input, so bumping `FA_VERSION` in the workflow invalidates
+# the cache automatically.
+name: Setup Typst environment
+description: Install Typst, Lato, and FontAwesome desktop OTFs on the runner.
+
+inputs:
+  typst-version:
+    description: Typst release tag (e.g. v0.14.2).
+    required: true
+  fa-version:
+    description: FontAwesome desktop release version (e.g. 7.0.0).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install Lato
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends fonts-lato
+
+    # Cache the upstream FA zip rather than the unpacked OTFs — the
+    # zip is a single ~10 MB blob that restores faster than dozens of
+    # small font files, and the unzip + fc-cache steps that follow are
+    # cheap.
+    - name: Restore FontAwesome zip from cache
+      id: fa-cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: /tmp/fa.zip
+        key: fontawesome-desktop-${{ inputs.fa-version }}
+
+    - name: Download FontAwesome zip
+      if: steps.fa-cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        FA_VERSION: ${{ inputs.fa-version }}
+      run: |
+        curl -sSfL -o /tmp/fa.zip \
+          "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip"
+
+    - name: Install FontAwesome OTFs
+      shell: bash
+      env:
+        FA_VERSION: ${{ inputs.fa-version }}
+      run: |
+        sudo unzip -q -o /tmp/fa.zip -d /tmp/fa
+        sudo mkdir -p /usr/share/fonts/fontawesome
+        sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
+        sudo fc-cache -f
+
+    - name: Install Typst
+      shell: bash
+      env:
+        TYPST_VERSION: ${{ inputs.typst-version }}
+      run: |
+        TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
+        URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL
+        curl -sSfL "$URL" | sudo tar -xJ \
+          --strip-components=1 \
+          -C /usr/local/bin \
+          typst-x86_64-unknown-linux-musl/typst
