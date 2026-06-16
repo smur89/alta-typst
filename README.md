@@ -137,19 +137,29 @@ These are silently ignored, so a verbatim `resume.json` round-trips without pani
 
 ### Portrait (`basics.image`)
 
-Setting `basics.image` adds a circular portrait to the header. Move it with `preferences.imagePosition` (`"left"` / `"right"` for the two-column header, or `"center"` to stack it above/below the text block via `preferences.imageStackOrder`). Size via `preferences.imageSize` (default `6em`); the image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort. Two ways to supply the source:
+Setting `basics.image` adds a circular portrait to the header. Move it with `preferences.imagePosition` (`"left"` / `"right"` for the two-column header, or `"center"` to stack it above/below the text block via `preferences.imageStackOrder`). Size via `preferences.imageSize` (default `6em`); the image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort. Three accepted source forms:
 
 ```typst
-// Recommended: load the bytes in your own typ file — path resolution
-// happens at your call site, so relative paths "just work".
+// Recommended: a path() (Typst 0.15.0+). Resolution is anchored to
+// the file where path() is called — your own cv.typ — so the lookup
+// stays correct even though image() ultimately runs inside the
+// package.
+basics: (
+  image: path("avatar.png"),
+  ...
+)
+
+// Equivalent: load the bytes in your own typ file. Same resolution
+// guarantee, embedded as bytes instead of a reference.
 basics: (
   image: read("avatar.png", encoding: none),
   ...
 )
 
-// Alternative: a root-relative path (leading "/", anchored to the
-// `--root` dir passed to `typst compile`). Paths without a leading
-// "/" resolve relative to an internal package file and are not portable.
+// Also accepted: a root-relative path (leading "/", anchored to the
+// `--root` dir passed to `typst compile`). Bare relative strings
+// without a leading "/" resolve relative to an internal package
+// file and are not portable — prefer path() instead.
 basics: (
   image: "/avatar.png",
   ...
