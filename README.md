@@ -142,6 +142,7 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three p
 
 - `focusAreas`: top-level array of prose items, rendered as a bulleted "Areas of Focus" section. An altacv addition, distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
 - `languages[].rating`: numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots).
+  - Fluency strings outside LinkedIn's scale (`Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`) render as a small annotation in place of the dots — a canonical `resume.json` with `"fluency": "Fluent"` renders without edits.
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise via `labels.articles` or by supplying already-translated `type` values.
 
 An empty or missing `endDate` renders as `Present` (localisable via `labels.present`).

@@ -4,7 +4,7 @@
 // main `@preview/altacv` entry stays gairm-import-free.
 
 #import "lib.typ": alta as _alta
-#import "@preview/gairm-import:0.7.0": (
+#import "@preview/gairm-import:0.8.1": (
   parse as _parse,
   resume-schema-strict,
   lens, add-field,
@@ -37,12 +37,13 @@
 #let from-json-resume(data) = _parse(data, schema: altacv-schema)
 
 // One-call alternative: read + validate + render in a single import.
-// Equivalent to `alta(from-json-resume(data), labels: …, preferences: …)`.
+// Equivalent to `alta(from-json-resume(data), ..)`.
 //
 //   #import "@preview/altacv:X.Y.Z/from-json-resume.typ": alta-from-json
 //   #alta-from-json(path("resume.json"), preferences: (accent: rgb("#0a4")))
-#let alta-from-json(data, labels: (:), preferences: (:)) = _alta(
-  from-json-resume(data),
-  labels: labels,
-  preferences: preferences,
-)
+//
+// `..rest` forwards every named argument straight to `alta`, so any
+// kwarg added to `alta` in a future minor release flows through here
+// without an adapter edit (and without a hand-maintained list that
+// silently drops the new keyword).
+#let alta-from-json(data, ..rest) = _alta(from-json-resume(data), ..rest)

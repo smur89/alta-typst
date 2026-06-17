@@ -21,19 +21,23 @@
   "Elementary":           1,
 )
 
-// Resolves an entry to a rating. Type and bounds validation are
-// deferred to `rating()` (which runs inside a `context` block and can
-// read the configured `_max_rating_state`); this function only handles
-// the numeric-vs-fluency dispatch.
+// Resolves an entry to a rating, or `none` when `fluency` is present
+// but outside the LinkedIn enum (canonical JSON Resume's free-text
+// shape). Panics when neither `rating` nor `fluency` is supplied —
+// that's a data error, not a renderable shape, and silently dropping
+// it would mask typos like a misnamed key. Type and bounds validation
+// for the numeric path are deferred to `rating()`.
 #let _resolve_rating(entry) = {
   let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
-  if fluency != none {
-    if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
-    panic("Unknown fluency level: " + repr(fluency) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
+  if fluency == none {
+    panic("Language entry needs either a numeric `rating` or a `fluency` string. Got: " + repr(entry))
   }
-  panic("Language entry needs either a numeric `rating` or a `fluency` string.")
+  if type(fluency) == str and fluency in _fluency_rating {
+    return _fluency_rating.at(fluency)
+  }
+  none
 }
 
 #let _half_fill(accent) = gradient.linear(

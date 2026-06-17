@@ -166,6 +166,16 @@ examples/tests:
 examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
+# Scoped extra prerequisites — only the json_resume fixtures depend on
+# the adapter and (in the canonical case) the JSON fixture. Adding
+# either to $(LIB_SOURCES) would invalidate every cached PDF on every
+# `from-json-resume.typ` edit even though only these render it.
+# `$(filter ...)` over $(TEST_PDFS) auto-picks up any future
+# `tests/json_resume_*.typ` fixture, so contributors adding one don't
+# have to remember to extend this list.
+$(filter examples/tests/json_resume%.pdf,$(TEST_PDFS)): from-json-resume.typ
+examples/tests/json_resume_canonical.pdf: tests/fixtures/canonical_resume.json
+
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ
 	$(TYPST) compile --root $(ROOT) $< $@
