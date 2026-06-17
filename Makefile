@@ -80,7 +80,7 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 # the list here keeps them from drifting (the drift between the two
 # is what slipped CONTRIBUTING.md past 1.4.1's typst-package-check).
 PACKAGE_FILES := \
-  typst.toml lib.typ internal sections assets template \
+  typst.toml lib.typ from-json-resume.typ internal sections assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
   examples/cv.png \

@@ -109,6 +109,33 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 [`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_full.typ) <!-- x-release-please-version --> is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
+## Loading from a JSON Resume document
+
+If your CV data lives in a canonical `resume.json` ([JSON Resume schema](https://jsonresume.org/schema/)), the adapter validates and coerces it via [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). For the common one-call case use `alta-from-json`:
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.4.3/from-json-resume.typ": alta-from-json
+
+#alta-from-json(path("resume.json"))
+```
+<!-- x-release-please-end -->
+
+For more control (inspecting or transforming the dict before rendering), use the two-step pipeline:
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.4.3": alta
+#import "@preview/altacv:1.4.3/from-json-resume.typ": from-json-resume
+
+#alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
+```
+<!-- x-release-please-end -->
+
+The adapter starts from gairm-import's `resume-schema-strict` (free-text fields wrapped as Typst `content`, dates validated as iso8601) and adds altacv's three documented extensions (`focusAreas`, `languages[].rating`, `publications[].type`). Dates stay strict: input must be `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`; presentation is altacv's `preferences.dateFormat` (see [Configuration](#configuration)).
+
+`@preview/gairm-import` is a transitive dependency of this adapter only — the main `@preview/altacv` entry doesn't import it, so users who pass an inline dict directly to `alta` don't pay the cost.
+
 ## Data schema
 
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three practical extensions:

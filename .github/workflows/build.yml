@@ -157,6 +157,12 @@ jobs:
       - name: Render artifacts the release tarball contains
         run: make cv example-full thumbnail
 
+      # `from-json-resume.typ` imports @preview/gairm-import, so the
+      # check needs that in the cache too. The unit test exercises the
+      # full compile path, which downloads gairm-import once.
+      - name: Populate cache with from-json-resume's transitive deps
+        run: typst compile tests/json_resume.typ /dev/null
+
       # Stage at the package's actual version (from typst.toml) — the
       # template's self-import `@preview/altacv:<version>` resolves to
       # the staged directory, otherwise the check can't compile it.
