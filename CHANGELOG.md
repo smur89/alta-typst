@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/smur89/alta-typst/compare/v1.4.2...v1.4.3) (2026-06-17)
+
+
+### Bug Fixes
+
+* **pkg:** stop shipping example .typ sources to resolve relative-import warnings ([#151](https://github.com/smur89/alta-typst/issues/151)) ([96fe41e](https://github.com/smur89/alta-typst/commit/96fe41ebc4c29592a14e60dbee4010477dffac11))
+
 ## [1.4.2](https://github.com/smur89/alta-typst/compare/v1.4.1...v1.4.2) (2026-06-16)
 
 
