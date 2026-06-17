@@ -26,7 +26,7 @@
 
 ## Gallery
 
-Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](examples/example_full.typ); rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
+Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.2/examples/example_full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
 
 | Page 1 | Page 2 |
 | :---: | :---: |
@@ -107,7 +107,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 ```
 <!-- x-release-please-end -->
 
-[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](examples/example_full.typ) is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.2/examples/example_full.typ) <!-- x-release-please-version --> is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
 
 ## Data schema
 
@@ -501,7 +501,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](examples/example_ga.typ) for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.4.2/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ### Helpers
 
