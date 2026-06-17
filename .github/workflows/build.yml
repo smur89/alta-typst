@@ -58,12 +58,21 @@ jobs:
       # Re-render every fixture under examples/tests/ and fail if any
       # committed PDF is out of date. Keeps the visible reference in
       # lockstep with the .typ source.
+      #
+      # `git status --porcelain` reports both modified-tracked and
+      # untracked files in one call, scoped to *.pdf so an unrelated
+      # editor swap or `.DS_Store` doesn't trip the guard with a
+      # misleading "PDFs out of date" message. One `git` invocation
+      # also avoids the `set -e` pitfall where a failing `$(…)` inside
+      # an assignment silently produces an empty result and skips the
+      # check.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make test-pdfs
-          if ! git diff --quiet --exit-code -- examples/tests; then
+          drift=$(git status --porcelain -- 'examples/tests/*.pdf')
+          if [ -n "$drift" ]; then
             echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
-            git --no-pager diff --stat -- examples/tests
+            printf '%s\n' "$drift"
             exit 1
           fi
 
@@ -160,8 +169,11 @@ jobs:
       # `from-json-resume.typ` imports @preview/gairm-import, so the
       # check needs that in the cache too. The unit test exercises the
       # full compile path, which downloads gairm-import once.
+      # `--root .` is required because the fixture imports `..` paths;
+      # `--format pdf` is required because `/dev/null` has no extension
+      # for Typst to infer from.
       - name: Populate cache with from-json-resume's transitive deps
-        run: typst compile tests/json_resume.typ /dev/null
+        run: typst compile --root . --format pdf tests/json_resume.typ /dev/null
 
       # Stage at the package's actual version (from typst.toml) — the
       # template's self-import `@preview/altacv:<version>` resolves to
