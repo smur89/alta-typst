@@ -84,9 +84,9 @@ PACKAGE_FILES := \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
   examples/cv.png \
-  examples/example_full.typ examples/example_full.pdf \
+  examples/example_full.pdf \
   examples/example_full-1.png examples/example_full-2.png \
-  examples/example_ga.typ examples/labels-ga.toml
+  examples/labels-ga.toml
 
 .PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell stage-package-dir package-tarball
 
