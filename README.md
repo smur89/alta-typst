@@ -115,7 +115,7 @@ If your CV data lives in a canonical `resume.json` ([JSON Resume schema](https:/
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3/from-json-resume.typ": alta-from-json
+#import "@preview/altacv:1.4.3": alta-from-json
 
 #alta-from-json(path("resume.json"))
 ```
@@ -125,8 +125,7 @@ For more control (inspecting or transforming the dict before rendering), use the
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta
-#import "@preview/altacv:1.4.3/from-json-resume.typ": from-json-resume
+#import "@preview/altacv:1.4.3": alta, from-json-resume
 
 #alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
 ```
@@ -134,7 +133,7 @@ For more control (inspecting or transforming the dict before rendering), use the
 
 The adapter starts from gairm-import's `resume-schema-strict` (free-text fields wrapped as Typst `content`, dates validated as iso8601) and adds altacv's three documented extensions (`focusAreas`, `languages[].rating`, `publications[].type`). Dates stay strict: input must be `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`; presentation is altacv's `preferences.dateFormat` (see [Configuration](#configuration)).
 
-`@preview/gairm-import` is a transitive dependency of this adapter only — the main `@preview/altacv` entry doesn't import it, so users who pass an inline dict directly to `alta` don't pay the cost.
+`@preview/gairm-import` is a transitive dependency of `@preview/altacv` — at ~30 KB cached once by Typst, the cost is negligible for users who don't call `from-json-resume`.
 
 ## Data schema
 

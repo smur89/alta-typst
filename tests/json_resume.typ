@@ -9,8 +9,7 @@
 // Dates must be iso8601 (YYYY / YYYY-MM / YYYY-MM-DD) per the JSON
 // Resume spec — presentation is altacv's `preferences.dateFormat`.
 
-#import "../lib.typ": alta
-#import "../from-json-resume.typ": from-json-resume
+#import "../lib.typ": alta, from-json-resume
 
 #let resume = from-json-resume((
   basics: (

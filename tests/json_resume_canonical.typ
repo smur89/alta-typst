@@ -6,10 +6,18 @@
 // edit it. This fixture exercises both the parse path (asserts) and
 // the render path so a regression in either fails the build.
 
-#import "../lib.typ": alta
-#import "../from-json-resume.typ": from-json-resume
+#import "../lib.typ": alta, from-json-resume
 
 #let resume = from-json-resume(path("fixtures/canonical_resume.json"))
+
+// Negative-space: lock the canonical shape so a future schema
+// addition that silently appears in the dict (e.g. a new top-level
+// section the renderer doesn't yet handle) fails this assert instead
+// of slipping past the positive checks below.
+#assert.eq(
+  resume.keys().sorted(),
+  ("basics", "education", "languages", "projects", "publications", "skills", "work"),
+)
 
 // Canonical sections present in the expected shape.
 #assert.eq(resume.basics.name, "Jane Doe")

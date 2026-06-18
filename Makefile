@@ -80,7 +80,7 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
 # the list here keeps them from drifting (the drift between the two
 # is what slipped CONTRIBUTING.md past 1.4.1's typst-package-check).
 PACKAGE_FILES := \
-  typst.toml lib.typ from-json-resume.typ internal sections assets template \
+  typst.toml lib.typ internal sections assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
   examples/cv.png \
@@ -166,14 +166,10 @@ examples/tests:
 examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
-# Scoped extra prerequisites — only the json_resume fixtures depend on
-# the adapter and (in the canonical case) the JSON fixture. Adding
-# either to $(LIB_SOURCES) would invalidate every cached PDF on every
-# `from-json-resume.typ` edit even though only these render it.
-# `$(filter ...)` over $(TEST_PDFS) auto-picks up any future
-# `tests/json_resume_*.typ` fixture, so contributors adding one don't
-# have to remember to extend this list.
-$(filter examples/tests/json_resume%.pdf,$(TEST_PDFS)): from-json-resume.typ
+# Scoped extra prerequisite — the canonical JSON fixture changes
+# should invalidate the rendered PDF that depends on it. The adapter
+# code itself now lives in lib.typ (already in $(LIB_SOURCES)), so no
+# extra dep is needed for the adapter source.
 examples/tests/json_resume_canonical.pdf: tests/fixtures/canonical_resume.json
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
