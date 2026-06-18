@@ -21,12 +21,10 @@
   "Elementary":           1,
 )
 
-// Resolves an entry to a rating, or `none` when `fluency` is present
-// but outside the LinkedIn enum (canonical JSON Resume's free-text
-// shape). Panics when neither `rating` nor `fluency` is supplied —
-// that's a data error, not a renderable shape, and silently dropping
-// it would mask typos like a misnamed key. Type and bounds validation
-// for the numeric path are deferred to `rating()`.
+// `none` = caller should render label-only (free-text fluency outside
+// the LinkedIn enum). Both-absent panics so a typo'd key doesn't
+// silently render as an empty row. Numeric type/bounds checks live in
+// `rating()`.
 #let _resolve_rating(entry) = {
   let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }

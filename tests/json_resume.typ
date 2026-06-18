@@ -1,13 +1,6 @@
-// from-json-resume: JSON Resume input with altacv's three extensions
-// (focusAreas, languages[].rating, publications[].type) parses into
-// the dict shape `alta` expects AND renders end-to-end. The two
-// halves live in one fixture so a drift between gairm-import's
-// strict-coerced output and what altacv's sections consume (content
-// vs. str, required keys, etc.) fails the build instead of slipping
-// through.
-//
-// Dates must be iso8601 (YYYY / YYYY-MM / YYYY-MM-DD) per the JSON
-// Resume spec — presentation is altacv's `preferences.dateFormat`.
+// Asserts shape + renders end-to-end so drift between gairm-import's
+// strict-coerced output and what altacv's sections consume fails the
+// build instead of slipping past one half of the contract.
 
 #import "../lib.typ": alta, from-json-resume
 

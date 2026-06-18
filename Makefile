@@ -166,10 +166,8 @@ examples/tests:
 examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
-# Scoped extra prerequisite — the canonical JSON fixture changes
-# should invalidate the rendered PDF that depends on it. The adapter
-# code itself now lives in lib.typ (already in $(LIB_SOURCES)), so no
-# extra dep is needed for the adapter source.
+# tests/fixtures/*.json isn't in $(LIB_SOURCES); pin manually so
+# fixture edits invalidate the rendered PDF.
 examples/tests/json_resume_canonical.pdf: tests/fixtures/canonical_resume.json
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.

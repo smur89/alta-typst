@@ -31,22 +31,7 @@
 #import "internal/qr.typ": _check_qr_code
 #import "internal/footer.typ": _auto_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
-
-// JSON Resume adapter deps. Folded into the main entry so the
-// adapter functions live alongside `alta` (one entry, one import
-// path) and so `typst-package-check` doesn't see a sibling top-level
-// module relative-importing `lib.typ` (its `import/relative` rule
-// would fire on that pattern, and any workaround that uses
-// `@preview/altacv:<version>` self-pins a stale version during local
-// dev). gairm-import becomes a transitive dep of the main entry as a
-// result — at ~30 KB cached once by Typst, the cost is negligible
-// for users who don't call `from-json-resume`.
-#import "@preview/gairm-import:0.8.1": (
-  parse as _parse_json_resume,
-  resume-schema-strict,
-  lens, add-field,
-  array-of, content-type, number-type, str-type,
-)
+#import "internal/json-resume.typ": from-json-resume
 
 // Default portrait — a generic head-and-shoulders silhouette baked
 // into the package. Exposed so the `typst init` template (and any
@@ -304,34 +289,6 @@
   }
 }
 
-// ---------------------------------------------------------------------
-// JSON Resume input adapter.
-//
-// Layers altacv's three documented extensions (`focusAreas`,
-// `languages[].rating`, `publications[].type`) over gairm-import's
-// `resume-schema-strict`. The extensions are added with `add-field`
-// (no `set-required`), so a canonical `resume.json` validates without
-// edits.
-//
-//   #import "@preview/altacv:X.Y.Z": alta, from-json-resume
-//   #alta(from-json-resume(path("resume.json")))
-//
-// `alta-from-json` is the one-call convenience. `..rest` forwards
-// every named argument straight to `alta`, so any kwarg added to
-// `alta` in a future release flows through without an adapter edit.
-//
-// Free-text fields are coerced to Typst `content` by the strict
-// overlay — what altacv expects to splice into markup. Dates stay
-// strict iso8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); presentation is
-// `preferences.dateFormat`.
-#let altacv-schema = {
-  let s = resume-schema-strict
-  s = add-field(s, lens(()), "focusAreas", array-of(content-type))
-  s = add-field(s, lens(("languages", "items")), "rating", number-type)
-  s = add-field(s, lens(("publications", "items")), "type", str-type)
-  s
-}
-
-#let from-json-resume(data) = _parse_json_resume(data, schema: altacv-schema)
-
+// `..rest` forwards every kwarg added to `alta` in a future release
+// without an adapter edit (no hand-maintained kwarg list).
 #let alta-from-json(data, ..rest) = alta(from-json-resume(data), ..rest)

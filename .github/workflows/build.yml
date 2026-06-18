@@ -55,17 +55,9 @@ jobs:
       - name: Compile-check template/cv.typ
         run: make test-template
 
-      # Re-render every fixture under examples/tests/ and fail if any
-      # committed PDF is out of date. Keeps the visible reference in
-      # lockstep with the .typ source.
-      #
-      # `git status --porcelain` reports both modified-tracked and
-      # untracked files in one call, scoped to *.pdf so an unrelated
-      # editor swap or `.DS_Store` doesn't trip the guard with a
-      # misleading "PDFs out of date" message. One `git` invocation
-      # also avoids the `set -e` pitfall where a failing `$(…)` inside
-      # an assignment silently produces an empty result and skips the
-      # check.
+      # `git status --porcelain` scoped to *.pdf catches modified AND
+      # untracked PDFs in one call — ignores stray .DS_Store / swap
+      # files, and avoids the `set -e` swallow on a `$(…)` failure.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make test-pdfs
