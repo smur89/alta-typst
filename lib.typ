@@ -31,6 +31,7 @@
 #import "internal/qr.typ": _check_qr_code
 #import "internal/footer.typ": _auto_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
+#import "internal/json-resume.typ": from-json-resume
 
 // Default portrait — a generic head-and-shoulders silhouette baked
 // into the package. Exposed so the `typst init` template (and any
@@ -286,4 +287,15 @@
       render-column(preferences.rightColumnSections),
     )
   }
+}
+
+// `..rest` forwards every kwarg added to `alta` in a future release
+// without an adapter edit. Extra positionals are rejected up front so
+// `alta-from-json(p, my-prefs)` (drift from the kwarg form) panics
+// with a wrapper-aware diagnostic instead of an alta-level one.
+#let alta-from-json(data, ..rest) = {
+  if rest.pos().len() > 0 {
+    panic("alta-from-json takes one positional (`data`); pass labels/preferences as named arguments. Got extra positionals: " + repr(rest.pos()))
+  }
+  alta(from-json-resume(data), ..rest)
 }

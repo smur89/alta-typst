@@ -21,19 +21,22 @@
   "Elementary":           1,
 )
 
-// Resolves an entry to a rating. Type and bounds validation are
-// deferred to `rating()` (which runs inside a `context` block and can
-// read the configured `_max_rating_state`); this function only handles
-// the numeric-vs-fluency dispatch.
+// `none` = caller should render label-only (free-text fluency outside
+// the LinkedIn enum). Both-absent and non-string fluency panic so a
+// typo'd key or wrong-typed value surfaces immediately. Numeric
+// type/bounds checks live in `rating()`.
 #let _resolve_rating(entry) = {
   let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
-  if fluency != none {
-    if type(fluency) == str and fluency in _fluency_rating { return _fluency_rating.at(fluency) }
-    panic("Unknown fluency level: " + repr(fluency) + ". Provide a numeric `rating` instead, or use one of: " + _fluency_rating.keys().join(", "))
+  if fluency == none {
+    panic("Language entry needs either a numeric `rating` or a `fluency` string. Got: " + repr(entry))
   }
-  panic("Language entry needs either a numeric `rating` or a `fluency` string.")
+  if type(fluency) != str {
+    panic("Language `fluency` must be a string, got " + repr(fluency) + " in entry: " + repr(entry))
+  }
+  if fluency in _fluency_rating { return _fluency_rating.at(fluency) }
+  none
 }
 
 #let _half_fill(accent) = gradient.linear(
