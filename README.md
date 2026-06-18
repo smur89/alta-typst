@@ -347,7 +347,7 @@ These fields are accepted (so a verbatim `resume.json` round-trips without panic
 - `projects[].entity`, `projects[].type`, `projects[].roles`
 - `meta.canonical`, `meta.version`
 
-Open or upvote an issue if you need one rendered.
+Tracked in [#158](https://github.com/smur89/alta-typst/issues/158) — comment there if you need one prioritised.
 
 ## Configuration
 
