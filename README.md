@@ -26,7 +26,7 @@
 
 ## Gallery
 
-Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
+Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.5.0/examples/example_full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
 
 | Page 1 | Page 2 |
 | :---: | :---: |
@@ -44,7 +44,7 @@ Or `#import` it from an existing `.typ`:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta
+#import "@preview/altacv:1.5.0": alta
 ```
 <!-- x-release-please-end -->
 
@@ -65,7 +65,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta
+#import "@preview/altacv:1.5.0": alta
 
 #let cv = (
   basics: (
@@ -107,7 +107,7 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 ```
 <!-- x-release-please-end -->
 
-[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into your project. For a multi-page demo exercising every section and input form, see [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
+[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into your project. For a multi-page demo exercising every section and input form, see [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.5.0/examples/example_full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
 
 ## Data schema
 
@@ -334,7 +334,7 @@ Example — reorder the right-column sections + tweak theme + use US Letter:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta, maps-providers, palettes
+#import "@preview/altacv:1.5.0": alta, maps-providers, palettes
 
 #alta(cv, preferences: (
   paper: "us-letter",
@@ -457,7 +457,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.5.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ### Helpers
 
@@ -477,7 +477,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta, tag, divider, palettes, maps-providers
+#import "@preview/altacv:1.5.0": alta, tag, divider, palettes, maps-providers
 ```
 <!-- x-release-please-end -->
 
@@ -537,7 +537,7 @@ If your CV lives in a canonical `resume.json` ([JSON Resume schema](https://json
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta-from-json
+#import "@preview/altacv:1.5.0": alta-from-json
 
 #alta-from-json(path("resume.json"))
 ```
@@ -549,7 +549,7 @@ To inspect or transform the parsed dict before rendering, use `from-json-resume`
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.4.3": alta, from-json-resume
+#import "@preview/altacv:1.5.0": alta, from-json-resume
 
 #alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
 ```

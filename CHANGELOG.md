@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/smur89/alta-typst/compare/v1.4.3...v1.5.0) (2026-06-18)
+
+
+### Features
+
+* load resumes from JSON Resume via @preview/gairm-import ([#154](https://github.com/smur89/alta-typst/issues/154)) ([5cf278e](https://github.com/smur89/alta-typst/commit/5cf278ecac58d2856ae7b3449d98a7ea56c8ae66))
+
 ## [1.4.3](https://github.com/smur89/alta-typst/compare/v1.4.2...v1.4.3) (2026-06-17)
 
 
