@@ -290,5 +290,12 @@
 }
 
 // `..rest` forwards every kwarg added to `alta` in a future release
-// without an adapter edit (no hand-maintained kwarg list).
-#let alta-from-json(data, ..rest) = alta(from-json-resume(data), ..rest)
+// without an adapter edit. Extra positionals are rejected up front so
+// `alta-from-json(p, my-prefs)` (drift from the kwarg form) panics
+// with a wrapper-aware diagnostic instead of an alta-level one.
+#let alta-from-json(data, ..rest) = {
+  if rest.pos().len() > 0 {
+    panic("alta-from-json takes one positional (`data`); pass labels/preferences as named arguments. Got extra positionals: " + repr(rest.pos()))
+  }
+  alta(from-json-resume(data), ..rest)
+}

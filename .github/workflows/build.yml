@@ -55,13 +55,15 @@ jobs:
       - name: Compile-check template/cv.typ
         run: make test-template
 
-      # `git status --porcelain` scoped to *.pdf catches modified AND
-      # untracked PDFs in one call — ignores stray .DS_Store / swap
-      # files, and avoids the `set -e` swallow on a `$(…)` failure.
+      # `git status --porcelain` catches modified, untracked, AND
+      # deleted PDFs (the old `git diff --quiet` missed untracked).
+      # `grep '\.pdf'` filters out unrelated drift like an editor swap
+      # file; `|| true` keeps the pipeline exit code under `set -e`
+      # when grep finds nothing.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make test-pdfs
-          drift=$(git status --porcelain -- 'examples/tests/*.pdf')
+          drift=$(git status --porcelain -- examples/tests/ | grep '\.pdf' || true)
           if [ -n "$drift" ]; then
             echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
             printf '%s\n' "$drift"

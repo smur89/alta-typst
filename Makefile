@@ -166,9 +166,10 @@ examples/tests:
 examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
 
-# tests/fixtures/*.json isn't in $(LIB_SOURCES); pin manually so
-# fixture edits invalidate the rendered PDF.
-examples/tests/json_resume_canonical.pdf: tests/fixtures/canonical_resume.json
+# tests/fixtures/* isn't in $(LIB_SOURCES). Add as a universal extra
+# prereq so any future fixture edit invalidates every test PDF (coarse
+# but auto-extends — beats hand-maintaining a per-fixture list).
+$(TEST_PDFS): $(wildcard tests/fixtures/*)
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
 examples/%.pdf: examples/%.typ

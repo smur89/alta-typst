@@ -22,9 +22,9 @@
 )
 
 // `none` = caller should render label-only (free-text fluency outside
-// the LinkedIn enum). Both-absent panics so a typo'd key doesn't
-// silently render as an empty row. Numeric type/bounds checks live in
-// `rating()`.
+// the LinkedIn enum). Both-absent and non-string fluency panic so a
+// typo'd key or wrong-typed value surfaces immediately. Numeric
+// type/bounds checks live in `rating()`.
 #let _resolve_rating(entry) = {
   let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
   if value != none { return value }
@@ -32,9 +32,10 @@
   if fluency == none {
     panic("Language entry needs either a numeric `rating` or a `fluency` string. Got: " + repr(entry))
   }
-  if type(fluency) == str and fluency in _fluency_rating {
-    return _fluency_rating.at(fluency)
+  if type(fluency) != str {
+    panic("Language `fluency` must be a string, got " + repr(fluency) + " in entry: " + repr(entry))
   }
+  if fluency in _fluency_rating { return _fluency_rating.at(fluency) }
   none
 }
 

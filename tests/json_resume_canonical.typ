@@ -24,10 +24,10 @@
 #assert.eq(resume.publications.at(0).releaseDate, "2024-09")
 #assert.eq(resume.projects.len(), 1)
 
-// Extension fields explicitly absent — pins "vanilla resume.json
-// works without edits".
-#assert.eq(resume.at("focusAreas", default: ()), ())
-#assert.eq(resume.languages.at(1).at("rating", default: none), none)
-#assert.eq(resume.publications.at(0).at("type", default: none), none)
+// Extension fields explicitly absent (not just empty) — pins
+// "vanilla resume.json works without edits".
+#assert("focusAreas" not in resume)
+#assert("rating" not in resume.languages.at(1))
+#assert("type" not in resume.publications.at(0))
 
 #alta(resume)
