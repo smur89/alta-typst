@@ -28,7 +28,7 @@
 - [Helpers](#helpers)
 - [Building the examples](#building-the-examples)
 - [Credits](#credits)
-- [Licence](#licence)
+- [License](#license)
 
 ## Features
 
@@ -613,6 +613,6 @@ The GIF is sourced from `examples/preview-frames.typ` — one page per variation
 - **[LianTze Lim — AltaCV](https://github.com/liantze/AltaCV)** (LPPL). The visual ancestor: the two-column layout, accent palette, and section structure originate in LianTze's LaTeX class.
 - **[George Honeywood — alta-typst](https://github.com/GeorgeHoneywood/alta-typst)** (MIT, © 2023). Prior Typst implementation; the grid layout, pill tags, and half-fill skill dots originate there.
 
-## Licence
+## License
 
 [MIT](LICENSE). Copyright © 2023 George Honeywood, © 2026 Shane Murphy.
