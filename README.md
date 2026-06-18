@@ -30,7 +30,7 @@ Every documented section rendered in a single multi-page CV. Source: [`examples/
 
 | Page 1 | Page 2 |
 | :---: | :---: |
-| ![example_full page 1 — header (name, label, summary, contact bar with every profile network), work, volunteer, focus areas, skills, languages, education](examples/example_full-1.png) | ![example_full page 2 — projects, publications grouped by type (Articles, Conference Papers, Talks, Books), certificates with multi-issuer grouping, awards, interests, references](examples/example_full-2.png) |
+| ![Alta CV page 1: header, experience, side-panel sections.](examples/example_full-1.png) | ![Alta CV page 2: projects, publications grouped by type, certificates, awards.](examples/example_full-2.png) |
 
 ## Installation
 
@@ -107,14 +107,14 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 ```
 <!-- x-release-please-end -->
 
-[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into a user's project — also the canonical demo that produces [`examples/cv.png`](examples/cv.png) and the Universe `thumbnail.png`. [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_full.typ) <!-- x-release-please-version --> is the multi-page demo that exercises every section and input form (see [Gallery](#gallery) for the rendered output). Edge cases (publication grouping, fractional language ratings, custom preferences) are exercised by fixtures under `tests/`.
+[`template/cv.typ`](template/cv.typ) is the starter `typst init` copies into your project. For a multi-page demo exercising every section and input form, see [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.4.3/examples/example_full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
 
 ## Data schema
 
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/) with three practical extensions:
 
 - `focusAreas`: top-level array of prose items, rendered as a bulleted "Areas of Focus" section. An altacv addition, distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
-- `languages[].rating`: numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots).
+- `languages[].rating`: numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` if both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits.
 - `publications[].type`: optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise via `labels.articles` or by supplying already-translated `type` values.
 
 An empty or missing `endDate` renders as `Present` (localisable via `labels.present`).
@@ -133,7 +133,9 @@ JSON Resume fields **accepted but not yet rendered** by this template:
 
 These are silently ignored, so a verbatim `resume.json` round-trips without panicking. Open or upvote an issue if you need one rendered.
 
-`basics.location` accepts a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and maps deep link. A dict is collapsed by joining `city`, `region`, `countryCode` with `", "`, skipping missing fields (so `(city: "Dublin", region: "Leinster", countryCode: "IE")` → `Dublin, Leinster, IE`; `(city: "Tokyo")` → `Tokyo`). `address` and `postalCode` are accepted for `resume.json` round-tripping but not rendered — a CV header isn't a mailing label. The joined string also drives the maps link, so display and link stay in sync. Unknown keys panic.
+`basics.location` accepts a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed by joining `city`, `region`, `countryCode` with `", "`, skipping missing fields — `(city: "Dublin", region: "Leinster", countryCode: "IE")` → `Dublin, Leinster, IE`; `(city: "Tokyo")` → `Tokyo`.
+
+`address` and `postalCode` are accepted for `resume.json` round-tripping but not rendered (a CV header isn't a mailing label). Unknown keys panic. The joined string also drives the maps link, so display and link stay in sync.
 
 ### Portrait (`basics.image`)
 
@@ -167,31 +169,6 @@ basics: (
 ```
 
 JSON Resume's spec calls for a URL here, but Typst does not fetch remote URLs at compile time — vendor the asset locally.
-
-### Header QR code (`preferences.qrCode`)
-
-Printed CVs lose the clickability of digital PDFs — a reader looking at a paper copy has to type the URL themselves. A QR matrix in the header rescues one link (the homepage), so a phone camera takes the reader straight there. Off by default; opt in via `preferences.qrCode`:
-
-```typst
-#alta(
-  (basics: (
-    name: "Jane Doe",
-    url: "https://janedoe.dev",  // canonical home page
-    // …
-  )),
-  preferences: (qrCode: auto),  // encode basics.url
-)
-```
-
-`preferences.qrCode` accepts three shapes:
-
-- `none` (default) — no QR rendered.
-- `auto` — encode `basics.url`. Panics if `basics.url` is missing or empty.
-- any non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page that's distinct from the canonical `basics.url`.
-
-The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` layout puts the QR on the left). With no portrait, the QR still lands on the side opposite `imagePosition` — adding a photo later doesn't shift the QR. With `imagePosition: "center"` the QR pins the header's top-left corner regardless of `imageStackOrder`: it rides the photo row when the photo is on top, and the text row when the photo stacks below. The matrix inherits `preferences.accent` for its module colour and renders at roughly `3.5em` — small enough to stay out of the way, large enough to scan reliably at typical print DPIs. The matrix is also wrapped in `link()` so digital readers can click through to the same destination.
-
-QR generation is delegated to the [`@preview/zebra`](https://typst.app/universe/package/zebra) package — a single-file generator that emits native Typst vector paths. Alongside [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) (used for the contact-bar and section icons), these are the two third-party Typst dependencies `altacv` pulls in; both are fetched on first compile and cached thereafter.
 
 Each per-section entry below follows JSON Resume's schema. Tables show the practical subset rendered. Where dates appear, `startDate` / `endDate` follow the same conventions (omit `endDate` → "Present"); `summary` accepts a string or `[...]` content for markup like emphasis.
 
@@ -312,27 +289,6 @@ The `network` field of each `basics.profiles` entry is matched case-insensitivel
 
 Icons are resolved via the [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) package, which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for how to make the FA fonts available locally; on typst.app they're preinstalled.
 
-### PDF metadata
-
-The rendered PDF carries metadata in its document properties — what your OS shows in "Get Info" / "Properties" and what indexing services read. Fields are populated from the data dict; each is only written when its source is non-empty.
-
-| PDF field | Source | Notes |
-|---|---|---|
-| Title | `basics.name + " --- CV"` | Always set. |
-| Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
-| Subject (description) | `basics.summary` | Same content rendered in the document header. |
-| Keywords | `skills[].keywords` | Flattened across every skill group, de-duplicated, insertion order preserved. |
-| Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`; only the calendar part is used. Falls back to compile time when absent or unparseable. |
-
-To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true`.
-
-```typst
-meta: (
-  lastModified: "2026-06-12", // → PDF date + optional footer
-  // canonical / version: accepted, currently unrendered
-)
-```
-
 ## Configuration
 
 ### `alta()` arguments
@@ -359,13 +315,13 @@ Every theme, font, layout, and behaviour knob lives in `preferences`. Override a
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
-| `qrCode` | `none` | Renders a small accent-coloured QR matrix in the header opposite the portrait. `none` (default) skips it. `auto` encodes `basics.url` (panicking if it's missing or empty). Any non-empty string is encoded verbatim — handy for pointing a printed CV at a tracked landing page distinct from `basics.url`. Generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra), one of the two third-party dependencies this package pulls in (the other is [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons). See [Header QR code](#header-qr-code-preferencesqrcode) for layout details. |
+| `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look isn't wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. When `false` (the default) an empty section is suppressed entirely, matching every other section. |
-| `dateFormat` | `"long"` | How ISO 8601 dates are rendered wherever the template surfaces a date (`startDate`, `endDate`, `awards[].date`, `publications[].releaseDate`, …). Non-ISO strings pass through verbatim regardless. Accepted: `"long"` (`"Jun 2024"` / `"15 Jun 2024"`, month names from `labels.months`), `"short"` (`"06/2024"` / `"15/06/2024"`), `"iso"` (passthrough), **a bracketed template** in [Typst's `datetime.display()` syntax](https://typst.app/docs/reference/foundations/datetime/#definitions-display) (e.g. `"[day padding:none] [month repr:short] [year]"` → `"15 Jun 2024"`; tokens `year`/`month`/`day` with `padding:` and `repr:long`/`repr:short`/`repr:numerical`, where `month repr:long`/`short` localises via `labels.months`), or a closure `parts => str` receiving `(year, month, day)` (`month` / `day` are `none` for year-only / year-month inputs). |
-| `linkContactInfo` | `true` | Whether contact-bar entries are wrapped in deep links (`mailto:`, `tel:`, the configured maps URL for location, the supplied URL for `basics.url` and each profile). Accepts a **boolean** (uniform across channels) or a **partial dict** keyed by `"email"`, `"phone"`, `"location"`, `"url"`, `"profiles"` (omitted channels stay linked). E.g. `linkContactInfo: (phone: false)` linkifies everything except the phone. Unknown channel keys panic. |
-| `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link. `{q}` is replaced with the URL-encoded location at render time. Use a built-in — `maps-providers.{google,apple,bing,duckduckgo,osm}` — or any URL template string. Pass `none` to suppress the link (icon + plain text still render). Strings missing `{q}` panic; non-string / non-`none` values panic. |
+| `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
+| `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
+| `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
 | `columnRatio` | `0.65` | Left-column width as a fraction of the page, in `(0, 1]`. The right column gets the remainder minus a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
 | `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`; combine the "last updated" line yourself in a content footer if you want both. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
@@ -526,6 +482,78 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 <!-- x-release-please-end -->
 
 The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
+
+## Optional features
+
+### Header QR code (`preferences.qrCode`)
+
+Printed CVs lose the clickability of digital PDFs. A QR matrix in the header rescues one link (the homepage) so a phone camera takes the reader straight there. Off by default; opt in via `preferences.qrCode`:
+
+```typst
+#alta(
+  (basics: (
+    name: "Jane Doe",
+    url: "https://janedoe.dev",  // canonical home page
+    // …
+  )),
+  preferences: (qrCode: auto),  // encode basics.url
+)
+```
+
+`preferences.qrCode` accepts three shapes:
+
+- `none` (default) — no QR rendered.
+- `auto` — encode `basics.url`. Panics if `basics.url` is missing or empty.
+- any non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page that's distinct from `basics.url`.
+
+The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` puts the QR on the left). With `imagePosition: "center"`, the QR pins the header's top-left corner, riding the photo row when the photo is on top and the text row otherwise. The matrix inherits `preferences.accent`, renders at roughly `3.5em`, and is wrapped in `link()` so digital readers can click through.
+
+QR generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra).
+
+### PDF metadata
+
+The rendered PDF carries metadata in its document properties — what your OS shows in "Get Info" / "Properties" and what indexing services read. Fields populate from the data dict; each is only written when its source is non-empty.
+
+| PDF field | Source | Notes |
+|---|---|---|
+| Title | `basics.name + " --- CV"` | Always set. |
+| Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
+| Subject (description) | `basics.summary` | Same content rendered in the document header. |
+| Keywords | `skills[].keywords` | Flattened across every skill group, de-duplicated, insertion order preserved. |
+| Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`; only the calendar part is used. Falls back to compile time when absent or unparseable. |
+
+To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true`.
+
+```typst
+meta: (
+  lastModified: "2026-06-12", // → PDF date + optional footer
+  // canonical / version: accepted, currently unrendered
+)
+```
+
+## Loading from a JSON Resume document
+
+If your CV lives in a canonical `resume.json` ([JSON Resume schema](https://jsonresume.org/schema/)), `alta-from-json` reads, validates, and renders it in one call:
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.4.3": alta-from-json
+
+#alta-from-json(path("resume.json"))
+```
+<!-- x-release-please-end -->
+
+Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be iso8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); presentation is `preferences.dateFormat`. Altacv's [three extensions](#data-schema) are optional, so a vanilla `resume.json` validates without edits.
+
+To inspect or transform the parsed dict before rendering, use `from-json-resume` directly:
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.4.3": alta, from-json-resume
+
+#alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
+```
+<!-- x-release-please-end -->
 
 ## Building the examples
 

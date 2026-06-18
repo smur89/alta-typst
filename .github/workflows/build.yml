@@ -55,15 +55,18 @@ jobs:
       - name: Compile-check template/cv.typ
         run: make test-template
 
-      # Re-render every fixture under examples/tests/ and fail if any
-      # committed PDF is out of date. Keeps the visible reference in
-      # lockstep with the .typ source.
+      # `git status --porcelain` catches modified, untracked, AND
+      # deleted PDFs (the old `git diff --quiet` missed untracked).
+      # `grep '\.pdf'` filters out unrelated drift like an editor swap
+      # file; `|| true` keeps the pipeline exit code under `set -e`
+      # when grep finds nothing.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make test-pdfs
-          if ! git diff --quiet --exit-code -- examples/tests; then
+          drift=$(git status --porcelain -- examples/tests/ | grep '\.pdf' || true)
+          if [ -n "$drift" ]; then
             echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
-            git --no-pager diff --stat -- examples/tests
+            printf '%s\n' "$drift"
             exit 1
           fi
 

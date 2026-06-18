@@ -1,0 +1,69 @@
+{
+  "basics": {
+    "name": "Jane Doe",
+    "label": "Senior Software Engineer",
+    "email": "jane@example.com",
+    "phone": "+353 1 555 0100",
+    "url": "https://example.com",
+    "summary": "Backend engineer with eight years of experience building distributed systems.",
+    "location": {
+      "city": "Dublin",
+      "countryCode": "IE"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "janedoe",
+        "url": "https://github.com/janedoe"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Acme Corp",
+      "position": "Senior Software Engineer",
+      "url": "https://acme.example.com",
+      "startDate": "2022-01",
+      "summary": "Led the platform migration to event-sourced services.",
+      "highlights": [
+        "Designed the messaging backbone.",
+        "Mentored four engineers through promotion."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Trinity College Dublin",
+      "area": "Computer Science",
+      "studyType": "BSc",
+      "startDate": "2014-09",
+      "endDate": "2018-06"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Backend",
+      "level": "Senior",
+      "keywords": ["Scala", "Kafka", "PostgreSQL"]
+    }
+  ],
+  "languages": [
+    {"language": "English", "fluency": "Native"},
+    {"language": "Irish", "fluency": "Intermediate"}
+  ],
+  "publications": [
+    {
+      "name": "Idempotent Consumers in Production",
+      "publisher": "ScalaConf",
+      "releaseDate": "2024-09",
+      "url": "https://example.com/talk"
+    }
+  ],
+  "projects": [
+    {
+      "name": "open-source-thing",
+      "description": "A small library for safe schema evolution.",
+      "url": "https://github.com/janedoe/open-source-thing"
+    }
+  ]
+}
