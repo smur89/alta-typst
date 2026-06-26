@@ -124,16 +124,15 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-  # Advisory: catch tarball-list drift, README-link rot, and
+  # Required check: catch tarball-list drift, README-link rot, and
   # deprecated-API warnings before release-please cuts a tag — same
-  # tool the typst/packages CI bot runs. `continue-on-error: true`
-  # surfaces failures as red ✗ in PR checks without blocking merge.
+  # tool the typst/packages CI bot runs. A failure here blocks merge
+  # (branch protection lists `typst-package-check` as required).
   package-check:
     name: typst-package-check
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true
     permissions:
       contents: read
     env:
@@ -369,17 +368,26 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # `gh repo clone` of a fork auto-configures an `upstream` remote
-      # pointing at the parent and fetches its default branch, so an
-      # explicit `git remote add upstream` would collide ("remote
-      # upstream already exists"). The fork mirrors all of
-      # typst/packages (~70k files); `--depth=1` keeps the clone fast
-      # and we don't need history to branch off upstream/main.
-      - name: Clone fork (gh auto-adds upstream remote), branch off upstream/main
+      # The fork mirrors all of typst/packages (~70 000 files). A
+      # plain shallow clone takes 30-60s materialising every blob;
+      # the partial-clone (--filter=blob:none) plus sparse-checkout
+      # variant skips that entirely — we only read/write our own
+      # package directory in this fork, never any existing package.
+      # Net: ~5-10s in place of 30-60s.
+      #
+      # We use plain `git clone` (not `gh repo clone`) because the
+      # gh wrapper auto-fetches upstream without our filter, which
+      # would defeat the speedup. `gh auth setup-git` above already
+      # configured github.com credentials, so no embedded token.
+      - name: Clone fork (sparse, blobless) and branch off upstream/main
         if: steps.check.outputs.skip != 'true'
         run: |
-          gh repo clone "$FORK_REPO" pkg -- --no-tags --depth=1
+          git clone --no-tags --depth=1 --filter=blob:none --sparse \
+            "https://github.com/${FORK_REPO}.git" pkg
           cd pkg
+          git sparse-checkout set "packages/preview/${PACKAGE_NAME}"
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch --depth=1 --filter=blob:none upstream main
           git checkout -b "${PACKAGE_NAME}-${VERSION}" upstream/main
 
       - name: Add package files from the release tarball
