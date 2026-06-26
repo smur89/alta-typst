@@ -35,7 +35,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -55,15 +55,18 @@ jobs:
       - name: Compile-check template/cv.typ
         run: make test-template
 
-      # Re-render every fixture under examples/tests/ and fail if any
-      # committed PDF is out of date. Keeps the visible reference in
-      # lockstep with the .typ source.
+      # `git status --porcelain` catches modified, untracked, AND
+      # deleted PDFs (the old `git diff --quiet` missed untracked).
+      # `grep '\.pdf'` filters out unrelated drift like an editor swap
+      # file; `|| true` keeps the pipeline exit code under `set -e`
+      # when grep finds nothing.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make test-pdfs
-          if ! git diff --quiet --exit-code -- examples/tests; then
+          drift=$(git status --porcelain -- examples/tests/ | grep '\.pdf' || true)
+          if [ -n "$drift" ]; then
             echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
-            git --no-pager diff --stat -- examples/tests
+            printf '%s\n' "$drift"
             exit 1
           fi
 
@@ -77,7 +80,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -138,7 +141,7 @@ jobs:
       PCHECK_IMAGE: ghcr.io/typst/package-check:0.6.0
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -222,7 +225,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
@@ -275,7 +278,7 @@ jobs:
         run: make package-tarball PACKAGE_TARBALL="${PACKAGE_NAME}-${VERSION}.tar.gz"
 
       - name: Attach assets to release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
@@ -352,7 +355,7 @@ jobs:
       # manually, so this job only ever opens version-bump PRs.
       - name: Checkout PR body template
         if: steps.check.outputs.skip != 'true'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           sparse-checkout: .github/typst-universe-pr-body.md
