@@ -75,11 +75,13 @@
 
   // PDF document metadata. `lastModified` accepts a bare ISO date or
   // a full timestamp; only the calendar part is used for `set
-  // document(date:)`. Also surfaces optionally in a page footer when
-  // `preferences.lastModifiedFooter: true`.
+  // document(date:)`, and it surfaces optionally in a page footer when
+  // `preferences.lastModifiedFooter: true`. `canonical` and `version`
+  // have no dedicated Typst document field, so they append to the PDF
+  // Keywords (and `version` can suffix the footer via `footerVersion`).
   meta: (
     canonical: "https://example.com/cv.json",
-    version: "1.0.0",
+    version: "v1.0.0",
     lastModified: today.display("[year]-[month]-[day]"),
   ),
 
