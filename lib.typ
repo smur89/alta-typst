@@ -21,15 +21,14 @@
 #import "internal/presets.typ": palettes, maps-providers
 #import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
 #import "internal/defaults.typ": _default_labels
-#import "internal/validation.typ": _strict_merge, _check_bool
+#import "internal/validation.typ": _strict_merge, _validate_preferences, _validate_labels
 #import "internal/text.typ": _present, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": name, term, tag, divider
 #import "internal/ratings.typ": rating
-#import "internal/dates.typ": _date_format_aliases, _iso_datetime
+#import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _summary
-#import "internal/qr.typ": _check_qr_code
-#import "internal/footer.typ": _auto_page_footer
+#import "internal/footer.typ": _resolve_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
 #import "internal/json-resume.typ": from-json-resume
 
@@ -46,18 +45,15 @@
 // to drop the portrait entirely).
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
-// Flatten every skill group's `keywords` into a de-duplicated array
-// for the PDF `Keywords` field. Insertion order is preserved so the
-// metadata reflects the author's curated ordering.
-#let _collect_keywords(skills) = {
-  let seen = ()
-  for group in skills {
-    for kw in group.at("keywords", default: ()) {
-      if type(kw) == str and kw != "" and kw not in seen { seen.push(kw) }
-    }
-  }
-  seen
-}
+// Every skill group's `keywords`, de-duplicated for the PDF `Keywords`
+// field. First occurrences win so the author's ordering survives.
+#let _collect_keywords(skills) = (
+  skills
+    .map(group => group.at("keywords", default: ()))
+    .sum(default: ())
+    .filter(kw => type(kw) == str and kw != "")
+    .dedup()
+)
 
 // `cv` follows the JSON Resume schema (see `examples/example_full.typ`
 // for a fully-populated demo, or `template/cv.typ` for the starter
@@ -68,81 +64,24 @@
   labels: (:),
   preferences: (:),
 ) = {
+  // `basics.name` is the only required field — checked up front so
+  // the panic is guided rather than a bare missing-key error.
+  if type(cv) != dictionary {
+    panic("alta() expects a CV data dictionary, got: " + repr(cv))
+  }
+  let basics = cv.at("basics", default: none)
+  if type(basics) != dictionary or not _present(basics.at("name", default: none)) {
+    panic(
+      "cv.basics.name is required (a non-empty string) — every other "
+        + "field is optional. Got basics: " + repr(basics),
+    )
+  }
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  _validate_preferences(preferences, _sections.keys())
+  _validate_labels(labels)
   let column-ratio = preferences.columnRatio
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
-    panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
-  }
-  let mp = preferences.mapsProvider
-  if mp != none {
-    if type(mp) != str {
-      panic(
-        "mapsProvider must be a URL template string (containing `{q}`) or `none`, got: "
-          + repr(mp),
-      )
-    }
-    if "{q}" not in mp {
-      panic(
-        "mapsProvider URL template must contain the `{q}` placeholder, got: "
-          + repr(mp),
-      )
-    }
-  }
-  _check_bool("uppercaseName", preferences.uppercaseName)
-  _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
-  _check_bool("footerVersion", preferences.footerVersion)
-  _check_bool("referencesAvailableOnRequest", preferences.referencesAvailableOnRequest)
   let max-rating = preferences.maxRating
-  if type(max-rating) != int or max-rating < 1 {
-    panic("maxRating must be a positive integer, got: " + repr(max-rating))
-  }
-  // `pageFooter` accepts `none`, the string `"auto"`, or any content
-  // value. Any other type — bools, dicts, numbers — panics so a typo
-  // like `pageFooter: true` surfaces at the call site rather than
-  // falling through to a render-time failure inside `set page(...)`.
-  let page-footer = preferences.pageFooter
-  let footer-ok = (
-    page-footer == none
-      or page-footer == "auto"
-      or type(page-footer) == content
-  )
-  if not footer-ok {
-    panic(
-      "pageFooter must be `none`, the string \"auto\", or a content value, got: "
-        + repr(page-footer),
-    )
-  }
-  let df = preferences.dateFormat
-  if type(df) == str {
-    // Bracketed templates (`[year]`, `[month repr:long]`, …) defer to
-    // `_apply_date_template`; bare strings must be one of the named
-    // formatters or the literal `"iso"` passthrough.
-    if "[" not in df and df != "iso" and df not in _date_format_aliases {
-      panic(
-        "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
-          + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
-          + repr(df),
-      )
-    }
-  } else if type(df) != function {
-    panic(
-      "dateFormat must be a string (named formatter or bracketed template) "
-        + "or a closure, got: " + repr(df),
-    )
-  }
-  // `labels.months` is consumed by the "long" formatter and by the
-  // bracketed-template `[month repr:long]` / `[month repr:short]`
-  // tokens; validate shape and element types up front so a malformed
-  // override panics with a clear message rather than failing inside
-  // `array.at()` or string slicing at render time.
-  let months = labels.months
-  if type(months) != array or months.len() != 12 or months.any(m => type(m) != str) {
-    panic(
-      "labels.months must be an array of 12 strings, got: " + repr(months),
-    )
-  }
-  _check_qr_code(preferences.qrCode)
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -179,40 +118,10 @@
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
   )
   set text(body-size, font: preferences.font, fill: _body_colour)
-  // Resolve the page footer. `pageFooter` is the general mechanism and
-  // takes precedence when set; `lastModifiedFooter` is sugar for one
-  // specific use case and only applies when `pageFooter` is `none`
-  // (its default). Resulting value passed to `set page(...)`:
-  //   `none`             — no footer
-  //   auto renderer      — name + "Page N / M", multi-page only
-  //   verbatim content   — rendered on every page
-  let resolved-footer = if page-footer != none {
-    if page-footer == "auto" {
-      _auto_page_footer(cv.basics.name)
-    } else {
-      page-footer
-    }
-  } else if preferences.lastModifiedFooter and _present(last-modified-raw) {
-    // `footerVersion` appends `meta.version` in parentheses (e.g.
-    // "(v1.0.0)") — rendered verbatim, since the schema's own example
-    // value already carries the "v". Rides the last-updated line; no
-    // standalone footer of its own.
-    let version-suffix = if preferences.footerVersion and type(version) == str and version != "" {
-      " (" + version + ")"
-    } else { "" }
-    align(right, text(0.8 * body-size, fill: _body_colour, {
-      labels.lastModified
-      ": "
-      last-modified-raw
-      version-suffix
-    }))
-  } else {
-    none
-  }
   set page(
     paper: preferences.paper,
     margin: preferences.margin,
-    footer: resolved-footer,
+    footer: _resolve_page_footer(preferences, labels, meta, cv.basics.name),
   )
   set par(leading: 0.55em, spacing: 0.7em)
   set list(
@@ -258,22 +167,6 @@
     qr-code: preferences.qrCode,
   )
   _summary(cv.basics)
-
-  // The same `_sections` dict that derives the column defaults also
-  // gates the overrides, so adding a section stays a single-touch
-  // change.
-  let validate-column(arr, pref-name) = {
-    let unknown = arr.filter(k => k not in _sections)
-    if unknown.len() > 0 {
-      let quote(k) = "\"" + k + "\""
-      panic(
-        "Unknown " + pref-name + " key(s): " + unknown.map(quote).join(", ")
-          + ". Supported: " + _sections.keys().map(quote).join(", "),
-      )
-    }
-  }
-  validate-column(preferences.leftColumnSections, "leftColumnSections")
-  validate-column(preferences.rightColumnSections, "rightColumnSections")
 
   // Section renderers are width-agnostic — they fill their container,
   // so the same renderer works whether dropped into the wide or the

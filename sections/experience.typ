@@ -19,7 +19,10 @@
 
   #_join_with_dividers(entries, entry => [
     #block(breakable: false)[
-      === #entry.position
+      // `position` is optional in JSON Resume — without it the org
+      // line leads the entry.
+      #let position = entry.at("position", default: none)
+      #if _present(position) [=== #position]
       // `link()` inherits the surrounding bold + accent from `name()`,
       // so the org stays visually identical to the unlinked case and
       // just gains click behaviour. `styled-link` would impose the
