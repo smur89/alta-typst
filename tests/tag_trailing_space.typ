@@ -17,8 +17,18 @@
       name: "Polyglot",
       description: "Tag-wrapping stress test",
       keywords: (
-        "Scala", "Python", "Rust", "Go", "TypeScript", "Kotlin", "Java",
-        "Haskell", "OCaml", "Clojure", "Elixir", "Ruby",
+        "Scala",
+        "Python",
+        "Rust",
+        "Go",
+        "TypeScript",
+        "Kotlin",
+        "Java",
+        "Haskell",
+        "OCaml",
+        "Clojure",
+        "Elixir",
+        "Ruby",
       ),
     ),
   ),
@@ -26,10 +36,10 @@
     // Two issuers with multiple certs each → tags wrap inside each
     // group. groupCertificates defaults to true.
     (name: "AWS Solutions Architect", issuer: "Amazon Web Services"),
-    (name: "AWS DevOps Engineer",     issuer: "Amazon Web Services"),
-    (name: "AWS Security Specialty",  issuer: "Amazon Web Services"),
-    (name: "CKA",                     issuer: "CNCF"),
-    (name: "CKAD",                    issuer: "CNCF"),
+    (name: "AWS DevOps Engineer", issuer: "Amazon Web Services"),
+    (name: "AWS Security Specialty", issuer: "Amazon Web Services"),
+    (name: "CKA", issuer: "CNCF"),
+    (name: "CKAD", issuer: "CNCF"),
   ),
 ))
 

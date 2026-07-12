@@ -24,7 +24,7 @@
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
-#import "../lib.typ": alta, palettes, maps-providers
+#import "../lib.typ": alta, maps-providers, palettes
 #import "_cv.typ": cv, no-image
 
 // Irish-language label overrides used by one of the frames to
@@ -43,9 +43,20 @@
   mapsProvider: maps-providers.osm,
   pageFooter: "auto",
   maxRating: 6,
-  leftColumnSections: ("work", "volunteer", "projects", "publications", "interests"),
+  leftColumnSections: (
+    "work",
+    "volunteer",
+    "projects",
+    "publications",
+    "interests",
+  ),
   rightColumnSections: (
-    "focusAreas", "skills", "languages", "education", "certificates", "awards",
+    "focusAreas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+    "awards",
   ),
 )
 
@@ -60,40 +71,72 @@
   // Baseline arrangement: work-heavy left, support sections on the
   // right. The realistic baseline most users ship — portrait
   // omitted (ATS- / anti-bias-friendly), navy from `base`.
-  (no-image(cv), base + (
-    leftColumnSections: ("work", "projects", "publications", "interests"),
-    rightColumnSections: (
-      "focusAreas", "skills", "languages", "education", "certificates", "awards",
-    ),
-  ), (:)),
+  (
+    no-image(cv),
+    base
+      + (
+        leftColumnSections: ("work", "projects", "publications", "interests"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+          "awards",
+        ),
+      ),
+    (:),
+  ),
 
   // ── Frame 2 ─ charcoal + portrait centred above ─────────────────
   // Section arrangement matches frame 1, the portrait reappears
   // stacked above a centred header text block. Paired with frame 1
   // to isolate the photo-position change; charcoal accent contrasts
   // the navy baseline so the palette swap is also visible.
-  (cv, base + (
-    accent: palettes.charcoal,
-    imagePosition: "center",
-    imageStackOrder: "above",
-    headerTextAlign: "center",
-    leftColumnSections: ("work", "projects", "publications", "interests"),
-    rightColumnSections: (
-      "focusAreas", "skills", "languages", "education", "certificates", "awards",
-    ),
-  ), (:)),
+  (
+    cv,
+    base
+      + (
+        accent: palettes.charcoal,
+        imagePosition: "center",
+        imageStackOrder: "above",
+        headerTextAlign: "center",
+        leftColumnSections: ("work", "projects", "publications", "interests"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+          "awards",
+        ),
+      ),
+    (:),
+  ),
 
   // ── Frame 3 ─ teal + no image + inverted columns ────────────────
   // Narrow side-panel layout (`columnRatio: 0.35`) — compact
   // sections lead the narrow left column; work + projects +
   // publications take the wide right side. Name cased naturally.
-  (no-image(cv), base + (
-    accent: palettes.teal,
-    uppercaseName: false,
-    columnRatio: 0.35,
-    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates", "interests"),
-    rightColumnSections: ("work", "projects", "publications", "awards"),
-  ), (:)),
+  (
+    no-image(cv),
+    base
+      + (
+        accent: palettes.teal,
+        uppercaseName: false,
+        columnRatio: 0.35,
+        leftColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+          "interests",
+        ),
+        rightColumnSections: ("work", "projects", "publications", "awards"),
+      ),
+    (:),
+  ),
 
   // ── Frame 4 ─ crimson + portrait left + QR right + Irish labels ─
   // Image swung to the left of the header with a QR matrix mirrored
@@ -102,28 +145,49 @@
   // swap emphasis (compact / support blocks lead, work + projects move
   // right). Section headings render in Irish via `labels-ga.toml`
   // — the same data dict, just localised display strings.
-  (cv, base + (
-    accent: palettes.crimson,
-    imagePosition: "left",
-    qrCode: auto,
-    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates", "awards"),
-    rightColumnSections: ("work", "projects"),
-  ), ga-labels),
+  (
+    cv,
+    base
+      + (
+        accent: palettes.crimson,
+        imagePosition: "left",
+        qrCode: auto,
+        leftColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+          "awards",
+        ),
+        rightColumnSections: ("work", "projects"),
+      ),
+    ga-labels,
+  ),
 
   // ── Frame 5 ─ forest + no image + right-aligned + volunteer up ──
   // Header text aligned right; certificates ungrouped (flat pill
   // strip). Volunteer + interests pulled up alongside work in the
   // left column. Drops publications + awards to fit on one page —
   // the volunteer arrangement is the distinctive shape here.
-  (no-image(cv), base + (
-    accent: palettes.forest,
-    headerTextAlign: "right",
-    groupCertificates: false,
-    leftColumnSections: ("work", "volunteer", "interests"),
-    rightColumnSections: (
-      "focusAreas", "skills", "languages", "education", "certificates",
-    ),
-  ), (:)),
+  (
+    no-image(cv),
+    base
+      + (
+        accent: palettes.forest,
+        headerTextAlign: "right",
+        groupCertificates: false,
+        leftColumnSections: ("work", "volunteer", "interests"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+        ),
+      ),
+    (:),
+  ),
 
   // ── Frame 6 ─ plum + portrait right + QR left + short dates + education up
   // Image on the right (canonical default) and a QR matrix on the
@@ -132,32 +196,52 @@
   // style `[day]/[month]/[year]` date format. Education + certificates
   // promoted to the left column alongside work; the right column
   // becomes a compact support panel.
-  (cv, base + (
-    accent: palettes.plum,
-    qrCode: auto,
-    dateFormat: "[day]/[month]/[year]",
-    leftColumnSections: ("work", "education", "certificates"),
-    rightColumnSections: (
-      "focusAreas", "skills", "languages", "projects", "publications", "awards",
-    ),
-  ), (:)),
+  (
+    cv,
+    base
+      + (
+        accent: palettes.plum,
+        qrCode: auto,
+        dateFormat: "[day]/[month]/[year]",
+        leftColumnSections: ("work", "education", "certificates"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "projects",
+          "publications",
+          "awards",
+        ),
+      ),
+    (:),
+  ),
 
   // ── Frame 7 ─ teal + no image + single column ───────────────────
   // Single-column layout (`columnRatio: 1`) stacks every section
   // vertically — needs an aggressive section trim to fit one page.
   // Closure-formatted quarterly date labels ("Q3 2024") round out
   // the frame. Teal completes the no-adjacent-duplicates cycle.
-  (no-image(cv), base + (
-    accent: palettes.teal,
-    columnRatio: 1,
-    dateFormat: parts => {
-      if parts.month == none { return str(parts.year) }
-      let quarter = int((parts.month - 1) / 3) + 1
-      "Q" + str(quarter) + " " + str(parts.year)
-    },
-    leftColumnSections: ("work",),
-    rightColumnSections: ("skills", "languages", "education", "certificates"),
-  ), (:)),
+  (
+    no-image(cv),
+    base
+      + (
+        accent: palettes.teal,
+        columnRatio: 1,
+        dateFormat: parts => {
+          if parts.month == none { return str(parts.year) }
+          let quarter = int((parts.month - 1) / 3) + 1
+          "Q" + str(quarter) + " " + str(parts.year)
+        },
+        leftColumnSections: ("work",),
+        rightColumnSections: (
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+        ),
+      ),
+    (:),
+  ),
 )
 
 #for (i, (frame-cv, prefs, lbls)) in frames.enumerate() {

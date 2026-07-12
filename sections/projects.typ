@@ -7,7 +7,9 @@
 
 #import "../internal/state.typ": _body_colour
 #import "../internal/text.typ": _present, styled-link
-#import "../internal/primitives.typ": term, _group_by, _join_with_dividers, _tag_row
+#import "../internal/primitives.typ": (
+  _group_by, _join_with_dividers, _tag_row, term,
+)
 #import "../internal/dates.typ": _format_date_range
 
 // One project entry block — shared by the flat and grouped layouts.
@@ -51,13 +53,18 @@
   // otherwise render flat, so the common (untyped) case stays free of
   // redundant subheadings and matches the pre-grouping output. Untyped
   // entries in a mixed list pool under `labels.otherProjects`.
-  let is-typed(p) = type(p.at("type", default: none)) == str and _present(p.at("type", default: none))
+  let is-typed(p) = (
+    type(p.at("type", default: none)) == str
+      and _present(p.at("type", default: none))
+  )
   if not valid.any(is-typed) {
     _join_with_dividers(valid, p => _render_project(p, labels, prefs))
   } else {
     // Groups render in first-occurrence order, matching the
     // publications clustering.
-    let groups = _group_by(valid, p => if is-typed(p) { p.type } else { labels.otherProjects })
+    let groups = _group_by(valid, p => if is-typed(p) { p.type } else {
+      labels.otherProjects
+    })
     for (group, items) in groups.pairs() [
       ==== #group
 

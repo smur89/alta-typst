@@ -37,7 +37,14 @@
 
 // 1. Reversed right-column order; left stays at its default (work).
 #alta(cv, preferences: (
-  rightColumnSections: ("publications", "certificates", "education", "languages", "skills", "focusAreas"),
+  rightColumnSections: (
+    "publications",
+    "certificates",
+    "education",
+    "languages",
+    "skills",
+    "focusAreas",
+  ),
 ))
 
 #pagebreak()
@@ -54,7 +61,13 @@
 //    `columnRatio` lives alongside the section arrays in preferences.
 #alta(cv, preferences: (
   columnRatio: 0.35,
-  leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
+  leftColumnSections: (
+    "focusAreas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+  ),
   rightColumnSections: ("work", "publications"),
 ))
 

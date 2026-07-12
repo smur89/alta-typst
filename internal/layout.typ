@@ -11,10 +11,10 @@
 // layering: `defaults.typ` is leaf data; this file is the layout
 // kernel.
 
-#import "presets.typ": palettes, maps-providers
+#import "presets.typ": maps-providers, palettes
 #import "../sections/experience.typ": _experience, _volunteer
 #import "../sections/focus-areas.typ": _focus_areas
-#import "../sections/skills.typ": _skills, _interests
+#import "../sections/skills.typ": _interests, _skills
 #import "../sections/languages.typ": _languages
 #import "../sections/education.typ": _education
 #import "../sections/certificates.typ": _certificates
@@ -28,27 +28,48 @@
 #let _sections = (
   work: (
     column: "left",
-    render: (cv, labels, prefs) => _experience(cv.at("work", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _experience(
+      cv.at("work", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   volunteer: (
     column: "left",
-    render: (cv, labels, prefs) => _volunteer(cv.at("volunteer", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _volunteer(
+      cv.at("volunteer", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   focusAreas: (
     column: "right",
-    render: (cv, labels, prefs) => _focus_areas(cv.at("focusAreas", default: ()), labels),
+    render: (cv, labels, prefs) => _focus_areas(
+      cv.at("focusAreas", default: ()),
+      labels,
+    ),
   ),
   skills: (
     column: "right",
-    render: (cv, labels, prefs) => _skills(cv.at("skills", default: ()), labels),
+    render: (cv, labels, prefs) => _skills(
+      cv.at("skills", default: ()),
+      labels,
+    ),
   ),
   languages: (
     column: "right",
-    render: (cv, labels, prefs) => _languages(cv.at("languages", default: ()), labels),
+    render: (cv, labels, prefs) => _languages(
+      cv.at("languages", default: ()),
+      labels,
+    ),
   ),
   education: (
     column: "right",
-    render: (cv, labels, prefs) => _education(cv.at("education", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _education(
+      cv.at("education", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   certificates: (
     column: "right",
@@ -61,30 +82,51 @@
   ),
   awards: (
     column: "right",
-    render: (cv, labels, prefs) => _awards(cv.at("awards", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _awards(
+      cv.at("awards", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   projects: (
     column: "left",
-    render: (cv, labels, prefs) => _projects(cv.at("projects", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _projects(
+      cv.at("projects", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   publications: (
     column: "left",
-    render: (cv, labels, prefs) => _publications(cv.at("publications", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _publications(
+      cv.at("publications", default: ()),
+      labels,
+      prefs,
+    ),
   ),
   interests: (
     column: "right",
-    render: (cv, labels, prefs) => _interests(cv.at("interests", default: ()), labels),
+    render: (cv, labels, prefs) => _interests(
+      cv.at("interests", default: ()),
+      labels,
+    ),
   ),
   references: (
     column: "right",
-    render: (cv, labels, prefs) => _references(cv.at("references", default: ()), labels, prefs),
+    render: (cv, labels, prefs) => _references(
+      cv.at("references", default: ()),
+      labels,
+      prefs,
+    ),
   ),
 )
 
 // Defaults derived from `_sections` so adding a section there
 // automatically places it in the default layout for its declared
 // column. Insertion order in `_sections` controls render order.
-#let _keys_for_column(col) = _sections.keys().filter(k => _sections.at(k).column == col)
+#let _keys_for_column(col) = (
+  _sections.keys().filter(k => _sections.at(k).column == col)
+)
 
 // User-facing reference for these prefs lives in the README. Comments
 // below capture only what isn't recoverable from the key name + default

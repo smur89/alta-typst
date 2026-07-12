@@ -15,82 +15,96 @@
 #import "../lib.typ": alta, maps-providers
 
 #alta(
-  (basics: (
-    name: "Default User",
-    label: "Implicit Google",
-    email: "default@example.com",
-    location: "Berlin, Germany",
-  )),
+  (
+    basics: (
+      name: "Default User",
+      label: "Implicit Google",
+      email: "default@example.com",
+      location: "Berlin, Germany",
+    ),
+  ),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Apple Maps User",
-    label: "Built-in: maps-providers.apple",
-    email: "apple@example.com",
-    location: "Cupertino, California",
-  )),
+  (
+    basics: (
+      name: "Apple Maps User",
+      label: "Built-in: maps-providers.apple",
+      email: "apple@example.com",
+      location: "Cupertino, California",
+    ),
+  ),
   preferences: (mapsProvider: maps-providers.apple),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Bing Maps User",
-    label: "Built-in: maps-providers.bing",
-    email: "bing@example.com",
-    location: "Redmond, Washington",
-  )),
+  (
+    basics: (
+      name: "Bing Maps User",
+      label: "Built-in: maps-providers.bing",
+      email: "bing@example.com",
+      location: "Redmond, Washington",
+    ),
+  ),
   preferences: (mapsProvider: maps-providers.bing),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "DuckDuckGo Maps User",
-    label: "Built-in: maps-providers.duckduckgo",
-    email: "ddg@example.com",
-    location: "Paoli, Pennsylvania",
-  )),
+  (
+    basics: (
+      name: "DuckDuckGo Maps User",
+      label: "Built-in: maps-providers.duckduckgo",
+      email: "ddg@example.com",
+      location: "Paoli, Pennsylvania",
+    ),
+  ),
   preferences: (mapsProvider: maps-providers.duckduckgo),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "OSM User",
-    label: "Built-in: maps-providers.osm",
-    email: "osm@example.com",
-    location: "Dublin, Ireland",
-  )),
+  (
+    basics: (
+      name: "OSM User",
+      label: "Built-in: maps-providers.osm",
+      email: "osm@example.com",
+      location: "Dublin, Ireland",
+    ),
+  ),
   preferences: (mapsProvider: maps-providers.osm),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "No Link User",
-    label: "Plain text location — mapsProvider: none",
-    email: "nolink@example.com",
-    location: "Zürich, Switzerland",
-  )),
+  (
+    basics: (
+      name: "No Link User",
+      label: "Plain text location — mapsProvider: none",
+      email: "nolink@example.com",
+      location: "Zürich, Switzerland",
+    ),
+  ),
   preferences: (mapsProvider: none),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Custom Provider User",
-    label: "Arbitrary URL template — no code change",
-    email: "custom@example.com",
-    location: "Yerevan, Armenia",
-  )),
+  (
+    basics: (
+      name: "Custom Provider User",
+      label: "Arbitrary URL template — no code change",
+      email: "custom@example.com",
+      location: "Yerevan, Armenia",
+    ),
+  ),
   preferences: (mapsProvider: "https://yandex.com/maps/?text={q}"),
 )

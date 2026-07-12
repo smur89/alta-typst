@@ -32,8 +32,8 @@
 //     palette, ISO-date formatting, custom maps provider, page footer,
 //     and a non-default `maxRating` for the language scale.
 
-#import "../lib.typ": alta, palettes, maps-providers, avatar-placeholder
-#import "_dates.typ": today, ago
+#import "../lib.typ": alta, avatar-placeholder, maps-providers, palettes
+#import "_dates.typ": ago, today
 
 #let cv = (
   basics: (
@@ -61,15 +61,51 @@
     // Every built-in profile network so the icon set gets a full
     // visual sweep. `Link` is the generic-URL fallback.
     profiles: (
-      (network: "LinkedIn",      username: "seanomurchu",      url: "https://linkedin.com/in/seanomurchu"),
-      (network: "GitHub",        username: "seanomurchu",      url: "https://github.com/seanomurchu"),
-      (network: "GitLab",        username: "seanomurchu",      url: "https://gitlab.com/seanomurchu"),
-      (network: "Bluesky",       username: "@seanomurchu",     url: "https://bsky.app/profile/seanomurchu"),
-      (network: "Mastodon",      username: "@sean@fosstodon.org", url: "https://fosstodon.org/@sean"),
-      (network: "Medium",        username: "@seanomurchu",     url: "https://medium.com/@seanomurchu"),
-      (network: "Stackoverflow", username: "seanomurchu",      url: "https://stackoverflow.com/u/1"),
-      (network: "X",             username: "@seanomurchu",     url: "https://x.com/seanomurchu"),
-      (network: "Link",          username: "talk recording",   url: "https://example.com/talk"),
+      (
+        network: "LinkedIn",
+        username: "seanomurchu",
+        url: "https://linkedin.com/in/seanomurchu",
+      ),
+      (
+        network: "GitHub",
+        username: "seanomurchu",
+        url: "https://github.com/seanomurchu",
+      ),
+      (
+        network: "GitLab",
+        username: "seanomurchu",
+        url: "https://gitlab.com/seanomurchu",
+      ),
+      (
+        network: "Bluesky",
+        username: "@seanomurchu",
+        url: "https://bsky.app/profile/seanomurchu",
+      ),
+      (
+        network: "Mastodon",
+        username: "@sean@fosstodon.org",
+        url: "https://fosstodon.org/@sean",
+      ),
+      (
+        network: "Medium",
+        username: "@seanomurchu",
+        url: "https://medium.com/@seanomurchu",
+      ),
+      (
+        network: "Stackoverflow",
+        username: "seanomurchu",
+        url: "https://stackoverflow.com/u/1",
+      ),
+      (
+        network: "X",
+        username: "@seanomurchu",
+        url: "https://x.com/seanomurchu",
+      ),
+      (
+        network: "Link",
+        username: "talk recording",
+        url: "https://example.com/talk",
+      ),
     ),
   ),
 
@@ -141,15 +177,18 @@
 
   skills: (
     (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go", "Rust")),
-    (name: "Infra",     keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes")),
+    (
+      name: "Infra",
+      keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes"),
+    ),
   ),
 
   // Languages exercise every supported input: named `fluency` strings
   // and numeric `rating` (with fractional half-dot precision).
   languages: (
-    (language: "English",    fluency: "Native"),
-    (language: "Irish",      fluency: "Professional Working"),
-    (language: "French",     rating: 4),
+    (language: "English", fluency: "Native"),
+    (language: "Irish", fluency: "Professional Working"),
+    (language: "French", rating: 4),
     (language: "Portuguese", rating: 2.5),
   ),
 
@@ -283,8 +322,8 @@
   // semantically a personal-interests block. Coexists with the prose
   // `focusAreas` block above.
   interests: (
-    (name: "Music",  keywords: ("Trad", "Jazz")),
-    (name: "Sport",  keywords: ("Hurling", "Climbing")),
+    (name: "Music", keywords: ("Trad", "Jazz")),
+    (name: "Sport", keywords: ("Hurling", "Climbing")),
     (name: "Travel", keywords: ("Japan", "Iceland")),
   ),
 
@@ -361,8 +400,20 @@
   mapsProvider: maps-providers.osm,
   pageFooter: "auto",
   maxRating: 6,
-  leftColumnSections: ("work", "volunteer", "projects", "publications", "interests"),
+  leftColumnSections: (
+    "work",
+    "volunteer",
+    "projects",
+    "publications",
+    "interests",
+  ),
   rightColumnSections: (
-    "focusAreas", "skills", "languages", "education", "certificates", "awards", "references",
+    "focusAreas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+    "awards",
+    "references",
   ),
 ))

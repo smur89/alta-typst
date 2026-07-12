@@ -64,37 +64,87 @@
         [Led the migration of services from VMs to containerised
           deployments on Kubernetes across three environments.],
       )),
-      role("Pembroke Software", "Software Engineering Intern", "May 2016", "Jul 2017", (
-        [Maintained a legacy reporting service serving daily extracts to
-          enterprise customers.],
-        [Automated a manual release process previously taking half a day.],
-      )),
-      role("Trinity College Dublin", "Research Assistant", "Sep 2015", "Apr 2016", (
-        [Implemented a benchmark harness for evaluating distributed
-          consensus protocols across cloud providers.],
-        [Co-authored two workshop papers on quorum-based replication.],
-      )),
+      role(
+        "Pembroke Software",
+        "Software Engineering Intern",
+        "May 2016",
+        "Jul 2017",
+        (
+          [Maintained a legacy reporting service serving daily extracts to
+            enterprise customers.],
+          [Automated a manual release process previously taking half a day.],
+        ),
+      ),
+      role(
+        "Trinity College Dublin",
+        "Research Assistant",
+        "Sep 2015",
+        "Apr 2016",
+        (
+          [Implemented a benchmark harness for evaluating distributed
+            consensus protocols across cloud providers.],
+          [Co-authored two workshop papers on quorum-based replication.],
+        ),
+      ),
       role("Iveagh Analytics", "Junior Engineer", "Jun 2014", "Aug 2015", (
         [Built an ETL pipeline ingesting 50M rows/day into Redshift.],
         [Owned the on-call rotation for the data platform.],
       )),
-      role("Phoenix Studios", "Software Engineering Intern", "May 2013", "Aug 2013", (
-        [Maintained an iOS game's backend leaderboard service.],
-      )),
-      role("Howth Robotics", "Software Engineering Intern", "Jun 2012", "Aug 2012", (
-        [Wrote firmware drivers for a line of educational robotics kits.],
-      )),
+      role(
+        "Phoenix Studios",
+        "Software Engineering Intern",
+        "May 2013",
+        "Aug 2013",
+        (
+          [Maintained an iOS game's backend leaderboard service.],
+        ),
+      ),
+      role(
+        "Howth Robotics",
+        "Software Engineering Intern",
+        "Jun 2012",
+        "Aug 2012",
+        (
+          [Wrote firmware drivers for a line of educational robotics kits.],
+        ),
+      ),
     ),
     skills: (
-      (name: "Languages",  keywords: ("Scala", "Haskell", "Python", "Go", "TypeScript")),
-      (name: "Infra",      keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes", "Linkerd")),
-      (name: "Practices",  keywords: ("TDD", "DDD", "Event sourcing", "Pair programming")),
+      (
+        name: "Languages",
+        keywords: ("Scala", "Haskell", "Python", "Go", "TypeScript"),
+      ),
+      (
+        name: "Infra",
+        keywords: (
+          "Kafka",
+          "AWS",
+          "Terraform",
+          "Docker",
+          "Kubernetes",
+          "Linkerd",
+        ),
+      ),
+      (
+        name: "Practices",
+        keywords: ("TDD", "DDD", "Event sourcing", "Pair programming"),
+      ),
     ),
     education: (
-      (institution: "Trinity College Dublin", studyType: "M.Sc. in Computer Science",
-        startDate: "2017", endDate: "2019", score: "Distinction"),
-      (institution: "Trinity College Dublin", studyType: "B.Sc. in Computer Science",
-        startDate: "2014", endDate: "2017", score: "First Class Honours"),
+      (
+        institution: "Trinity College Dublin",
+        studyType: "M.Sc. in Computer Science",
+        startDate: "2017",
+        endDate: "2019",
+        score: "Distinction",
+      ),
+      (
+        institution: "Trinity College Dublin",
+        studyType: "B.Sc. in Computer Science",
+        startDate: "2014",
+        endDate: "2017",
+        score: "First Class Honours",
+      ),
     ),
     certificates: (
       (name: "Certified Kubernetes Administrator", issuer: "CNCF"),
@@ -122,6 +172,10 @@
     ),
   ),
   preferences: (
-    pageFooter: align(center, text(0.8em, fill: rgb("#888888"), [Confidential — do not distribute])),
+    pageFooter: align(center, text(
+      0.8em,
+      fill: rgb("#888888"),
+      [Confidential — do not distribute],
+    )),
   ),
 )

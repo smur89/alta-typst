@@ -3,7 +3,9 @@
 // from `lib.typ` for callers composing custom layouts; the leading-
 // underscore helpers are used internally by the section renderers.
 
-#import "state.typ": _body_size_state, _accent_state, _body_colour, _divider_colour
+#import "state.typ": (
+  _accent_state, _body_colour, _body_size_state, _divider_colour,
+)
 #import "icons.typ": icon
 
 // Bold accent-coloured line — designed for the company / institution
@@ -53,7 +55,9 @@
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  let fill-colour = if label { accent.lighten(70%) } else { accent.lighten(85%) }
+  let fill-colour = if label { accent.lighten(70%) } else {
+    accent.lighten(85%)
+  }
   let text-weight = if label { "bold" } else { "regular" }
   box(
     fill: fill-colour,

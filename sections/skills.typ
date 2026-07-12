@@ -5,7 +5,7 @@
 // which `labels.*` heading they pass.
 
 #import "../internal/state.typ": _body_size_state
-#import "../internal/primitives.typ": tag, _tag_row
+#import "../internal/primitives.typ": _tag_row, tag
 
 // `text("-")` (not `[-]`) — markup-bracketed `-` parses as a list-item
 // bullet. The trailing `h(...)` after the dash mirrors the gap that
@@ -23,16 +23,23 @@
     let row-gap = 0.7 * body-size
     [== #heading]
     for group in visible {
-      block(above: 0pt, below: row-gap, par(hanging-indent: 1em, leading: row-gap, {
-        tag(group.name, label: true)
-        text("-")
-        h(0.25 * body-size)
-        _tag_row(group.keywords)
-      }))
+      block(above: 0pt, below: row-gap, par(
+        hanging-indent: 1em,
+        leading: row-gap,
+        {
+          tag(group.name, label: true)
+          text("-")
+          h(0.25 * body-size)
+          _tag_row(group.keywords)
+        },
+      ))
     }
   }
 }
 
 #let _skills(groups, labels) = _name_keywords_section(groups, labels.skills)
 
-#let _interests(groups, labels) = _name_keywords_section(groups, labels.interests)
+#let _interests(groups, labels) = _name_keywords_section(
+  groups,
+  labels.interests,
+)

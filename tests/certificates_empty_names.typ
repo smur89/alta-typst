@@ -11,7 +11,7 @@
     basics: (name: "All Names Empty", email: "x@example.com"),
     certificates: (
       (name: "", issuer: "Nobody"),
-      (issuer: "Other Nobody"),  // `name` missing entirely → defaults to ""
+      (issuer: "Other Nobody"), // `name` missing entirely → defaults to ""
     ),
   ),
   preferences: (

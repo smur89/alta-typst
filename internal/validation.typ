@@ -12,8 +12,12 @@
   if unknown.len() > 0 {
     let quote(k) = "\"" + k + "\""
     panic(
-      "Unknown " + what + " key(s): " + unknown.map(quote).join(", ")
-        + ". Supported: " + allowed.map(quote).join(", "),
+      "Unknown "
+        + what
+        + " key(s): "
+        + unknown.map(quote).join(", ")
+        + ". Supported: "
+        + allowed.map(quote).join(", "),
     )
   }
 }
@@ -42,7 +46,11 @@
 // keep this module free of orchestration-layer dependencies.
 #let _validate_preferences(preferences, section-keys) = {
   let column-ratio = preferences.columnRatio
-  if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {
+  if (
+    type(column-ratio) not in (int, float)
+      or column-ratio <= 0
+      or column-ratio > 1
+  ) {
     panic("columnRatio must be a number in (0, 1], got: " + repr(column-ratio))
   }
   let mp = preferences.mapsProvider
@@ -63,7 +71,10 @@
   _check_bool("uppercaseName", preferences.uppercaseName)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
   _check_bool("footerVersion", preferences.footerVersion)
-  _check_bool("referencesAvailableOnRequest", preferences.referencesAvailableOnRequest)
+  _check_bool(
+    "referencesAvailableOnRequest",
+    preferences.referencesAvailableOnRequest,
+  )
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
@@ -74,9 +85,7 @@
   // falling through to a render-time failure inside `set page(...)`.
   let page-footer = preferences.pageFooter
   let footer-ok = (
-    page-footer == none
-      or page-footer == "auto"
-      or type(page-footer) == content
+    page-footer == none or page-footer == "auto" or type(page-footer) == content
   )
   if not footer-ok {
     panic(
@@ -99,15 +108,24 @@
   } else if type(df) != function {
     panic(
       "dateFormat must be a string (named formatter or bracketed template) "
-        + "or a closure, got: " + repr(df),
+        + "or a closure, got: "
+        + repr(df),
     )
   }
   _check_qr_code(preferences.qrCode)
   // The same section catalogue that derives the column defaults also
   // gates the overrides, so adding a section stays a single-touch
   // change.
-  _check_unknown_keys(preferences.leftColumnSections, section-keys, "leftColumnSections")
-  _check_unknown_keys(preferences.rightColumnSections, section-keys, "rightColumnSections")
+  _check_unknown_keys(
+    preferences.leftColumnSections,
+    section-keys,
+    "leftColumnSections",
+  )
+  _check_unknown_keys(
+    preferences.rightColumnSections,
+    section-keys,
+    "rightColumnSections",
+  )
 }
 
 // `labels.months` is consumed by the "long" formatter and by the
@@ -117,7 +135,11 @@
 // `array.at()` or string slicing at render time.
 #let _validate_labels(labels) = {
   let months = labels.months
-  if type(months) != array or months.len() != 12 or months.any(m => type(m) != str) {
+  if (
+    type(months) != array
+      or months.len() != 12
+      or months.any(m => type(m) != str)
+  ) {
     panic(
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )

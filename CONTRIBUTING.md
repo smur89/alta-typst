@@ -47,11 +47,18 @@ make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
 make example-full # build examples/example_full.pdf + per-page gallery PNGs
 make thumbnail   # build thumbnail.png (Universe package-card image)
 make test        # compile every example + fixture (same shape as CI lint)
+make fmt         # format every tracked .typ in place (typstyle)
+make fmt-check   # check formatting without writing (the CI gate)
+make check       # test + test-template + fmt-check in one go
 make clean       # remove generated PDFs and PNGs
 make help        # summarise the available targets
 ```
 
-`make test` is the local equivalent of the CI lint job — green here means CI lint will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+
+### Formatting
+
+Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typstyle). CI runs `make fmt-check` and fails on any unformatted file, so run `make fmt` before committing (or wire it into your editor). Pin the same version CI uses — `TYPSTYLE_VERSION` in [`.github/workflows/build.yml`](.github/workflows/build.yml) — since formatter output can shift between releases; `brew install typstyle` on macOS. Formatting is purely mechanical and never changes rendered output.
 
 ### Regenerating PDF fixtures (Docker)
 

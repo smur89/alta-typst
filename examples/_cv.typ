@@ -34,7 +34,11 @@
     url: "https://seanomurchu.dev",
     image: avatar-placeholder,
     profiles: (
-      (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
+      (
+        network: "GitHub",
+        username: "seanomurchu",
+        url: "https://github.com/seanomurchu",
+      ),
     ),
   ),
 
@@ -80,12 +84,12 @@
 
   skills: (
     (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
-    (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
+    (name: "Infra", keywords: ("Kafka", "AWS", "Kubernetes")),
   ),
 
   languages: (
     (language: "English", fluency: "Native"),
-    (language: "Irish",   fluency: "Professional Working"),
+    (language: "Irish", fluency: "Professional Working"),
   ),
 
   education: (

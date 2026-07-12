@@ -18,10 +18,13 @@
 #   make test-pdfs   # render every tests/*.typ fixture into
 #                    # examples/tests/*.pdf (tracked in git)
 #   make test        # compile every example + fixture (output discarded)
+#   make fmt         # format every tracked .typ in place (typstyle)
+#   make fmt-check   # check formatting without writing (CI gate)
 #   make clean       # remove generated PDFs and PNGs
 #
 # Tool overrides:
 #   make TYPST=/path/to/typst    # use a non-default typst binary
+#   make TYPSTYLE=/path/to/typstyle # use a non-default typstyle binary
 #   make FFMPEG=/path/to/ffmpeg  # use a non-default ffmpeg binary
 #   make PPI=300                 # raise preview resolution (default 150)
 #   make PREVIEW_FPS=1           # adjust GIF frame rate (default 0.4)
@@ -35,6 +38,7 @@
 .DELETE_ON_ERROR:
 
 TYPST     ?= typst
+TYPSTYLE  ?= typstyle
 FFMPEG    ?= ffmpeg
 ROOT      := .
 PPI       ?= 150
@@ -88,7 +92,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -277,9 +281,25 @@ test-template:
 	if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
 	exit $$status
 
-# Alias for `make test` — matches the conceptual "CI lint" target name.
-# Composes with `test-template` so a broken starter fails the lint.
-check: test test-template
+# Format every tracked Typst source in place with typstyle. `git
+# ls-files` (not a recursive dir arg) so the sweep never descends into
+# the gitignored `.typst-cache/`, which holds third-party @preview
+# package sources we must not touch. Pin typstyle to the version the
+# CI `typstyle` job uses (see build.yml) so local runs and CI agree.
+fmt:
+	$(TYPSTYLE) --inplace $(shell git ls-files '*.typ')
+
+# Check mode — exits non-zero if any file isn't formatted. Same target
+# the CI `typstyle` job runs; `make check` composes it so one local
+# command mirrors every CI lint gate.
+fmt-check:
+	$(TYPSTYLE) --check $(shell git ls-files '*.typ')
+
+# Alias for the CI lint gates — compiles everything (`test`), checks
+# the `typst init` starter (`test-template`), and verifies formatting
+# (`fmt-check`), so a green `make check` locally means the lint +
+# typstyle CI jobs will pass too.
+check: test test-template fmt-check
 
 # Stage every file that ships to typst/packages into PKG_DIR. Used by
 # the CI package-check job (PR-time) to lay out the same file set the
@@ -314,11 +334,12 @@ clean:
 
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
-	  '         pdfs | previews | test-pdfs | test (alias: check) | clean' \
+	  '         pdfs | previews | test-pdfs | test | test-template | clean' \
+	  '         fmt | fmt-check | check (test + test-template + fmt-check)' \
 	  '         docker-pdfs | docker-preview-images | docker-shell' \
 	  'Per-target detail: see the header comment in this Makefile.' \
-	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1' \
-	  '           DOCKER_IMAGE=ghcr.io/.../...:tag'
+	  'Overrides: TYPST=path/to/typst TYPSTYLE=path/to/typstyle FFMPEG=path/to/ffmpeg' \
+	  '           PPI=300 PREVIEW_FPS=1 DOCKER_IMAGE=ghcr.io/.../...:tag'
 
 # Regenerate every committed PDF/PNG fixture inside the pinned CI
 # image. Use before committing any change that affects rendering

@@ -2,7 +2,7 @@
 // type-appropriate icon on each subheading. Untyped or invalid-type
 // entries fall under `labels.articles`.
 
-#import "../internal/state.typ": _body_size_state, _body_colour
+#import "../internal/state.typ": _body_colour, _body_size_state
 #import "../internal/text.typ": _present, styled-link
 #import "../internal/primitives.typ": _group_by
 #import "../internal/icons.typ": icon
@@ -50,7 +50,9 @@
     // `lower(group)` below.
     let groups = _group_by(valid, pub => {
       let raw-type = pub.at("type", default: none)
-      if type(raw-type) == str and _present(raw-type) { raw-type } else { labels.articles }
+      if type(raw-type) == str and _present(raw-type) { raw-type } else {
+        labels.articles
+      }
     })
     [== #labels.publications]
     // Normalise user-supplied override keys to lowercase up front so
@@ -61,14 +63,18 @@
     // → `talks`); panic so the silent last-write-wins behaviour
     // surfaces as a configuration error.
     let user-icons = labels.at("publicationIcons", default: (:))
-    let user-icons-lc = user-icons.pairs().fold(
-      (:), (acc, (k, v)) => acc + ((lower(k)): v),
-    )
+    let user-icons-lc = user-icons
+      .pairs()
+      .fold(
+        (:),
+        (acc, (k, v)) => acc + ((lower(k)): v),
+      )
     if user-icons-lc.len() != user-icons.len() {
       panic(
         "labels.publicationIcons has keys that collide after lowercasing — "
           + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
-          + "Source keys: " + repr(user-icons.keys()),
+          + "Source keys: "
+          + repr(user-icons.keys()),
       )
     }
     for (group, items) in groups.pairs() [
@@ -88,8 +94,16 @@
           #let summary = pub.at("summary", default: none)
           // `_present` so empty-string fields don't emit orphan `\` breaks.
           - #styled-link(title, dest: url).
-            #if _present(publisher) [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
-            #if _present(date) [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
+            #if _present(publisher) [\ #text(
+              0.85 * body-size,
+              fill: _body_colour,
+              publisher,
+            )]
+            #if _present(date) [\ #text(
+              0.8 * body-size,
+              fill: _body_colour.lighten(35%),
+              _format_date(date, prefs, labels),
+            )]
             #if _present(summary) [\ #par(summary)]
         ]
       ]

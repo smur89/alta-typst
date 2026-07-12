@@ -13,17 +13,23 @@
 
 #import "../lib.typ": alta
 
-#let cv = (basics: (
-  name: "Jane Doe",
-  label: "Software Engineer",
-  email: "jane@example.com",
-  phone: "+353 1 555 0100",
-  location: "Dublin, Ireland",
-  url: "https://janedoe.dev",
-  profiles: (
-    (network: "GitHub", username: "janedoe", url: "https://github.com/janedoe"),
+#let cv = (
+  basics: (
+    name: "Jane Doe",
+    label: "Software Engineer",
+    email: "jane@example.com",
+    phone: "+353 1 555 0100",
+    location: "Dublin, Ireland",
+    url: "https://janedoe.dev",
+    profiles: (
+      (
+        network: "GitHub",
+        username: "janedoe",
+        url: "https://github.com/janedoe",
+      ),
+    ),
   ),
-))
+)
 
 #alta(cv)
 
@@ -33,12 +39,14 @@
 
 #pagebreak()
 
-#alta((basics: (
-  name: "Jane Doe",
-  label: "Homepage + Website profile",
-  email: "jane@example.com",
-  url: "https://janedoe.dev",
-  profiles: (
-    (network: "Website", username: "janedoe.dev", url: "https://janedoe.dev"),
+#alta((
+  basics: (
+    name: "Jane Doe",
+    label: "Homepage + Website profile",
+    email: "jane@example.com",
+    url: "https://janedoe.dev",
+    profiles: (
+      (network: "Website", username: "janedoe.dev", url: "https://janedoe.dev"),
+    ),
   ),
-)))
+))

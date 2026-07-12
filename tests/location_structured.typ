@@ -18,60 +18,72 @@
 
 #import "../lib.typ": alta
 
-#alta((basics: (
-  name: "String Form",
-  label: "Legacy plain-string location",
-  email: "string@example.com",
-  location: "Dublin, Ireland",
-)))
-
-#pagebreak()
-
-#alta((basics: (
-  name: "Full Dict",
-  label: "city, region, countryCode",
-  email: "full@example.com",
-  location: (city: "Dublin", region: "Leinster", countryCode: "IE"),
-)))
-
-#pagebreak()
-
-#alta((basics: (
-  name: "Partial Dict",
-  label: "city + countryCode (no region)",
-  email: "partial@example.com",
-  location: (city: "Zürich", countryCode: "CH"),
-)))
-
-#pagebreak()
-
-#alta((basics: (
-  name: "City Only",
-  label: "Single field collapse",
-  email: "city@example.com",
-  location: (city: "Tokyo"),
-)))
-
-#pagebreak()
-
-#alta((basics: (
-  name: "Postal Fields Ignored",
-  label: "address + postalCode accepted but unrendered",
-  email: "postal@example.com",
-  location: (
-    address: "1 Example Street",
-    postalCode: "D02 XY00",
-    city: "Dublin",
-    region: "Leinster",
-    countryCode: "IE",
+#alta((
+  basics: (
+    name: "String Form",
+    label: "Legacy plain-string location",
+    email: "string@example.com",
+    location: "Dublin, Ireland",
   ),
-)))
+))
 
 #pagebreak()
 
-#alta((basics: (
-  name: "All Empty Dict",
-  label: "no location row emitted",
-  email: "empty@example.com",
-  location: (city: "", region: "", countryCode: ""),
-)))
+#alta((
+  basics: (
+    name: "Full Dict",
+    label: "city, region, countryCode",
+    email: "full@example.com",
+    location: (city: "Dublin", region: "Leinster", countryCode: "IE"),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (
+    name: "Partial Dict",
+    label: "city + countryCode (no region)",
+    email: "partial@example.com",
+    location: (city: "Zürich", countryCode: "CH"),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (
+    name: "City Only",
+    label: "Single field collapse",
+    email: "city@example.com",
+    location: (city: "Tokyo"),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (
+    name: "Postal Fields Ignored",
+    label: "address + postalCode accepted but unrendered",
+    email: "postal@example.com",
+    location: (
+      address: "1 Example Street",
+      postalCode: "D02 XY00",
+      city: "Dublin",
+      region: "Leinster",
+      countryCode: "IE",
+    ),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (
+    name: "All Empty Dict",
+    label: "no location row emitted",
+    email: "empty@example.com",
+    location: (city: "", region: "", countryCode: ""),
+  ),
+))

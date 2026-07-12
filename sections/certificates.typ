@@ -4,7 +4,7 @@
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/text.typ": _present
-#import "../internal/primitives.typ": tag, divider, _group_by, _labelled_divider
+#import "../internal/primitives.typ": _group_by, _labelled_divider, divider, tag
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -46,7 +46,10 @@
   let singletons = ()
   for (issuer, items) in by-issuer.pairs() {
     if items.len() > 1 {
-      groups.push((issuer: if issuer == "" { none } else { issuer }, items: items))
+      groups.push((
+        issuer: if issuer == "" { none } else { issuer },
+        items: items,
+      ))
     } else {
       singletons.push(items.first())
     }
@@ -101,8 +104,11 @@
   // divider; the first group is preceded by no divider regardless so
   // the section starts flush against the heading.
   for (i, g) in groups.enumerate() {
-    if g.issuer != none { _labelled_divider(g.issuer) }
-    else if i > 0 { divider() }
-    block(breakable: false, { for item in g.items { _cert_tag(item, prefs, labels) } })
+    if g.issuer != none { _labelled_divider(g.issuer) } else if i > 0 {
+      divider()
+    }
+    block(breakable: false, {
+      for item in g.items { _cert_tag(item, prefs, labels) }
+    })
   }
 }

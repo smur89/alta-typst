@@ -28,75 +28,87 @@
 #import "../lib.typ": alta
 
 #alta(
-  (basics: (
-    name: "QR From basics.url",
-    label: "preferences.qrCode: auto",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-  )),
+  (
+    basics: (
+      name: "QR From basics.url",
+      label: "preferences.qrCode: auto",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+    ),
+  ),
   preferences: (qrCode: auto),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Explicit QR URL",
-    label: "preferences.qrCode: \"https://...\"",
-    email: "qr@example.com",
-    url: "https://example.com/canonical",
-  )),
+  (
+    basics: (
+      name: "Explicit QR URL",
+      label: "preferences.qrCode: \"https://...\"",
+      email: "qr@example.com",
+      url: "https://example.com/canonical",
+    ),
+  ),
   preferences: (qrCode: "https://example.com/printed-cv"),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "QR + Portrait (Default)",
-    label: "QR left, photo right",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "QR + Portrait (Default)",
+      label: "QR left, photo right",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (qrCode: auto),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "QR + Portrait (Flipped)",
-    label: "Photo left, QR right",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "QR + Portrait (Flipped)",
+      label: "Photo left, QR right",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (qrCode: auto, imagePosition: "left"),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Accent-Themed QR",
-    label: "QR inherits preferences.accent",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-  )),
+  (
+    basics: (
+      name: "Accent-Themed QR",
+      label: "QR inherits preferences.accent",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+    ),
+  ),
   preferences: (qrCode: auto, accent: rgb("#1976D2")),
 )
 
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Centred Portrait + QR",
-    label: "QR pins top-left next to the photo, text below",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Portrait + QR",
+      label: "QR pins top-left next to the photo, text below",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     qrCode: auto,
     imagePosition: "center",
@@ -107,12 +119,14 @@
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Centred Text + QR (No Photo)",
-    label: "QR pins top-left, centred header fills the row",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-  )),
+  (
+    basics: (
+      name: "Centred Text + QR (No Photo)",
+      label: "QR pins top-left, centred header fills the row",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+    ),
+  ),
   preferences: (
     qrCode: auto,
     imagePosition: "center",
@@ -123,13 +137,15 @@
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Centred Photo Below + QR",
-    label: "imageStackOrder: \"below\" — photo trails the text block",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Photo Below + QR",
+      label: "imageStackOrder: \"below\" — photo trails the text block",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     qrCode: auto,
     imagePosition: "center",
@@ -141,13 +157,15 @@
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Centred Photo + Left Text + QR",
-    label: "Orthogonal axes — photo centred, header text left-aligned",
-    email: "qr@example.com",
-    url: "https://example.com/cv",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Photo + Left Text + QR",
+      label: "Orthogonal axes — photo centred, header text left-aligned",
+      email: "qr@example.com",
+      url: "https://example.com/cv",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     qrCode: auto,
     imagePosition: "center",
