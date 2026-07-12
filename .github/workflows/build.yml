@@ -95,8 +95,10 @@ jobs:
 
       # Regenerate the Universe package-card image — also serves as
       # a render-check (`test-template` in the lint job is the
-      # compile gate). Output isn't bit-compared since font rendering
-      # varies across systems; a non-zero exit fails the build.
+      # compile gate). Not bit-compared here: this job runs in
+      # setup-typst, where raster output varies across systems. The
+      # byte-exact drift check lives in the `preview-images-in-sync`
+      # job below, which regenerates inside the pinned image.
       - name: Build thumbnail.png
         run: make thumbnail
 
@@ -183,6 +185,44 @@ jobs:
             --workdir /data/packages \
             ${PCHECK_IMAGE} \
             check @preview/${PACKAGE_NAME}:${PKG_VERSION}
+
+  # The tracked preview PNGs — examples/cv.png (README hero) and
+  # thumbnail.png (Universe card) — rasterise from template/cv.typ.
+  # Raster output is environment-sensitive, so unlike the fixture PDFs
+  # (byte-checked in the lint job under setup-typst) these only
+  # reproduce inside the pinned image. Regenerate them there and fail
+  # on drift, so a rendering change that isn't reflected in the
+  # committed images is caught before it ships to the README / card.
+  # Add `preview-images-in-sync` to branch protection to make it
+  # blocking.
+  preview-image-drift:
+    name: preview-images-in-sync
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      # Regenerates via the same Makefile target contributors run, so
+      # the gate environment matches the commit environment exactly.
+      # The pinned image ships Typst + Lato + FontAwesome, so no
+      # setup-typst step is needed; `docker run` auto-pulls it.
+      - name: Regenerate preview PNGs in the pinned image
+        run: make docker-preview-images
+
+      - name: Verify examples/cv.png + thumbnail.png are in sync
+        run: |
+          drift=$(git status --porcelain -- examples/cv.png thumbnail.png | grep '\.png' || true)
+          if [ -n "$drift" ]; then
+            echo "::error::examples/cv.png / thumbnail.png are out of date — run 'make docker-preview-images' locally and commit the result"
+            printf '%s\n' "$drift"
+            exit 1
+          fi
 
   # release-please reads conventional-commit messages since the last
   # tag, opens (or updates) a Release PR with the bumped version, and
