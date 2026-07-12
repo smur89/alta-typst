@@ -33,6 +33,10 @@ examples/.preview-gif-frame-*.png
 .thumbnail-*.png
 .test-template-src.typ
 
+# @preview package cache written by the docker-pdfs / docker-shell
+# targets (see DOCKER_RUN in the Makefile).
+.typst-cache/
+
 # Editor / IDE
 .vscode/
 .idea/
@@ -41,3 +45,6 @@ examples/.preview-gif-frame-*.png
 *.iws
 out/
 *.swp
+
+# Claude Code local workspace (worktrees, session settings)
+.claude/
