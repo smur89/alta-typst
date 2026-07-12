@@ -240,9 +240,11 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | Field | Type | Effect |
 |---|---|---|
 | `position` | string | Role title. Entry heading. |
-| `organization` | string | Granting organisation, accent colour beneath the position. |
+| `organization` | string | Granting organisation, accent colour beneath the position; wrapped in a link when `url` is supplied. |
+| `url` | string | Wraps `organization` in a link (visual treatment unchanged — bold accent, no italic / underline). |
 | `location` | string | Rendered next to the date range. |
 | `startDate` / `endDate` | string | Date range. |
+| `summary` | string or content | Italic preamble between the date row and the highlights list. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
@@ -343,7 +345,6 @@ Icons are resolved via [`@preview/fontawesome`](https://typst.app/universe/packa
 
 These fields are accepted (so a verbatim `resume.json` round-trips without panicking) but not yet rendered:
 
-- `volunteer[].summary`, `volunteer[].url`
 - `projects[].entity`, `projects[].type`, `projects[].roles`
 
 Open or upvote an issue if you need one rendered.
