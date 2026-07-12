@@ -242,10 +242,13 @@
   projects: (
     (
       name: "Hyperion",
+      type: "Application",
+      entity: "Acme Corp",
       description: "Distributed task scheduler in Rust",
       startDate: ago(months: 29),
       endDate: ago(months: 22),
       url: "https://github.com/seanomurchu/hyperion",
+      roles: ("Lead", "Architect"),
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
         [Handled 10k tasks/s on a single node.],
@@ -253,21 +256,26 @@
       ),
     ),
     (
-      // Ongoing — `endDate` omitted, renders as "Present".
+      // Ongoing — `endDate` omitted, renders as "Present". Shares the
+      // "Application" `type` with Hyperion, so the two cluster together.
       name: "Crucible",
+      type: "Application",
       description: "Migration tool for legacy databases",
       startDate: ago(months: 21),
+      roles: ("Maintainer",),
       highlights: ([Schema diffing across PostgreSQL and MySQL.],),
     ),
     (
-      // Minimal — only the required field.
-      name: "Quill",
-    ),
-    (
-      // Description + keywords, no URL / dates / highlights.
+      // Distinct `type` → its own "Library" subheading.
       name: "Tinkerbell",
+      type: "Library",
       description: "Tiny IRC bot",
       keywords: ("Lua",),
+    ),
+    (
+      // Minimal + untyped — only the required field, so it falls under
+      // the "Other" bucket after the typed groups.
+      name: "Quill",
     ),
   ),
 

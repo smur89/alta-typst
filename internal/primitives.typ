@@ -121,9 +121,11 @@
 }
 
 // Suppresses the inter-tag gap on the final pill so rows don't end
-// in dead horizontal space.
-#let _tag_row(items) = {
+// in dead horizontal space. `label` forwards to `tag` so a caller can
+// render the whole row in the darker category variant (e.g. project
+// roles, set apart from the lighter keyword pills).
+#let _tag_row(items, label: false) = {
   for (i, item) in items.enumerate() {
-    tag(item, trailing: i < items.len() - 1)
+    tag(item, label: label, trailing: i < items.len() - 1)
   }
 }
