@@ -68,6 +68,20 @@
   labels: (:),
   preferences: (:),
 ) = {
+  // `basics.name` is the one required field (starter + README both
+  // document everything else as optional). Checked up front so a
+  // missing dict panics with a guided message instead of Typst's
+  // bare "dictionary does not contain key".
+  if type(cv) != dictionary {
+    panic("alta() expects a CV data dictionary, got: " + repr(cv))
+  }
+  let basics = cv.at("basics", default: none)
+  if type(basics) != dictionary or not _present(basics.at("name", default: none)) {
+    panic(
+      "cv.basics.name is required (a non-empty string) — every other "
+        + "field is optional. Got basics: " + repr(basics),
+    )
+  }
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
   let column-ratio = preferences.columnRatio

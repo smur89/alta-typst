@@ -2,6 +2,7 @@
 // a number; label-only annotation when it returns `none` (free-text
 // fluency outside the LinkedIn enum — canonical JSON Resume shape).
 
+#import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _join_with_dividers
 #import "../internal/ratings.typ": rating, _resolve_rating
 #import "../internal/state.typ": _body_size_state, _body_colour
@@ -17,18 +18,25 @@
   [\ ]
 }
 
-#let _languages(items, labels) = if items.len() > 0 [
-  == #labels.languages
+#let _languages(items, labels) = {
+  // Filter-first on `language` (the entry's display name) so a
+  // nameless entry is dropped rather than panicking — matching the
+  // awards / projects / publications convention.
+  let valid = items.filter(l => _present(l.at("language", default: none)))
+  if valid.len() == 0 { return }
+  [
+    == #labels.languages
 
-  #_join_with_dividers(items, lang => block(
-    breakable: false,
-    {
-      let value = _resolve_rating(lang)
-      if value != none {
-        rating(lang.language, value)
-      } else {
-        _label_only(lang.language, lang.at("fluency", default: none))
-      }
-    },
-  ))
-]
+    #_join_with_dividers(valid, lang => block(
+      breakable: false,
+      {
+        let value = _resolve_rating(lang)
+        if value != none {
+          rating(lang.language, value)
+        } else {
+          _label_only(lang.language, lang.at("fluency", default: none))
+        }
+      },
+    ))
+  ]
+}

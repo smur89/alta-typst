@@ -19,7 +19,10 @@
 
   #_join_with_dividers(entries, entry => [
     #block(breakable: false)[
-      === #entry.position
+      // JSON Resume marks `position` optional — skip the role heading
+      // rather than panicking, so the org line leads the entry.
+      #let position = entry.at("position", default: none)
+      #if _present(position) [=== #position]
       // `link()` inherits the surrounding bold + accent from `name()`,
       // so the org stays visually identical to the unlinked case and
       // just gains click behaviour. `styled-link` would impose the

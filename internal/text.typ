@@ -12,11 +12,13 @@
 #let _present(v) = v != none and v != "" and v != []
 
 // Accent-coloured italic styling for entry titles. When `dest` is
-// non-none the styled content is wrapped in a `link()`, giving every
+// present the styled content is wrapped in a `link()`, giving every
 // linked + unlinked title a uniform visual — URL presence is purely
-// a clickability concern, not a styling one.
+// a clickability concern, not a styling one. `_present` (rather than
+// `!= none`) so an empty-string `url` in the data renders an unlinked
+// title instead of a dead link.
 #let styled-link(content, dest: none) = context {
   let accent = _accent_state.get()
   let styled = emph(text(fill: accent, content))
-  if dest == none { styled } else { link(dest, styled) }
+  if _present(dest) { link(dest, styled) } else { styled }
 }
