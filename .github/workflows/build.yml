@@ -24,6 +24,12 @@ env:
   # filter all derive from one place; rename the package by editing
   # both this and typst.toml.
   PACKAGE_NAME: altacv
+  # typstyle release tag the `typstyle` job pins to. Formatter output
+  # can shift between versions, so keep this in lockstep with the
+  # version contributors run locally (see CONTRIBUTING) — otherwise the
+  # check disagrees with `make fmt`. Bump deliberately, reformatting in
+  # the same commit.
+  TYPSTYLE_VERSION: v0.15.0
 
 jobs:
   # Syntax + manifest sanity check. Compiles lib.typ and the example
@@ -69,6 +75,37 @@ jobs:
             printf '%s\n' "$drift"
             exit 1
           fi
+
+  # Enforce typstyle formatting. typstyle parses source only — it needs
+  # neither Typst nor the fonts — so this job skips setup-typst and just
+  # fetches the pinned binary (same download-a-pinned-binary pattern as
+  # setup-typst does for Typst itself). `make fmt-check` is the exact
+  # command contributors run locally, so a green run here means
+  # `make fmt` produced no diff.
+  format:
+    name: typstyle
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      # Prebuilt musl-free gnu binary for the x86_64 ubuntu runner,
+      # pinned to TYPSTYLE_VERSION so the check can't drift from the
+      # version that produced the committed formatting.
+      - name: Install typstyle
+        run: |
+          curl -sSfL -o /usr/local/bin/typstyle \
+            "https://github.com/Enter-tainer/typstyle/releases/download/${TYPSTYLE_VERSION}/typstyle-x86_64-unknown-linux-gnu"
+          chmod +x /usr/local/bin/typstyle
+          typstyle --version
+
+      - name: Check formatting
+        run: make fmt-check
 
   # Build the example PDF and a first-page preview PNG. Uploaded as
   # workflow artifacts on every run so reviewers can download and
