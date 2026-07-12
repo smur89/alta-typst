@@ -30,6 +30,11 @@ referencesAvailableOnRequest = "References available upon request."
 # Cluster heading for publications without an explicit `type`.
 articles = "Articles"
 
+# Cluster heading for projects without an explicit `type`, when at
+# least one other project is typed (an all-untyped `projects` list
+# renders flat, with no subheadings).
+otherProjects = "Other"
+
 # Rendered in date ranges when `endDate` is empty.
 present = "Present"
 
