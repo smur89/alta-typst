@@ -1,7 +1,8 @@
-// JSON Resume `projects` section. Covers the practical field set:
-// linked title, description, date range, highlights, keywords.
-// Includes a minimal entry (name only) and a complete entry to
-// exercise every optional field.
+// JSON Resume `projects` section, flat (untyped) layout. Covers the
+// practical field set: linked title, `entity` subtitle, description,
+// date range, highlights, `roles` pills, keyword pills. Includes a
+// minimal entry (name only) and skipped entries (missing / null name).
+// Grouping by `type` is exercised separately in `projects_grouped.typ`.
 
 #import "../lib.typ": alta
 
@@ -10,10 +11,12 @@
   projects: (
     (
       name: "Hyperion",
+      entity: "Acme Corp",
       description: "Distributed task scheduler in Rust",
       startDate: "Jan 2024",
       endDate: "Aug 2024",
       url: "https://github.com/janedoe/hyperion",
+      roles: ("Lead", "Architect"),
       keywords: ("Rust", "Tokio", "gRPC"),
       highlights: (
         [Handled 10k tasks/s on a single node.],

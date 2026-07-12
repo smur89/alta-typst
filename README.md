@@ -266,9 +266,12 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Project title. Heading; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
-| `description` | string | Italic subtitle under the title, body colour. |
+| `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
+| `description` | string | Italic line beneath the title (below `entity` when both are present), body colour. |
+| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
+| `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 | `keywords` | array of strings | Row of pill tags below the highlights. |
 
@@ -343,11 +346,7 @@ Icons are resolved via [`@preview/fontawesome`](https://typst.app/universe/packa
 
 ### Unrendered JSON Resume fields
 
-These fields are accepted (so a verbatim `resume.json` round-trips without panicking) but not yet rendered:
-
-- `projects[].entity`, `projects[].type`, `projects[].roles`
-
-Open or upvote an issue if you need one rendered.
+A verbatim `resume.json` round-trips without panicking — fields altacv doesn't use are accepted and ignored rather than erroring. The `volunteer`, `projects`, and `meta` extras once listed here now all render, so none are currently outstanding. If you supply a field that isn't rendered and want it surfaced, open or upvote an issue.
 
 ## Configuration
 
