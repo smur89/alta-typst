@@ -111,14 +111,15 @@
   v(0.3 * body-size)
 }
 
-// Interleaves `divider()` between items; the trailing one is suppressed
-// so sections don't end on a stray rule.
-#let _join_with_dividers(items, render) = {
-  for (i, item) in items.enumerate() {
-    render(item)
-    if i < items.len() - 1 { divider() }
-  }
-}
+// Buckets `items` under `key-of(item)` in first-occurrence order
+// (Typst dicts preserve insertion order). Keys must be strings.
+#let _group_by(items, key-of) = items.fold((:), (acc, item) => {
+  let key = key-of(item)
+  acc + ((key): acc.at(key, default: ()) + (item,))
+})
+
+// Rules between neighbours only, so sections don't end on a stray rule.
+#let _join_with_dividers(items, render) = items.map(render).join(divider())
 
 // Suppresses the inter-tag gap on the final pill so rows don't end
 // in dead horizontal space. `label` forwards to `tag` so a caller can

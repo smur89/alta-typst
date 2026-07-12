@@ -4,6 +4,7 @@
 
 #import "../internal/state.typ": _body_size_state, _body_colour
 #import "../internal/text.typ": _present, styled-link
+#import "../internal/primitives.typ": _group_by
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -43,20 +44,14 @@
   if valid.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
-    let groups = (:)
-    for pub in valid {
-      // Normalise `type` to a non-empty string — a missing field or
-      // a non-string value (e.g. `none`, a number) falls back to the
-      // default "Articles" heading rather than crashing at
-      // `lower(group)` below.
+    // Normalise `type` to a non-empty string — a missing field or a
+    // non-string value (e.g. `none`, a number) falls back to the
+    // default "Articles" heading rather than crashing at
+    // `lower(group)` below.
+    let groups = _group_by(valid, pub => {
       let raw-type = pub.at("type", default: none)
-      let key = if type(raw-type) == str and _present(raw-type) {
-        raw-type
-      } else {
-        labels.articles
-      }
-      groups.insert(key, groups.at(key, default: ()) + (pub,))
-    }
+      if type(raw-type) == str and _present(raw-type) { raw-type } else { labels.articles }
+    })
     [== #labels.publications]
     // Normalise user-supplied override keys to lowercase up front so
     // the case-insensitive contract holds symmetrically: `(Talks: ...)`
@@ -91,9 +86,10 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
+          // `_present` so empty-string fields don't emit orphan `\` breaks.
           - #styled-link(title, dest: url).
-            #if publisher != none [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
-            #if date != none [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
+            #if _present(publisher) [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
+            #if _present(date) [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]
             #if _present(summary) [\ #par(summary)]
         ]
       ]

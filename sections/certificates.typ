@@ -4,24 +4,26 @@
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/text.typ": _present
-#import "../internal/primitives.typ": tag, divider, _labelled_divider
+#import "../internal/primitives.typ": tag, divider, _group_by, _labelled_divider
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
-// Normalises a cert into the (name, date, url) triple the renderer
-// consumes. Returns `none` for entries with no usable name so callers
-// can filter them in one pass. `date` / `url` are normalised to `none`
-// when absent or empty so downstream `!= none` checks don't render an
-// orphan date snippet or a link with an empty target.
+// Normalises a cert into the (name, date, url, issuer) record the
+// renderer consumes; `none` when there's no usable name. `date` /
+// `url` collapse to `none` when empty so downstream nil-checks don't
+// render orphans; "no issuer" (missing / `none` / "") normalises to
+// "" because Typst dict keys can't be `none`.
 #let _normalise_cert(cert) = {
   let name = cert.at("name", default: "")
   if not _present(name) { return none }
   let date = cert.at("date", default: none)
   let url = cert.at("url", default: none)
+  let issuer = cert.at("issuer", default: "")
   (
     name: name,
     date: if _present(date) { date } else { none },
     url: if _present(url) { url } else { none },
+    issuer: if issuer == none { "" } else { issuer },
   )
 }
 
@@ -30,23 +32,16 @@
 // a trailing heterogeneous group with no issuer label.
 //
 // Returns an array of `(issuer, items)` records. `items` carries full
-// `_normalise_cert` triples (name + date + url) so the renderer can
+// `_normalise_cert` records (name + date + url) so the renderer can
 // emit inline dates and link wrapping without re-reading the source.
 // `issuer` is `none` for the trailing singleton group (its certs come
 // from different issuers, so no single label fits) or for clusters
 // whose `issuer` field is missing / empty.
 #let _build_cert_groups(certs) = {
-  // Normalise "no issuer" (key missing, explicit `none`, or empty
-  // string) to the literal "" key so they all bucket together; we
-  // can't key the dict on `none` (Typst dicts require string keys).
-  let by-issuer = (:)
-  for cert in certs {
-    let item = _normalise_cert(cert)
-    if item == none { continue }
-    let raw = cert.at("issuer", default: "")
-    let issuer = if raw == none { "" } else { raw }
-    by-issuer.insert(issuer, by-issuer.at(issuer, default: ()) + (item,))
-  }
+  let by-issuer = _group_by(
+    certs.map(_normalise_cert).filter(c => c != none),
+    c => c.issuer,
+  )
   let groups = ()
   let singletons = ()
   for (issuer, items) in by-issuer.pairs() {
@@ -69,9 +64,7 @@
 // the same way the work / education / awards / publications dates do.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  // Guard on _present so an empty-string `date` doesn't render an
-  // orphan bullet + calendar icon followed by no text.
-  let body = if _present(item.at("date", default: none)) {
+  let body = if item.date != none {
     let formatted = _format_date(item.date, prefs, labels)
     let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
     let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)

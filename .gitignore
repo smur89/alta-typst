@@ -33,6 +33,9 @@ examples/.preview-gif-frame-*.png
 .thumbnail-*.png
 .test-template-src.typ
 
+# @preview cache written by DOCKER_RUN targets (see Makefile).
+.typst-cache/
+
 # Editor / IDE
 .vscode/
 .idea/
@@ -41,3 +44,6 @@ examples/.preview-gif-frame-*.png
 *.iws
 out/
 *.swp
+
+# Claude Code local workspace
+.claude/
