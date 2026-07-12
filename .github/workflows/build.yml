@@ -15,7 +15,7 @@ env:
   # Single source of truth for the Typst version used across all jobs.
   # Bumping this requires no other edits.
   TYPST_VERSION: v0.15.0
-  # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.1
+  # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
   # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
   # every CI job that compiles the package downloads v7 from upstream.
   FA_VERSION: 7.0.0

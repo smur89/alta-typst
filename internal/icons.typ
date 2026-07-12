@@ -10,7 +10,7 @@
 // installed locally (brew/apt/manual) or be compiling on typst.app,
 // which ships the FA fonts in its preinstalled set.
 
-#import "@preview/fontawesome:0.6.1": fa-icon
+#import "@preview/fontawesome:0.6.2": fa-icon
 #import "state.typ": _body_size_state, _body_colour
 
 // Utility icons. All resolve to the FA Free Solid font (passed via
