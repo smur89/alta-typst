@@ -5,10 +5,10 @@
 // `_format_location` / `_url_encode` helpers that feed the maps deep
 // link (single-caller helpers, kept adjacent to their consumer).
 
-#import "state.typ": _body_size_state, _accent_state, _emphasis_colour
+#import "state.typ": _accent_state, _body_size_state, _emphasis_colour
 #import "presets.typ": maps-providers
-#import "icons.typ": icon, _profile_networks, _network_aliases
-#import "qr.typ": _resolve_qr_url, _qr_render
+#import "icons.typ": _network_aliases, _profile_networks, icon
+#import "qr.typ": _qr_render, _resolve_qr_url
 #import "validation.typ": _check_unknown_keys
 
 // JSON Resume's structured `location` dict collapsed to a single
@@ -18,7 +18,13 @@
 // deep link, so reader and link target stay in sync. Empty strings
 // normalise to `none` so downstream `!= none` checks treat them as
 // absent (no orphan location row, no blank-query maps URL).
-#let _location_fields = ("address", "postalCode", "city", "countryCode", "region")
+#let _location_fields = (
+  "address",
+  "postalCode",
+  "city",
+  "countryCode",
+  "region",
+)
 #let _location_display_order = ("city", "region", "countryCode")
 #let _format_location(value) = {
   if value == none { return none }
@@ -29,7 +35,8 @@
   if type(value) != dictionary {
     panic(
       "basics.location must be a string or a dict matching JSON Resume's"
-        + " {address, postalCode, city, countryCode, region}, got: " + repr(value),
+        + " {address, postalCode, city, countryCode, region}, got: "
+        + repr(value),
     )
   }
   _check_unknown_keys(value.keys(), _location_fields, "basics.location")
@@ -112,18 +119,24 @@
   qr-code: none,
 ) = {
   if image-position not in ("left", "right", "center") {
-    panic("imagePosition must be \"left\", \"right\", or \"center\", got: " + repr(image-position))
+    panic(
+      "imagePosition must be \"left\", \"right\", or \"center\", got: "
+        + repr(image-position),
+    )
   }
   // Only meaningful when image-position == "center"; validated unconditionally
   // so a typo surfaces even if the caller later flips the position.
   if image-stack-order not in ("above", "below") {
-    panic("imageStackOrder must be \"above\" or \"below\", got: " + repr(image-stack-order))
+    panic(
+      "imageStackOrder must be \"above\" or \"below\", got: "
+        + repr(image-stack-order),
+    )
   }
   let text-align = (
-    if header-text-align == "left" { left }
-    else if header-text-align == "right" { right }
-    else if header-text-align == "center" { center }
-    else {
+    if header-text-align == "left" { left } else if header-text-align
+      == "right" { right } else if header-text-align == "center" {
+      center
+    } else {
       panic(
         "headerTextAlign must be \"left\", \"right\", or \"center\", got: "
           + repr(header-text-align),
@@ -152,12 +165,21 @@
         block(
           spacing: 0pt,
           below: 0.8 * body-size,
-          text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", basics.label),
+          text(
+            1.2 * body-size,
+            fill: _emphasis_colour,
+            weight: "bold",
+            basics.label,
+          ),
         )
       }
 
       set text(0.8 * body-size, weight: "bold")
-      let bar-icon = icon.with(size: 0.9 * body-size, shift: 0.2 * body-size, fill: accent)
+      let bar-icon = icon.with(
+        size: 0.9 * body-size,
+        shift: 0.2 * body-size,
+        fill: accent,
+      )
 
       let entries = ()
       let email = basics.at("email", default: none)
@@ -213,8 +235,10 @@
         let network = _network_aliases.at(raw, default: raw)
         if network not in _profile_networks {
           panic(
-            "Unknown profile network: " + repr(profile.network)
-              + ". Supported: " + _profile_networks.join(", ")
+            "Unknown profile network: "
+              + repr(profile.network)
+              + ". Supported: "
+              + _profile_networks.join(", ")
               + ". To add another, register its FontAwesome glyph in _network_icons (internal/icons.typ).",
           )
         }
@@ -227,7 +251,10 @@
           // `.at("url", default: none)` instead of direct access
           // means a profile with only `network` + `username`
           // renders the username and skips the link.
-          value: profile.at("username", default: profile.at("url", default: "")),
+          value: profile.at("username", default: profile.at(
+            "url",
+            default: "",
+          )),
           url: profile.at("url", default: none),
         ))
       }
@@ -263,7 +290,8 @@
       image-src.len() > 0
     } else {
       panic(
-        "basics.image must be a path, a string path, or bytes, got: " + repr(image-src),
+        "basics.image must be a path, a string path, or bytes, got: "
+          + repr(image-src),
       )
     }
     let photo = if has-image { _portrait(image-src, image-size) }

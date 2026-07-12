@@ -4,7 +4,7 @@
 // so a stray entry can't emit an orphan heading.
 
 #import "../internal/text.typ": _present, styled-link
-#import "../internal/primitives.typ": name, term, _join_with_dividers
+#import "../internal/primitives.typ": _join_with_dividers, name, term
 #import "../internal/dates.typ": _format_date
 
 #let _awards(entries, labels, prefs) = {

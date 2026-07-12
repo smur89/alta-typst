@@ -11,7 +11,7 @@
 // which ships the FA fonts in its preinstalled set.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "state.typ": _body_size_state, _body_colour
+#import "state.typ": _body_colour, _body_size_state
 
 // Utility icons. All resolve to the FA Free Solid font (passed via
 // `solid: true`). Values are FA glyph names from the canonical

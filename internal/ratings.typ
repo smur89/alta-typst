@@ -5,7 +5,9 @@
 // gradient — Typst has no native half-circle fill, and a gradient
 // produces a sharp boundary where a transparent overlay wouldn't.
 
-#import "state.typ": _body_size_state, _accent_state, _max_rating_state, _empty_dot_colour
+#import "state.typ": (
+  _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
+)
 
 // LinkedIn-style fluency strings. Numeric `rating` wins over `fluency`
 // when an entry supplies both, so callers can opt into fractional
@@ -13,12 +15,12 @@
 // a 0–5 scale (LinkedIn's); callers using `preferences.maxRating` for a
 // non-5 scale (e.g. CEFR's 6) must pass numeric `rating` values.
 #let _fluency_rating = (
-  "Native":               5,
-  "Bilingual":            5,
-  "Full Professional":    4,
+  "Native": 5,
+  "Bilingual": 5,
+  "Full Professional": 4,
   "Professional Working": 3,
-  "Limited Working":      2,
-  "Elementary":           1,
+  "Limited Working": 2,
+  "Elementary": 1,
 )
 
 // `none` = caller should render label-only (free-text fluency outside
@@ -26,14 +28,22 @@
 // typo'd key or wrong-typed value surfaces immediately. Numeric
 // type/bounds checks live in `rating()`.
 #let _resolve_rating(entry) = {
-  let value = entry.at("rating", default: none)  // avoid shadowing `rating()`
+  let value = entry.at("rating", default: none) // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
   if fluency == none {
-    panic("Language entry needs either a numeric `rating` or a `fluency` string. Got: " + repr(entry))
+    panic(
+      "Language entry needs either a numeric `rating` or a `fluency` string. Got: "
+        + repr(entry),
+    )
   }
   if type(fluency) != str {
-    panic("Language `fluency` must be a string, got " + repr(fluency) + " in entry: " + repr(entry))
+    panic(
+      "Language `fluency` must be a string, got "
+        + repr(fluency)
+        + " in entry: "
+        + repr(entry),
+    )
   }
   if fluency in _fluency_rating { return _fluency_rating.at(fluency) }
   none
@@ -54,7 +64,13 @@
     panic("Rating must be numeric, got: " + repr(value))
   }
   if value < 0 or value > max-rating {
-    panic("Rating out of range: " + repr(value) + ". Expected 0–" + str(max-rating) + ".")
+    panic(
+      "Rating out of range: "
+        + repr(value)
+        + ". Expected 0–"
+        + str(max-rating)
+        + ".",
+    )
   }
   // Half-dot precision is the only fractional shape the renderer can
   // express (a single `_half_fill` gradient). Reject other fractions

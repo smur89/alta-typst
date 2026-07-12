@@ -12,14 +12,16 @@
 #import "../lib.typ": alta
 
 #alta(
-  (basics: (
-    name: "Centred Header, Photo Above",
-    label: "imagePosition: \"center\" (default stack order)",
-    email: "centre@example.com",
-    phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Header, Photo Above",
+      label: "imagePosition: \"center\" (default stack order)",
+      email: "centre@example.com",
+      phone: "+353 1 555 0100",
+      location: "Dublin, Ireland",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     imagePosition: "center",
     headerTextAlign: "center",
@@ -29,14 +31,16 @@
 #pagebreak()
 
 #alta(
-  (basics: (
-    name: "Centred Header, Photo Below",
-    label: "imageStackOrder: \"below\" — photo as sign-off",
-    email: "below@example.com",
-    phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Header, Photo Below",
+      label: "imageStackOrder: \"below\" — photo as sign-off",
+      email: "below@example.com",
+      phone: "+353 1 555 0100",
+      location: "Dublin, Ireland",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     imagePosition: "center",
     imageStackOrder: "below",
@@ -50,13 +54,15 @@
 // portrait pairs with left-aligned text without falling back to
 // side-by-side layout.
 #alta(
-  (basics: (
-    name: "Centred Photo, Left-Aligned Text",
-    label: "Orthogonal: photo centred, text flush left",
-    email: "mix@example.com",
-    location: "Dublin, Ireland",
-    image: read("../assets/avatar-placeholder.svg", encoding: none),
-  )),
+  (
+    basics: (
+      name: "Centred Photo, Left-Aligned Text",
+      label: "Orthogonal: photo centred, text flush left",
+      email: "mix@example.com",
+      location: "Dublin, Ireland",
+      image: read("../assets/avatar-placeholder.svg", encoding: none),
+    ),
+  ),
   preferences: (
     imagePosition: "center",
   ),

@@ -82,7 +82,9 @@
 #alta(base-cv, preferences: (
   dateFormat: parts => {
     if parts.month == none { return str(parts.year) }
-    let mm = if parts.month < 10 { "0" + str(parts.month) } else { str(parts.month) }
+    let mm = if parts.month < 10 { "0" + str(parts.month) } else {
+      str(parts.month)
+    }
     str(parts.year) + "/" + mm
   },
 ))
@@ -115,8 +117,20 @@
 #alta(
   base-cv,
   labels: (
-    months: ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
-             "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
+    months: (
+      "Jan",
+      "Feb",
+      "Mär",
+      "Apr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Dez",
+    ),
     present: "Heute",
   ),
 )

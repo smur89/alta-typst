@@ -18,11 +18,11 @@
   ),
   skills: (
     (name: "Languages", keywords: ("Scala", "Python")),
-    (name: "Infra",     keywords: ("Kafka", "Kubernetes")),
+    (name: "Infra", keywords: ("Kafka", "Kubernetes")),
   ),
   interests: (
-    (name: "Music",  keywords: ("Trad", "Jazz")),
-    (name: "Sport",  keywords: ("Hurling", "Climbing")),
+    (name: "Music", keywords: ("Trad", "Jazz")),
+    (name: "Sport", keywords: ("Hurling", "Climbing")),
     (name: "Travel", keywords: ("Japan", "Iceland")),
   ),
 )

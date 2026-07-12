@@ -30,8 +30,16 @@
     // (the built-in silhouette).
     image: avatar-placeholder,
     profiles: (
-      (network: "GitHub", username: "seanomurchu", url: "https://github.com/seanomurchu"),
-      (network: "LinkedIn", username: "seanomurchu", url: "https://linkedin.com/in/seanomurchu"),
+      (
+        network: "GitHub",
+        username: "seanomurchu",
+        url: "https://github.com/seanomurchu",
+      ),
+      (
+        network: "LinkedIn",
+        username: "seanomurchu",
+        url: "https://linkedin.com/in/seanomurchu",
+      ),
     ),
   ),
 
@@ -77,12 +85,12 @@
 
   skills: (
     (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
-    (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
+    (name: "Infra", keywords: ("Kafka", "AWS", "Kubernetes")),
   ),
 
   languages: (
     (language: "English", fluency: "Native"),
-    (language: "Irish",   fluency: "Professional Working"),
+    (language: "Irish", fluency: "Professional Working"),
   ),
 
   education: (

@@ -25,8 +25,16 @@
       // Photo placed on the LEFT to match the column inversion below.
       image: read("../assets/avatar-placeholder.svg", encoding: none),
       profiles: (
-        (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
-        (network: "GitHub",   username: "janedoe", url: "https://github.com/janedoe"),
+        (
+          network: "LinkedIn",
+          username: "janedoe",
+          url: "https://linkedin.com/in/janedoe",
+        ),
+        (
+          network: "GitHub",
+          username: "janedoe",
+          url: "https://github.com/janedoe",
+        ),
       ),
     ),
 
@@ -67,12 +75,12 @@
 
     skills: (
       (name: "Languages", keywords: ("Scala", "Haskell", "Python")),
-      (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
+      (name: "Infra", keywords: ("Kafka", "AWS", "Kubernetes")),
     ),
 
     languages: (
       (language: "English", fluency: "Native"),
-      (language: "Irish",   fluency: "Professional Working"),
+      (language: "Irish", fluency: "Professional Working"),
     ),
 
     education: (
@@ -107,7 +115,13 @@
     // a consistent edge regardless of the photo position.
     imagePosition: "left",
     // Side-panel sections take the narrow left column.
-    leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
+    leftColumnSections: (
+      "focusAreas",
+      "skills",
+      "languages",
+      "education",
+      "certificates",
+    ),
     // Experience + publications take the wide right column.
     rightColumnSections: ("work", "publications"),
   ),

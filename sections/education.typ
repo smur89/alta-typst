@@ -3,7 +3,7 @@
 // courses. Falls back to `area` when `studyType` is missing.
 
 #import "../internal/text.typ": _present
-#import "../internal/primitives.typ": name, term, tag, _join_with_dividers
+#import "../internal/primitives.typ": _join_with_dividers, name, tag, term
 #import "../internal/dates.typ": _format_date_range
 
 #let _education(entries, labels, prefs) = if entries.len() > 0 [
@@ -21,7 +21,9 @@
       // institution becomes clickable. `_present` (rather than
       // `!= none`) so a missing JSON field — present-but-`none` or
       // present-but-empty — doesn't render a dead link.
-      #if _present(url) and _present(institution) { link(url, body) } else { body }
+      #if _present(url) and _present(institution) { link(url, body) } else {
+        body
+      }
       #term(_format_date_range(edu, prefs, labels))
 
       #let score = edu.at("score", default: none)

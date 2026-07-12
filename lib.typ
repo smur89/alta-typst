@@ -18,18 +18,23 @@
 // (page margins, column gutter, rule thicknesses) are visual choices
 // independent of text size.
 
-#import "internal/presets.typ": palettes, maps-providers
-#import "internal/state.typ": _body_size_state, _accent_state, _max_rating_state, _body_colour, _emphasis_colour
+#import "internal/presets.typ": maps-providers, palettes
+#import "internal/state.typ": (
+  _accent_state, _body_colour, _body_size_state, _emphasis_colour,
+  _max_rating_state,
+)
 #import "internal/defaults.typ": _default_labels
-#import "internal/validation.typ": _strict_merge, _validate_preferences, _validate_labels
+#import "internal/validation.typ": (
+  _strict_merge, _validate_labels, _validate_preferences,
+)
 #import "internal/text.typ": _present, styled-link
 #import "internal/icons.typ": icon
-#import "internal/primitives.typ": name, term, tag, divider
+#import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _summary
 #import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": _sections, _default_preferences
+#import "internal/layout.typ": _default_preferences, _sections
 #import "internal/json-resume.typ": from-json-resume
 
 // Default portrait — a generic head-and-shoulders silhouette baked
@@ -70,14 +75,21 @@
     panic("alta() expects a CV data dictionary, got: " + repr(cv))
   }
   let basics = cv.at("basics", default: none)
-  if type(basics) != dictionary or not _present(basics.at("name", default: none)) {
+  if (
+    type(basics) != dictionary or not _present(basics.at("name", default: none))
+  ) {
     panic(
       "cv.basics.name is required (a non-empty string) — every other "
-        + "field is optional. Got basics: " + repr(basics),
+        + "field is optional. Got basics: "
+        + repr(basics),
     )
   }
   let labels = _strict_merge(_default_labels, labels, "labels")
-  let preferences = _strict_merge(_default_preferences, preferences, "preferences")
+  let preferences = _strict_merge(
+    _default_preferences,
+    preferences,
+    "preferences",
+  )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
   let column-ratio = preferences.columnRatio
@@ -114,7 +126,11 @@
     title: cv.basics.name + " --- CV",
     author: cv.basics.name,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
-    ..(if _present(doc-description) { (description: doc-description) } else { (:) }),
+    ..(
+      if _present(doc-description) { (description: doc-description) } else {
+        (:)
+      }
+    ),
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
   )
   set text(body-size, font: preferences.font, fill: _body_colour)
@@ -185,7 +201,9 @@
   // Swapping the column-section arrays and inverting `columnRatio`
   // gives a mirrored layout.
   if column-ratio == 1 {
-    render-column(preferences.leftColumnSections + preferences.rightColumnSections)
+    render-column(
+      preferences.leftColumnSections + preferences.rightColumnSections,
+    )
   } else if preferences.rightColumnSections.len() == 0 {
     render-column(preferences.leftColumnSections)
   } else {
@@ -207,7 +225,10 @@
 // with a wrapper-aware diagnostic instead of an alta-level one.
 #let alta-from-json(data, ..rest) = {
   if rest.pos().len() > 0 {
-    panic("alta-from-json takes one positional (`data`); pass labels/preferences as named arguments. Got extra positionals: " + repr(rest.pos()))
+    panic(
+      "alta-from-json takes one positional (`data`); pass labels/preferences as named arguments. Got extra positionals: "
+        + repr(rest.pos()),
+    )
   }
   alta(from-json-resume(data), ..rest)
 }

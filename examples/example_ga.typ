@@ -24,8 +24,16 @@
     phone: "+353 1 555 0100",
     location: "Dún Laoghaire, Éire",
     profiles: (
-      (network: "GitHub",   username: "caoimhe", url: "https://github.com/caoimhe"),
-      (network: "LinkedIn", username: "caoimhe", url: "https://linkedin.com/in/caoimhe"),
+      (
+        network: "GitHub",
+        username: "caoimhe",
+        url: "https://github.com/caoimhe",
+      ),
+      (
+        network: "LinkedIn",
+        username: "caoimhe",
+        url: "https://linkedin.com/in/caoimhe",
+      ),
     ),
   ),
 
@@ -63,8 +71,8 @@
   ),
 
   languages: (
-    (language: "Gaeilge",  fluency: "Native"),
-    (language: "Béarla",   fluency: "Native"),
+    (language: "Gaeilge", fluency: "Native"),
+    (language: "Béarla", fluency: "Native"),
     (language: "Français", rating: 3),
   ),
 

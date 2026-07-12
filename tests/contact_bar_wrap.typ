@@ -15,16 +15,56 @@
     phone: "+353 1 555 0100",
     location: "Tallaght, Dublin",
     profiles: (
-      (network: "LinkedIn",      username: "wrapsmcwrap-linkedin",     url: "https://linkedin.com/in/wrapsmcwrap"),
-      (network: "GitHub",        username: "wrapsmcwrap-github",        url: "https://github.com/wrapsmcwrap"),
-      (network: "GitLab",        username: "wrapsmcwrap-gitlab",        url: "https://gitlab.com/wrapsmcwrap"),
-      (network: "Bluesky",       username: "@wrapsmcwrap.bsky.social",  url: "https://bsky.app/profile/wrapsmcwrap"),
-      (network: "Mastodon",      username: "@wrapsmcwrap@fosstodon.org", url: "https://fosstodon.org/@wrapsmcwrap"),
-      (network: "Medium",        username: "@wrapsmcwrap-medium",       url: "https://medium.com/@wrapsmcwrap"),
-      (network: "Stackoverflow", username: "wrapsmcwrap-stackoverflow", url: "https://stackoverflow.com/u/1"),
-      (network: "X",             username: "@wrapsmcwrap-x",            url: "https://x.com/wrapsmcwrap"),
-      (network: "Website",       username: "wrapsmcwrap.dev",           url: "https://wrapsmcwrap.dev"),
-      (network: "Link",          username: "talk recording",            url: "https://example.com/talk"),
+      (
+        network: "LinkedIn",
+        username: "wrapsmcwrap-linkedin",
+        url: "https://linkedin.com/in/wrapsmcwrap",
+      ),
+      (
+        network: "GitHub",
+        username: "wrapsmcwrap-github",
+        url: "https://github.com/wrapsmcwrap",
+      ),
+      (
+        network: "GitLab",
+        username: "wrapsmcwrap-gitlab",
+        url: "https://gitlab.com/wrapsmcwrap",
+      ),
+      (
+        network: "Bluesky",
+        username: "@wrapsmcwrap.bsky.social",
+        url: "https://bsky.app/profile/wrapsmcwrap",
+      ),
+      (
+        network: "Mastodon",
+        username: "@wrapsmcwrap@fosstodon.org",
+        url: "https://fosstodon.org/@wrapsmcwrap",
+      ),
+      (
+        network: "Medium",
+        username: "@wrapsmcwrap-medium",
+        url: "https://medium.com/@wrapsmcwrap",
+      ),
+      (
+        network: "Stackoverflow",
+        username: "wrapsmcwrap-stackoverflow",
+        url: "https://stackoverflow.com/u/1",
+      ),
+      (
+        network: "X",
+        username: "@wrapsmcwrap-x",
+        url: "https://x.com/wrapsmcwrap",
+      ),
+      (
+        network: "Website",
+        username: "wrapsmcwrap.dev",
+        url: "https://wrapsmcwrap.dev",
+      ),
+      (
+        network: "Link",
+        username: "talk recording",
+        url: "https://example.com/talk",
+      ),
     ),
   ),
 ))

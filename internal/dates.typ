@@ -50,8 +50,24 @@
   if prefix == none { return none }
   let parts = _parse_iso_date(prefix.text)
   if parts == none { return none }
-  let is-leap = calc.rem(parts.year, 4) == 0 and (calc.rem(parts.year, 100) != 0 or calc.rem(parts.year, 400) == 0)
-  let days-in-month = (31, if is-leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  let is-leap = (
+    calc.rem(parts.year, 4) == 0
+      and (calc.rem(parts.year, 100) != 0 or calc.rem(parts.year, 400) == 0)
+  )
+  let days-in-month = (
+    31,
+    if is-leap { 29 } else { 28 },
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  )
   if parts.day > days-in-month.at(parts.month - 1) { return none }
   datetime(year: parts.year, month: parts.month, day: parts.day)
 }
@@ -108,7 +124,11 @@
       _pad2(parts.day)
     }
   } else {
-    panic("Unknown dateFormat token: [" + token + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).")
+    panic(
+      "Unknown dateFormat token: ["
+        + token
+        + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
+    )
   }
 }
 
@@ -165,6 +185,8 @@
   let end = entry.at("endDate", default: none)
   if not _present(start) and not _present(end) { return none }
   let start-text = if _present(start) { _format_date(start, prefs, labels) }
-  let end-text = if _present(end) { _format_date(end, prefs, labels) } else { labels.present }
+  let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
+    labels.present
+  }
   if start-text == none { [#end-text] } else { [#start-text – #end-text] }
 }

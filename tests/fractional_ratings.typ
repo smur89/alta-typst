@@ -7,12 +7,12 @@
 #alta((
   basics: (name: "Jane Doe", email: "jane@example.com"),
   languages: (
-    (language: "English",   rating: 5),
-    (language: "French",    rating: 4.5),
-    (language: "Spanish",   rating: 2.5),
+    (language: "English", rating: 5),
+    (language: "French", rating: 4.5),
+    (language: "Spanish", rating: 2.5),
     (language: "Portuguese", rating: 0),
-    (language: "German",    fluency: "Elementary"),
-    (language: "Italian",   fluency: "Native"),
+    (language: "German", fluency: "Elementary"),
+    (language: "Italian", fluency: "Native"),
   ),
 ))
 
@@ -25,9 +25,9 @@
   (
     basics: (name: "Jean Dupont", email: "jean@example.com"),
     languages: (
-      (language: "French",  rating: 6),
+      (language: "French", rating: 6),
       (language: "English", rating: 5.5),
-      (language: "German",  rating: 4),
+      (language: "German", rating: 4),
       (language: "Spanish", rating: 2),
     ),
   ),

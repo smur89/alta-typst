@@ -10,16 +10,22 @@
 
 #import "../lib.typ": alta
 
-#let cv = (basics: (
-  name: "Jane Doe",
-  label: "Software Engineer",
-  email: "jane@example.com",
-  phone: "+353 1 555 0100",
-  location: "Dublin, Ireland",
-  profiles: (
-    (network: "GitHub", username: "janedoe", url: "https://github.com/janedoe"),
+#let cv = (
+  basics: (
+    name: "Jane Doe",
+    label: "Software Engineer",
+    email: "jane@example.com",
+    phone: "+353 1 555 0100",
+    location: "Dublin, Ireland",
+    profiles: (
+      (
+        network: "GitHub",
+        username: "janedoe",
+        url: "https://github.com/janedoe",
+      ),
+    ),
   ),
-))
+)
 
 #alta(cv, preferences: (linkContactInfo: false))
 

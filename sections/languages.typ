@@ -4,8 +4,8 @@
 
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _join_with_dividers
-#import "../internal/ratings.typ": rating, _resolve_rating
-#import "../internal/state.typ": _body_size_state, _body_colour
+#import "../internal/ratings.typ": _resolve_rating, rating
+#import "../internal/state.typ": _body_colour, _body_size_state
 
 // Keep row shape in sync with `rating()` — mixed-mode rows must align.
 #let _label_only(label, fluency) = context {

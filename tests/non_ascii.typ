@@ -17,8 +17,12 @@
       phone: "+353 1 555 0100",
       location: "Dún Laoghaire, Éire",
       profiles: (
-        (network: "GitHub", username: "caoimhe", url: "https://github.com/caoimhe"),
-        (network: "X",      username: "caoimhe", url: "https://x.com/caoimhe"),
+        (
+          network: "GitHub",
+          username: "caoimhe",
+          url: "https://github.com/caoimhe",
+        ),
+        (network: "X", username: "caoimhe", url: "https://x.com/caoimhe"),
       ),
     ),
     work: (
@@ -31,10 +35,10 @@
       ),
     ),
     languages: (
-      (language: "Gaeilge",  fluency: "Native"),
-      (language: "Béarla",   fluency: "Native"),
+      (language: "Gaeilge", fluency: "Native"),
+      (language: "Béarla", fluency: "Native"),
       (language: "Français", rating: 3),
-      (language: "Español",  rating: 2.5),
+      (language: "Español", rating: 2.5),
     ),
   ),
   labels: toml("../examples/labels-ga.toml"),

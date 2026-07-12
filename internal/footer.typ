@@ -4,7 +4,7 @@
 // documents (the common case stays clean) via the reactive page
 // counter, so content growth brings it back without a caller change.
 
-#import "state.typ": _body_size_state, _body_colour
+#import "state.typ": _body_colour, _body_size_state
 #import "text.typ": _present
 
 #let _auto_page_footer(name) = context {
@@ -15,8 +15,7 @@
   grid(
     columns: (1fr, auto),
     align: (left, right),
-    name,
-    [Page #counter(page).display() / #total],
+    name, [Page #counter(page).display() / #total],
   )
 }
 
@@ -41,7 +40,9 @@
     // value already carries the "v". Rides the last-updated line; no
     // standalone footer of its own.
     let version = meta.at("version", default: none)
-    let version-suffix = if preferences.footerVersion and type(version) == str and version != "" {
+    let version-suffix = if (
+      preferences.footerVersion and type(version) == str and version != ""
+    ) {
       " (" + version + ")"
     } else { "" }
     align(right, text(0.8 * preferences.bodySize, fill: _body_colour, {

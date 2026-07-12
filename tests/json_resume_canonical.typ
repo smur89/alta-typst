@@ -9,7 +9,15 @@
 // instead of slipping past the positive asserts below.
 #assert.eq(
   resume.keys().sorted(),
-  ("basics", "education", "languages", "projects", "publications", "skills", "work"),
+  (
+    "basics",
+    "education",
+    "languages",
+    "projects",
+    "publications",
+    "skills",
+    "work",
+  ),
 )
 
 #assert.eq(resume.basics.name, "Jane Doe")

@@ -4,10 +4,8 @@
 // composes `alta`.
 
 #import "@preview/gairm-import:0.8.1": (
-  parse as _parse,
-  resume-schema-strict,
-  lens, add-field,
-  array-of, content-type, number-type, str-type,
+  add-field, array-of, content-type, lens, number-type, parse as _parse,
+  resume-schema-strict, str-type,
 )
 
 #let altacv-schema = {

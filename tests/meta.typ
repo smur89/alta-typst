@@ -22,7 +22,7 @@
       // "Scala" appears in two groups — de-duplication keeps a single
       // entry in the PDF Keywords field.
       (name: "Languages", keywords: ("Scala", "Python")),
-      (name: "Infra",     keywords: ("Kafka", "AWS", "Scala")),
+      (name: "Infra", keywords: ("Kafka", "AWS", "Scala")),
     ),
     work: (
       (
