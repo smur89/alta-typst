@@ -128,8 +128,10 @@
   volunteer: (
     (
       organization: "CoderDojo Dublin",
+      url: "https://coderdojo.com",
       position: "Mentor",
       startDate: ago(years: 6),
+      summary: [Volunteer-led coding club introducing young people to programming.],
       highlights: (
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
         [Curate the Scala / functional-programming track.],
