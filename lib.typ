@@ -45,9 +45,8 @@
 // to drop the portrait entirely).
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
-// Flatten every skill group's `keywords` into a de-duplicated array
-// for the PDF `Keywords` field. `dedup` keeps first occurrences, so
-// the metadata reflects the author's curated ordering.
+// Every skill group's `keywords`, de-duplicated for the PDF `Keywords`
+// field. First occurrences win so the author's ordering survives.
 #let _collect_keywords(skills) = (
   skills
     .map(group => group.at("keywords", default: ()))
@@ -65,10 +64,8 @@
   labels: (:),
   preferences: (:),
 ) = {
-  // `basics.name` is the one required field (starter + README both
-  // document everything else as optional). Checked up front so a
-  // missing dict panics with a guided message instead of Typst's
-  // bare "dictionary does not contain key".
+  // `basics.name` is the only required field — checked up front so
+  // the panic is guided rather than a bare missing-key error.
   if type(cv) != dictionary {
     panic("alta() expects a CV data dictionary, got: " + repr(cv))
   }
@@ -81,8 +78,6 @@
   }
   let labels = _strict_merge(_default_labels, labels, "labels")
   let preferences = _strict_merge(_default_preferences, preferences, "preferences")
-  // Fail fast on malformed values — every shape check lives in
-  // `internal/validation.typ` so this function stays orchestration.
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
   let column-ratio = preferences.columnRatio

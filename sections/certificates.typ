@@ -9,13 +9,10 @@
 #import "../internal/dates.typ": _format_date
 
 // Normalises a cert into the (name, date, url, issuer) record the
-// renderer consumes. Returns `none` for entries with no usable name so
-// callers can filter them in one pass. `date` / `url` are normalised to
-// `none` when absent or empty so downstream `!= none` checks don't
-// render an orphan date snippet or a link with an empty target.
-// "No issuer" (key missing, explicit `none`, or empty string)
-// normalises to "" so the grouping pass can bucket those together
-// (Typst dicts require string keys, so `none` can't be the key).
+// renderer consumes; `none` when there's no usable name. `date` /
+// `url` collapse to `none` when empty so downstream nil-checks don't
+// render orphans; "no issuer" (missing / `none` / "") normalises to
+// "" because Typst dict keys can't be `none`.
 #let _normalise_cert(cert) = {
   let name = cert.at("name", default: "")
   if not _present(name) { return none }
@@ -67,8 +64,6 @@
 // the same way the work / education / awards / publications dates do.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  // `_normalise_cert` already collapsed empty-string dates to `none`,
-  // so a plain nil-check suffices — no orphan bullet + calendar icon.
   let body = if item.date != none {
     let formatted = _format_date(item.date, prefs, labels)
     let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)

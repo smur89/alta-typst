@@ -1,8 +1,6 @@
-// Empty-string and absent optional fields on the `styled-link`
-// sections. Empty `url` must render an unlinked title (not a dead
-// link); empty `publisher` / `releaseDate` must not emit orphan
-// line breaks; a language entry without a `language` name is
-// dropped, matching the filter-first pattern of the other sections.
+// Empty `url` renders an unlinked title (not a dead link); empty
+// `publisher` / `releaseDate` emit no orphan line breaks; a language
+// entry without a `language` name is dropped, not a panic.
 
 #import "../lib.typ": alta
 

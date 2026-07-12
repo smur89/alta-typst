@@ -100,12 +100,10 @@ DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.0-fa-7.0.0-lato-2.015-r0
 # slow but reproducible). The workspace is bind-mounted so generated
 # PDFs/PNGs land in the host working tree.
 #
-# The image doesn't bake the @preview package cache, and `docker-pdfs`
-# runs as the host uid whose in-container HOME isn't writable — so the
-# first compile's package download dies with "failed to create
-# temporary package directory: Permission denied". Redirecting the
-# cache into the bind-mounted workspace (`.typst-cache/`, gitignored)
-# makes it writable by construction and persists downloads across runs.
+# The image bakes no @preview cache and `-u` leaves HOME unwritable,
+# so first-compile package downloads die with "Permission denied".
+# Point the cache into the bind mount (`.typst-cache/`, gitignored) —
+# writable by construction, persists across runs.
 DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work \
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache
 

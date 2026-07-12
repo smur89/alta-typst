@@ -1,19 +1,12 @@
-// Shared validators. `_strict_merge` is the typo-catcher used to
-// merge user overrides over the built-in defaults dicts; `_check_bool`
-// is the uniform bool-validation helper for individual preference
-// fields; `_validate_preferences` / `_validate_labels` run every
-// per-field shape check before any rendering starts. All panic on
-// misuse so errors surface at the caller rather than as cryptic
-// render-time failures.
+// Shared validators — every input shape check panics here, up front,
+// so errors surface at the caller instead of as cryptic render-time
+// failures.
 
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code
 
-// Uniform unknown-key panic shared by every strict surface (labels /
-// preferences merges, location dicts, linkContactInfo, the
-// column-section arrays). `candidates` are the keys to check,
-// `allowed` the known set, `what` the user-facing noun the message is
-// anchored to.
+// Uniform unknown-key panic for every strict surface. `what` is the
+// user-facing noun the message anchors to.
 #let _check_unknown_keys(candidates, allowed, what) = {
   let unknown = candidates.filter(k => k not in allowed)
   if unknown.len() > 0 {
@@ -45,10 +38,8 @@
   }
 }
 
-// Every per-field preference shape check, run once by `alta()` before
-// any rendering. `section-keys` carries the known section identifiers
-// (from `layout.typ`'s `_sections`) — passed in rather than imported
-// so this module stays free of orchestration-layer dependencies.
+// `section-keys` is passed in (not imported from `layout.typ`) to
+// keep this module free of orchestration-layer dependencies.
 #let _validate_preferences(preferences, section-keys) = {
   let column-ratio = preferences.columnRatio
   if type(column-ratio) not in (int, float) or column-ratio <= 0 or column-ratio > 1 {

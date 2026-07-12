@@ -1,11 +1,8 @@
-// Page footer — resolution of the `pageFooter` / `lastModifiedFooter`
-// preferences into the value handed to `set page(...)`, plus the
-// "auto" renderer (`basics.name` flush left, `Page N / M` flush
-// right, suppressed on single-page documents so the common one-page
-// case stays clean). The page-count check is reactive (the counter
-// resolves to the final value after layout), so adding content that
-// pushes onto a second page brings the footer with it without any
-// caller change.
+// Page footer — resolves the `pageFooter` / `lastModifiedFooter`
+// preferences into the value handed to `set page(...)`, and renders
+// the "auto" variant. The auto footer suppresses itself on single-page
+// documents (the common case stays clean) via the reactive page
+// counter, so content growth brings it back without a caller change.
 
 #import "state.typ": _body_size_state, _body_colour
 #import "text.typ": _present
@@ -23,9 +20,8 @@
   )
 }
 
-// Resolves the footer preferences against `meta`. `pageFooter` is the
-// general mechanism and takes precedence when set; `lastModifiedFooter`
-// is sugar for one specific use case and only applies when `pageFooter`
+// `pageFooter` is the general mechanism and takes precedence;
+// `lastModifiedFooter` is sugar that applies only when `pageFooter`
 // is `none` (its default). Resulting value passed to `set page(...)`:
 //   `none`             — no footer
 //   auto renderer      — name + "Page N / M", multi-page only

@@ -111,18 +111,14 @@
   v(0.3 * body-size)
 }
 
-// Insertion-ordered grouping: buckets `items` under `key-of(item)`,
-// preserving first-occurrence order of both groups and members (Typst
-// dicts preserve insertion order). Keys must be strings. Shared by the
-// renderers that cluster entries under subheadings (projects,
-// publications, certificate issuers).
+// Buckets `items` under `key-of(item)` in first-occurrence order
+// (Typst dicts preserve insertion order). Keys must be strings.
 #let _group_by(items, key-of) = items.fold((:), (acc, item) => {
   let key = key-of(item)
   acc + ((key): acc.at(key, default: ()) + (item,))
 })
 
-// Interleaves `divider()` between items — `join` puts the rule between
-// neighbours only, so sections don't end on a stray rule.
+// Rules between neighbours only, so sections don't end on a stray rule.
 #let _join_with_dividers(items, render) = items.map(render).join(divider())
 
 // Suppresses the inter-tag gap on the final pill so rows don't end

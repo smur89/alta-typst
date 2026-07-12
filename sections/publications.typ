@@ -86,8 +86,7 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          // `_present` (not `!= none`) throughout so empty-string
-          // fields don't emit an orphan `\` line break.
+          // `_present` so empty-string fields don't emit orphan `\` breaks.
           - #styled-link(title, dest: url).
             #if _present(publisher) [\ #text(0.85 * body-size, fill: _body_colour, publisher)]
             #if _present(date) [\ #text(0.8 * body-size, fill: _body_colour.lighten(35%), _format_date(date, prefs, labels))]

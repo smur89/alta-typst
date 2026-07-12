@@ -1,7 +1,5 @@
-// JSON Resume marks every `work[]` / `volunteer[]` field optional, so
-// entries without a `position` must render (org line + highlights,
-// no role heading) rather than panicking on the missing key. One
-// positioned entry per section keeps the contrast visible.
+// `position` is optional in JSON Resume — entries without it must
+// render (org line leads, no role heading) rather than panic.
 
 #import "../lib.typ": alta
 

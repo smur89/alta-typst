@@ -19,8 +19,8 @@
 
   #_join_with_dividers(entries, entry => [
     #block(breakable: false)[
-      // JSON Resume marks `position` optional — skip the role heading
-      // rather than panicking, so the org line leads the entry.
+      // `position` is optional in JSON Resume — without it the org
+      // line leads the entry.
       #let position = entry.at("position", default: none)
       #if _present(position) [=== #position]
       // `link()` inherits the surrounding bold + accent from `name()`,

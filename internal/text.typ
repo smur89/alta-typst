@@ -15,8 +15,7 @@
 // present the styled content is wrapped in a `link()`, giving every
 // linked + unlinked title a uniform visual — URL presence is purely
 // a clickability concern, not a styling one. `_present` (rather than
-// `!= none`) so an empty-string `url` in the data renders an unlinked
-// title instead of a dead link.
+// `!= none`) so an empty-string `url` doesn't become a dead link.
 #let styled-link(content, dest: none) = context {
   let accent = _accent_state.get()
   let styled = emph(text(fill: accent, content))

@@ -19,9 +19,8 @@
 }
 
 #let _languages(items, labels) = {
-  // Filter-first on `language` (the entry's display name) so a
-  // nameless entry is dropped rather than panicking — matching the
-  // awards / projects / publications convention.
+  // Nameless entries are dropped, not a panic — the filter-first
+  // convention of the other sections.
   let valid = items.filter(l => _present(l.at("language", default: none)))
   if valid.len() == 0 { return }
   [
