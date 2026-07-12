@@ -88,7 +88,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -315,7 +315,7 @@ clean:
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
 	  '         pdfs | previews | test-pdfs | test (alias: check) | clean' \
-	  '         docker-pdfs | docker-shell' \
+	  '         docker-pdfs | docker-preview-images | docker-shell' \
 	  'Per-target detail: see the header comment in this Makefile.' \
 	  'Overrides: TYPST=path/to/typst FFMPEG=path/to/ffmpeg PPI=300 PREVIEW_FPS=1' \
 	  '           DOCKER_IMAGE=ghcr.io/.../...:tag'
@@ -333,6 +333,18 @@ help:
 # leave root-owned outputs behind.
 docker-pdfs:
 	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make all
+
+# Regenerate only the two tracked preview PNGs — examples/cv.png
+# (README hero) and thumbnail.png (Universe card) — inside the pinned
+# image. Both rasterise from template/cv.typ, and raster output is
+# environment-sensitive (unlike the fixture PDFs, which match across
+# setup-typst and this image), so the pinned image is their single
+# canonical source. The `preview-images-in-sync` CI gate regenerates
+# via this same target, so the gate environment matches the commit
+# environment exactly. A faster path than `docker-pdfs` when only the
+# preview images need refreshing.
+docker-preview-images:
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make cv thumbnail
 
 # Drop into a shell in the CI image with the workspace mounted —
 # handy for one-off `typst compile` invocations, font listing
