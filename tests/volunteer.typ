@@ -1,7 +1,8 @@
 // JSON Resume `volunteer` section. Same shape as `work[]` but uses
-// `organization` in place of `name`. Fixture covers: full entry,
-// ongoing entry (omitted endDate → "Present"), no-location entry,
-// no-dates entry, no-highlights entry, and empty-section short-circuit.
+// `organization` in place of `name`. Fixture covers: full entry with
+// `url` (linked organisation) + `summary` (italic preamble), ongoing
+// entry (omitted endDate → "Present"), no-location entry, no-dates
+// entry, no-highlights entry, and empty-section short-circuit.
 
 #import "../lib.typ": alta
 
@@ -10,6 +11,7 @@
   volunteer: (
     (
       organization: "Open Source Foundation",
+      url: "https://example.org",
       position: "Maintainer",
       location: "Remote",
       startDate: "Jan 2021",
