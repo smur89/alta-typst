@@ -345,7 +345,6 @@ These fields are accepted (so a verbatim `resume.json` round-trips without panic
 
 - `volunteer[].summary`, `volunteer[].url`
 - `projects[].entity`, `projects[].type`, `projects[].roles`
-- `meta.canonical`, `meta.version`
 
 Open or upvote an issue if you need one rendered.
 
@@ -378,6 +377,7 @@ Override any subset of the keys below.
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
+| `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |
 | `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
 | `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
@@ -555,15 +555,16 @@ The rendered PDF carries metadata in its document properties — what your OS sh
 | Title | `basics.name + " --- CV"` | Always set. |
 | Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
 | Subject | `basics.summary` | Same content rendered in the document header. |
-| Keywords | `skills[].keywords` | Flattened across every skill group, de-duplicated, insertion order preserved. |
+| Keywords | `skills[].keywords`, then `meta.canonical`, `meta.version` | Skill keywords flattened across groups, de-duplicated, insertion order preserved; `meta.canonical` (document URL) and `meta.version` are appended verbatim when present. Typst exposes no dedicated PDF field for either, so Keywords is their machine-readable home. |
 | Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`; only the calendar part is used. Falls back to compile time when absent or unparseable. |
 
-To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true`.
+To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true` (and `preferences.footerVersion: true` to append `meta.version`).
 
 ```typst
 meta: (
-  lastModified: "2026-06-12", // → PDF date + optional footer
-  // canonical / version: accepted, currently unrendered
+  lastModified: "2026-06-12",              // → PDF date + optional footer
+  canonical: "https://example.com/cv.json", // → PDF Keywords
+  version: "v1.0.0",                         // → PDF Keywords + optional footer suffix (footerVersion)
 )
 ```
 

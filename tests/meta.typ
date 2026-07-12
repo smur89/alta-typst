@@ -4,7 +4,10 @@
 //
 // `basics.summary` flows into the PDF description; `skills[].keywords`
 // flatten and de-duplicate into the PDF keywords field; the calendar
-// part of `meta.lastModified` becomes the PDF date.
+// part of `meta.lastModified` becomes the PDF date. `meta.canonical`
+// and `meta.version` append to the PDF keywords (no dedicated Typst
+// document field for either), and with `preferences.footerVersion` the
+// version also suffixes the footer line — "Last updated: … (v1.0.0)".
 
 #import "../lib.typ": alta
 
@@ -33,11 +36,12 @@
     // for the PDF date; the visible footer renders the string as-is.
     meta: (
       canonical: "https://example.com/cv.json",
-      version: "1.0.0",
+      version: "v1.0.0",
       lastModified: "2026-06-12T14:00:00Z",
     ),
   ),
   preferences: (
     lastModifiedFooter: true,
+    footerVersion: true,
   ),
 )

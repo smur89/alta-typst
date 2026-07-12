@@ -91,6 +91,7 @@
   }
   _check_bool("uppercaseName", preferences.uppercaseName)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
+  _check_bool("footerVersion", preferences.footerVersion)
   _check_bool("referencesAvailableOnRequest", preferences.referencesAvailableOnRequest)
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
@@ -156,8 +157,18 @@
   // entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
+  let canonical = meta.at("canonical", default: none)
+  let version = meta.at("version", default: none)
   let doc-date = _iso_datetime(last-modified-raw)
+  // Typst 0.15's `set document(...)` exposes no dedicated field for a
+  // document URL or version, so `meta.canonical` and `meta.version`
+  // ride the Keywords array — the only machine-readable home — appended
+  // verbatim after the skill keywords. Guard on `str` so a malformed
+  // dict passed to `alta()` directly can't smuggle a non-string into a
+  // field `set document(...)` requires be strings.
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
+  if type(canonical) == str and canonical != "" { doc-keywords.push(canonical) }
+  if type(version) == str and version != "" { doc-keywords.push(version) }
   let doc-description = cv.basics.at("summary", default: none)
   set document(
     // `uppercaseName` is purely visual — PDF metadata stays canonical.
@@ -182,10 +193,18 @@
       page-footer
     }
   } else if preferences.lastModifiedFooter and _present(last-modified-raw) {
+    // `footerVersion` appends `meta.version` in parentheses (e.g.
+    // "(v1.0.0)") — rendered verbatim, since the schema's own example
+    // value already carries the "v". Rides the last-updated line; no
+    // standalone footer of its own.
+    let version-suffix = if preferences.footerVersion and type(version) == str and version != "" {
+      " (" + version + ")"
+    } else { "" }
     align(right, text(0.8 * body-size, fill: _body_colour, {
       labels.lastModified
       ": "
       last-modified-raw
+      version-suffix
     }))
   } else {
     none

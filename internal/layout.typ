@@ -123,6 +123,14 @@
   // (date / keywords / description) is populated from `meta` and
   // `basics` independently of this flag.
   lastModifiedFooter: false,
+  // When true and `cv.meta.version` is set, append it in parentheses to
+  // the `lastModifiedFooter` line (e.g. "Last updated: 2026-06-12
+  // (v1.0.0)"). No-op unless `lastModifiedFooter` is also active — the
+  // version rides the last-updated line, it is not a footer of its own.
+  // The version renders verbatim (the schema's own example is "v1.0.0",
+  // so no "v" is prepended). PDF Keywords carry `meta.version` (and
+  // `meta.canonical`) independently of this flag.
+  footerVersion: false,
   // Controls how ISO 8601 date strings ("2024", "2024-06", "2024-06-15")
   // are rendered wherever the template surfaces a date. Non-ISO strings
   // (e.g. "Jan 2022", "May 2016 – Jul 2017") pass through verbatim
