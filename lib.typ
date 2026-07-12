@@ -28,7 +28,7 @@
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _summary
-#import "internal/footer.typ": _auto_page_footer
+#import "internal/footer.typ": _resolve_page_footer
 #import "internal/layout.typ": _sections, _default_preferences
 #import "internal/json-resume.typ": from-json-resume
 
@@ -89,7 +89,6 @@
   _validate_labels(labels)
   let column-ratio = preferences.columnRatio
   let max-rating = preferences.maxRating
-  let page-footer = preferences.pageFooter
   let accent = preferences.accent
   let body-size = preferences.bodySize
   _accent_state.update(accent)
@@ -126,40 +125,10 @@
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
   )
   set text(body-size, font: preferences.font, fill: _body_colour)
-  // Resolve the page footer. `pageFooter` is the general mechanism and
-  // takes precedence when set; `lastModifiedFooter` is sugar for one
-  // specific use case and only applies when `pageFooter` is `none`
-  // (its default). Resulting value passed to `set page(...)`:
-  //   `none`             — no footer
-  //   auto renderer      — name + "Page N / M", multi-page only
-  //   verbatim content   — rendered on every page
-  let resolved-footer = if page-footer != none {
-    if page-footer == "auto" {
-      _auto_page_footer(cv.basics.name)
-    } else {
-      page-footer
-    }
-  } else if preferences.lastModifiedFooter and _present(last-modified-raw) {
-    // `footerVersion` appends `meta.version` in parentheses (e.g.
-    // "(v1.0.0)") — rendered verbatim, since the schema's own example
-    // value already carries the "v". Rides the last-updated line; no
-    // standalone footer of its own.
-    let version-suffix = if preferences.footerVersion and type(version) == str and version != "" {
-      " (" + version + ")"
-    } else { "" }
-    align(right, text(0.8 * body-size, fill: _body_colour, {
-      labels.lastModified
-      ": "
-      last-modified-raw
-      version-suffix
-    }))
-  } else {
-    none
-  }
   set page(
     paper: preferences.paper,
     margin: preferences.margin,
-    footer: resolved-footer,
+    footer: _resolve_page_footer(preferences, labels, meta, cv.basics.name),
   )
   set par(leading: 0.55em, spacing: 0.7em)
   set list(
