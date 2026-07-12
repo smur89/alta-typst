@@ -7,7 +7,7 @@
 
 #import "../internal/state.typ": _body_colour
 #import "../internal/text.typ": _present, styled-link
-#import "../internal/primitives.typ": term, _join_with_dividers, _tag_row
+#import "../internal/primitives.typ": term, _group_by, _join_with_dividers, _tag_row
 #import "../internal/dates.typ": _format_date_range
 
 // One project entry block — shared by the flat and grouped layouts.
@@ -55,13 +55,9 @@
   if not valid.any(is-typed) {
     _join_with_dividers(valid, p => _render_project(p, labels, prefs))
   } else {
-    let groups = (:)
-    for project in valid {
-      let key = if is-typed(project) { project.type } else { labels.otherProjects }
-      groups.insert(key, groups.at(key, default: ()) + (project,))
-    }
-    // Groups render in first-occurrence order (Typst dicts preserve
-    // insertion order), matching the publications clustering.
+    // Groups render in first-occurrence order, matching the
+    // publications clustering.
+    let groups = _group_by(valid, p => if is-typed(p) { p.type } else { labels.otherProjects })
     for (group, items) in groups.pairs() [
       ==== #group
 

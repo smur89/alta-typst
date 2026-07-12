@@ -9,6 +9,7 @@
 #import "presets.typ": maps-providers
 #import "icons.typ": icon, _profile_networks, _network_aliases
 #import "qr.typ": _resolve_qr_url, _qr_render
+#import "validation.typ": _check_unknown_keys
 
 // JSON Resume's structured `location` dict collapsed to a single
 // header line. `address`/`postalCode` round-trip but aren't rendered
@@ -31,14 +32,7 @@
         + " {address, postalCode, city, countryCode, region}, got: " + repr(value),
     )
   }
-  let unknown = value.keys().filter(k => k not in _location_fields)
-  if unknown.len() > 0 {
-    let quote(k) = "\"" + k + "\""
-    panic(
-      "Unknown basics.location key(s): " + unknown.map(quote).join(", ")
-        + ". Supported: " + _location_fields.map(quote).join(", "),
-    )
-  }
+  _check_unknown_keys(value.keys(), _location_fields, "basics.location")
   let parts = _location_display_order
     .map(k => value.at(k, default: none))
     .filter(v => v != none and v != "")
@@ -86,14 +80,7 @@
   if type(value) == bool {
     all-channels(value)
   } else if type(value) == dictionary {
-    let unknown = value.keys().filter(k => k not in _contact_channels)
-    if unknown.len() > 0 {
-      let quote(k) = "\"" + k + "\""
-      panic(
-        "Unknown linkContactInfo channel(s): " + unknown.map(quote).join(", ")
-          + ". Supported: " + _contact_channels.map(quote).join(", "),
-      )
-    }
+    _check_unknown_keys(value.keys(), _contact_channels, "linkContactInfo")
     // Per-channel values must be bools. Validating up front gives a
     // precise error message anchored to the user's input rather than
     // letting non-bools propagate to the render-time `if` check

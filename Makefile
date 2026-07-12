@@ -99,7 +99,13 @@ DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.0-fa-7.0.0-lato-2.015-r0
 # CI regardless of the host (Apple Silicon falls back to emulation —
 # slow but reproducible). The workspace is bind-mounted so generated
 # PDFs/PNGs land in the host working tree.
-DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work
+#
+# The image bakes no @preview cache and `-u` leaves HOME unwritable,
+# so first-compile package downloads die with "Permission denied".
+# Point the cache into the bind mount (`.typst-cache/`, gitignored) —
+# writable by construction, persists across runs.
+DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work \
+  -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache
 
 all: pdfs cv test-pdfs thumbnail
 
