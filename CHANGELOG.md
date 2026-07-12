@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0](https://github.com/smur89/alta-typst/compare/v1.5.0...v1.6.0) (2026-07-12)
+
+
+### Features
+
+* render JSON Resume meta.canonical and meta.version ([#163](https://github.com/smur89/alta-typst/issues/163)) ([daa4487](https://github.com/smur89/alta-typst/commit/daa4487e641a23a3c89ff8b8d50690b0a0d18447))
+* render project entity, type, and roles ([#166](https://github.com/smur89/alta-typst/issues/166)) ([20e65bc](https://github.com/smur89/alta-typst/commit/20e65bc4192930630e59cdc83a23d4b9c7bbf9bb))
+* render volunteer summary and url ([#165](https://github.com/smur89/alta-typst/issues/165)) ([e10c3b5](https://github.com/smur89/alta-typst/commit/e10c3b5f714f326d1f62423b1e8d1d5221c402e9))
+
 ## [1.5.0](https://github.com/smur89/alta-typst/compare/v1.4.3...v1.5.0) (2026-06-18)
 
 
