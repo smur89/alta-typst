@@ -46,17 +46,15 @@
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
 // Flatten every skill group's `keywords` into a de-duplicated array
-// for the PDF `Keywords` field. Insertion order is preserved so the
-// metadata reflects the author's curated ordering.
-#let _collect_keywords(skills) = {
-  let seen = ()
-  for group in skills {
-    for kw in group.at("keywords", default: ()) {
-      if type(kw) == str and kw != "" and kw not in seen { seen.push(kw) }
-    }
-  }
-  seen
-}
+// for the PDF `Keywords` field. `dedup` keeps first occurrences, so
+// the metadata reflects the author's curated ordering.
+#let _collect_keywords(skills) = (
+  skills
+    .map(group => group.at("keywords", default: ()))
+    .sum(default: ())
+    .filter(kw => type(kw) == str and kw != "")
+    .dedup()
+)
 
 // `cv` follows the JSON Resume schema (see `examples/example_full.typ`
 // for a fully-populated demo, or `template/cv.typ` for the starter

@@ -121,14 +121,9 @@
   acc + ((key): acc.at(key, default: ()) + (item,))
 })
 
-// Interleaves `divider()` between items; the trailing one is suppressed
-// so sections don't end on a stray rule.
-#let _join_with_dividers(items, render) = {
-  for (i, item) in items.enumerate() {
-    render(item)
-    if i < items.len() - 1 { divider() }
-  }
-}
+// Interleaves `divider()` between items — `join` puts the rule between
+// neighbours only, so sections don't end on a stray rule.
+#let _join_with_dividers(items, render) = items.map(render).join(divider())
 
 // Suppresses the inter-tag gap on the final pill so rows don't end
 // in dead horizontal space. `label` forwards to `tag` so a caller can

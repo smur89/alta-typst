@@ -67,9 +67,9 @@
 // the same way the work / education / awards / publications dates do.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  // Guard on _present so an empty-string `date` doesn't render an
-  // orphan bullet + calendar icon followed by no text.
-  let body = if _present(item.at("date", default: none)) {
+  // `_normalise_cert` already collapsed empty-string dates to `none`,
+  // so a plain nil-check suffices — no orphan bullet + calendar icon.
+  let body = if item.date != none {
     let formatted = _format_date(item.date, prefs, labels)
     let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
     let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
