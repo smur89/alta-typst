@@ -9,6 +9,22 @@
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code
 
+// Uniform unknown-key panic shared by every strict surface (labels /
+// preferences merges, location dicts, linkContactInfo, the
+// column-section arrays). `candidates` are the keys to check,
+// `allowed` the known set, `what` the user-facing noun the message is
+// anchored to.
+#let _check_unknown_keys(candidates, allowed, what) = {
+  let unknown = candidates.filter(k => k not in allowed)
+  if unknown.len() > 0 {
+    let quote(k) = "\"" + k + "\""
+    panic(
+      "Unknown " + what + " key(s): " + unknown.map(quote).join(", ")
+        + ". Supported: " + allowed.map(quote).join(", "),
+    )
+  }
+}
+
 // Panics on the wrong override-shape (non-dictionary) up front, then
 // on unknown keys so typos surface as errors instead of being silently
 // absorbed.
@@ -16,13 +32,7 @@
   if type(overrides) != dictionary {
     panic(name + " must be a dictionary, got: " + repr(overrides))
   }
-  let unknown = overrides.keys().filter(k => k not in defaults)
-  if unknown.len() > 0 {
-    panic(
-      "Unknown " + name + " key(s): " + unknown.join(", ")
-        + ". Valid keys: " + defaults.keys().join(", "),
-    )
-  }
+  _check_unknown_keys(overrides.keys(), defaults.keys(), name)
   defaults + overrides
 }
 
@@ -105,18 +115,8 @@
   // The same section catalogue that derives the column defaults also
   // gates the overrides, so adding a section stays a single-touch
   // change.
-  let validate-column(arr, pref-name) = {
-    let unknown = arr.filter(k => k not in section-keys)
-    if unknown.len() > 0 {
-      let quote(k) = "\"" + k + "\""
-      panic(
-        "Unknown " + pref-name + " key(s): " + unknown.map(quote).join(", ")
-          + ". Supported: " + section-keys.map(quote).join(", "),
-      )
-    }
-  }
-  validate-column(preferences.leftColumnSections, "leftColumnSections")
-  validate-column(preferences.rightColumnSections, "rightColumnSections")
+  _check_unknown_keys(preferences.leftColumnSections, section-keys, "leftColumnSections")
+  _check_unknown_keys(preferences.rightColumnSections, section-keys, "rightColumnSections")
 }
 
 // `labels.months` is consumed by the "long" formatter and by the
