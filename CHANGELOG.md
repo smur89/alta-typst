@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.7.0](https://github.com/smur89/alta-typst/compare/v1.6.0...v1.7.0) (2026-10-27)
+
+
+### Features
+
+* add alt text to header portrait and QR, mark icons decorative ([#190](https://github.com/smur89/alta-typst/issues/190)) ([88750b3](https://github.com/smur89/alta-typst/commit/88750b3192381a19c785f75c1726befbee203e82))
+* localise the auto page footer and PDF title ([#188](https://github.com/smur89/alta-typst/issues/188)) ([d94835c](https://github.com/smur89/alta-typst/commit/d94835cf5d74533597761fe3c2bbbb7c64b3dfa1))
+* name the network of each header profile for screen readers ([#209](https://github.com/smur89/alta-typst/issues/209)) ([c0657bb](https://github.com/smur89/alta-typst/commit/c0657bb6cf73278dc7ec9a8afb4fcc96862578cf))
+* set the document language from labels.lang ([#207](https://github.com/smur89/alta-typst/issues/207)) ([04af217](https://github.com/smur89/alta-typst/commit/04af21743f6369f832c1fc74dd8aa2878d4ed08f))
+
+
+### Bug Fixes
+
+* **build:** rebuild renders on library changes and force drift-gate rebuilds ([#178](https://github.com/smur89/alta-typst/issues/178)) ([45eaaca](https://github.com/smur89/alta-typst/commit/45eaacaad3a41982df7c9cf0c31c7730d3a1fead))
+* skip empty basics contact fields ([#181](https://github.com/smur89/alta-typst/issues/181)) ([d4743ed](https://github.com/smur89/alta-typst/commit/d4743edff824495d2c4d1b09ad98ebfccc1447b9))
+* split the column gutter between both columns in two-column layouts ([#184](https://github.com/smur89/alta-typst/issues/184)) ([19c6544](https://github.com/smur89/alta-typst/commit/19c6544b9bc3ee4e84e17d30bdaf1256451bf9a4))
+* use a real em dash in the default PDF title ([#207](https://github.com/smur89/alta-typst/issues/207)) ([04af217](https://github.com/smur89/alta-typst/commit/04af21743f6369f832c1fc74dd8aa2878d4ed08f))
+
 ## [1.6.0](https://github.com/smur89/alta-typst/compare/v1.5.0...v1.6.0) (2026-07-12)
 
 
