@@ -69,7 +69,21 @@
 // would shrink the dark matrix at the print size we target. The
 // `link()` wrap lets digital readers click through to the same
 // destination the QR encodes.
+//
+// Zebra emits bare vector curves with no alt parameter, and `link`
+// has none either, so the matrix is wrapped in `figure(alt: url)` —
+// Typst's documented carrier for alt text on non-image content in
+// tagged PDF output. Without it a screen reader meets an unlabelled
+// link. The figure is unnumbered, unoutlined and gap-free, and its
+// centred body exactly fills the `auto`-width header cell, so layout
+// is unchanged.
 #let _qr_render(url, size, fill) = link(
   url,
-  qrcode(url, width: size, quiet-zone: 0, fill: fill),
+  figure(
+    qrcode(url, width: size, quiet-zone: 0, fill: fill),
+    alt: url,
+    numbering: none,
+    outlined: false,
+    gap: 0pt,
+  ),
 )
