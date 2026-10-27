@@ -49,12 +49,16 @@
     ) {
       " (" + version + ")"
     } else { "" }
-    align(right, text(0.8 * preferences.bodySize, fill: _body_colour, {
-      labels.lastModified
-      ": "
-      last-modified
-      version-suffix
-    }))
+    context align(right, text(
+      0.8 * _body_size_state.get(),
+      fill: _body_colour,
+      {
+        labels.lastModified
+        ": "
+        last-modified
+        version-suffix
+      },
+    ))
   } else {
     none
   }
