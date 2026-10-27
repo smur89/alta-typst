@@ -112,6 +112,12 @@
   (
     channel: "profiles",
     icon: network,
+    // The display value is usually a bare username, so the icon is the
+    // only thing naming the network; `alt` tags it with that name
+    // instead of leaving it a decorative artifact. The user's own
+    // `network` string, not the lowercased key, carries their
+    // capitalisation ("GitHub", "LinkedIn").
+    alt: profile.network,
     // Partial profiles (no `url`) keep working: the display value
     // falls back to `url` then "", and the link wrap is gated on
     // `entry.url != none` in `_header_text` — using
@@ -126,10 +132,12 @@
 // The contact bar's entries in display order, one
 // `(channel, icon, value, url)` dict per present field. `channel` keys
 // into the resolved `linkContactInfo` config; `url: none` renders the
-// value unlinked. Pure data — no `context` — so the bar's contents can
-// be reasoned about apart from its styling. `_present` (not `!= none`)
-// so an empty-string field is skipped rather than rendering a bare
-// icon behind a dead `mailto:` / `tel:` link.
+// value unlinked. Profile entries add an `alt` for their icon; the
+// rest leave it out, since their value speaks for itself. Pure data —
+// no `context` — so the bar's contents can be reasoned about apart
+// from its styling. `_present` (not `!= none`) so an empty-string
+// field is skipped rather than rendering a bare icon behind a dead
+// `mailto:` / `tel:` link.
 #let _contact_entries(basics, maps-provider) = {
   let email = basics.at("email", default: none)
   let phone = basics.at("phone", default: none)
@@ -217,7 +225,7 @@
     // text it labels.
     _contact_entries(basics, preferences.mapsProvider)
       .map(entry => box({
-        bar-icon(entry.icon)
+        bar-icon(entry.icon, alt: entry.at("alt", default: none))
         let value = [#entry.value]
         if link-config.at(entry.channel) and entry.url != none {
           link(entry.url, value)
