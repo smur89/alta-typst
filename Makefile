@@ -401,14 +401,18 @@ help:
 # (icon glyphs, lib.typ, sections/*.typ, font setup) — the CI's
 # "examples/tests/*.pdf in sync" guard fails otherwise. `all` already
 # depends on test-pdfs, cv, pdfs (example-full and the rest), and
-# thumbnail, so a single invocation refreshes everything.
+# thumbnail, so a single invocation refreshes everything. `-B`
+# because a partial rebuild is never what this target is for: after
+# a merge or conflict resolution checks tracked outputs out from
+# another branch, their fresh mtimes make them look up to date, make
+# skips them, and the stale bytes only surface later as CI drift.
 # `-u "$(shell id -u):$(shell id -g)"` makes the container process
 # match the host uid/gid so the regenerated PDFs/PNGs land in the
 # checkout owned by the contributor, not root. Docker Desktop on
 # macOS handles uid mapping transparently, but Linux hosts otherwise
 # leave root-owned outputs behind.
 docker-pdfs:
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make all
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B all
 
 # Regenerate only the two tracked preview PNGs — examples/cv.png
 # (README hero) and thumbnail.png (Universe card) — inside the pinned
