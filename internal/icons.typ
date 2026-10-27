@@ -75,11 +75,17 @@
 // uniform across icons (FA glyphs have varied native widths, which
 // would otherwise jitter the columns of icon-led rows).
 //
-// Every icon sits beside the text it labels, so the glyph is wrapped
-// in `pdf.artifact`: tagged PDF output marks it decorative and screen
-// readers skip it instead of reading a private-use FontAwesome
-// codepoint aloud.
-#let icon(name, size: auto, shift: auto, fill: auto) = context {
+// Most icons sit beside text that already says what they mean, so by
+// default the glyph is wrapped in `pdf.artifact`: tagged PDF output
+// marks it decorative and screen readers skip it instead of reading a
+// private-use FontAwesome codepoint aloud. When the icon is the only
+// carrier of its meaning (a profile's network beside a bare
+// username), `alt` makes it a described graphic instead: `link` and
+// `box` take no alt text, so the glyph goes in `figure(alt: ...)` —
+// Typst's documented carrier for alt text on non-image content. The
+// figure is unnumbered, unoutlined and gap-free, and the outer `box`
+// keeps it inline, so the rendered output is unchanged.
+#let icon(name, size: auto, shift: auto, fill: auto, alt: none) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
   let resolved-shift = if shift == auto { 0.15 * body-size } else { shift }
@@ -87,7 +93,7 @@
 
   let glyph = _icon_glyphs.at(name)
   let solid = name in _solid_names
-  pdf.artifact(box(
+  let mark = box(
     baseline: resolved-shift,
     width: resolved-size,
     height: resolved-size,
@@ -100,6 +106,15 @@
         fill: resolved-fill,
       ),
     ),
-  ))
+  )
+  if alt == none { pdf.artifact(mark) } else {
+    box(figure(
+      mark,
+      alt: alt,
+      numbering: none,
+      outlined: false,
+      gap: 0pt,
+    ))
+  }
   h(0.3 * body-size)
 }
