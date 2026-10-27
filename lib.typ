@@ -158,18 +158,15 @@
     #line(length: 100%, stroke: 2pt + accent)
     #v(0.2 * body-size)
   ]
-  show heading.where(level: 3): it => block(
-    above: 1.0 * body-size,
-    below: 0.8 * body-size,
+  // Levels 3 and 4 share one look and differ only in spacing and weight.
+  let sub-heading(above, below, weight) = it => block(
+    above: above * body-size,
+    below: below * body-size,
     sticky: true,
-    text(1.2 * body-size, fill: _emphasis_colour, weight: "regular", it.body),
+    text(1.2 * body-size, fill: _emphasis_colour, weight: weight, it.body),
   )
-  show heading.where(level: 4): it => block(
-    above: 0.6 * body-size,
-    below: 0.6 * body-size,
-    sticky: true,
-    text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
-  )
+  show heading.where(level: 3): sub-heading(1.0, 0.8, "regular")
+  show heading.where(level: 4): sub-heading(0.6, 0.6, "bold")
 
   _header(cv.basics, preferences)
   _summary(cv.basics)
@@ -186,7 +183,9 @@
 
   // Three layout shapes: full-width merge when columnRatio is 1,
   // left-only when the right side is empty, otherwise the canonical
-  // two-column grid.
+  // two-column grid. The grid's fr columns split whatever width the
+  // gutter leaves in `columnRatio` proportion, so both sides give up
+  // a share of the gutter.
   //
   // Swapping the column-section arrays and inverting `columnRatio`
   // gives a mirrored layout.
@@ -197,12 +196,9 @@
   } else if preferences.rightColumnSections.len() == 0 {
     render-column(preferences.leftColumnSections)
   } else {
-    let gutter = 12pt
-    let left-width = column-ratio * 100%
-    let right-width = (1 - column-ratio) * 100% - gutter
     grid(
-      columns: (left-width, right-width),
-      column-gutter: gutter,
+      columns: (column-ratio * 1fr, (1 - column-ratio) * 1fr),
+      column-gutter: 12pt,
       render-column(preferences.leftColumnSections),
       render-column(preferences.rightColumnSections),
     )
