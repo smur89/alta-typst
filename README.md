@@ -458,6 +458,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 | Key | Default |
 |---|---|
+| `lang` | `"en"` |
 | `work` | `"Experience"` |
 | `volunteer` | `"Volunteer"` |
 | `focusAreas` | `"Areas of Focus"` |
@@ -481,6 +482,8 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 `labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
 
+`labels.lang` is the document language, an ISO 639 code (two or three lowercase letters: `"de"`, `"ga"`). It drives hyphenation and smart quotes, and is written to the PDF as its language tag, which screen readers use to pick a voice. Set it alongside any full translation; anything other than a lowercase 2–3 letter code panics.
+
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
 `labels.publicationIcons` maps `publications[].type` values to icon names. Built-in defaults (case-insensitive, singular and plural both accepted):
@@ -499,6 +502,7 @@ Example — German, plus renaming "Skills" to "Core Technologies":
 
 ```typst
 #alta(cv, labels: (
+  lang:         "de",
   work:         "Berufserfahrung",
   focusAreas:   "Schwerpunkte",
   skills:       "Core Technologies",

@@ -6,6 +6,8 @@
 # Some choices are stylistic — e.g. "Caitheamh Aimsire" (pastimes) for
 # `interests` reads more naturally than a literal "Spéiseanna".
 
+lang = "ga"
+
 work         = "Taithí Oibre"
 volunteer    = "Obair Dheonach"
 focusAreas   = "Réimsí Saineolais"

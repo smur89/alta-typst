@@ -12,6 +12,11 @@
 # translate the values. Load it at the call site via:
 #   #alta(cv, labels: toml("labels-de.toml"))
 
+# Document language — an ISO 639 code (2–3 lowercase letters, e.g.
+# "de", "ga"). Drives hyphenation, smart quotes, and the PDF's
+# language tag (read by screen readers). Validated in alta().
+lang = "en"
+
 # Section headings.
 work         = "Experience"
 volunteer    = "Volunteer"

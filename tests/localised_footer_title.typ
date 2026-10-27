@@ -10,6 +10,7 @@
 #import "../lib.typ": alta
 
 #let labels = (
+  lang: "de",
   work: "Berufserfahrung",
   pageNumber: "Seite {current} von {total}",
   documentTitle: "Lebenslauf — {name}",
