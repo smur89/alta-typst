@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/smur89/alta-typst/compare/v1.6.0...v1.7.0) (2026-10-27)
+
+
+### Features
+
+* add alt text to header portrait and QR, mark icons decorative ([#190](https://github.com/smur89/alta-typst/issues/190)) ([88750b3](https://github.com/smur89/alta-typst/commit/88750b3192381a19c785f75c1726befbee203e82))
+
+
+### Bug Fixes
+
+* **build:** rebuild renders on library changes and force drift-gate rebuilds ([#178](https://github.com/smur89/alta-typst/issues/178)) ([45eaaca](https://github.com/smur89/alta-typst/commit/45eaacaad3a41982df7c9cf0c31c7730d3a1fead))
+
 ## [1.6.0](https://github.com/smur89/alta-typst/compare/v1.5.0...v1.6.0) (2026-07-12)
 
 
