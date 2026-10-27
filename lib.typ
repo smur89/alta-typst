@@ -158,18 +158,15 @@
     #line(length: 100%, stroke: 2pt + accent)
     #v(0.2 * body-size)
   ]
-  show heading.where(level: 3): it => block(
-    above: 1.0 * body-size,
-    below: 0.8 * body-size,
+  // Levels 3 and 4 share one look and differ only in spacing and weight.
+  let sub-heading(above, below, weight) = it => block(
+    above: above * body-size,
+    below: below * body-size,
     sticky: true,
-    text(1.2 * body-size, fill: _emphasis_colour, weight: "regular", it.body),
+    text(1.2 * body-size, fill: _emphasis_colour, weight: weight, it.body),
   )
-  show heading.where(level: 4): it => block(
-    above: 0.6 * body-size,
-    below: 0.6 * body-size,
-    sticky: true,
-    text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
-  )
+  show heading.where(level: 3): sub-heading(1.0, 0.8, "regular")
+  show heading.where(level: 4): sub-heading(0.6, 0.6, "bold")
 
   _header(cv.basics, preferences)
   _summary(cv.basics)
