@@ -383,7 +383,7 @@ Override any subset of the keys below.
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
 | `columnRatio` | `0.65` | Left column's share of the page width, in `(0, 1]`. The right column gets the rest; both columns give up a proportional share of a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
-| `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
+| `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
 | `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, etc. Fluency *strings* stay anchored to the 0–5 LinkedIn scale, so non-5 `maxRating` requires numeric `languages[].rating` values. |
@@ -474,8 +474,12 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `articles` | `"Articles"` |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
+| `pageNumber` | `"Page {current} / {total}"` |
+| `documentTitle` | `"{name} --- CV"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
+
+`labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
@@ -552,7 +556,7 @@ The rendered PDF carries metadata in its document properties — what your OS sh
 
 | PDF field | Source | Notes |
 |---|---|---|
-| Title | `basics.name + " --- CV"` | Always set. |
+| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> --- CV"`) | Always set. |
 | Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
 | Subject | `basics.summary` | Same content rendered in the document header. |
 | Keywords | `skills[].keywords`, then `meta.canonical`, `meta.version` | Skill keywords flattened across groups, de-duplicated, insertion order preserved; `meta.canonical` (document URL) and `meta.version` are appended verbatim when present. Typst exposes no dedicated PDF field for either, so Keywords is their machine-readable home. |

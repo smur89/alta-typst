@@ -41,6 +41,17 @@ present = "Present"
 # Footer label when `preferences.lastModifiedFooter` is true.
 lastModified = "Last updated"
 
+# Templates rather than prefixes, so a translation can reorder the
+# parts. `{…}` placeholders are substituted at render time; unknown
+# placeholders panic (validated in alta()).
+#
+# Page counter in the `pageFooter: "auto"` footer. `{current}` is
+# required, `{total}` optional.
+pageNumber = "Page {current} / {total}"
+
+# PDF Title metadata. `{name}` (required) is `basics.name`, verbatim.
+documentTitle = "{name} --- CV"
+
 # Twelve abbreviated month names (January–December). Consumed by the
 # built-in `dateFormat: "long"` formatter and the `[month repr:long]` /
 # `[month repr:short]` template tokens. Must keep length 12 (validated
