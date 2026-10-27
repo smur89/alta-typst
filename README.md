@@ -476,7 +476,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
-| `documentTitle` | `"{name} --- CV"` |
+| `documentTitle` | `"{name} — CV"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
 
@@ -560,7 +560,7 @@ The rendered PDF carries metadata in its document properties — what your OS sh
 
 | PDF field | Source | Notes |
 |---|---|---|
-| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> --- CV"`) | Always set. |
+| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> — CV"`) | Always set. |
 | Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
 | Subject | `basics.summary` | Same content rendered in the document header. |
 | Keywords | `skills[].keywords`, then `meta.canonical`, `meta.version` | Skill keywords flattened across groups, de-duplicated, insertion order preserved; `meta.canonical` (document URL) and `meta.version` are appended verbatim when present. Typst exposes no dedicated PDF field for either, so Keywords is their machine-readable home. |
