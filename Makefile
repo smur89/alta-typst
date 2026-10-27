@@ -71,13 +71,16 @@ TESTS         := $(wildcard tests/*.typ)
 PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
-# Every test fixture imports `lib.typ` (transitively pulling in
-# everything under `internal/` and `sections/`), so renderer tweaks
-# there must invalidate the cached PDFs even though the per-fixture
-# `tests/*.typ` source itself hasn't changed. Without this dependency
-# CI rebuilds from scratch, sees byte drift, and trips the
-# "examples/tests/*.pdf in sync" guard.
-LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard sections/*.typ)
+# Everything `lib.typ` reads at compile time — its transitive
+# `#import`s under `internal/` and `sections/`, the default labels
+# TOML, and the bundled avatar. Every rendered output (fixtures,
+# examples, the cv preview, the thumbnail) depends on the whole set,
+# so a renderer tweak invalidates all of them even though their own
+# `.typ` source hasn't changed. Without it, a local `make` after
+# editing e.g. `sections/skills.typ` leaves stale previews on disk
+# that then get committed.
+LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard internal/*.toml) \
+  $(wildcard sections/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages. Single source of truth for the
 # release tarball recipe AND the PR-time package-check stager — pulling
@@ -149,7 +152,7 @@ THUMB_PPI  ?= 180
 
 thumbnail: thumbnail.png
 
-thumbnail.png: template/cv.typ lib.typ
+thumbnail.png: template/cv.typ $(LIB_SOURCES)
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .thumbnail-src.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(THUMB_PPI) .thumbnail-src.typ '.thumbnail-{p}.png'
 	mv .thumbnail-1.png $@
@@ -182,7 +185,7 @@ examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 $(TEST_PDFS): $(wildcard tests/fixtures/*)
 
 # Pattern rule: every examples/X.typ produces examples/X.pdf.
-examples/%.pdf: examples/%.typ
+examples/%.pdf: examples/%.typ $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) $< $@
 
 # Explicit rule for example_full: a single canonical target (the PDF)
@@ -193,7 +196,7 @@ examples/%.pdf: examples/%.typ
 # partial outputs if either compile fails. `rm -f examples/example_full-*.png`
 # pre-cleans stale page PNGs so a shrink (e.g. 3-page content trimmed
 # to 2) doesn't leave an orphan example_full-3.png.
-examples/example_full.pdf: examples/example_full.typ examples/_dates.typ assets/avatar-placeholder.svg lib.typ
+examples/example_full.pdf: examples/example_full.typ examples/_dates.typ $(LIB_SOURCES)
 	rm -f examples/example_full-*.png
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
@@ -201,7 +204,7 @@ examples/example_full.pdf: examples/example_full.typ examples/_dates.typ assets/
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
 # Typst's PNG export needs a `{p}` placeholder; we render to a numbered
 # temp file, move page 1 to the unsuffixed name, and drop the rest.
-examples/%.png: examples/%.typ
+examples/%.png: examples/%.typ $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/$*-{p}.png'
 	mv 'examples/$*-1.png' $@
 	rm -f 'examples/$*-'*.png
@@ -213,12 +216,12 @@ examples/%.png: examples/%.typ
 # it via raw.githubusercontent without a local rebuild. Each rule
 # uses its own temp source file (`.cv-pdf-src.typ` / `.cv-png-src.typ`)
 # so a parallel `make -j2 cv` doesn't race on a shared `.cv-src.typ`.
-examples/cv.pdf: template/cv.typ lib.typ
+examples/cv.pdf: template/cv.typ $(LIB_SOURCES)
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-pdf-src.typ
 	$(TYPST) compile --root $(ROOT) .cv-pdf-src.typ $@
 	rm -f .cv-pdf-src.typ
 
-examples/cv.png: template/cv.typ lib.typ
+examples/cv.png: template/cv.typ $(LIB_SOURCES)
 	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-png-src.typ
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
 	mv examples/cv-1.png $@
@@ -237,7 +240,7 @@ examples/cv.png: template/cv.typ lib.typ
 # Prerequisites include every file `preview-frames.typ` reads —
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
-examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml assets/avatar-placeholder.svg lib.typ
+examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
@@ -363,9 +366,12 @@ docker-pdfs:
 # canonical source. The `preview-images-in-sync` CI gate regenerates
 # via this same target, so the gate environment matches the commit
 # environment exactly. A faster path than `docker-pdfs` when only the
-# preview images need refreshing.
+# preview images need refreshing. `-B` because both PNGs are tracked:
+# on a fresh checkout their mtimes reflect checkout order, not
+# history, so make could judge them up to date and the gate would
+# compare the committed files against themselves.
 docker-preview-images:
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make cv thumbnail
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B cv thumbnail
 
 # Drop into a shell in the CI image with the workspace mounted —
 # handy for one-off `typst compile` invocations, font listing
