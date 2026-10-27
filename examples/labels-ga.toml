@@ -26,6 +26,9 @@ present = "I láthair"
 
 lastModified = "Nuashonraithe go deireanach"
 
+pageNumber = "Leathanach {current} / {total}"
+documentTitle = "{name} — CV"
+
 months = [
   "Ean", "Fea", "Már", "Aib", "Bea", "Mei",
   "Iúil", "Lún", "MFó", "DFó", "Sam", "Nol",

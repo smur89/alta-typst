@@ -26,3 +26,13 @@
   let styled = emph(text(fill: accent, content))
   if _present(dest) { link(dest, styled) } else { styled }
 }
+
+// `{key}` placeholders in a label template (`labels.pageNumber`,
+// `labels.documentTitle`). A single regex pass, so a substituted value
+// that itself contains `{…}` (e.g. a name) is never re-expanded.
+// Unknown placeholders are rejected up front by `_validate_labels`.
+#let _placeholder_re = regex("\{(\w+)\}")
+#let _fill_template(template, values) = template.replace(
+  _placeholder_re,
+  m => values.at(m.captures.first()),
+)
