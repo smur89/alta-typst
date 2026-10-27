@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/smur89/alta-typst/compare/v1.6.0...v1.6.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **build:** rebuild renders on library changes and force drift-gate rebuilds ([#178](https://github.com/smur89/alta-typst/issues/178)) ([45eaaca](https://github.com/smur89/alta-typst/commit/45eaacaad3a41982df7c9cf0c31c7730d3a1fead))
+
 ## [1.6.0](https://github.com/smur89/alta-typst/compare/v1.5.0...v1.6.0) (2026-07-12)
 
 
