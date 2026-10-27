@@ -46,10 +46,11 @@ make             # build every example PDF + cv preview + per-fixture PDFs
 make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
 make example-full # build examples/example_full.pdf + per-page gallery PNGs
 make thumbnail   # build thumbnail.png (Universe package-card image)
-make test        # compile every example + fixture (same shape as CI lint)
+make test        # compile every example + fixture + template/cv.typ (same shape as CI lint)
+make test-template # compile-check just template/cv.typ (the `typst init` starter)
 make fmt         # format every tracked .typ in place (typstyle)
 make fmt-check   # check formatting without writing (the CI gate)
-make check       # test + test-template + fmt-check in one go
+make check       # test + fmt-check in one go
 make clean       # remove generated PDFs and PNGs
 make help        # summarise the available targets
 ```
@@ -62,7 +63,7 @@ Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typs
 
 ### Regenerating PDF fixtures (Docker)
 
-CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make test-pdfs` then `git diff --exit-code -- examples/tests`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
+CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make -B test-pdfs` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
 
 ```sh
 make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make all`

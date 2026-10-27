@@ -51,33 +51,21 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      - name: Compile example + test fixtures
+      # Also compile-checks template/cv.typ (the `typst init` starter)
+      # via its import-swapped copy, so a broken starter trips here
+      # before release.
+      - name: Compile examples, test fixtures + template
         run: make test
 
-      # template/cv.typ imports `@preview/altacv:<version>` and so
-      # can't be reached by `make test`; this step compile-checks it
-      # via the same sed-swap thumbnail/cv recipes use. Catches a
-      # broken `typst init` starter before release.
-      - name: Compile-check template/cv.typ
-        run: make test-template
-
-      # `git status --porcelain` catches modified, untracked, AND
-      # deleted PDFs (the old `git diff --quiet` missed untracked).
-      # `grep '\.pdf'` filters out unrelated drift like an editor swap
-      # file; `|| true` keeps the pipeline exit code under `set -e`
-      # when grep finds nothing. `-B` forces a re-render: the PDFs are
-      # tracked, so on a fresh checkout their mtimes reflect checkout
-      # order rather than history and make may judge them up to date,
-      # leaving the gate comparing the committed files to themselves.
+      # `-B` forces a re-render: the PDFs are tracked, so on a fresh
+      # checkout their mtimes reflect checkout order rather than
+      # history and make may judge them up to date, leaving the gate
+      # comparing the committed files to themselves. See the
+      # Makefile's `check-drift` for what counts as drift.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make -B test-pdfs
-          drift=$(git status --porcelain -- examples/tests/ | grep '\.pdf' || true)
-          if [ -n "$drift" ]; then
-            echo "::error::examples/tests/*.pdf is out of date — run 'make test-pdfs' locally and commit the result"
-            printf '%s\n' "$drift"
-            exit 1
-          fi
+          make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make test-pdfs'
 
   # Enforce typstyle formatting. typstyle parses source only — it needs
   # neither Typst nor the fonts — so this job skips setup-typst and just
@@ -130,17 +118,20 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      - name: Build cv.pdf + cv.png + example_full.pdf
-        run: make cv example-full
-
-      # Regenerate the Universe package-card image — also serves as
-      # a render-check (`test-template` in the lint job is the
-      # compile gate). Not bit-compared here: this job runs in
-      # setup-typst, where raster output varies across systems. The
-      # byte-exact drift check lives in the `preview-images-in-sync`
-      # job below, which regenerates inside the pinned image.
-      - name: Build thumbnail.png
-        run: make thumbnail
+      # Includes the Universe package-card thumbnail — not uploaded,
+      # but building it render-checks the template (`make test` in the
+      # lint job is the compile gate). Not bit-compared here: this job
+      # runs in setup-typst, where raster output varies across
+      # systems. The byte-exact drift check lives in the
+      # `preview-images-in-sync` job below, which regenerates inside
+      # the pinned image.
+      #
+      # The uploads below stay as three separate artifacts rather than
+      # one multi-path step: a reviewer usually wants one file, and
+      # separate artifacts keep that a single small download with a
+      # self-describing name instead of one bundled zip.
+      - name: Build cv.pdf + cv.png + example_full.pdf + thumbnail.png
+        run: make release-artifacts
 
       - name: Upload cv.pdf
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -199,7 +190,7 @@ jobs:
       # `thumbnail` matches what attach-release-artifacts generates,
       # so the staged dir mirrors the release tarball.
       - name: Render artifacts the release tarball contains
-        run: make cv example-full thumbnail
+        run: make release-artifacts
 
       # Stage at the package's actual version (from typst.toml) — the
       # template's self-import `@preview/altacv:<version>` resolves to
@@ -256,13 +247,7 @@ jobs:
         run: make docker-preview-images
 
       - name: Verify examples/cv.png + thumbnail.png are in sync
-        run: |
-          drift=$(git status --porcelain -- examples/cv.png thumbnail.png | grep '\.png' || true)
-          if [ -n "$drift" ]; then
-            echo "::error::examples/cv.png / thumbnail.png are out of date — run 'make docker-preview-images' locally and commit the result"
-            printf '%s\n' "$drift"
-            exit 1
-          fi
+        run: make check-drift DRIFT_PATHS='examples/cv.png thumbnail.png' DRIFT_FIX='make docker-preview-images'
 
   # release-please reads conventional-commit messages since the last
   # tag, opens (or updates) a Release PR with the bumped version, and
@@ -317,7 +302,7 @@ jobs:
           fa-version: ${{ env.FA_VERSION }}
 
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
-        run: make cv example-full thumbnail
+        run: make release-artifacts
 
       # The tarball contains exactly the files that go into
       # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else

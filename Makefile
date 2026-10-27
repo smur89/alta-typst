@@ -17,7 +17,13 @@
 #   make previews    # build a page-1 PNG for every examples/*.typ
 #   make test-pdfs   # render every tests/*.typ fixture into
 #                    # examples/tests/*.pdf (tracked in git)
-#   make test        # compile every example + fixture (output discarded)
+#   make release-artifacts # build everything CI uploads / releases
+#                    # (cv + example-full + thumbnail)
+#   make test        # compile every example + fixture + the template
+#                    # starter (output discarded)
+#   make test-template # compile-check template/cv.typ on its own
+#   make check-drift DRIFT_PATHS='<pathspec>' DRIFT_FIX='<cmd>'
+#                    # fail if tracked renders differ from HEAD
 #   make fmt         # format every tracked .typ in place (typstyle)
 #   make fmt-check   # check formatting without writing (CI gate)
 #   make clean       # remove generated PDFs and PNGs
@@ -50,11 +56,29 @@ PREVIEW_FPS ?= 0.4
 
 # The sed expression that swaps `#import "@preview/altacv:<version>"`
 # for an in-tree `#import "/lib.typ"` so we can compile template/cv.typ
-# locally without resolving the package against typst.app. Three
-# recipes use this — keep them in lockstep via this single source of
-# truth. The `[^"]*` wildcard tolerates whatever version-string
-# release-please writes.
+# locally without resolving the package against typst.app. The
+# `[^"]*` wildcard tolerates whatever version-string release-please
+# writes.
 LOCAL_IMPORT_SED := s|@preview/altacv:[^"]*|/lib.typ|
+
+# template/cv.typ uses `#import "@preview/altacv:<version>"` so it
+# works after `typst init` on a user's machine, but that path doesn't
+# resolve in this repo. Every recipe that renders or checks the
+# template compiles this generated copy instead, with the import
+# swapped to the in-tree `/lib.typ` — keeping template/cv.typ
+# untouched on disk so it ships verbatim. It sits at the repo root so
+# `--root $(ROOT)` resolves `/lib.typ` exactly as it would for the
+# original. A single file target that make builds once per run, so
+# `make -j` consumers share it rather than racing on per-recipe temp
+# copies. Gitignored; `make clean` removes it.
+TEMPLATE_SRC  := .template-src.typ
+
+# Render page 1 of a document straight to a PNG:
+#   $(call render-page1,<src>,<ppi>,<out>)
+# `--pages 1` exports only that page, so Typst needs no `{p}`
+# placeholder in the output path and there are no per-page temp files
+# to rename or clean up. The bytes match page 1 of a full render.
+render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1 $(1) $(3)
 
 # Underscore-prefixed sources (e.g. examples/_dates.typ) are shared
 # helpers `#import`-ed by the real examples — not standalone documents
@@ -95,7 +119,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail preview-gif pdfs previews test-pdfs test test-template fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -120,8 +144,7 @@ preview-gif: examples/preview.gif
 
 # The canonical demo: template/cv.typ rendered as PDF + page-1 PNG.
 # Used both as a workflow artifact (PR-reviewer download) and as the
-# tracked README preview image. See the `examples/cv.pdf` rule below
-# for why it sed-swaps the package import.
+# tracked README preview image. Both render from `$(TEMPLATE_SRC)`.
 cv: examples/cv.pdf examples/cv.png
 
 # Multi-page gallery — single PDF target whose recipe emits all
@@ -141,22 +164,21 @@ example-full: examples/example_full.pdf
 # linter's 1 MiB "large file" suggestion. The Universe card itself
 # displays at a small fraction of these pixels, so the extra
 # resolution from the typst docs' "usually" 250 PPI default is wasted.
-#
-# template/cv.typ uses `#import "@preview/altacv:<version>"` so it
-# works after `typst init` on a user's machine, but that path doesn't
-# resolve in this repo. The recipe swaps the import (via the shared
-# `$(LOCAL_IMPORT_SED)` expression) to the local `lib.typ`, renders
-# page 1, and cleans up the temp source — keeping template/cv.typ
-# untouched on disk so it ships verbatim.
+# Renders from `$(TEMPLATE_SRC)` (see its definition above).
 THUMB_PPI  ?= 180
 
 thumbnail: thumbnail.png
 
-thumbnail.png: template/cv.typ $(LIB_SOURCES)
-	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .thumbnail-src.typ
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(THUMB_PPI) .thumbnail-src.typ '.thumbnail-{p}.png'
-	mv .thumbnail-1.png $@
-	rm -f .thumbnail-src.typ .thumbnail-*.png
+thumbnail.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
+	$(call render-page1,$<,$(THUMB_PPI),$@)
+
+# Everything CI publishes: the build job's reviewer artifacts, the
+# rendered files package-check stages, and the release assets. One
+# name so the three CI jobs can't drift apart.
+release-artifacts: cv example-full thumbnail
+
+$(TEMPLATE_SRC): template/cv.typ
+	sed '$(LOCAL_IMPORT_SED)' $< > $@
 
 pdfs: $(PDFS)
 
@@ -202,30 +224,18 @@ examples/example_full.pdf: examples/example_full.typ examples/_dates.typ $(LIB_S
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
 
 # Pattern rule: every examples/X.typ produces examples/X.png (page 1).
-# Typst's PNG export needs a `{p}` placeholder; we render to a numbered
-# temp file, move page 1 to the unsuffixed name, and drop the rest.
 examples/%.png: examples/%.typ $(LIB_SOURCES)
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/$*-{p}.png'
-	mv 'examples/$*-1.png' $@
-	rm -f 'examples/$*-'*.png
+	$(call render-page1,$<,$(PPI),$@)
 
-# The canonical demo, derived from template/cv.typ. Each rule uses
-# the shared `$(LOCAL_IMPORT_SED)` swap to compile inside the repo
-# without the package installed. The PDF is gitignored (workflow /
-# release artifact); the PNG is tracked because the README references
-# it via raw.githubusercontent without a local rebuild. Each rule
-# uses its own temp source file (`.cv-pdf-src.typ` / `.cv-png-src.typ`)
-# so a parallel `make -j2 cv` doesn't race on a shared `.cv-src.typ`.
-examples/cv.pdf: template/cv.typ $(LIB_SOURCES)
-	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-pdf-src.typ
-	$(TYPST) compile --root $(ROOT) .cv-pdf-src.typ $@
-	rm -f .cv-pdf-src.typ
+# The canonical demo, derived from template/cv.typ via
+# `$(TEMPLATE_SRC)`. The PDF is gitignored (workflow / release
+# artifact); the PNG is tracked because the README references it via
+# raw.githubusercontent without a local rebuild.
+examples/cv.pdf: $(TEMPLATE_SRC) $(LIB_SOURCES)
+	$(TYPST) compile --root $(ROOT) $< $@
 
-examples/cv.png: template/cv.typ $(LIB_SOURCES)
-	sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .cv-png-src.typ
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) .cv-png-src.typ 'examples/cv-{p}.png'
-	mv examples/cv-1.png $@
-	rm -f .cv-png-src.typ examples/cv-*.png
+examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
+	$(call render-page1,$<,$(PPI),$@)
 
 # Animated README hero — one frame per preference variation defined
 # in examples/preview-frames.typ. The frames file emits one page per
@@ -247,42 +257,70 @@ examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dat
 	  -loop 0 -y $@
 	rm -f examples/.preview-gif-frame-*.png
 
-# Compile every example + fixture; output goes to /dev/null. Same
-# shape as the CI lint job, so a green `make test` locally means the
-# CI lint step will also pass. When `GITHUB_ACTIONS` is set (i.e. the
-# recipe is running on a GitHub Actions runner) the recipe also emits
-# `::group::` / `::endgroup::` markers for collapsible per-file log
-# sections and `::error file=<path>::` annotations for failing files,
-# preserving the PR-file-view annotations the lint step previously
-# emitted inline.
-test:
-	@status=0; \
-	for f in $(EXAMPLES) $(TESTS); do \
-	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$f"; \
-	  else printf '  %s\n' "$$f"; fi; \
-	  if ! $(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null; then \
-	    if [ -n "$$GITHUB_ACTIONS" ]; then \
-	      printf '::error file=%s::compile failed\n' "$$f"; \
-	    fi; \
-	    status=1; \
-	  fi; \
-	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
-	done; \
-	exit $$status
+# Compile each listed file to /dev/null, carrying on past failures so
+# one run reports every broken file:
+#   $(call compile-check,<files>)
+# When `GITHUB_ACTIONS` is set (i.e. the recipe is running on a GitHub
+# Actions runner) it also emits `::group::` / `::endgroup::` markers
+# for collapsible per-file log sections and `::error file=<path>::`
+# annotations for failing files, so failures surface in the PR file
+# view. `$(TEMPLATE_SRC)` is reported as template/cv.typ — the file a
+# contributor actually edits, so that's where the annotation belongs.
+define compile-check
+@status=0; \
+for f in $(1); do \
+  name=$$f; [ "$$f" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
+  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
+  else printf '  %s\n' "$$name"; fi; \
+  if ! $(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null; then \
+    if [ -n "$$GITHUB_ACTIONS" ]; then \
+      printf '::error file=%s::compile failed\n' "$$name"; \
+    fi; \
+    status=1; \
+  fi; \
+  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
+done; \
+exit $$status
+endef
 
-# Compile-check `template/cv.typ` via the same sed-swap the
-# thumbnail / cv.pdf rules use. The standard `make test` sweep
-# can't reach template/cv.typ because its `@preview/altacv` import
-# won't resolve locally; this target plugs that hole so a broken
-# `typst init` starter trips before release.
-test-template:
-	@if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' template/cv.typ; \
-	else printf '  %s\n' template/cv.typ; fi
-	@sed '$(LOCAL_IMPORT_SED)' template/cv.typ > .test-template-src.typ
-	@$(TYPST) compile --root $(ROOT) --format pdf .test-template-src.typ /dev/null; status=$$?; \
-	rm -f .test-template-src.typ; \
-	if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
-	exit $$status
+# Compile every example, every fixture, and the `typst init` starter
+# (via `$(TEMPLATE_SRC)`, since template/cv.typ's `@preview/altacv`
+# import won't resolve locally — a broken starter trips here before
+# release). This is the CI lint job's compile step, so a green
+# `make test` locally means it will pass too.
+test: $(TEMPLATE_SRC)
+	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
+
+# Just the template starter — a quick check after editing
+# template/cv.typ. `make test` already covers it.
+test-template: $(TEMPLATE_SRC)
+	$(call compile-check,$(TEMPLATE_SRC))
+
+# Fail if any tracked render under DRIFT_PATHS differs from HEAD. The
+# CI drift gates run this right after regenerating with `make -B` (see
+# `docker-preview-images` below for why `-B`).
+#
+#   make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make test-pdfs'
+#
+# DRIFT_PATHS is a git pathspec, so a glob like `*.pdf` filters out
+# unrelated drift (an editor swap file) without a `grep`; each entry
+# is single-quoted so git, not the shell, expands the glob (a shell
+# glob only sees files on disk, missing deletions). `git status
+# --porcelain` catches modified, untracked AND deleted files (`git
+# diff --quiet` misses untracked); `--untracked-files=all` lists new
+# files individually so they match the pathspec even inside a new
+# directory. DRIFT_FIX is the command the error tells contributors to
+# run before committing.
+check-drift:
+	@test -n "$(DRIFT_PATHS)" || { echo "check-drift: DRIFT_PATHS='<pathspec>' required" >&2; exit 2; }
+	@drift=$$(git status --porcelain --untracked-files=all -- $(foreach p,$(DRIFT_PATHS),'$(p)')); \
+	if [ -n "$$drift" ]; then \
+	  msg="$(DRIFT_PATHS) out of date — run '$(DRIFT_FIX)' locally and commit the result"; \
+	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error::%s\n' "$$msg"; \
+	  else printf 'check-drift: %s\n' "$$msg" >&2; fi; \
+	  printf '%s\n' "$$drift"; \
+	  exit 1; \
+	fi
 
 # Format every tracked Typst source in place with typstyle. `git
 # ls-files` (not a recursive dir arg) so the sweep never descends into
@@ -298,11 +336,11 @@ fmt:
 fmt-check:
 	$(TYPSTYLE) --check $(shell git ls-files '*.typ')
 
-# Alias for the CI lint gates — compiles everything (`test`), checks
-# the `typst init` starter (`test-template`), and verifies formatting
-# (`fmt-check`), so a green `make check` locally means the lint +
-# typstyle CI jobs will pass too.
-check: test test-template fmt-check
+# Alias for the CI lint gates — compiles everything including the
+# `typst init` starter (`test`) and verifies formatting (`fmt-check`),
+# so a green `make check` locally means the lint + typstyle CI jobs
+# will pass too.
+check: test fmt-check
 
 # Stage every file that ships to typst/packages into PKG_DIR. Used by
 # the CI package-check job (PR-time) to lay out the same file set the
@@ -333,12 +371,14 @@ package-tarball:
 # regenerated from `template/cv.typ` — run `make cv` (or
 # `git checkout examples/cv.png`) after `make clean` to put it back.
 clean:
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/cv-*.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png .thumbnail-src.typ .thumbnail-*.png .cv-pdf-src.typ .cv-png-src.typ .test-template-src.typ
+	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
+	  '         release-artifacts (cv + example-full + thumbnail)' \
 	  '         pdfs | previews | test-pdfs | test | test-template | clean' \
-	  '         fmt | fmt-check | check (test + test-template + fmt-check)' \
+	  '         fmt | fmt-check | check (test + fmt-check)' \
+	  '         check-drift DRIFT_PATHS=<pathspec> DRIFT_FIX=<cmd>' \
 	  '         docker-pdfs | docker-preview-images | docker-shell' \
 	  'Per-target detail: see the header comment in this Makefile.' \
 	  'Overrides: TYPST=path/to/typst TYPSTYLE=path/to/typstyle FFMPEG=path/to/ffmpeg' \
