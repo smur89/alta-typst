@@ -17,21 +17,16 @@ target/
 examples/*.pdf
 !examples/example_full.pdf
 
-# Intermediate per-page PNGs that `make cv` and `make preview-gif`
-# write before the rename / cleanup step. A SIGINT between compile
-# and `rm -f` would otherwise leave them as untracked files.
-examples/cv-*.png
+# Intermediate GIF frames that `make preview-gif` writes before
+# ffmpeg stitches them. A SIGINT between compile and `rm -f` would
+# otherwise leave them as untracked files.
 examples/.preview-gif-frame-*.png
 
-# Sed-swap temp sources created by `make cv` / `make thumbnail` /
-# `make test-template`. Recipes `rm -f` them on success; under
-# `.DELETE_ON_ERROR:` a compile failure also clears the typst
-# output target, but the sed-source can still linger on Ctrl-C.
-.cv-pdf-src.typ
-.cv-png-src.typ
-.thumbnail-src.typ
-.thumbnail-*.png
-.test-template-src.typ
+# Sed-swapped copy of template/cv.typ that `make cv` / `make
+# thumbnail` / `make test` compile (see TEMPLATE_SRC in the Makefile).
+# Kept between runs so make can skip regenerating it; `make clean`
+# removes it.
+.template-src.typ
 
 # @preview cache written by DOCKER_RUN targets (see Makefile).
 .typst-cache/
