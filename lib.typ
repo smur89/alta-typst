@@ -183,7 +183,9 @@
 
   // Three layout shapes: full-width merge when columnRatio is 1,
   // left-only when the right side is empty, otherwise the canonical
-  // two-column grid.
+  // two-column grid. The grid's fr columns split whatever width the
+  // gutter leaves in `columnRatio` proportion, so both sides give up
+  // a share of the gutter.
   //
   // Swapping the column-section arrays and inverting `columnRatio`
   // gives a mirrored layout.
@@ -194,12 +196,9 @@
   } else if preferences.rightColumnSections.len() == 0 {
     render-column(preferences.leftColumnSections)
   } else {
-    let gutter = 12pt
-    let left-width = column-ratio * 100%
-    let right-width = (1 - column-ratio) * 100% - gutter
     grid(
-      columns: (left-width, right-width),
-      column-gutter: gutter,
+      columns: (column-ratio * 1fr, (1 - column-ratio) * 1fr),
+      column-gutter: 12pt,
       render-column(preferences.leftColumnSections),
       render-column(preferences.rightColumnSections),
     )
