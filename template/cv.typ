@@ -12,7 +12,7 @@
 // behind every frame of `examples/preview.gif` (via
 // `examples/_cv.typ`).
 
-#import "@preview/altacv:1.6.0": alta, avatar-placeholder // x-release-please-version
+#import "@preview/altacv:1.6.1": alta, avatar-placeholder // x-release-please-version
 
 #let cv = (
   basics: (
