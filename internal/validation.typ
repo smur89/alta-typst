@@ -7,6 +7,7 @@
 
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code
+#import "text.typ": _placeholder_re
 
 // Contact-bar channels, keyed as `preferences.linkContactInfo` accepts
 // them. Lives here rather than in `header.typ` (which renders them) so
@@ -198,7 +199,48 @@
 // onto one (e.g. `Talks` + `talks`) would silently resolve
 // last-write-wins; panic so it surfaces as a configuration error —
 // whether or not the CV has publications to render.
+//
+// `labels.pageNumber` / `labels.documentTitle` are `{key}` templates.
+// A missing required placeholder or a misspelt one (`{totl}`) would
+// otherwise render literally — or, for the title, land silently in
+// PDF metadata — so both panic here. They must be strings: the title
+// feeds `set document(title: ...)`, which requires one.
+#let _validate_template_label(labels, key, required, optional) = {
+  let template = labels.at(key)
+  if type(template) != str {
+    panic("labels." + key + " must be a string, got: " + repr(template))
+  }
+  let allowed = required + optional
+  let found = template.matches(_placeholder_re).map(m => m.captures.first())
+  let unknown = found.filter(p => p not in allowed)
+  if unknown.len() > 0 {
+    panic(
+      "labels."
+        + key
+        + " has unknown placeholder(s) "
+        + repr(unknown.map(p => "{" + p + "}"))
+        + "; allowed: "
+        + repr(allowed.map(p => "{" + p + "}"))
+        + ". Got: "
+        + repr(template),
+    )
+  }
+  let missing = required.filter(p => p not in found)
+  if missing.len() > 0 {
+    panic(
+      "labels."
+        + key
+        + " must contain "
+        + missing.map(p => "{" + p + "}").join(", ")
+        + ". Got: "
+        + repr(template),
+    )
+  }
+}
+
 #let _validate_labels(labels) = {
+  _validate_template_label(labels, "pageNumber", ("current",), ("total",))
+  _validate_template_label(labels, "documentTitle", ("name",), ())
   let months = labels.months
   if (
     type(months) != array

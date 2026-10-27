@@ -5,9 +5,9 @@
 // counter, so content growth brings it back without a caller change.
 
 #import "state.typ": _body_colour, _body_size_state
-#import "text.typ": _present, _present_str
+#import "text.typ": _fill_template, _present, _present_str
 
-#let _auto_page_footer(name) = context {
+#let _auto_page_footer(name, page-number) = context {
   let total = counter(page).final().first()
   if total <= 1 { return }
   let body-size = _body_size_state.get()
@@ -15,7 +15,11 @@
   grid(
     columns: (1fr, auto),
     align: (left, right),
-    name, [Page #counter(page).display() / #total],
+    name,
+    _fill_template(page-number, (
+      current: str(counter(page).get().first()),
+      total: str(total),
+    )),
   )
 }
 
@@ -23,14 +27,14 @@
 // `lastModifiedFooter` is sugar that applies only when `pageFooter`
 // is `none` (its default). Resulting value passed to `set page(...)`:
 //   `none`             — no footer
-//   auto renderer      — name + "Page N / M", multi-page only
+//   auto renderer      — name + `labels.pageNumber`, multi-page only
 //   verbatim content   — rendered on every page
 #let _resolve_page_footer(preferences, labels, meta, name) = {
   let page-footer = preferences.pageFooter
   let last-modified = meta.at("lastModified", default: none)
   if page-footer != none {
     if page-footer == "auto" {
-      _auto_page_footer(name)
+      _auto_page_footer(name, labels.pageNumber)
     } else {
       page-footer
     }
