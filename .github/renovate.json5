@@ -1,0 +1,60 @@
+// Renovate config. Replaces Dependabot, which has no Typst ecosystem and so
+// never bumped the `@preview/*` packages imported by the library.
+// Requires the Renovate GitHub App (https://github.com/apps/renovate) to be
+// installed on the repository; without it this file does nothing.
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    // Keep actions pinned to full commit SHAs (with the `# vX.Y.Z` comment
+    // Renovate maintains), and pin any new tag reference on its first PR.
+    'helpers:pinGitHubActionDigests',
+  ],
+
+  // Only these two. The typst toolchain version is held in lockstep by hand
+  // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
+  // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
+  // just one of them and break the pinned-image PDF drift gate.
+  enabledManagers: ['github-actions', 'typst'],
+
+  // Dependabot ran Sunday 22:00. Renovate schedules are windows (hour
+  // granularity, and the hosted app runs roughly hourly), so open Sunday
+  // night and run into early Monday to avoid a skipped week.
+  timezone: 'Europe/Zurich',
+  schedule: ['* 22-23 * * 0', '* 0-4 * * 1'],
+
+  prConcurrentLimit: 5,
+  labels: ['dependencies'],
+
+  // Conventional commits: `chore(deps): …` by default (release-please does
+  // not release on chore).
+  semanticCommits: 'enabled',
+  semanticCommitType: 'chore',
+  semanticCommitScope: 'deps',
+
+  packageRules: [
+    {
+      description: 'All GitHub Actions updates in one PR, as the Dependabot `actions` group did.',
+      matchManagers: ['github-actions'],
+      groupName: 'actions',
+    },
+    {
+      // The @preview imports ship inside the published package and are pinned
+      // to exact versions, so a bump only reaches users through a release.
+      // `fix(deps)` makes release-please cut a patch release for it. Left
+      // ungrouped: each bump can change rendered output (and so the committed
+      // PDF fixtures), which is easier to review and regenerate per package.
+      description: 'Typst package bumps change shipped code: release them as fixes.',
+      matchManagers: ['typst'],
+      semanticCommitType: 'fix',
+    },
+    {
+      // template/cv.typ imports this package itself; its version is owned by
+      // release-please (`x-release-please-version`).
+      description: 'Never update the self-import of altacv.',
+      matchManagers: ['typst'],
+      matchDepNames: ['altacv'],
+      enabled: false,
+    },
+  ],
+}

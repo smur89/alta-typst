@@ -27,7 +27,7 @@
 #import "internal/validation.typ": (
   _strict_merge, _validate_labels, _validate_preferences,
 )
-#import "internal/text.typ": _present, _present_str, styled-link
+#import "internal/text.typ": _fill_template, _present, _present_str, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
@@ -123,7 +123,7 @@
   let doc-description = cv.basics.at("summary", default: none)
   set document(
     // `uppercaseName` is purely visual — PDF metadata stays canonical.
-    title: cv.basics.name + " --- CV",
+    title: _fill_template(labels.documentTitle, (name: cv.basics.name)),
     author: cv.basics.name,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
     ..(
