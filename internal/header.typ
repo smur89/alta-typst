@@ -73,13 +73,15 @@
 // in the @preview cache for installed users. Accepting `path` and
 // `bytes` lets callers anchor resolution at their own .typ; README
 // documents the forms. `fit: "cover"` keeps non-square sources
-// from distorting.
-#let _portrait(source, size) = box(
+// from distorting. `alt` becomes the image's `/Alt` in Typst's tagged
+// PDF output, so screen readers announce the portrait instead of
+// meeting an unlabelled figure.
+#let _portrait(source, size, alt) = box(
   width: size,
   height: size,
   clip: true,
   radius: 50%,
-  image(source, fit: "cover", width: 100%, height: 100%),
+  image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
 )
 
 // Returns a fully-populated per-channel dict so downstream code can
@@ -231,8 +233,10 @@
 // `path` is always populated by construction (no public way to make an
 // empty one); `str` and `bytes` can be empty and should silently skip
 // the frame. Panicking on other types avoids a cryptic `image()`
-// failure or a silent missing photo.
-#let _header_photo(image-src, size) = {
+// failure or a silent missing photo. `alt` is the portrait's
+// accessible description — the person's name, which is
+// language-neutral and so needs no label key.
+#let _header_photo(image-src, size, alt) = {
   let has-image = if image-src == none {
     false
   } else if type(image-src) == path {
@@ -245,7 +249,7 @@
         + repr(image-src),
     )
   }
-  if has-image { _portrait(image-src, size) }
+  if has-image { _portrait(image-src, size, alt) }
 }
 
 // Places the optional photo and QR around `header-text` per
@@ -337,7 +341,11 @@
     let qr-size = 3.5 * body-size
     _header_layout(
       _header_text(basics, preferences, body-size, accent),
-      _header_photo(basics.at("image", default: none), preferences.imageSize),
+      _header_photo(
+        basics.at("image", default: none),
+        preferences.imageSize,
+        basics.name,
+      ),
       if qr-url != none { _qr_render(qr-url, qr-size, accent) },
       qr-size,
       body-size,

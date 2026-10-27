@@ -74,6 +74,11 @@
 // The glyph is wrapped in a fixed-size box so its advance width is
 // uniform across icons (FA glyphs have varied native widths, which
 // would otherwise jitter the columns of icon-led rows).
+//
+// Every icon sits beside the text it labels, so the glyph is wrapped
+// in `pdf.artifact`: tagged PDF output marks it decorative and screen
+// readers skip it instead of reading a private-use FontAwesome
+// codepoint aloud.
 #let icon(name, size: auto, shift: auto, fill: auto) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
@@ -82,7 +87,7 @@
 
   let glyph = _icon_glyphs.at(name)
   let solid = name in _solid_names
-  box(
+  pdf.artifact(box(
     baseline: resolved-shift,
     width: resolved-size,
     height: resolved-size,
@@ -95,6 +100,6 @@
         fill: resolved-fill,
       ),
     ),
-  )
+  ))
   h(0.3 * body-size)
 }
