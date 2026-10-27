@@ -27,7 +27,7 @@
 #import "internal/validation.typ": (
   _strict_merge, _validate_labels, _validate_preferences,
 )
-#import "internal/text.typ": _present, styled-link
+#import "internal/text.typ": _present, _present_str, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
@@ -118,8 +118,8 @@
   // dict passed to `alta()` directly can't smuggle a non-string into a
   // field `set document(...)` requires be strings.
   let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
-  if type(canonical) == str and canonical != "" { doc-keywords.push(canonical) }
-  if type(version) == str and version != "" { doc-keywords.push(version) }
+  if _present_str(canonical) { doc-keywords.push(canonical) }
+  if _present_str(version) { doc-keywords.push(version) }
   let doc-description = cv.basics.at("summary", default: none)
   set document(
     // `uppercaseName` is purely visual — PDF metadata stays canonical.
@@ -171,17 +171,7 @@
     text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
   )
 
-  _header(
-    cv.basics,
-    image-size: preferences.imageSize,
-    image-position: preferences.imagePosition,
-    image-stack-order: preferences.imageStackOrder,
-    header-text-align: preferences.headerTextAlign,
-    link-contact-info: preferences.linkContactInfo,
-    maps-provider: preferences.mapsProvider,
-    uppercase-name: preferences.uppercaseName,
-    qr-code: preferences.qrCode,
-  )
+  _header(cv.basics, preferences)
   _summary(cv.basics)
 
   // Section renderers are width-agnostic — they fill their container,
@@ -190,7 +180,7 @@
   let render-column(keys) = {
     for key in keys {
       let entry = _sections.at(key)
-      (entry.render)(cv, labels, preferences)
+      (entry.render)(cv.at(key, default: ()), labels, preferences)
     }
   }
 

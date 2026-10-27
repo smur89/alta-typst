@@ -5,7 +5,7 @@
 // counter, so content growth brings it back without a caller change.
 
 #import "state.typ": _body_colour, _body_size_state
-#import "text.typ": _present
+#import "text.typ": _present, _present_str
 
 #let _auto_page_footer(name) = context {
   let total = counter(page).final().first()
@@ -41,7 +41,7 @@
     // standalone footer of its own.
     let version = meta.at("version", default: none)
     let version-suffix = if (
-      preferences.footerVersion and type(version) == str and version != ""
+      preferences.footerVersion and _present_str(version)
     ) {
       " (" + version + ")"
     } else { "" }

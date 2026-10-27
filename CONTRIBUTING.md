@@ -107,7 +107,7 @@ This is the most common shape of contribution. Two changes:
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, register it in `_sections` in `internal/layout.typ` (column + dispatch closure), and add the heading to `_default_labels` in `internal/defaults.typ`. For a **new preference**: add it to `_default_preferences` in `internal/layout.typ`, validate it inside `alta()` in `lib.typ`, and thread it through to the consumer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+For a **new section**: add the renderer under `sections/<name>.typ`, register it in `_sections` in `internal/layout.typ` (column + renderer; every renderer takes `(entries, labels, prefs)`, where `entries` is `cv.at(key, default: ())`), and add the heading to `_default_labels` in `internal/defaults.typ`. For a **new preference**: add it to `_default_preferences` in `internal/layout.typ`, validate it inside `alta()` in `lib.typ`, and thread it through to the consumer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
 
 The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
 
