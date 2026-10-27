@@ -66,7 +66,7 @@ Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typs
 CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make -B test-pdfs` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
 
 ```sh
-make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make all`
+make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all` (full rebuild)
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
