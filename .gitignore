@@ -23,7 +23,8 @@ examples/*.pdf
 examples/.preview-gif-frame-*.png
 
 # Sed-swapped copy of template/cv.typ that `make cv` / `make
-# thumbnail` / `make test` compile (see TEMPLATE_SRC in the Makefile).
+# thumbnail` / `make test` compile, and that examples/_cv.typ imports
+# for the preview GIF (see TEMPLATE_SRC in the Makefile).
 # Kept between runs so make can skip regenerating it; `make clean`
 # removes it.
 .template-src.typ
