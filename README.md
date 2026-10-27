@@ -607,7 +607,7 @@ make thumbnail      # thumbnail.png (Universe package card, 250 PPI)
 make preview-gif    # examples/preview.gif (requires ffmpeg)
 ```
 
-The GIF is sourced from `examples/preview-frames.typ` — one page per variation, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
+The GIF is sourced from `examples/preview-frames.typ` — one page per variation, each rendering the `template/cv.typ` starter's CV, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
 
 ## Credits
 

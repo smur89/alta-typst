@@ -68,9 +68,11 @@ LOCAL_IMPORT_SED := s|@preview/altacv:[^"]*|/lib.typ|
 # swapped to the in-tree `/lib.typ` — keeping template/cv.typ
 # untouched on disk so it ships verbatim. It sits at the repo root so
 # `--root $(ROOT)` resolves `/lib.typ` exactly as it would for the
-# original. A single file target that make builds once per run, so
-# `make -j` consumers share it rather than racing on per-recipe temp
-# copies. Gitignored; `make clean` removes it.
+# original. examples/_cv.typ imports the demo `cv` from it too, so the
+# animated preview shares the template's data. A single file target
+# that make builds once per run, so `make -j` consumers share it
+# rather than racing on per-recipe temp copies. Gitignored; `make
+# clean` removes it.
 TEMPLATE_SRC  := .template-src.typ
 
 # Render page 1 of a document straight to a PNG:
@@ -210,6 +212,14 @@ $(TEST_PDFS): $(wildcard tests/fixtures/*)
 examples/%.pdf: examples/%.typ $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) $< $@
 
+# preview-frames.typ takes its CV from examples/_cv.typ, which imports
+# it from `$(TEMPLATE_SRC)` — so the generated copy must exist before
+# the sweep compiles it, and a template edit must re-render it. A
+# recipe-less rule only adds prerequisites; the pattern rule above
+# still supplies the recipe.
+PREVIEW_FRAMES_DEPS := examples/_cv.typ $(TEMPLATE_SRC)
+examples/preview-frames.pdf: $(PREVIEW_FRAMES_DEPS)
+
 # Explicit rule for example_full: a single canonical target (the PDF)
 # whose recipe also writes the per-page PNG gallery. The PNGs are
 # side-effects — they don't appear as additional rule targets because
@@ -250,7 +260,7 @@ examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 # Prerequisites include every file `preview-frames.typ` reads —
 # transitive `#import`/`read()` targets — so editing any of them
 # triggers a fresh GIF on the next `make preview-gif`.
-examples/preview.gif: examples/preview-frames.typ examples/_cv.typ examples/_dates.typ examples/labels-ga.toml $(LIB_SOURCES)
+examples/preview.gif: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
@@ -286,8 +296,10 @@ endef
 # Compile every example, every fixture, and the `typst init` starter
 # (via `$(TEMPLATE_SRC)`, since template/cv.typ's `@preview/altacv`
 # import won't resolve locally — a broken starter trips here before
-# release). This is the CI lint job's compile step, so a green
-# `make test` locally means it will pass too.
+# release). The prerequisite also covers preview-frames.typ, which
+# reads its CV from `$(TEMPLATE_SRC)` through examples/_cv.typ. This
+# is the CI lint job's compile step, so a green `make test` locally
+# means it will pass too.
 test: $(TEMPLATE_SRC)
 	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
 
