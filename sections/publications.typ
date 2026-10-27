@@ -4,7 +4,7 @@
 
 #import "../internal/state.typ": _body_colour, _body_size_state
 #import "../internal/text.typ": _present, styled-link
-#import "../internal/primitives.typ": _group_by
+#import "../internal/primitives.typ": _group_by_type
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -44,16 +44,10 @@
   if valid.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
-    // Normalise `type` to a non-empty string — a missing field or a
-    // non-string value (e.g. `none`, a number) falls back to the
-    // default "Articles" heading rather than crashing at
+    // A missing or non-string `type` (e.g. `none`, a number) falls
+    // back to the default "Articles" heading rather than crashing at
     // `lower(group)` below.
-    let groups = _group_by(valid, pub => {
-      let raw-type = pub.at("type", default: none)
-      if type(raw-type) == str and _present(raw-type) { raw-type } else {
-        labels.articles
-      }
-    })
+    let groups = _group_by_type(valid, labels.articles)
     [== #labels.publications]
     // Normalise user-supplied override keys to lowercase up front so
     // the case-insensitive contract holds symmetrically: `(Talks: ...)`

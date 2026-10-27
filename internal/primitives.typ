@@ -7,6 +7,15 @@
   _accent_state, _body_colour, _body_size_state, _divider_colour,
 )
 #import "icons.typ": icon
+#import "text.typ": _present_str
+
+// Shared by `divider()` and `_labelled_divider()` so the plain and
+// labelled rules can't drift apart visually.
+#let _divider_stroke = (
+  paint: _divider_colour,
+  thickness: 0.6pt,
+  dash: "dashed",
+)
 
 // Bold accent-coloured line — designed for the company / institution
 // row beneath a role or education entry.
@@ -82,10 +91,7 @@
   let body-size = _body_size_state.get()
   if here().position().y < 2cm { return }
   v(0.3 * body-size)
-  line(
-    length: 100%,
-    stroke: (paint: _divider_colour, thickness: 0.6pt, dash: "dashed"),
-  )
+  line(length: 100%, stroke: _divider_stroke)
   v(0.3 * body-size)
 }
 
@@ -98,19 +104,18 @@
 // the parent section title.
 #let _labelled_divider(label) = context {
   let body-size = _body_size_state.get()
-  let stroke = (paint: _divider_colour, thickness: 0.6pt, dash: "dashed")
   v(0.3 * body-size)
   pad(left: 0.6 * body-size, grid(
     columns: (1.3em, auto, 1fr),
     column-gutter: 0.5 * body-size,
     align: horizon,
-    line(length: 100%, stroke: stroke),
+    line(length: 100%, stroke: _divider_stroke),
     text(
       0.7 * body-size,
       fill: _body_colour.lighten(15%),
       label,
     ),
-    line(length: 100%, stroke: stroke),
+    line(length: 100%, stroke: _divider_stroke),
   ))
   v(0.3 * body-size)
 }
@@ -124,6 +129,25 @@
 
 // Rules between neighbours only, so sections don't end on a stray rule.
 #let _join_with_dividers(items, render) = items.map(render).join(divider())
+
+// Buckets by `item.type` when it's a non-empty string, else under
+// `fallback` — the optional JSON Resume `type` field drives the
+// `====` subheadings in projects and publications. A non-string
+// `type` (a number, a dict) pools under `fallback` rather than
+// crashing as a dict key.
+#let _group_by_type(items, fallback) = _group_by(items, item => {
+  let raw = item.at("type", default: none)
+  if _present_str(raw) { raw } else { fallback }
+})
+
+// The common section skeleton: level-2 heading, then one unbreakable
+// block per entry joined by dividers. Empty `entries` renders nothing
+// — not even the heading — so callers filter out unusable entries
+// first and the "no orphan heading" rule holds by construction.
+#let _section(heading, entries, render-entry) = if entries.len() > 0 {
+  [== #heading]
+  _join_with_dividers(entries, e => block(breakable: false, render-entry(e)))
+}
 
 // Suppresses the inter-tag gap on the final pill so rows don't end
 // in dead horizontal space. `label` forwards to `tag` so a caller can
