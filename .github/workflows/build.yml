@@ -12,9 +12,11 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  # Single source of truth for the Typst version used across all jobs.
-  # Bumping this requires no other edits.
-  TYPST_VERSION: v0.15.0
+  # Typst version for every job that installs it via setup-typst. Keep
+  # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
+  # and the Makefile's DOCKER_IMAGE tag — the fixtures are rendered in
+  # that image, so a mismatch shows up as drift between the two paths.
+  TYPST_VERSION: v0.15.1
   # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
   # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
   # every CI job that compiles the package downloads v7 from upstream.
