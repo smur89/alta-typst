@@ -58,25 +58,15 @@
     // Normalise user-supplied override keys to lowercase up front so
     // the case-insensitive contract holds symmetrically: `(Talks: ...)`
     // matches `type: "talks"` and vice versa. The built-in defaults
-    // dict already uses lowercase keys. Length-mismatch after the fold
-    // means two source keys collapsed onto one (e.g. `Talks` + `talks`
-    // → `talks`); panic so the silent last-write-wins behaviour
-    // surfaces as a configuration error.
-    let user-icons = labels.at("publicationIcons", default: (:))
-    let user-icons-lc = user-icons
+    // dict already uses lowercase keys. Keys that would collide after
+    // lowercasing are rejected up front by `_validate_labels`.
+    let user-icons-lc = labels
+      .at("publicationIcons", default: (:))
       .pairs()
       .fold(
         (:),
         (acc, (k, v)) => acc + ((lower(k)): v),
       )
-    if user-icons-lc.len() != user-icons.len() {
-      panic(
-        "labels.publicationIcons has keys that collide after lowercasing — "
-          + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
-          + "Source keys: "
-          + repr(user-icons.keys()),
-      )
-    }
     for (group, items) in groups.pairs() [
       #let lookup-key = lower(group)
       #let group-icon = user-icons-lc.at(

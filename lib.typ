@@ -171,17 +171,7 @@
     text(1.2 * body-size, fill: _emphasis_colour, weight: "bold", it.body),
   )
 
-  _header(
-    cv.basics,
-    image-size: preferences.imageSize,
-    image-position: preferences.imagePosition,
-    image-stack-order: preferences.imageStackOrder,
-    header-text-align: preferences.headerTextAlign,
-    link-contact-info: preferences.linkContactInfo,
-    maps-provider: preferences.mapsProvider,
-    uppercase-name: preferences.uppercaseName,
-    qr-code: preferences.qrCode,
-  )
+  _header(cv.basics, preferences)
   _summary(cv.basics)
 
   // Section renderers are width-agnostic — they fill their container,
