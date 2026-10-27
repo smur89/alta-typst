@@ -3,7 +3,7 @@
 // fluency outside the LinkedIn enum — canonical JSON Resume shape).
 
 #import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _join_with_dividers
+#import "../internal/primitives.typ": _section
 #import "../internal/ratings.typ": _resolve_rating, rating
 #import "../internal/state.typ": _body_colour, _body_size_state
 
@@ -18,24 +18,19 @@
   [\ ]
 }
 
-#let _languages(items, labels) = {
+// `prefs` is unused (the dot scale reads `maxRating` from state); it's
+// accepted so every renderer shares the dispatch signature.
+#let _languages(items, labels, prefs) = _section(
+  labels.languages,
   // Nameless entries are dropped, not a panic — the filter-first
   // convention of the other sections.
-  let valid = items.filter(l => _present(l.at("language", default: none)))
-  if valid.len() == 0 { return }
-  [
-    == #labels.languages
-
-    #_join_with_dividers(valid, lang => block(
-      breakable: false,
-      {
-        let value = _resolve_rating(lang)
-        if value != none {
-          rating(lang.language, value)
-        } else {
-          _label_only(lang.language, lang.at("fluency", default: none))
-        }
-      },
-    ))
-  ]
-}
+  items.filter(l => _present(l.at("language", default: none))),
+  lang => {
+    let value = _resolve_rating(lang)
+    if value != none {
+      rating(lang.language, value)
+    } else {
+      _label_only(lang.language, lang.at("fluency", default: none))
+    }
+  },
+)

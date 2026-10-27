@@ -79,7 +79,7 @@
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
-#let _certificates(certs, labels, prefs, group: true) = {
+#let _certificates(certs, labels, prefs) = {
   if certs.len() == 0 { return }
   // Decide whether to emit the heading *after* filtering — otherwise
   // a list of certs whose `name` is empty would still render a bare
@@ -89,7 +89,7 @@
   // `_normalise_cert` triples. In flat (non-grouped) mode each cert
   // becomes its own one-element "group" with no issuer label so the
   // row flows as a single uniformly-pilled strip.
-  let groups = if group {
+  let groups = if prefs.groupCertificates {
     _build_cert_groups(certs)
   } else {
     let items = certs.map(_normalise_cert).filter(c => c != none)

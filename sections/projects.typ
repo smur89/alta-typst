@@ -6,14 +6,16 @@
 // Entries without a `name` are skipped to avoid an orphan heading.
 
 #import "../internal/state.typ": _body_colour
-#import "../internal/text.typ": _present, styled-link
+#import "../internal/text.typ": _present, _present_str, styled-link
 #import "../internal/primitives.typ": (
-  _group_by, _join_with_dividers, _tag_row, term,
+  _group_by_type, _join_with_dividers, _section, _tag_row, term,
 )
 #import "../internal/dates.typ": _format_date_range
 
 // One project entry block — shared by the flat and grouped layouts.
-#let _render_project(project, labels, prefs) = block(breakable: false, {
+// Returns the unwrapped body; callers supply the unbreakable block
+// (`_section` on the flat path, an explicit `block` when grouped).
+#let _render_project(project, labels, prefs) = {
   let url = project.at("url", default: none)
   [=== #styled-link(project.name, dest: url)]
   // Small body-colour subtitle under the title — the company / client
@@ -41,34 +43,28 @@
   term(_format_date_range(project, prefs, labels))
   for bullet in project.at("highlights", default: ()) [- #bullet]
   _tag_row(project.at("keywords", default: ()))
-})
+}
 
 #let _projects(entries, labels, prefs) = {
   let valid = entries.filter(p => _present(p.at("name", default: none)))
-  if valid.len() == 0 { return }
-  [== #labels.projects]
+  let render(p) = _render_project(p, labels, prefs)
 
   // `type` is an optional JSON Resume field. Cluster by it only when at
   // least one entry carries a usable (non-empty string) value —
   // otherwise render flat, so the common (untyped) case stays free of
   // redundant subheadings and matches the pre-grouping output. Untyped
   // entries in a mixed list pool under `labels.otherProjects`.
-  let is-typed(p) = (
-    type(p.at("type", default: none)) == str
-      and _present(p.at("type", default: none))
-  )
-  if not valid.any(is-typed) {
-    _join_with_dividers(valid, p => _render_project(p, labels, prefs))
+  if not valid.any(p => _present_str(p.at("type", default: none))) {
+    _section(labels.projects, valid, render)
   } else {
+    [== #labels.projects]
     // Groups render in first-occurrence order, matching the
     // publications clustering.
-    let groups = _group_by(valid, p => if is-typed(p) { p.type } else {
-      labels.otherProjects
-    })
+    let groups = _group_by_type(valid, labels.otherProjects)
     for (group, items) in groups.pairs() [
       ==== #group
 
-      #_join_with_dividers(items, p => _render_project(p, labels, prefs))
+      #_join_with_dividers(items, p => block(breakable: false, render(p)))
     ]
   }
 }

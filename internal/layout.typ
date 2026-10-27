@@ -1,7 +1,7 @@
 // Section dispatch catalogue + the default preferences that
 // reference it. Adding a section here places it in the default
-// layout — still need to write the renderer (under `sections/`)
-// and add a `labels` key in `defaults.typ`.
+// layout — still need to write the renderer (under `sections/`, taking
+// `(entries, labels, prefs)`) and add a `labels` key in `defaults.typ`.
 //
 // `_default_preferences` lives in this module rather than
 // `defaults.typ` because its `leftColumnSections` /
@@ -23,102 +23,24 @@
 #import "../sections/publications.typ": _publications
 #import "../sections/references.typ": _references
 
-// Defined after the renderers because Typst binds closure identifiers
-// eagerly.
+// Plain data: every renderer shares the `(entries, labels, prefs)`
+// signature, and `render-column` in `lib.typ` feeds it
+// `cv.at(key, default: ())` — so each dict key doubles as the CV
+// field it renders. Defined after the renderer imports because Typst
+// binds identifiers eagerly.
 #let _sections = (
-  work: (
-    column: "left",
-    render: (cv, labels, prefs) => _experience(
-      cv.at("work", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  volunteer: (
-    column: "left",
-    render: (cv, labels, prefs) => _volunteer(
-      cv.at("volunteer", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  focusAreas: (
-    column: "right",
-    render: (cv, labels, prefs) => _focus_areas(
-      cv.at("focusAreas", default: ()),
-      labels,
-    ),
-  ),
-  skills: (
-    column: "right",
-    render: (cv, labels, prefs) => _skills(
-      cv.at("skills", default: ()),
-      labels,
-    ),
-  ),
-  languages: (
-    column: "right",
-    render: (cv, labels, prefs) => _languages(
-      cv.at("languages", default: ()),
-      labels,
-    ),
-  ),
-  education: (
-    column: "right",
-    render: (cv, labels, prefs) => _education(
-      cv.at("education", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  certificates: (
-    column: "right",
-    render: (cv, labels, prefs) => _certificates(
-      cv.at("certificates", default: ()),
-      labels,
-      prefs,
-      group: prefs.groupCertificates,
-    ),
-  ),
-  awards: (
-    column: "right",
-    render: (cv, labels, prefs) => _awards(
-      cv.at("awards", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  projects: (
-    column: "left",
-    render: (cv, labels, prefs) => _projects(
-      cv.at("projects", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  publications: (
-    column: "left",
-    render: (cv, labels, prefs) => _publications(
-      cv.at("publications", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
-  interests: (
-    column: "right",
-    render: (cv, labels, prefs) => _interests(
-      cv.at("interests", default: ()),
-      labels,
-    ),
-  ),
-  references: (
-    column: "right",
-    render: (cv, labels, prefs) => _references(
-      cv.at("references", default: ()),
-      labels,
-      prefs,
-    ),
-  ),
+  work: (column: "left", render: _experience),
+  volunteer: (column: "left", render: _volunteer),
+  focusAreas: (column: "right", render: _focus_areas),
+  skills: (column: "right", render: _skills),
+  languages: (column: "right", render: _languages),
+  education: (column: "right", render: _education),
+  certificates: (column: "right", render: _certificates),
+  awards: (column: "right", render: _awards),
+  projects: (column: "left", render: _projects),
+  publications: (column: "left", render: _publications),
+  interests: (column: "right", render: _interests),
+  references: (column: "right", render: _references),
 )
 
 // Defaults derived from `_sections` so adding a section there

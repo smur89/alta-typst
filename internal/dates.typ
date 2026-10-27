@@ -163,7 +163,7 @@
 // aliases (`"long"`, `"short"`) and bracketed templates resolve via
 // `_apply_date_template`.
 #let _format_date(value, prefs, labels) = {
-  if value == none or value == "" { return value }
+  if not _present(value) { return value }
   let format = prefs.dateFormat
   if format == "iso" { return value }
   let parts = _parse_iso_date(value)
