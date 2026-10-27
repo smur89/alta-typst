@@ -14,6 +14,7 @@
 ### Bug Fixes
 
 * **build:** rebuild renders on library changes and force drift-gate rebuilds ([#178](https://github.com/smur89/alta-typst/issues/178)) ([45eaaca](https://github.com/smur89/alta-typst/commit/45eaacaad3a41982df7c9cf0c31c7730d3a1fead))
+* **deps:** build, test and render fixtures with Typst 0.15.1 ([#202](https://github.com/smur89/alta-typst/issues/202)) ([7852ac1](https://github.com/smur89/alta-typst/commit/7852ac18d3a72f3449675a06aff9b1c4d9a3d996))
 * skip empty basics contact fields ([#181](https://github.com/smur89/alta-typst/issues/181)) ([d4743ed](https://github.com/smur89/alta-typst/commit/d4743edff824495d2c4d1b09ad98ebfccc1447b9))
 * split the column gutter between both columns in two-column layouts ([#184](https://github.com/smur89/alta-typst/issues/184)) ([19c6544](https://github.com/smur89/alta-typst/commit/19c6544b9bc3ee4e84e17d30bdaf1256451bf9a4))
 * use a real em dash in the default PDF title ([#207](https://github.com/smur89/alta-typst/issues/207)) ([04af217](https://github.com/smur89/alta-typst/commit/04af21743f6369f832c1fc74dd8aa2878d4ed08f))
