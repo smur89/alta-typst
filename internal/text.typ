@@ -11,6 +11,11 @@
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
+// Stricter than `_present` for fields that must be plain strings —
+// PDF metadata, grouping keys — where a content block or a number
+// would either be rejected downstream or render as a nonsense key.
+#let _present_str(v) = type(v) == str and v != ""
+
 // Accent-coloured italic styling for entry titles. When `dest` is
 // present the styled content is wrapped in a `link()`, giving every
 // linked + unlinked title a uniform visual — URL presence is purely

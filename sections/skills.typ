@@ -2,7 +2,9 @@
 // `{name, keywords}` shape and render identically (a row of pill
 // tags led by a "label" pill). The shared layout lives in
 // `_name_keywords_section`; the two public renderers differ only in
-// which `labels.*` heading they pass.
+// which `labels.*` heading they pass. Neither reads `prefs`; it's
+// accepted so every renderer shares the `(entries, labels, prefs)`
+// dispatch signature.
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/primitives.typ": _tag_row, tag
@@ -37,9 +39,12 @@
   }
 }
 
-#let _skills(groups, labels) = _name_keywords_section(groups, labels.skills)
+#let _skills(groups, labels, prefs) = _name_keywords_section(
+  groups,
+  labels.skills,
+)
 
-#let _interests(groups, labels) = _name_keywords_section(
+#let _interests(groups, labels, prefs) = _name_keywords_section(
   groups,
   labels.interests,
 )
