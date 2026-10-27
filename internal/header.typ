@@ -14,6 +14,7 @@
 #import "state.typ": _accent_state, _body_size_state, _emphasis_colour
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
+#import "text.typ": _present
 #import "validation.typ": _check_unknown_keys, _contact_channels
 
 // JSON Resume's structured `location` dict collapsed to a single
@@ -124,7 +125,9 @@
 // `(channel, icon, value, url)` dict per present field. `channel` keys
 // into the resolved `linkContactInfo` config; `url: none` renders the
 // value unlinked. Pure data — no `context` — so the bar's contents can
-// be reasoned about apart from its styling.
+// be reasoned about apart from its styling. `_present` (not `!= none`)
+// so an empty-string field is skipped rather than rendering a bare
+// icon behind a dead `mailto:` / `tel:` link.
 #let _contact_entries(basics, maps-provider) = {
   let email = basics.at("email", default: none)
   let phone = basics.at("phone", default: none)
@@ -136,10 +139,10 @@
   let location = _format_location(basics.at("location", default: none))
   let url = basics.at("url", default: none)
   let fields = (
-    if email != none {
+    if _present(email) {
       (channel: "email", icon: "email", value: email, url: "mailto:" + email)
     },
-    if phone != none {
+    if _present(phone) {
       // Strip RFC 3966 visual separators (spaces, parens, hyphens,
       // dots) from the dialable URI; the displayed value keeps them.
       (
@@ -159,7 +162,7 @@
         },
       )
     },
-    if url != none { (channel: "url", icon: "link", value: url, url: url) },
+    if _present(url) { (channel: "url", icon: "link", value: url, url: url) },
   ).filter(e => e != none)
   fields + basics.at("profiles", default: ()).map(_profile_entry)
 }
@@ -192,7 +195,7 @@
       ),
     )
 
-    if headline != none {
+    if _present(headline) {
       block(
         spacing: 0pt,
         below: 0.8 * body-size,
