@@ -12,6 +12,11 @@
 # translate the values. Load it at the call site via:
 #   #alta(cv, labels: toml("labels-de.toml"))
 
+# Document language — an ISO 639 code (2–3 lowercase letters, e.g.
+# "de", "ga"). Drives hyphenation, smart quotes, and the PDF's
+# language tag (read by screen readers). Validated in alta().
+lang = "en"
+
 # Section headings.
 work         = "Experience"
 volunteer    = "Volunteer"
@@ -50,7 +55,9 @@ lastModified = "Last updated"
 pageNumber = "Page {current} / {total}"
 
 # PDF Title metadata. `{name}` (required) is `basics.name`, verbatim.
-documentTitle = "{name} --- CV"
+# A plain string, not markup — write a real em dash, since `---` only
+# becomes one in Typst markup.
+documentTitle = "{name} — CV"
 
 # Twelve abbreviated month names (January–December). Consumed by the
 # built-in `dateFormat: "long"` formatter and the `[month repr:long]` /

@@ -133,7 +133,12 @@
     ),
     ..(if doc-date != none { (date: doc-date) } else { (:) }),
   )
-  set text(body-size, font: preferences.font, fill: _body_colour)
+  set text(
+    body-size,
+    font: preferences.font,
+    fill: _body_colour,
+    lang: labels.lang,
+  )
   set page(
     paper: preferences.paper,
     margin: preferences.margin,

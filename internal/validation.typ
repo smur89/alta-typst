@@ -238,7 +238,19 @@
   }
 }
 
+// `labels.lang` feeds `set text(lang: ...)`. Typst accepts any 2–3
+// letter code case-insensitively; requiring lowercase keeps the label
+// files canonical and catches a language *name* ("Irish") up front.
+#let _lang_re = regex("^[a-z]{2,3}$")
+
 #let _validate_labels(labels) = {
+  let lang = labels.lang
+  if type(lang) != str or lang.match(_lang_re) == none {
+    panic(
+      "labels.lang must be a lowercase ISO 639 code (2–3 letters, e.g. \"de\"), got: "
+        + repr(lang),
+    )
+  }
   _validate_template_label(labels, "pageNumber", ("current",), ("total",))
   _validate_template_label(labels, "documentTitle", ("name",), ())
   let months = labels.months

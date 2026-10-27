@@ -458,6 +458,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 | Key | Default |
 |---|---|
+| `lang` | `"en"` |
 | `work` | `"Experience"` |
 | `volunteer` | `"Volunteer"` |
 | `focusAreas` | `"Areas of Focus"` |
@@ -475,11 +476,13 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
-| `documentTitle` | `"{name} --- CV"` |
+| `documentTitle` | `"{name} — CV"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationIcons` | `(:)` |
 
 `labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
+
+`labels.lang` is the document language, an ISO 639 code (two or three lowercase letters: `"de"`, `"ga"`). It drives hyphenation and smart quotes, and is written to the PDF as its language tag, which screen readers use to pick a voice. Set it alongside any full translation; anything other than a lowercase 2–3 letter code panics.
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
@@ -499,6 +502,7 @@ Example — German, plus renaming "Skills" to "Core Technologies":
 
 ```typst
 #alta(cv, labels: (
+  lang:         "de",
   work:         "Berufserfahrung",
   focusAreas:   "Schwerpunkte",
   skills:       "Core Technologies",
@@ -556,7 +560,7 @@ The rendered PDF carries metadata in its document properties — what your OS sh
 
 | PDF field | Source | Notes |
 |---|---|---|
-| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> --- CV"`) | Always set. |
+| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> — CV"`) | Always set. |
 | Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
 | Subject | `basics.summary` | Same content rendered in the document header. |
 | Keywords | `skills[].keywords`, then `meta.canonical`, `meta.version` | Skill keywords flattened across groups, de-duplicated, insertion order preserved; `meta.canonical` (document URL) and `meta.version` are appended verbatim when present. Typst exposes no dedicated PDF field for either, so Keywords is their machine-readable home. |
