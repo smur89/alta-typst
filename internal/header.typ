@@ -128,7 +128,7 @@
   let pronouns = _field(basics, "pronouns")
   let bar-icon = icon.with(
     size: 0.9 * body-size,
-    shift: 0.2 * body-size,
+    shift: 0pt,
     fill: accent,
   )
   let text-align = (left: left, right: right, center: center).at(

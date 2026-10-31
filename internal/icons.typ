@@ -59,7 +59,7 @@
 #let icon(name, size: auto, shift: auto, fill: auto, alt: none) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
-  let resolved-shift = if shift == auto { 0.15 * body-size } else { shift }
+  let resolved-shift = if shift == auto { 0pt } else { shift }
   let resolved-fill = if fill == auto { _body_colour } else { fill }
 
   let glyph = _icon_glyphs.at(name)
