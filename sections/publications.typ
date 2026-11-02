@@ -134,6 +134,27 @@
     .join[ · ]
 )
 
+// JSON Resume 1.7.0 `volume`, `issue` and `pages` as a journal-style
+// tail, `12(3), 45–67`: each part optional, taking its punctuation with
+// it, and a hyphen in `pages` set as an en dash. `none` when all are
+// absent.
+#let _citation(pub) = {
+  let part(key) = {
+    let value = pub.at(key, default: none)
+    if _present_str(value) { value }
+  }
+  let volume = part("volume")
+  let issue = part("issue")
+  let pages = part("pages")
+  let number = (
+    (if volume != none { volume } else { "" })
+      + if issue != none { "(" + issue + ")" } else { "" }
+  )
+  let pages = if pages != none { pages.replace(regex("-+"), "–") }
+  let tail = (if number != "" { number }, pages).filter(p => p != none)
+  if tail.len() > 0 { tail.join(", ") }
+}
+
 // Groups appear in first-occurrence order (Typst dicts preserve
 // insertion order). Subheading icons resolve via
 // `labels.publicationIcons` → `_default_publication_icons` → `file`,
@@ -178,8 +199,14 @@
           // The optional lines under the title; absent ones drop out, so
           // an empty field can't leave an orphan `\` break.
           #let lines = (
-            if _present(publisher) {
-              text(0.85 * body-size, fill: _body_colour, publisher)
+            {
+              let source = (
+                if _present(publisher) { publisher },
+                _citation(pub),
+              ).filter(p => p != none)
+              if source.len() > 0 {
+                text(0.85 * body-size, fill: _body_colour, source.join(" "))
+              }
             },
             if _present(date) { meta(_format_date(date, prefs, labels)) },
             if ids.len() > 0 { meta(_identifier_line(ids)) },
