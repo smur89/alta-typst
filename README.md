@@ -116,6 +116,7 @@ Best when you want the CV data in Typst alongside the call. Import into an exist
       startDate: "Jan 2022",
       // omit endDate → renders as "Present"
       highlights: ([Led the migration…], [Designed the platform…]),
+      keywords: ("Python", "Go", "Rust"), // optional
     ),
   ),
   skills: (
