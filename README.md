@@ -597,7 +597,7 @@ meta: (
 |---|---|
 | `icon(name, size: auto, shift: auto, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
-| `term(period, location: none, detail: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. `detail` is a plain value with no icon (e.g. an ID); when given, the period and detail take their natural widths instead. |
+| `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |

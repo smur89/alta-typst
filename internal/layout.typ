@@ -64,8 +64,8 @@
   // `palettes.teal` — see the `palettes` dict for the curated set
   // (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`).
   accent: palettes.teal,
-  // Deprecated and ignored: certificates render as entries, each with
-  // its own issuer line. Still accepted; removed in the next major
+  // Deprecated and ignored: certificates render as entries, each
+  // showing its own issuer. Still accepted; removed in the next major
   // (#239).
   groupCertificates: true,
   imageSize: 6em,

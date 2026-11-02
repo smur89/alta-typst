@@ -17,7 +17,7 @@
 #let cv = (
   basics: (name: "Jane Doe", email: "jane@example.com"),
   certificates: (
-    // Every new field at once, in a grouped (CNCF) cluster.
+    // Every new field at once.
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
@@ -45,7 +45,7 @@
       name: "Scrum Master",
       credentialId: "PSM-0042",
     ),
-    // None of the new fields: renders exactly as before.
+    // None of the new fields: name, date and issuer only.
     (
       name: "Terraform Associate",
       issuer: "HashiCorp",

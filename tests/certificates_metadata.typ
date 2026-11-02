@@ -16,9 +16,8 @@
       date: "Aug 2023",
       url: "https://example.com/cka",
     ),
-    // Same issuer as the entry above → grouped together. Mixes a
-    // dated + linked cert with one that has neither, exercising the
-    // per-cert branching inside a group.
+    // Same issuer as the entry above. Mixes a dated + linked cert
+    // with one that has neither, exercising each optional part.
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",

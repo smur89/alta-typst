@@ -3,9 +3,7 @@
 // from `lib.typ` for callers composing custom layouts; the leading-
 // underscore helpers are used internally by the section renderers.
 
-#import "state.typ": (
-  _accent_state, _body_colour, _body_size_state, _divider_colour,
-)
+#import "state.typ": _accent_state, _body_size_state, _divider_colour
 #import "icons.typ": icon
 #import "text.typ": _present, _present_str
 #import "dates.typ": _format_date_range
@@ -20,14 +18,17 @@
 
 // Bold accent-coloured line — designed for the company / institution
 // row beneath a role or education entry.
+// The bold accent text `name()` sets on its own line, for inline use
+// (e.g. a certificate's issuer on its term row).
+#let _accent_strong(body) = context text(
+  weight: "bold",
+  fill: _accent_state.get(),
+  body,
+)
+
 #let name(body) = context {
   let body-size = _body_size_state.get()
-  let accent = _accent_state.get()
-  block(
-    above: 0pt,
-    below: 0.6 * body-size,
-    text(weight: "bold", fill: accent, body),
-  )
+  block(above: 0pt, below: 0.6 * body-size, _accent_strong(body))
 }
 
 // An entry's italic prose preamble (`summary`). Softer than `name()`
@@ -35,41 +36,34 @@
 // the bullets around it. Absent values render nothing.
 #let _preamble(body) = if _present(body) { emph(body) }
 
-// Each part may be `none` — its box is skipped, so undated /
-// unlocated entries don't emit a stray icon. `detail` is a plain
-// value with no icon (e.g. a certificate's credential ID).
-#let term(period, location: none, detail: none) = context {
-  if period == none and location == none and detail == none { return }
+// The term row's frame: indented small text under an entry's heading.
+#let _term_row(body) = context {
   let body-size = _body_size_state.get()
   block(
     above: 0pt,
     below: 0.8 * body-size,
     inset: (left: 0.3 * body-size),
-    text(0.9 * body-size, {
-      if period != none {
-        box(
-          width: if detail == none { 50% } else { auto },
-          {
-            icon("calendar")
-            period
-          },
-        )
-      }
-      if location != none {
-        box(width: 50%, {
-          icon("location")
-          location
-        })
-      }
-      // No column to line up with, so `detail` follows at its natural
-      // width and moves to the next line whole rather than squeezing
-      // the period.
-      if detail != none {
-        if period != none { h(1em) }
-        box(detail)
-      }
-    }),
+    text(0.9 * body-size, body),
   )
+}
+
+// One icon-led part of a term row; a `none` body renders nothing. The
+// 50% default lines a period up with a location column.
+#let _term_part(icon-name, body, width: 50%) = if body != none {
+  box(width: width, {
+    icon(icon-name)
+    body
+  })
+}
+
+// Either side may be `none` — the box is skipped, so undated /
+// unlocated entries don't emit a stray icon.
+#let term(period, location: none) = {
+  if period == none and location == none { return }
+  _term_row({
+    _term_part("calendar", period)
+    _term_part("location", location)
+  })
 }
 
 // The date + location term row of a dated entry. `location` is a

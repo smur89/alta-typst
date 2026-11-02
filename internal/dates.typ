@@ -179,7 +179,7 @@
 // out with its dash. `open-end` stands in for a missing end: `none`
 // (the default) suits ranges whose missing end means there is no end,
 // e.g. a certificate that doesn't expire. Returns `none` when neither
-// side is present.
+// side is present and `open-end` is `none`.
 #let _format_date_span(start, end, prefs, labels, open-end: none) = {
   let start-text = if _present(start) { _format_date(start, prefs, labels) }
   let end-text = if _present(end) { _format_date(end, prefs, labels) } else {

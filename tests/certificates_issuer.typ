@@ -1,7 +1,6 @@
-// `certificates[].issuer` renders as the accent line under each
-// certificate's name; a missing or empty issuer leaves the line out.
-// The second render sets the deprecated `groupCertificates: false`,
-// which is still accepted and has no effect, so both pages match.
+// `certificates[].issuer` renders in bold accent on each
+// certificate's term row; a missing, empty or `none` issuer leaves it
+// out.
 
 #import "../lib.typ": alta
 
@@ -14,14 +13,10 @@
     (name: "DevOps Engineer Pro", issuer: "AWS"),
     (name: "Lone Cert", issuer: "Solo Issuer A"),
     (name: "Another Lone Cert", issuer: "Solo Issuer B"),
-    (name: "Issuerless Cluster Cert 1"), // issuer missing
-    (name: "Issuerless Cluster Cert 2", issuer: ""), // empty string
-    (name: "Issuerless Cluster Cert 3", issuer: none), // explicit none
+    (name: "Issuerless Cert 1"), // issuer missing
+    (name: "Issuerless Cert 2", issuer: ""), // empty string
+    (name: "Issuerless Cert 3", issuer: none), // explicit none
   ),
 )
 
 #alta(cv)
-
-#pagebreak()
-
-#alta(cv, preferences: (groupCertificates: false))
