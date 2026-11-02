@@ -1,27 +1,36 @@
-// Publications — grouped by `type` (an altacv extension) with a
-// type-appropriate icon on each subheading. Untyped or invalid-type
-// entries fall under `labels.articles`.
+// Publications — grouped by JSON Resume's `type` code (matched
+// case-insensitively) with a type-appropriate icon on each subheading.
+// Known codes take their subheading from `labels.publicationTypes`;
+// other types print as first written. Untyped or invalid-type entries
+// count as `article`.
 
 #import "../internal/state.typ": _body_colour, _body_size_state
-#import "../internal/text.typ": _present, styled-link
-#import "../internal/primitives.typ": _group_by_type
+#import "../internal/text.typ": _present, _present_str, styled-link
+#import "../internal/primitives.typ": _group_by
+#import "../internal/defaults.typ": _default_labels
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
-// Built-in icon hints for common publication `type` strings. Lookup
-// is case-insensitive (`"Talks"` and `"talks"` both match) but not
-// number-insensitive — singular and plural forms are listed explicitly
-// so callers can use either without thinking. Extend via
+// Built-in icons, keyed by `type` (case-insensitive). Extend via
 // `labels.publicationIcons`; unmatched types fall back to `file`.
-#let _default_publication_icons = (
-  articles: "newspaper",
+// JSON Resume's codes (`patent` has no dedicated glyph, so it takes
+// the `file` fallback):
+#let _code_publication_icons = (
   article: "newspaper",
+  book: "book",
+  thesis: "book",
+  talk: "microphone",
+)
+// Plural and free-text keys for the deprecated free-text headings
+// (`"Articles"`, `"Talks"`); dropped with them in the next major
+// (#239).
+#let _legacy_publication_icons = (
+  articles: "newspaper",
   "blog posts": "newspaper",
   "blog post": "newspaper",
   books: "book",
-  book: "book",
+  theses: "book",
   talks: "microphone",
-  talk: "microphone",
   presentations: "microphone",
   presentation: "microphone",
   "conference papers": "newspaper",
@@ -29,12 +38,56 @@
   papers: "newspaper",
   paper: "newspaper",
 )
+#let _default_publication_icons = (
+  _code_publication_icons + _legacy_publication_icons
+)
 
-// `pub.type` is a local extension. The grouping key is rendered
-// verbatim as the subheading; groups appear in first-occurrence order
-// (Typst dicts preserve insertion order). Untyped entries fall under
-// `labels.articles`. Subheading icons resolve via
-// `labels.publicationIcons` → `_default_publication_icons` → `file`.
+// Lowercase a label table's keys for case-insensitive lookup;
+// `_validate_labels` rejects keys that collide.
+#let _lowercase_keys(table) = table
+.pairs()
+.fold((:), (acc, (k, v)) => acc + ((lower(k)): v))
+
+// Subheadings per type code: the built-in table, then a CV's
+// deprecated `labels.articles` override (#239: drop that line), then
+// its `labels.publicationTypes` overrides. Layered like the icons, so a
+// translation can set just the codes it uses.
+#let _type_headings(labels) = {
+  let defaults = _default_labels.publicationTypes
+  let legacy = if labels.articles != _default_labels.articles {
+    (article: labels.articles)
+  } else { (:) }
+  let overrides = if labels.publicationTypes != defaults {
+    _lowercase_keys(labels.publicationTypes)
+  } else { (:) }
+  defaults + legacy + overrides
+}
+
+// Plural free-text types group with their JSON Resume code, so a
+// legacy CV mixing `"Articles"` and untyped entries keeps one
+// subheading. Deprecated with the free-text headings; dropped in the
+// next major (#239).
+#let _legacy_type_codes = (
+  articles: "article",
+  books: "book",
+  patents: "patent",
+  theses: "thesis",
+  talks: "talk",
+)
+
+// A publication's group key: its lowercased `type`, or `article` when
+// untyped or not a string, so `Talk` / `talk` and untyped / `article`
+// each share one subheading.
+#let _type_code(pub) = {
+  let raw = pub.at("type", default: none)
+  let code = if _present_str(raw) { lower(raw) } else { "article" }
+  _legacy_type_codes.at(code, default: code)
+}
+
+// Groups appear in first-occurrence order (Typst dicts preserve
+// insertion order). Subheading icons resolve via
+// `labels.publicationIcons` → `_default_publication_icons` → `file`,
+// keyed by the type code.
 #let _publications(pubs, labels, prefs) = {
   // Drop entries with no usable `name` up front so the section
   // doesn't render an empty bullet, and so an empty section doesn't
@@ -44,30 +97,22 @@
   if valid.len() == 0 { return }
   context {
     let body-size = _body_size_state.get()
-    // A missing or non-string `type` (e.g. `none`, a number) falls
-    // back to the default "Articles" heading rather than crashing at
-    // `lower(group)` below.
-    let groups = _group_by_type(valid, labels.articles)
+    let groups = _group_by(valid, _type_code)
     [== #labels.publications]
-    // Normalise user-supplied override keys to lowercase up front so
-    // the case-insensitive contract holds symmetrically: `(Talks: ...)`
-    // matches `type: "talks"` and vice versa. The built-in defaults
-    // dict already uses lowercase keys. Keys that would collide after
-    // lowercasing are rejected up front by `_validate_labels`.
-    let user-icons-lc = labels
-      .at("publicationIcons", default: (:))
-      .pairs()
-      .fold(
-        (:),
-        (acc, (k, v)) => acc + ((lower(k)): v),
-      )
-    for (group, items) in groups.pairs() [
-      #let lookup-key = lower(group)
+    let headings = _type_headings(labels)
+    let user-icons-lc = _lowercase_keys(labels.publicationIcons)
+    for (code, items) in groups.pairs() [
       #let group-icon = user-icons-lc.at(
-        lookup-key,
-        default: _default_publication_icons.at(lookup-key, default: "file"),
+        code,
+        default: _default_publication_icons.at(code, default: "file"),
       )
-      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #group
+      // A code with no heading is free text: every entry in its group
+      // has a string `type`, so print the first as written. (Not via
+      // `default:`, which is evaluated even when the key exists.)
+      #let heading = if code in headings { headings.at(code) } else {
+        items.first().type
+      }
+      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #heading
 
       #for pub in items [
         #block(breakable: false)[
