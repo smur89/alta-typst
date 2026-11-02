@@ -135,7 +135,6 @@
   // References heading when no entry has a `reference` quote, instead
   // of suppressing the section.
   referencesAvailableOnRequest: false,
-  // Number of dots on the language scale. LinkedIn `fluency` strings
-  // scale to it; numeric `rating` values are used as given.
+  // Number of dots on the language scale.
   maxRating: 5,
 )

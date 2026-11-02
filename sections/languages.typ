@@ -1,6 +1,6 @@
 // Languages — one row per entry. Dots when `_resolve_rating` returns
-// a number; label-only annotation when it returns `none` (free-text
-// fluency outside the LinkedIn enum — canonical JSON Resume shape).
+// a number; label-only annotation when it returns `none` (a `fluency`
+// not in `_fluency_rating` — canonical JSON Resume shape).
 
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section
@@ -18,8 +18,6 @@
   [\ ]
 }
 
-// `prefs.maxRating` scales LinkedIn `fluency` values to the dot
-// count.
 #let _languages(items, labels, prefs) = _section(
   labels.languages,
   // Nameless entries are dropped, not a panic — the filter-first

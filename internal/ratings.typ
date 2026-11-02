@@ -10,24 +10,26 @@
 )
 #import "text.typ": _altacv
 
-// LinkedIn-style fluency strings, on LinkedIn's 0–5 scale.
-// `_resolve_rating` scales them to `preferences.maxRating`.
+// Half-dot precision is the only fraction the renderer can draw.
+#let _round_half(x) = calc.round(x * 2) / 2
+
+// LinkedIn-style fluency strings, as fractions of full fluency.
 #let _fluency_rating = (
-  "Native": 5,
-  "Bilingual": 5,
-  "Full Professional": 4,
-  "Professional Working": 3,
-  "Limited Working": 2,
-  "Elementary": 1,
+  "Native": 1.0,
+  "Bilingual": 1.0,
+  "Full Professional": 0.8,
+  "Professional Working": 0.6,
+  "Limited Working": 0.4,
+  "Elementary": 0.2,
 )
 
 // A numeric rating (`custom.altacv.rating`, or the deprecated
 // `rating`) is used as given and wins over `fluency`, so callers can
 // opt into fractional precision without rewriting their data. A
-// recognised `fluency` is scaled from 0–5 to `max` (the dot count) and
+// recognised `fluency` becomes that fraction of `max` (the dot count),
 // rounded to the nearest half, so it fits any scale.
-// `none` = caller should render label-only (free-text fluency outside
-// the LinkedIn enum). Both-absent and non-string fluency panic so a
+// `none` = caller should render label-only (a `fluency` not in
+// `_fluency_rating`). Both-absent and non-string fluency panic so a
 // typo'd key or wrong-typed value surfaces immediately. Numeric
 // type/bounds checks live in `rating()`.
 #let _resolve_rating(entry, max) = {
@@ -48,8 +50,8 @@
         + repr(entry),
     )
   }
-  let value = _fluency_rating.at(fluency, default: none)
-  if value != none { calc.round(value / 5 * max * 2) / 2 }
+  let fraction = _fluency_rating.at(fluency, default: none)
+  if fraction != none { _round_half(fraction * max) }
 }
 
 #let _half_fill(accent) = gradient.linear(
@@ -79,7 +81,7 @@
   // express (a single `_half_fill` gradient). Reject other fractions
   // up front so `3.1` and `3.9` don't both silently round to a
   // half-dot — callers either ask for a full step or a half step.
-  if calc.round(value * 2) / 2 != value {
+  if _round_half(value) != value {
     panic("Rating must use 0.5 increments, got: " + repr(value))
   }
   let dot-radius = 0.45 * body-size

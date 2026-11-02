@@ -19,7 +19,7 @@
 #pagebreak()
 
 // A 6-dot scale with numeric ratings, which are used as given —
-// covering the new maximum (6) and a fractional value above the
+// covering the maximum (6) and a fractional value above the
 // default cap.
 #alta(
   (
