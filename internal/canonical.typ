@@ -69,7 +69,9 @@
 
 #let _canonical_type(pub) = {
   let raw = _string_at(pub, "type")
-  let code = if raw != none { _legacy_type_codes.at(lower(raw), default: none) }
+  let code = if raw != none {
+    _legacy_type_codes.at(lower(raw.trim()), default: none)
+  }
   if code == none { pub } else { pub + (type: code) }
 }
 

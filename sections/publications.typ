@@ -23,12 +23,13 @@
   talk: "microphone",
 )
 
-// A publication's group key: its lowercased `type`, or `article` when
+// A publication's group key: its lowercased, trimmed `type`, or `article` when
 // untyped or not a string, so `Talk` / `talk` and untyped / `article`
 // each share one subheading.
 #let _type_code(pub) = {
   let raw = _string_at(pub, "type")
-  if raw != none { lower(raw) } else { "article" }
+  let code = if raw != none { lower(raw.trim()) }
+  if _present_str(code) { code } else { "article" }
 }
 
 // JSON Resume 1.7.0 `publications[].identifiers`, keyed by scheme.
