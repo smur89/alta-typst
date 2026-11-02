@@ -129,6 +129,7 @@
     )
   }
   _check_bool("uppercaseName", preferences.uppercaseName)
+  _check_bool("showPronouns", preferences.showPronouns)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
   _check_bool("footerVersion", preferences.footerVersion)
   _check_bool(
