@@ -53,7 +53,7 @@
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
     #if org-key == "name" [
       // Render `keywords` only for `work[]`
-      #_tag_row(entry.at("keywords", default: ()))
+      #block(_tag_row(entry.at("keywords", default: ())))
     ]
   ],
 )
