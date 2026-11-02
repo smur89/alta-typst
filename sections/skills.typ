@@ -7,11 +7,11 @@
 // `text("-")`, not `[-]`, which markup parses as a list bullet. The
 // `_tag_gap` after it mirrors the gap `tag()` leaves on its left, so
 // the dash sits centred between the pills.
-#let _name_keywords_section(groups, heading) = {
+#let _name_keywords_section(groups, key, (labels, ..)) = {
   // Drop groups with no keywords first, so a section with none left
   // skips its heading rather than rendering it bare.
   let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
-  _section_frame(heading, visible, context {
+  _section_frame(labels.at(key), visible, context {
     let body-size = _body_size_state.get()
     let row-gap = 0.7 * body-size
     for group in visible {
@@ -29,12 +29,10 @@
   })
 }
 
-#let _skills(groups, (labels, ..)) = _name_keywords_section(
-  groups,
-  labels.skills,
-)
+#let _skills(groups, ctx) = _name_keywords_section(groups, "skills", ctx)
 
-#let _interests(groups, (labels, ..)) = _name_keywords_section(
+#let _interests(groups, ctx) = _name_keywords_section(
   groups,
-  labels.interests,
+  "interests",
+  ctx,
 )

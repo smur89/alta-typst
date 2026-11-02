@@ -8,8 +8,11 @@
 // `internal/` holds shared infrastructure; `sections/` one renderer per
 // CV section, dispatched from `internal/layout.typ`'s `_sections`.
 //
-// Spacing tokens are em-multipliers of `body-size`; the few absolute
-// values (margins, gutter, rule thicknesses) deliberately don't scale.
+// Sizes scale with `body-size`. Anything exported here reads it from
+// state, since it may sit outside `alta()`'s text; internal helpers
+// may use `em`, which is relative to the enclosing text, where that's
+// the intent. The few absolute values (margins, gutter, rule
+// thicknesses) deliberately don't scale.
 
 #import "internal/presets.typ": maps-providers, palettes
 #import "internal/state.typ": (
@@ -21,7 +24,7 @@
 #import "internal/validation.typ": (
   _check_unknown_keys, _strict_merge, _validate_labels, _validate_preferences,
 )
-#import "internal/text.typ": _fill_template, _present, _present_str, styled-link
+#import "internal/text.typ": _field, _fill_template, _string_at, styled-link
 #import "internal/icons.typ": icon
 #import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
@@ -60,7 +63,7 @@
   }
   let basics = cv.at("basics", default: none)
   if (
-    type(basics) != dictionary or not _present(basics.at("name", default: none))
+    type(basics) != dictionary or _field(basics, "name") == none
   ) {
     panic(
       "cv.basics.name is required (a non-empty string) — every other "
@@ -98,28 +101,24 @@
   // rejects a `none` date, and empty strings would still write an entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
-  let canonical = meta.at("canonical", default: none)
-  let version = meta.at("version", default: none)
+  let canonical = _string_at(meta, "canonical")
+  let version = _string_at(meta, "version")
   let doc-date = _iso_datetime(last-modified-raw)
   // `set document(...)` has no URL or version field, so
   // `meta.canonical` / `meta.version` ride the Keywords — the only
-  // machine-readable home. `_present_str` because Keywords must be
+  // machine-readable home. `_string_at` because Keywords must be
   // strings and a dict passed to `alta()` directly is unvalidated.
   let doc-keywords = _collect_keywords(section-data.skills)
-  if _present_str(canonical) { doc-keywords.push(canonical) }
-  if _present_str(version) { doc-keywords.push(version) }
-  let doc-description = cv.basics.at("summary", default: none)
+  if canonical != none { doc-keywords.push(canonical) }
+  if version != none { doc-keywords.push(version) }
+  let doc-description = _field(cv.basics, "summary")
   set document(
     // `uppercaseName` is purely visual — PDF metadata stays canonical.
     title: _fill_template(labels.documentTitle, (name: cv.basics.name)),
     author: cv.basics.name,
-    ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) } else { (:) }),
-    ..(
-      if _present(doc-description) { (description: doc-description) } else {
-        (:)
-      }
-    ),
-    ..(if doc-date != none { (date: doc-date) } else { (:) }),
+    ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) }),
+    ..(if doc-description != none { (description: doc-description) }),
+    ..(if doc-date != none { (date: doc-date) }),
   )
   set text(
     body-size,

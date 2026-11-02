@@ -27,8 +27,8 @@
 
 // The type scale below body text: `_small` for secondary lines (a
 // subtitle, a fluency label, publication authors), `_meta` for the
-// quietest (publication dates and identifiers). `em` is `body-size`
-// wherever these sit; absent bodies render nothing.
+// quietest (publication dates and identifiers). In `em`, as they only
+// sit in body text; absent bodies render nothing.
 #let _small(body) = if _present(body) {
   text(0.85em, fill: _body_colour, body)
 }
@@ -104,18 +104,22 @@
 
 // The compact term row: period and location at natural widths (no
 // column to align), then the organisation and `details` joined by
-// ` · `, so several short entries stay one line each.
+// ` · `, so several short entries stay one line each. The `1em` gaps
+// scale with the row's smaller text.
 #let _compact_term(period, location, org, org-url, details) = {
   let org = if _present(org) {
     _accent_strong(if _present(org-url) { link(org-url, org) } else { org })
   }
   let facts = _join_present((org, ..details), [ · ])
-  let parts = (
-    _term_part("calendar", period, width: auto),
-    _term_part("location", location, width: auto),
-    if facts != none { box(facts) },
-  ).filter(p => p != none)
-  if parts.len() > 0 { _term_row(parts.join(h(1em))) }
+  let row = _join_present(
+    (
+      _term_part("calendar", period, width: auto),
+      _term_part("location", location, width: auto),
+      if facts != none { box(facts) },
+    ),
+    h(1em),
+  )
+  if row != none { _term_row(row) }
 }
 
 // `label: true` is the darker, bold category pill. Pass
