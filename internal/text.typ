@@ -7,10 +7,22 @@
 // The three ways a field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-#let _entry_summary(entry) = {
-  let summary = entry.at("summary", default: none)
-  if _present(summary) { summary }
+// A field's value, or `none` when it's absent in any of those forms.
+#let _field(obj, key) = {
+  let v = obj.at(key, default: none)
+  if _present(v) { v }
 }
+
+// A `references[]` entry's flag: only a real boolean counts, so a
+// stray `"yes"` doesn't hide a quote.
+#let _on_request(r) = r.at("availableOnRequest", default: false) == true
+
+// A reference worth rendering: a quote, or the on-request flag.
+#let _reference_usable(r) = _on_request(r) or _field(r, "reference") != none
+
+// The non-`none` parts joined by `sep`; `none` when no part is left,
+// so callers can skip the whole line.
+#let _join_present(parts, sep) = parts.filter(p => p != none).join(sep)
 
 #let _dict_or_empty(v) = if type(v) == dictionary { v } else { (:) }
 

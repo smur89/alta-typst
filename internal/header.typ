@@ -9,7 +9,7 @@
 )
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
-#import "text.typ": _entry_summary, _present
+#import "text.typ": _field, _join_present, _present
 #import "primitives.typ": _preamble
 #import "validation.typ": _check_type, _contact_channels
 #import "location.typ": _format_location
@@ -308,24 +308,25 @@
     (str, content, type(none)),
     "a string or content",
   )
-  let summary = _entry_summary(cv.basics)
+  let summary = _field(cv.basics, "summary")
   if _present(objective) or summary != none {
     context {
       let body-size = _body_size_state.get()
       let goal = _preamble(objective)
       v(0.8 * body-size)
-      (
-        if goal != none {
-          block(
-            stroke: (left: 1.5pt + _accent_state.get()),
-            inset: (left: 0.7 * body-size, y: 0.15 * body-size),
-            par(goal),
-          )
-        },
-        if summary != none { par(summary) },
+      _join_present(
+        (
+          if goal != none {
+            block(
+              stroke: (left: 1.5pt + _accent_state.get()),
+              inset: (left: 0.7 * body-size, y: 0.15 * body-size),
+              goal,
+            )
+          },
+          if summary != none { par(summary) },
+        ),
+        v(0.3 * body-size),
       )
-        .filter(l => l != none)
-        .join(v(0.3 * body-size))
       v(0.4 * body-size)
     }
   }

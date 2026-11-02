@@ -1,7 +1,9 @@
 // Unit checks for internal/text.typ, internal/location.typ and the
 // grouping helpers in internal/primitives.typ.
 
-#import "/internal/text.typ": _fill_template, _present, _present_str
+#import "/internal/text.typ": (
+  _field, _fill_template, _join_present, _present, _present_str,
+)
 #import "/internal/location.typ": _format_location
 #import "/internal/primitives.typ": _group_by, _group_by_type
 
@@ -10,6 +12,17 @@
 #for v in ("x", [x], 0) { assert(_present(v), message: repr(v)) }
 #assert(_present_str("x"))
 #for v in ([x], "", 3) { assert(not _present_str(v), message: repr(v)) }
+
+// _field: present values pass through; every absent form is `none`.
+#assert.eq(_field((a: "x"), "a"), "x")
+#for e in ((:), (a: none), (a: ""), (a: [])) {
+  assert.eq(_field(e, "a"), none, message: repr(e))
+}
+
+// _join_present: `none` parts drop out with their separator; nothing
+// left is `none`, not an empty string.
+#assert.eq(_join_present(("a", none, "b"), ", "), "a, b")
+#assert.eq(_join_present((none, none), ", "), none)
 
 // _fill_template: one pass, so a substituted value is never expanded.
 #assert.eq(

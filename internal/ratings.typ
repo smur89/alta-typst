@@ -54,6 +54,16 @@
   (_empty_dot_colour, 100%),
 )
 
+// A label with `trailing` pushed to the right edge, then a line
+// break: the row every language renders, dots or not, so mixed rows
+// align.
+#let _label_row(label, trailing) = {
+  text(label)
+  h(1fr)
+  trailing
+  [\ ]
+}
+
 // `max` defaults to the enclosing `alta()`'s `preferences.maxRating`.
 #let rating(label, value, max: auto) = context {
   let body-size = _body_size_state.get()
@@ -83,22 +93,18 @@
   if _round_half(value) != value {
     panic("Rating must use 0.5 increments, got: " + repr(value))
   }
-  let dot-radius = 0.45 * body-size
-  let dot-baseline = -0.25 * body-size
-  let dot-spacing = 0.4 * body-size
-
-  text(label)
-  h(1fr)
-  for i in range(1, max-rating + 1) {
-    let fill = if value >= i {
-      accent
-    } else if value > i - 1 {
-      _half_fill(accent)
-    } else {
-      _empty_dot_colour
-    }
-    box(baseline: dot-baseline, circle(radius: dot-radius, fill: fill))
-    if i != max-rating { h(dot-spacing) }
-  }
-  [\ ]
+  let dot(fill) = box(
+    baseline: -0.25 * body-size,
+    circle(radius: 0.45 * body-size, fill: fill),
+  )
+  _label_row(
+    label,
+    range(1, max-rating + 1)
+      .map(i => dot(
+        if value >= i { accent } else if value > i - 1 {
+          _half_fill(accent)
+        } else { _empty_dot_colour },
+      ))
+      .join(h(0.4 * body-size)),
+  )
 }

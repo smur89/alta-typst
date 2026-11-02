@@ -1,35 +1,21 @@
 // Education. The heading falls back to `area` when `studyType` is
-// absent; `courses` render as pills like other string arrays.
+// absent; `courses` render as pills like other string arrays, inline
+// after the score.
 
-#import "../internal/text.typ": _entry_summary, _present
-#import "../internal/primitives.typ": (
-  _entry_term, _org_line, _preamble, _section, tag,
-)
+#import "../internal/text.typ": _field
+#import "../internal/primitives.typ": _entry, _entry_when, _section
 
 #let _education(entries, (labels, prefs, ..)) = _section(
   labels.education,
   entries,
-  edu => [
+  edu => _entry(
     // An empty `studyType` falls through to `area`, as a missing one does.
-    #let title = (
-      edu.at("studyType", default: none),
-      edu.at("area", default: none),
-    ).find(_present)
-    #if title != none [=== #title]
-    #_org_line(
-      edu.at("institution", default: none),
-      url: edu.at("url", default: none),
-    )
-    #_entry_term(edu, "education", prefs, labels)
-
-    // Own paragraph, so the score below starts on a new line.
-    #_preamble(_entry_summary(edu))
-
-    #let score = edu.at("score", default: none)
-    #if _present(score) [#score]
-    #let courses = edu.at("courses", default: ())
-    #if courses.len() > 0 [
-      #for course in courses [#tag(course)]
-    ]
-  ],
+    title: (_field(edu, "studyType"), _field(edu, "area")).find(t => t != none),
+    org: _field(edu, "institution"),
+    org-url: _field(edu, "url"),
+    .._entry_when(edu, "education", prefs, labels),
+    summary: _field(edu, "summary"),
+    tags-lead: _field(edu, "score"),
+    tags: edu.at("courses", default: ()),
+  ),
 )
