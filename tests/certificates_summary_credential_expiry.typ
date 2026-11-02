@@ -1,17 +1,16 @@
-// JSON Resume 1.4.0's certificate fields. Covers:
-//   - `date` + `expiryDate` → a range inside the pill
+// JSON Resume 1.4.0's certificate fields, on the awards-style entry.
+// Covers:
+//   - `date` + `expiryDate` → a range on the term row
 //   - `date` alone → the single date, never "Present" (a certificate
 //     without an expiry doesn't expire)
-//   - `summary` as a string and as content → a plain paragraph under
-//     the pill, which takes its own line
-//   - `credentialId` on a cert in an issuer group and on one with no
-//     issuer (and no date) → "ID <value>" in the pill, from
-//     `labels.credentialId`
-//   - an entry with none of the new fields, which renders as before
+//   - `summary` as a string and as content → a plain paragraph
+//   - `credentialId` with an issuer and on one with no issuer (and no
+//     date) → the bare ID on the term row
+//   - an entry with none of the new fields
 //   - empty-string new fields, which are treated as absent
-// A second render runs the same data flat (`groupCertificates: false`)
-// with the `short` `dateFormat`, so the range follows the preference,
-// and an overridden `labels.credentialId`.
+// A second render uses the `short` `dateFormat`, so the range follows
+// the preference, and sets the deprecated `groupCertificates: false`,
+// which is still accepted and has no effect.
 
 #import "../lib.typ": alta
 
@@ -71,5 +70,4 @@
 #alta(
   cv,
   preferences: (groupCertificates: false, dateFormat: "short"),
-  labels: (credentialId: "Credential"),
 )

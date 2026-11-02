@@ -306,13 +306,13 @@ All fields are optional — omitted fields drop their line.
 
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Certificate name. Rendered as a pill tag; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
-| `issuer` | string | Granting organisation. When `preferences.groupCertificates` is `true`, certs from the same issuer cluster into a single pill row prefixed by a darker issuer-label pill; singletons pool into a trailing unlabelled group. |
-| `date` | string | Date the certificate was issued. Inside the pill after the name, with a calendar icon. |
+| `name` | string | Certificate name. Entry heading (italic accent, like `awards[].title`); linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
+| `issuer` | string | Granting organisation. Bold accent text on the date row, after the date. |
+| `date` | string | Date the certificate was issued. Calendar-icon row under the name. |
 | `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
-| `url` | string | Wraps the pill in a link to the credential. |
-| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Inside the pill after the date, in body colour, prefixed by `labels.credentialId` (`ID ABC-123`). |
-| `summary` | string or content | What the certificate covers. Paragraph under the pill, as in `awards[]`; the pill moves to its own line so the paragraph sits with it. |
+| `url` | string | Wraps the name in a link to the credential. |
+| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given on the date row, after the issuer. |
+| `summary` | string or content | What the certificate covers. Paragraph under the date row, as in `awards[]`. |
 
 #### Interests
 
@@ -373,7 +373,7 @@ Override any subset of the keys below.
 | `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
-| `groupCertificates` | `true` | When `true`, cluster 2+ certs from the same issuer under a darker issuer-label pill; singletons pool into a trailing unlabelled group. When `false`, render flat — each cert next to its own issuer label. Certs with no `issuer` render unlabelled either way. |
+| `groupCertificates` | `true` | **Deprecated** and ignored: certificates render as entries, each showing its own issuer. Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 | `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
@@ -478,7 +478,6 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `referencesAvailableOnRequest` | `"References available upon request."` |
 | `articles` | `"Articles"` (deprecated: use `publicationTypes.article`; still honoured when set, removed in [#239](https://github.com/smur89/alta-typst/issues/239)) |
 | `present` | `"Present"` |
-| `credentialId` | `"ID"` (prefix for `certificates[].credentialId`) |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
 | `documentTitle` | `"{name} — CV"` |
@@ -592,7 +591,7 @@ meta: (
 |---|---|
 | `icon(name, size: auto, shift: auto, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
-| `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
+| `term(period, location: none, detail: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. `detail` is a plain value with no icon (e.g. an ID); when given, the period and detail take their natural widths instead. |
 | `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |

@@ -1,12 +1,7 @@
-// Exercises the issuer-label render added by #41. Covers:
-//   - multi-cert clusters render their issuer as a category-style tag
-//   - singletons across distinct issuers pool into the trailing group
-//     with no issuer label (no single string would describe them)
-//   - clusters whose issuer is missing or empty render unlabelled
-//   - `groupCertificates: false` pairs every cert with its own issuer
-//
-// Two renders, one fixture: bool flip across the same data so both
-// branches of the new render code stay covered.
+// `certificates[].issuer` renders as the accent line under each
+// certificate's name; a missing or empty issuer leaves the line out.
+// The second render sets the deprecated `groupCertificates: false`,
+// which is still accepted and has no effect, so both pages match.
 
 #import "../lib.typ": alta
 
