@@ -69,7 +69,7 @@
 #alta((
   basics: basics,
   focusAreas: ([Deprecated top-level item — should not render.],),
-  custom: (altacv: (focusAreas: ([From `custom.altacv` — wins.],))),
+  custom: (altacv: (focusAreas: ([From custom.altacv — wins.],))),
   languages: (
     // custom (4.5) beats the deprecated rating (1), which beats fluency.
     (
