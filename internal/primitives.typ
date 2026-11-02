@@ -31,6 +31,15 @@
   block(above: 0pt, below: 0.6 * body-size, _accent_strong(body))
 }
 
+// An entry's organisation line (employer, institution, awarder) via
+// `name()`, linked to `url` when one is present — `link()` inherits the
+// bold accent, so the line looks the same either way. An absent
+// organisation renders nothing, rather than an empty block whose
+// spacing leaves a blank line.
+#let _org_line(org, url: none) = if _present(org) {
+  name(if _present(url) { link(url, org) } else { org })
+}
+
 // An entry's italic prose preamble (`summary`). Softer than `name()`
 // (the bold accent line) so it doesn't compete with the headings or
 // the bullets around it. Absent values render nothing.
@@ -107,8 +116,8 @@
   let margin = page.margin
   let top = if type(margin) == dictionary { margin.top } else { margin }
   if top == auto { calc.min(page.width, page.height) * 2.5 / 21 } else {
-    let top = top + 0% // a plain length or ratio, as a relative
-    top.length.to-absolute() + top.ratio * page.height
+    let rel = top + 0% // a plain length or ratio, as a relative
+    rel.length.to-absolute() + rel.ratio * page.height
   }
 }
 

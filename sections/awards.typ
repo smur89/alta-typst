@@ -5,7 +5,7 @@
 // an orphan heading.
 
 #import "../internal/text.typ": _altacv, _present, styled-link
-#import "../internal/primitives.typ": _section, name, term
+#import "../internal/primitives.typ": _org_line, _section, term
 #import "../internal/dates.typ": _format_date
 
 #let _awards(entries, (labels, prefs, ..)) = _section(
@@ -14,8 +14,7 @@
   award => {
     let url = _altacv(award, "url")
     [=== #styled-link(award.title, dest: url)]
-    let awarder = award.at("awarder", default: none)
-    if _present(awarder) { name[#awarder] }
+    _org_line(award.at("awarder", default: none))
     let date = award.at("date", default: none)
     if _present(date) { term(_format_date(date, prefs, labels)) }
     let summary = award.at("summary", default: none)

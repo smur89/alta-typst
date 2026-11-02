@@ -67,11 +67,20 @@
   }
 }
 
-#let _canonical_type(pub) = {
-  let raw = _string_at(pub, "type")
-  let code = if raw != none {
-    _legacy_type_codes.at(lower(raw.trim()), default: none)
+// A string `type` loses surrounding spaces, and one that is only
+// spaces becomes untyped, so `" talk "` groups with `talk`.
+#let _trim_type(entry) = {
+  let raw = _string_at(entry, "type")
+  if raw == none { entry } else {
+    let trimmed = raw.trim()
+    entry + (type: if trimmed != "" { trimmed })
   }
+}
+
+#let _canonical_type(pub) = {
+  let pub = _trim_type(pub)
+  let raw = _string_at(pub, "type")
+  let code = if raw != none { _legacy_type_codes.at(lower(raw), default: none) }
   if code == none { pub } else { pub + (type: code) }
 }
 
@@ -119,6 +128,7 @@
     _alias_summary,
   )),
   cv => _map_entries(cv, "publications", _canonical_type),
+  cv => _map_entries(cv, "projects", _trim_type),
   cv => _references_on_request(cv, prefs),
 ).fold(cv, (acc, step) => step(acc))
 

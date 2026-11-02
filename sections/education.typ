@@ -5,7 +5,7 @@
 
 #import "../internal/text.typ": _entry_summary, _present
 #import "../internal/primitives.typ": (
-  _entry_term, _preamble, _section, name, tag,
+  _entry_term, _org_line, _preamble, _section, tag,
 )
 
 #let _education(entries, (labels, prefs, ..)) = _section(
@@ -18,16 +18,10 @@
       edu.at("area", default: none),
     ).find(_present)
     #if title != none [=== #title]
-    #let institution = edu.at("institution", default: none)
-    #let url = edu.at("url", default: none)
-    // `link()` wraps the `name()` block as-is, so the accent-bold
-    // treatment is preserved — the only visible change is that the
-    // institution becomes clickable. No institution, no line (and no
-    // empty block's spacing).
-    #if _present(institution) {
-      let body = name[#institution]
-      if _present(url) { link(url, body) } else { body }
-    }
+    #_org_line(
+      edu.at("institution", default: none),
+      url: edu.at("url", default: none),
+    )
     #_entry_term(edu, "education", prefs, labels)
 
     // Own paragraph, so the score below starts on a new line.
