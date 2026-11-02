@@ -20,7 +20,9 @@
 #   make release-artifacts # build everything CI uploads / releases
 #                    # (cv + example-full + thumbnail)
 #   make test        # compile every example + fixture + the template
-#                    # starter (output discarded), then test-panics
+#                    # starter (output discarded), plus test-panics
+#                    # and test-unit
+#   make test-unit   # run the helper checks under tests/unit/
 #   make test-panics # check every tests/panics/*.typ fails with the
 #                    # message its `// expect:` line names
 #   make test-template # compile-check template/cv.typ on its own
@@ -97,6 +99,9 @@ EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
 EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview-frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
+# `assert`-based checks of the side-effect-free helpers; underscore files are
+# shared helpers, not tests.
+UNIT_TESTS    := $(filter-out tests/unit/_%.typ,$(wildcard tests/unit/*.typ))
 PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
@@ -124,7 +129,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -303,8 +308,13 @@ endef
 # reads its CV from `$(TEMPLATE_SRC)` through examples/_cv.typ. This
 # is the CI lint job's compile step, so a green `make test` locally
 # means it will pass too.
-test: $(TEMPLATE_SRC) test-panics
+test: $(TEMPLATE_SRC) test-panics test-unit
 	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
+
+# Just the helper checks under tests/unit/ — a failed `assert` fails
+# the compile. `make test` already covers them.
+test-unit:
+	$(call compile-check,$(UNIT_TESTS))
 
 # Every tests/panics/*.typ must FAIL to compile, and its error output
 # must contain the text after the file's leading `// expect: ` line —
@@ -415,7 +425,7 @@ clean:
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
 	  '         release-artifacts (cv + example-full + thumbnail)' \
-	  '         pdfs | previews | test-pdfs | test | test-panics | test-template | clean' \
+	  '         pdfs | previews | test-pdfs | test | test-panics | test-unit | test-template | clean' \
 	  '         fmt | fmt-check | check (test + fmt-check)' \
 	  '         check-drift DRIFT_PATHS=<pathspec> DRIFT_FIX=<cmd>' \
 	  '         docker-pdfs | docker-preview-images | docker-shell' \
