@@ -11,6 +11,9 @@
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", palettes.teal)
 #let _max_rating_state = state("alta-max-rating", 5)
+// `basics.name`, so a section can recognise the CV owner (e.g. their
+// own name in a publication's author list).
+#let _owner_state = state("alta-owner", none)
 
 // Accent is configurable via `alta(preferences: (accent: ...))`; the
 // rest are opinionated visual constants.

@@ -21,7 +21,7 @@
 #import "internal/presets.typ": maps-providers, palettes
 #import "internal/state.typ": (
   _accent_state, _body_colour, _body_size_state, _emphasis_colour,
-  _max_rating_state,
+  _max_rating_state, _owner_state,
 )
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": (
@@ -99,6 +99,7 @@
   _accent_state.update(accent)
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
+  _owner_state.update(cv.basics.name)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
