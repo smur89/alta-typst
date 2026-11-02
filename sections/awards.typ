@@ -1,9 +1,10 @@
-// Awards — title (optionally linked via the altacv `url` extension to
-// JSON Resume's `awards[]` shape), accent awarder line, single date,
-// optional summary paragraph. Entries without a `title` are skipped
-// so a stray entry can't emit an orphan heading.
+// Awards — title (optionally linked via the altacv `url` extension,
+// read from `custom.altacv.url` or the deprecated top-level `url`),
+// accent awarder line, single date, optional summary paragraph.
+// Entries without a `title` are skipped so a stray entry can't emit
+// an orphan heading.
 
-#import "../internal/text.typ": _present, styled-link
+#import "../internal/text.typ": _altacv, _present, styled-link
 #import "../internal/primitives.typ": _section, name, term
 #import "../internal/dates.typ": _format_date
 
@@ -11,7 +12,7 @@
   labels.awards,
   entries.filter(a => _present(a.at("title", default: none))),
   award => {
-    let url = award.at("url", default: none)
+    let url = _altacv(award, "url")
     [=== #styled-link(award.title, dest: url)]
     let awarder = award.at("awarder", default: none)
     if _present(awarder) { name[#awarder] }

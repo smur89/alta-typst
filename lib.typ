@@ -182,7 +182,8 @@
   let render-column(keys) = {
     for key in keys {
       let entry = _sections.at(key)
-      (entry.render)(cv.at(key, default: ()), labels, preferences)
+      let read = entry.at("read", default: cv => cv.at(key, default: ()))
+      (entry.render)(read(cv), labels, preferences)
     }
   }
 

@@ -23,6 +23,23 @@
   }
 }
 
+// One of altacv's non-spec fields (`focusAreas`, `languages[].rating`,
+// `awards[].url`) from `obj` — the CV root or a section entry. Read
+// from JSON Resume's `custom` object under altacv's own namespace
+// first (#242); a missing or non-dictionary `custom` / `altacv` falls
+// through. Other tools' `custom` namespaces are never read.
+#let _altacv(obj, key, default: none) = {
+  let custom = obj.at("custom", default: none)
+  let ns = if type(custom) == dictionary {
+    custom.at("altacv", default: none)
+  }
+  let value = if type(ns) == dictionary { ns.at(key, default: none) }
+  if value != none { value } else {
+    // #239: drop the deprecated top-level fallback.
+    obj.at(key, default: default)
+  }
+}
+
 // Stricter than `_present` for fields that must be plain strings —
 // PDF metadata, grouping keys — where a content block or a number
 // would either be rejected downstream or render as a nonsense key.
