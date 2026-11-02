@@ -13,6 +13,13 @@
   if _present(v) { v }
 }
 
+// A `references[]` entry's flag: only a real boolean counts, so a
+// stray `"yes"` doesn't hide a quote.
+#let _on_request(r) = r.at("availableOnRequest", default: false) == true
+
+// A reference worth rendering: a quote, or the on-request flag.
+#let _reference_usable(r) = _on_request(r) or _field(r, "reference") != none
+
 // The non-`none` parts joined by `sep`; `none` when no part is left,
 // so callers can skip the whole line.
 #let _join_present(parts, sep) = parts.filter(p => p != none).join(sep)

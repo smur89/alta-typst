@@ -5,9 +5,11 @@
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/text.typ": (
-  _join_present, _present, _present_str, _string_at, styled-link,
+  _field, _join_present, _present_str, _string_at, styled-link,
 )
-#import "../internal/primitives.typ": _group_by, _grouped_section, _meta, _small
+#import "../internal/primitives.typ": (
+  _group_by, _grouped_section, _meta, _preamble, _small,
+)
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -95,32 +97,26 @@
     .join(", ")
 }
 
-#let _source(pub) = {
-  let publisher = pub.at("publisher", default: none)
-  _join_present((if _present(publisher) { publisher }, _citation(pub)), " ")
-}
+#let _source(pub) = _join_present(
+  (_field(pub, "publisher"), _citation(pub)),
+  " ",
+)
 
 // One bibliography line per publication: the linked title, then
 // authors, source, date, identifiers and summary, each on its own
 // line. Absent lines drop out so none leaves an orphan `\` break.
 #let _render_publication(pub, (labels, prefs, owner, ..)) = {
-  let date = pub.at("releaseDate", default: none)
   let ids = _identifiers(pub)
-  let url = pub.at("url", default: none)
-  let url = if _present(url) { url } else { _identifier_url(ids) }
+  let url = _field(pub, "url")
   let lines = (
-    (
-      _author_line(pub, owner),
-      _source(pub),
-    ).map(l => if l != none { _small(l) })
-      + (
-        if _present(date) { _meta(_format_date(date, prefs, labels)) },
-        if ids.len() > 0 { _meta(_identifier_line(ids)) },
-        if _present(pub.at("summary", default: none)) { par(pub.summary) },
-      )
+    _small(_author_line(pub, owner)),
+    _small(_source(pub)),
+    _meta(_format_date(_field(pub, "releaseDate"), prefs, labels)),
+    _meta(_identifier_line(ids)),
+    _preamble(_field(pub, "summary")),
   )
   [
-    - #styled-link(pub.name, dest: url). #for l in lines.filter(l => l != none) [\ #l]
+    - #styled-link(pub.name, dest: if url != none { url } else { _identifier_url(ids) }). #for l in lines.filter(l => l != none) [\ #l]
   ]
 }
 
@@ -130,12 +126,9 @@
 #let _publications(pubs, ctx) = {
   let (labels, ..) = ctx
   let headings = labels.publicationTypes
-  context _grouped_section(
+  _grouped_section(
     labels.publications,
-    _group_by(
-      pubs.filter(p => _present(p.at("name", default: none))),
-      _type_code,
-    ),
+    _group_by(pubs.filter(p => _field(p, "name") != none), _type_code),
     (code, items) => {
       let group-icon = labels.publicationIcons.at(
         code,
@@ -147,7 +140,8 @@
       let heading = if code in headings { headings.at(code) } else {
         items.first().type
       }
-      [#icon(
+      // Read in context: `em` inside the heading is already scaled.
+      [#context icon(
           group-icon,
           size: 1.2 * _body_size_state.get(),
           shift: 0pt,

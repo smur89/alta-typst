@@ -6,7 +6,7 @@
   _accent_state, _body_colour, _body_size_state, _divider_colour,
 )
 #import "icons.typ": icon
-#import "text.typ": _present, _string_at, styled-link
+#import "text.typ": _join_present, _present, _string_at
 #import "dates.typ": _format_date_range
 #import "location.typ": _format_location
 
@@ -27,20 +27,18 @@
 
 // The type scale below body text: `_small` for secondary lines (a
 // subtitle, a fluency label, publication authors), `_meta` for the
-// quietest (publication dates and identifiers).
-#let _small(body) = context text(
-  0.85 * _body_size_state.get(),
-  fill: _body_colour,
-  body,
-)
-#let _meta(body) = context text(
-  0.8 * _body_size_state.get(),
-  fill: _body_colour.lighten(35%),
-  body,
-)
+// quietest (publication dates and identifiers). `em` is `body-size`
+// wherever these sit; absent bodies render nothing.
+#let _small(body) = if _present(body) {
+  text(0.85em, fill: _body_colour, body)
+}
+#let _meta(body) = if _present(body) {
+  text(0.8em, fill: _body_colour.lighten(35%), body)
+}
 
-// The gap `tag()` leaves after a pill.
-#let _tag_gap = context h(0.25 * _body_size_state.get())
+// The gap `tag()` leaves after a pill. Takes the CV's body size, not
+// `em`, since `tag()` is public and may sit outside `alta()`'s text.
+#let _tag_gap(body-size) = h(0.25 * body-size)
 
 #let name(body) = context {
   let body-size = _body_size_state.get()
@@ -50,7 +48,7 @@
 // A small line under an entry's heading: a project's client, a
 // referee's attribution. Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
-  context block(below: 0.5 * _body_size_state.get(), _small(body))
+  block(below: 0.5em, _small(body))
 }
 
 // An organisation line via `name()`, linked when `url` is present
@@ -93,14 +91,32 @@
   })
 }
 
-// `key` names the section in panic messages ("education[].location").
-#let _entry_term(entry, key, prefs, labels) = term(
-  _format_date_range(entry, prefs, labels),
+// A dated, located entry's `period` and `location`, for spreading into
+// `_entry`. `key` names the section in panic messages
+// ("education[].location").
+#let _entry_when(entry, key, prefs, labels) = (
+  period: _format_date_range(entry, prefs, labels),
   location: _format_location(
     entry.at("location", default: none),
     key + "[].location",
   ),
 )
+
+// The compact term row: period and location at natural widths (no
+// column to align), then the organisation and `details` joined by
+// ` · `, so several short entries stay one line each.
+#let _compact_term(period, location, org, org-url, details) = {
+  let org = if _present(org) {
+    _accent_strong(if _present(org-url) { link(org-url, org) } else { org })
+  }
+  let facts = _join_present((org, ..details), [ · ])
+  let parts = (
+    _term_part("calendar", period, width: auto),
+    _term_part("location", location, width: auto),
+    if facts != none { box(facts) },
+  ).filter(p => p != none)
+  if parts.len() > 0 { _term_row(parts.join(h(1em))) }
+}
 
 // `label: true` is the darker, bold category pill. Pass
 // `trailing: false` on a row's last pill so it doesn't end on a gap.
@@ -119,7 +135,7 @@
     outset: (y: 0.15 * body-size),
     text(0.85 * body-size, fill: accent.darken(15%), weight: text-weight, body),
   )
-  if trailing { _tag_gap }
+  if trailing { _tag_gap(body-size) }
 }
 
 // The page's top margin as an absolute length. Typst's `auto` margin is
@@ -161,8 +177,7 @@
 })
 
 // Empty `entries` renders nothing, not even the heading, so callers
-// filter unusable entries first and no heading is orphaned. Every
-// section renders through this; `body` is its content.
+// filter unusable entries first and no heading is orphaned.
 #let _section_frame(heading, entries, body) = if entries.len() > 0 {
   [== #heading]
   body
@@ -176,10 +191,10 @@
     .join(if dividers { divider() })
 )
 
-#let _section(heading, entries, render-entry, dividers: true) = _section_frame(
+#let _section(heading, entries, render-entry) = _section_frame(
   heading,
   entries,
-  _entry_blocks(entries, render-entry, dividers: dividers),
+  _entry_blocks(entries, render-entry),
 )
 
 // `_section` with entries clustered under `====` subheadings, one per
@@ -206,11 +221,15 @@
   }
 }
 
-// One CV entry in a fixed slot order, so every section lays its
-// entries out alike; an absent slot renders nothing. The title is
-// always the accent italic of `styled-link`, linked or not. `term` is
-// a rendered row (`term()`, `_entry_term`); `body` holds whatever a
-// section adds after the highlights, inline with the `tags` pills.
+// One CV entry in a fixed slot order, so the entry sections lay
+// their entries out alike (publications, a bibliography list, is the
+// exception); an absent slot renders nothing. The title keeps the
+// plain heading style whether or not it links. `tags-lead` is
+// inline text leading the `tags` pills (education's score).
+//
+// `compact: true` folds the organisation and `details` (short facts
+// such as a credential ID) onto the date row instead of giving the
+// organisation a line of its own.
 #let _entry(
   title: none,
   url: none,
@@ -218,25 +237,28 @@
   org-url: none,
   subtitle: none,
   roles: (),
-  term: none,
+  period: none,
+  location: none,
+  compact: false,
+  details: (),
   summary: none,
   highlights: (),
-  body: none,
+  tags-lead: none,
   tags: (),
 ) = {
-  if _present(title) [=== #styled-link(title, dest: url)]
-  _org_line(org, url: org-url)
+  if _present(title) [=== #if _present(url) { link(url, title) } else { title }]
+  if not compact { _org_line(org, url: org-url) }
   _subtitle(subtitle)
   // The person's roles as darker pills, set apart from the `tags`.
   if roles.len() > 0 {
-    context block(below: 0.4 * _body_size_state.get(), _tag_row(
-      roles,
-      label: true,
-    ))
+    block(below: 0.4em, _tag_row(roles, label: true))
   }
-  term
+  if compact {
+    _compact_term(period, location, org, org-url, details)
+  } else {
+    term(period, location: location)
+  }
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  body
-  _tag_row(tags)
+  _join_present((tags-lead, _tag_row(tags)), [ ])
 }

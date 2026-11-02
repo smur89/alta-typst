@@ -12,8 +12,8 @@
       title: "Best Paper Award",
       date: "Sep 2024",
       awarder: "ScalaConf",
-      // `url` is an altacv extension — wraps the title in an
-      // accent-coloured link, same as `projects[].url`.
+      // `url` is an altacv extension — wraps the title in a
+      // link in the plain heading style, same as `projects[].url`.
       url: "https://example.com/best-paper",
       // Content-form summary so markup (emphasis) renders, not just
       // plain text. Mirrors the way `basics.summary` accepts content.

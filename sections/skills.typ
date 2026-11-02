@@ -12,7 +12,8 @@
   // skips its heading rather than rendering it bare.
   let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
   _section_frame(heading, visible, context {
-    let row-gap = 0.7 * _body_size_state.get()
+    let body-size = _body_size_state.get()
+    let row-gap = 0.7 * body-size
     for group in visible {
       block(above: 0pt, below: row-gap, par(
         hanging-indent: 1em,
@@ -20,7 +21,7 @@
         {
           tag(group.name, label: true)
           text("-")
-          _tag_gap
+          _tag_gap(body-size)
           _tag_row(group.keywords)
         },
       ))
