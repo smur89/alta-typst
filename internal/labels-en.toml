@@ -83,8 +83,9 @@ talk    = "Talks"
 
 # Per-`publications[].type` icon overrides. Keys match the `type`
 # string (case-insensitive); values are utility-icon names. The module
-# ships sensible defaults for Articles, Books, Talks, Conference Papers,
-# etc. — see `_default_publication_icons` in `sections/publications.typ`
-# — and falls back to `file` for unknown types. Override here to add a
+# ships defaults for the type codes (`_code_publication_icons` in
+# `sections/publications.typ`) and the deprecated free-text types
+# (`_legacy_publication_icons` in `internal/canonical.typ`), and falls
+# back to `file` for unknown types. Override here to add a
 # custom type or remap a built-in.
 [publicationIcons]
