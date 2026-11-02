@@ -175,18 +175,27 @@
   _apply_date_template(template, parts, labels)
 }
 
-// Returns `none` when neither date is supplied so callers can skip
-// emitting the term row, rather than falsely rendering "Present" for
-// a fully undated entry. Argument order matches `_format_date`
-// (`value/entry, prefs, labels`) so callers can't accidentally swap
-// the two helpers' last two args.
+// `start – end`, each side through `_format_date`; a missing side drops
+// out with its dash. `open-end` stands in for a missing end: `none`
+// (the default) suits ranges whose missing end means there is no end,
+// e.g. a certificate that doesn't expire. Returns `none` when neither
+// side is present and `open-end` is `none`.
+#let _format_date_span(start, end, prefs, labels, open-end: none) = {
+  let start-text = if _present(start) { _format_date(start, prefs, labels) }
+  let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
+    open-end
+  }
+  (start-text, end-text).filter(s => s != none).join[ – ]
+}
+
+// A `startDate` / `endDate` entry, where a missing end means ongoing
+// and reads `labels.present`. The guard keeps a fully undated entry
+// at `none` rather than a bare "Present". Argument order matches
+// `_format_date` (`value/entry, prefs, labels`) so callers can't
+// accidentally swap the two helpers' last two args.
 #let _format_date_range(entry, prefs, labels) = {
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
   if not _present(start) and not _present(end) { return none }
-  let start-text = if _present(start) { _format_date(start, prefs, labels) }
-  let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
-    labels.present
-  }
-  if start-text == none { [#end-text] } else { [#start-text – #end-text] }
+  _format_date_span(start, end, prefs, labels, open-end: labels.present)
 }

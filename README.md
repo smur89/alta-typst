@@ -311,10 +311,13 @@ All fields are optional — omitted fields drop their line.
 
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Certificate name. Rendered as a pill tag; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
-| `issuer` | string | Granting organisation. When `preferences.groupCertificates` is `true`, certs from the same issuer cluster into a single pill row prefixed by a darker issuer-label pill; singletons pool into a trailing unlabelled group. |
-| `date` | string | Single date. Small body-coloured text inline to the right of the pill, sharing the same baseline. |
-| `url` | string | Wraps the pill in a link to the credential. |
+| `name` | string | Certificate name. Entry heading (italic accent, like `awards[].title`); linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
+| `issuer` | string | Granting organisation. Bold accent text on the date row, after the date. |
+| `date` | string | Date the certificate was issued. Calendar-icon row under the name. |
+| `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
+| `url` | string | Wraps the name in a link to the credential. |
+| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given on the date row, after the issuer. |
+| `summary` | string or content | What the certificate covers. Paragraph under the date row, as in `awards[]`. |
 
 #### Interests
 
@@ -375,7 +378,7 @@ Override any subset of the keys below.
 | `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
-| `groupCertificates` | `true` | When `true`, cluster 2+ certs from the same issuer under a darker issuer-label pill; singletons pool into a trailing unlabelled group. When `false`, render flat — each cert next to its own issuer label. Certs with no `issuer` render unlabelled either way. |
+| `groupCertificates` | `true` | **Deprecated** and ignored: certificates render as entries, each showing its own issuer. Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 | `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |

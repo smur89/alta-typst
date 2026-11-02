@@ -3,16 +3,13 @@
 // from `lib.typ` for callers composing custom layouts; the leading-
 // underscore helpers are used internally by the section renderers.
 
-#import "state.typ": (
-  _accent_state, _body_colour, _body_size_state, _divider_colour,
-)
+#import "state.typ": _accent_state, _body_size_state, _divider_colour
 #import "icons.typ": icon
 #import "text.typ": _present, _present_str
 #import "dates.typ": _format_date_range
 #import "location.typ": _format_location
 
-// Shared by `divider()` and `_labelled_divider()` so the plain and
-// labelled rules can't drift apart visually.
+// The dashed rule `divider()` draws between entries.
 #let _divider_stroke = (
   paint: _divider_colour,
   thickness: 0.6pt,
@@ -21,14 +18,17 @@
 
 // Bold accent-coloured line — designed for the company / institution
 // row beneath a role or education entry.
+// The bold accent text `name()` sets on its own line, for inline use
+// (e.g. a certificate's issuer on its term row).
+#let _accent_strong(body) = context text(
+  weight: "bold",
+  fill: _accent_state.get(),
+  body,
+)
+
 #let name(body) = context {
   let body-size = _body_size_state.get()
-  let accent = _accent_state.get()
-  block(
-    above: 0pt,
-    below: 0.6 * body-size,
-    text(weight: "bold", fill: accent, body),
-  )
+  block(above: 0pt, below: 0.6 * body-size, _accent_strong(body))
 }
 
 // An entry's italic prose preamble (`summary`). Softer than `name()`
@@ -36,30 +36,34 @@
 // the bullets around it. Absent values render nothing.
 #let _preamble(body) = if _present(body) { emph(body) }
 
-// Either side may be `none` — the box is skipped, so undated /
-// unlocated entries don't emit a stray icon.
-#let term(period, location: none) = context {
-  if period == none and location == none { return }
+// The term row's frame: indented small text under an entry's heading.
+#let _term_row(body) = context {
   let body-size = _body_size_state.get()
   block(
     above: 0pt,
     below: 0.8 * body-size,
     inset: (left: 0.3 * body-size),
-    text(0.9 * body-size, {
-      if period != none {
-        box(width: 50%, {
-          icon("calendar")
-          period
-        })
-      }
-      if location != none {
-        box(width: 50%, {
-          icon("location")
-          location
-        })
-      }
-    }),
+    text(0.9 * body-size, body),
   )
+}
+
+// One icon-led part of a term row; a `none` body renders nothing. The
+// 50% default lines a period up with a location column.
+#let _term_part(icon-name, body, width: 50%) = if body != none {
+  box(width: width, {
+    icon(icon-name)
+    body
+  })
+}
+
+// Either side may be `none` — the box is skipped, so undated /
+// unlocated entries don't emit a stray icon.
+#let term(period, location: none) = {
+  if period == none and location == none { return }
+  _term_row({
+    _term_part("calendar", period)
+    _term_part("location", location)
+  })
 }
 
 // The date + location term row of a dated entry. `location` is a
@@ -110,31 +114,6 @@
   if here().position().y < 2cm { return }
   v(0.3 * body-size)
   line(length: 100%, stroke: _divider_stroke)
-  v(0.3 * body-size)
-}
-
-// Like `divider()` but with a leading label that sits slightly indented
-// from the left edge, followed by the dashed segment running to the
-// right margin. Used to announce a sub-grouping (e.g. the certificates'
-// issuer above its row of cert pills). The label borrows the section-
-// heading register (uppercase, tracked) at a smaller scale and in body
-// colour so it reads as a quiet sub-heading rather than competing with
-// the parent section title.
-#let _labelled_divider(label) = context {
-  let body-size = _body_size_state.get()
-  v(0.3 * body-size)
-  pad(left: 0.6 * body-size, grid(
-    columns: (1.3em, auto, 1fr),
-    column-gutter: 0.5 * body-size,
-    align: horizon,
-    line(length: 100%, stroke: _divider_stroke),
-    text(
-      0.7 * body-size,
-      fill: _body_colour.lighten(15%),
-      label,
-    ),
-    line(length: 100%, stroke: _divider_stroke),
-  ))
   v(0.3 * body-size)
 }
 

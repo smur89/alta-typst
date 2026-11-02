@@ -33,8 +33,8 @@
     ),
   ),
   certificates: (
-    // Two issuers with multiple certs each → tags wrap inside each
-    // group. groupCertificates defaults to true.
+    // Certificates render as entries, not tags, since #224–#226; kept
+    // so the fixture's page layout stays representative.
     (name: "AWS Solutions Architect", issuer: "Amazon Web Services"),
     (name: "AWS DevOps Engineer", issuer: "Amazon Web Services"),
     (name: "AWS Security Specialty", issuer: "Amazon Web Services"),

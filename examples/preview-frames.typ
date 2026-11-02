@@ -237,12 +237,7 @@
           "Q" + str(quarter) + " " + str(parts.year)
         },
         leftColumnSections: ("work",),
-        rightColumnSections: (
-          "skills",
-          "languages",
-          "education",
-          "certificates",
-        ),
+        rightColumnSections: ("skills", "languages", "education"),
       ),
     (:),
   ),

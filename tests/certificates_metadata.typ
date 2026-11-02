@@ -1,8 +1,8 @@
-// Certificates with optional `date` and `url`. Each cert pill wraps
-// in a link when `url` is present, and a small calendar-icon date
-// line follows the pill when `date` is supplied. Covers: full entry,
-// url-only, date-only, name-only, grouped multi-cert issuer (mixed
-// metadata), and the flat (groupCertificates: false) layout.
+// Certificates with optional `date` and `url`. The name links to
+// `url` when present, and the calendar-icon term row appears when
+// `date` is supplied. Covers: full entry, url-only, date-only,
+// name-only, several certs from one issuer (mixed metadata), and the
+// deprecated `groupCertificates: false`, which has no effect.
 
 #import "../lib.typ": alta
 
@@ -16,9 +16,8 @@
       date: "Aug 2023",
       url: "https://example.com/cka",
     ),
-    // Same issuer as the entry above → grouped together. Mixes a
-    // dated + linked cert with one that has neither, exercising the
-    // per-cert branching inside a group.
+    // Same issuer as the entry above. Mixes a dated + linked cert
+    // with one that has neither, exercising each optional part.
     (
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
