@@ -313,6 +313,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Publication title. Bullet body; linked to `url` when supplied, italicised when not. |
+| `authors` | array of strings | JSON Resume 1.7.0 author list in published order, as a line under the title joined with `, `. The CV owner's own entry (matching `basics.name`, ignoring case and surrounding spaces) is bold. |
 | `publisher` | string | Subtitle below the title, body colour at 0.85em. |
 | `volume` / `issue` / `pages` | string | JSON Resume 1.7.0 journal citation, appended to the publisher line as `12(3), 45–67` (or on that line alone when there is no publisher). Each part is optional and takes its punctuation with it; a hyphen or run of hyphens in `pages` becomes one en dash. |
 | `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |

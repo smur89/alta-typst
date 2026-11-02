@@ -2,10 +2,11 @@
 // case-insensitively) with a type-appropriate icon on each subheading.
 // Known codes take their subheading from `labels.publicationTypes`;
 // other types print as first written. Untyped or invalid-type entries
-// count as `article`. Persistent `identifiers` print under the date
-// and give an unlinked title somewhere to point.
+// count as `article`. `authors` print under the title, the CV owner in
+// bold. Persistent `identifiers` print under the date and give an
+// unlinked title somewhere to point.
 
-#import "../internal/state.typ": _body_colour, _body_size_state
+#import "../internal/state.typ": _body_colour, _body_size_state, _owner_state
 #import "../internal/text.typ": _present, _present_str, styled-link
 #import "../internal/primitives.typ": _group_by
 #import "../internal/defaults.typ": _default_labels
@@ -154,6 +155,21 @@
     .join(", ")
 }
 
+// JSON Resume 1.7.0 `authors`, in published order, joined with ", ";
+// the entry matching `owner` (`basics.name`, ignoring case and
+// surrounding spaces) is bold, the academic-CV convention.
+#let _author_line(pub, owner) = {
+  let authors = pub.at("authors", default: ())
+  if type(authors) != array { return none }
+  let owner-key = if _present_str(owner) { lower(owner.trim()) }
+  authors
+    .filter(a => type(a) == str)
+    .map(a => a.trim())
+    .filter(_present_str)
+    .map(a => if lower(a) == owner-key { strong(a) } else { a })
+    .join(", ")
+}
+
 // The line under a publication's title: the publisher, then the
 // citation; either stands alone. `none` when both are absent.
 #let _source(pub) = {
@@ -179,8 +195,11 @@
     let groups = _group_by(valid, _type_code)
     [== #labels.publications]
     let headings = _type_headings(labels)
+    let owner = _owner_state.get()
     // Date and identifier lines share this quieter style.
     let meta = text.with(0.8 * body-size, fill: _body_colour.lighten(35%))
+    // Author and source lines share this one, a step stronger.
+    let sub = text.with(0.85 * body-size, fill: _body_colour)
     let user-icons-lc = _lowercase_keys(labels.publicationIcons)
     for (code, items) in groups.pairs() [
       #let group-icon = user-icons-lc.at(
@@ -202,14 +221,14 @@
           #let url = pub.at("url", default: none)
           #let url = if _present(url) { url } else { _identifier_url(ids) }
           #let title = pub.at("name", default: "")
+          #let authors = _author_line(pub, owner)
           #let source = _source(pub)
           #let summary = pub.at("summary", default: none)
           // The optional lines under the title; absent ones drop out, so
           // an empty field can't leave an orphan `\` break.
           #let lines = (
-            if source != none {
-              text(0.85 * body-size, fill: _body_colour, source)
-            },
+            if authors != none { sub(authors) },
+            if source != none { sub(source) },
             if _present(date) { meta(_format_date(date, prefs, labels)) },
             if ids.len() > 0 { meta(_identifier_line(ids)) },
             if _present(summary) { par(summary) },
