@@ -10,7 +10,8 @@
   _entry_summary, _present, _present_str, styled-link,
 )
 #import "../internal/primitives.typ": (
-  _group_by_type, _join_with_dividers, _preamble, _section, _tag_row, term,
+  _group_by_type, _highlights, _join_with_dividers, _preamble, _section,
+  _tag_row, term,
 )
 #import "../internal/dates.typ": _format_date_range
 
@@ -42,7 +43,7 @@
   let roles = project.at("roles", default: ())
   if roles.len() > 0 { block(below: 0.4em, _tag_row(roles, label: true)) }
   term(_format_date_range(project, prefs, labels))
-  for bullet in project.at("highlights", default: ()) [- #bullet]
+  _highlights(project)
   _tag_row(project.at("keywords", default: ()))
 }
 

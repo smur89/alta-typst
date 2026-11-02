@@ -36,6 +36,11 @@
 // the bullets around it. Absent values render nothing.
 #let _preamble(body) = if _present(body) { emph(body) }
 
+// An entry's `highlights` as a bullet list; none renders nothing.
+#let _highlights(entry) = {
+  for bullet in entry.at("highlights", default: ()) [- #bullet]
+}
+
 // Either side may be `none` — the box is skipped, so undated /
 // unlocated entries don't emit a stray icon.
 #let term(period, location: none) = context {

@@ -1,16 +1,15 @@
 // JSON Resume's `work[]` and `volunteer[]` render as block lists built
 // from the same parts — position heading and accent-coloured
 // (optionally linked) org line, term row + location, italic preamble,
-// bulleted highlights. Each section composes the parts its schema has,
-// so a field only one of them defines is a line in that section rather
-// than a switch in shared code.
+// bulleted highlights. Each section composes the parts its schema has.
 
 #import "../internal/text.typ": _entry_summary, _present
-#import "../internal/primitives.typ": _entry_term, _preamble, _section, name
+#import "../internal/primitives.typ": (
+  _entry_term, _highlights, _preamble, _section, name,
+)
 
-// Position heading, then the organisation line. `org-key` is the dict
-// key holding the organisation name (`"name"` for work,
-// `"organization"` for volunteer).
+// `org-key` is the dict key holding the organisation name (`"name"`
+// for work, `"organization"` for volunteer).
 #let _entry_heading(entry, org-key) = {
   // `position` is optional in JSON Resume — without it the org line
   // leads the entry.
@@ -25,10 +24,6 @@
   let org = entry.at(org-key, default: "")
   let url = entry.at("url", default: none)
   name[#if _present(url) { link(url, org) } else { org }]
-}
-
-#let _highlights(entry) = {
-  for bullet in entry.at("highlights", default: ()) [- #bullet]
 }
 
 #let _experience(work, labels, prefs) = _section(
