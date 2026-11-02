@@ -6,7 +6,9 @@
 // Entries without a `name` are skipped to avoid an orphan heading.
 
 #import "../internal/state.typ": _body_colour
-#import "../internal/text.typ": _present, _present_str, _summary, styled-link
+#import "../internal/text.typ": (
+  _entry_summary, _present, _present_str, styled-link,
+)
 #import "../internal/primitives.typ": (
   _group_by_type, _join_with_dividers, _preamble, _section, _tag_row, term,
 )
@@ -30,10 +32,10 @@
   // term row below matches the institution-line → term spacing in
   // `_experience` / `_education`; a bare `linebreak()` here leaves no
   // paragraph spacing.
-  let summary = _summary(project, fallback: "description")
-  if _present(summary) { block(below: 0.6em, _preamble(summary)) }
+  let preamble = _preamble(_entry_summary(project, fallback: "description"))
+  if preamble != none { block(below: 0.6em, preamble) }
   // `roles` — the person's role(s) on the project — render as a row of
-  // darker (label-variant) pills just below the description and above
+  // darker (label-variant) pills just below the summary and above
   // the date row, set apart from the lighter keyword pills at the foot
   // of the entry. The block puts them on their own line.
   let roles = project.at("roles", default: ())

@@ -12,11 +12,10 @@
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-// JSON Resume's `summary`, or `none` when absent. `fallback` names an
-// older field a section still accepts in its place (`work[]` and
-// `projects[]` take `description`); an empty `summary` falls through
-// to it, so either spelling gives the same preamble.
-#let _summary(entry, fallback: none) = {
+// An entry's JSON Resume `summary`, or `none` when absent. `fallback`
+// names an older field accepted in its place; an empty `summary` falls
+// through to it, so either spelling gives the same preamble.
+#let _entry_summary(entry, fallback: none) = {
   let summary = entry.at("summary", default: none)
   if _present(summary) { summary } else if fallback != none {
     entry.at(fallback, default: none)

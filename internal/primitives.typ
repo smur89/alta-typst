@@ -8,6 +8,8 @@
 )
 #import "icons.typ": icon
 #import "text.typ": _present, _present_str
+#import "dates.typ": _format_date_range
+#import "location.typ": _format_location
 
 // Shared by `divider()` and `_labelled_divider()` so the plain and
 // labelled rules can't drift apart visually.
@@ -59,6 +61,17 @@
     }),
   )
 }
+
+// The date + location term row of a dated entry. `location` is a
+// string or JSON Resume's structured dict; `key` names the section in
+// panic messages (e.g. "education" → "education[].location").
+#let _entry_term(entry, key, prefs, labels) = term(
+  _format_date_range(entry, prefs, labels),
+  location: _format_location(
+    entry.at("location", default: none),
+    key + "[].location",
+  ),
+)
 
 // `label: true` is the category-heading variant (darker fill, bold
 // text) — used to distinguish a group's leading pill from the item
