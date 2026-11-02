@@ -258,7 +258,9 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"). Entry heading. Falls back to `area` if absent. |
 | `area` | string | Field of study. Used as the heading only when `studyType` is missing. |
 | `startDate` / `endDate` | string | Date range. |
-| `score` | string | Grade / classification, plain line below the date range. |
+| `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
+| `summary` | string or content | Italic preamble below the date row — thesis topic, honours or other context. |
+| `score` | string | Grade / classification, plain line below the summary (or the date range). |
 | `courses` | array of strings | Row of pill tags below the score (same treatment as `skills[].keywords` and `projects[].keywords`). |
 
 #### Projects
@@ -268,7 +270,8 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `name` | string | Project title. Heading; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
 | `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
-| `description` | string | Italic line beneath the title (below `entity` when both are present), body colour. |
+| `summary` | string or content | Italic line beneath the title (below `entity` when both are present), body colour. |
+| `description` | string or content | Deprecated alias of `summary` (JSON Resume 1.6.0); rendered identically. `summary` wins when both are supplied. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
 | `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |
