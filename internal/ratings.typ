@@ -9,6 +9,7 @@
   _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
 )
 #import "text.typ": _altacv
+#import "validation.typ": _require
 
 // Half-dot precision is the only fraction the renderer can draw.
 #let _round_half(x) = calc.round(x * 2) / 2
@@ -67,6 +68,13 @@
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
   let max-rating = if max == auto { _max_rating_state.get() } else { max }
+  // The state is validated as `maxRating`; an explicit `max` isn't.
+  _require(
+    "rating() max",
+    max-rating,
+    type(max-rating) == int and max-rating >= 1,
+    "a positive integer",
+  )
   if type(value) not in (int, float) {
     panic("Rating must be numeric, got: " + repr(value))
   }
