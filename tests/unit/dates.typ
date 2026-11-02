@@ -15,11 +15,9 @@
 #assert.eq(_parse_iso_date("2024"), (year: 2024, month: none, day: none))
 #assert.eq(_parse_iso_date("2024-06"), (year: 2024, month: 6, day: none))
 #assert.eq(_parse_iso_date("2024-06-15"), (year: 2024, month: 6, day: 15))
-#assert.eq(_parse_iso_date("2024-13"), none)
-#assert.eq(_parse_iso_date("2024-06-32"), none)
-#assert.eq(_parse_iso_date("2024-6"), none)
-#assert.eq(_parse_iso_date("Jan 2022"), none)
-#assert.eq(_parse_iso_date(2024), none)
+#for s in ("2024-13", "2024-06-32", "2024-6", "Jan 2022", 2024) {
+  assert.eq(_parse_iso_date(s), none, message: repr(s))
+}
 
 // _iso_datetime: full dates only, timestamps keep their date prefix,
 // impossible calendar dates drop out instead of panicking.
@@ -71,11 +69,12 @@
 )
 // Short month names slice by grapheme, so a localised name starting
 // with a multi-byte character doesn't split mid-character.
+#let german = labels.months.slice(0, 2) + ("März",) + labels.months.slice(3)
 #assert.eq(
   _apply_date_template(
     "[month repr:short]",
     parts("2024-03"),
-    labels + (months: labels.months.enumerate().map(((i, m)) => if i == 2 { "März" } else { m })),
+    labels + (months: german),
   ),
   "Mär",
 )
@@ -98,7 +97,10 @@
   plain(_format_date_span("2020", "2022", prefs("long"), labels)),
   "2020 – 2022",
 )
-#assert.eq(plain(_format_date_span("2020", none, prefs("long"), labels)), "2020")
+#assert.eq(
+  plain(_format_date_span("2020", none, prefs("long"), labels)),
+  "2020",
+)
 #assert.eq(_format_date_span(none, none, prefs("long"), labels), none)
 #assert.eq(
   plain(_format_date_range((startDate: "2020"), prefs("long"), labels)),

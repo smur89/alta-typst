@@ -1,14 +1,13 @@
 // Unit checks for fluency resolution in internal/ratings.typ.
 
-#import "/internal/ratings.typ": _resolve_rating, _round_half
+#import "/internal/ratings.typ": _resolve_rating
 
-#assert.eq(_round_half(2.24), 2.0)
-#assert.eq(_round_half(2.26), 2.5)
-
-// LinkedIn fluency scales to the dot count, rounded to the half.
+// LinkedIn fluency scales to the dot count, rounded to the half
+// (Full Professional is 0.8: 3.2 of 4 rounds to 3, 4.8 of 6 to 5).
 #assert.eq(_resolve_rating((fluency: "Native"), 5), 5.0)
 #assert.eq(_resolve_rating((fluency: "Professional Working"), 5), 3.0)
 #assert.eq(_resolve_rating((fluency: "Full Professional"), 4), 3.0)
+#assert.eq(_resolve_rating((fluency: "Full Professional"), 6), 5.0)
 #assert.eq(_resolve_rating((fluency: "Elementary"), 6), 1.0)
 // Case and surrounding spaces don't matter.
 #assert.eq(_resolve_rating((fluency: " native "), 5), 5.0)

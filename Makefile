@@ -20,7 +20,8 @@
 #   make release-artifacts # build everything CI uploads / releases
 #                    # (cv + example-full + thumbnail)
 #   make test        # compile every example + fixture + the template
-#                    # starter (output discarded), then test-panics
+#                    # starter (output discarded), plus test-panics
+#                    # and test-unit
 #   make test-unit   # run the helper checks under tests/unit/
 #   make test-panics # check every tests/panics/*.typ fails with the
 #                    # message its `// expect:` line names
@@ -307,8 +308,8 @@ endef
 # reads its CV from `$(TEMPLATE_SRC)` through examples/_cv.typ. This
 # is the CI lint job's compile step, so a green `make test` locally
 # means it will pass too.
-test: $(TEMPLATE_SRC) test-panics
-	$(call compile-check,$(EXAMPLES) $(TESTS) $(UNIT_TESTS) $(TEMPLATE_SRC))
+test: $(TEMPLATE_SRC) test-panics test-unit
+	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
 
 # Just the helper checks under tests/unit/ — a failed `assert` fails
 # the compile. `make test` already covers them.

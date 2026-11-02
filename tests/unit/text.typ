@@ -6,16 +6,10 @@
 #import "/internal/primitives.typ": _group_by, _group_by_type
 
 // _present / _present_str: the three absent forms, and strings only.
-#assert(not _present(none))
-#assert(not _present(""))
-#assert(not _present([]))
-#assert(_present("x"))
-#assert(_present([x]))
-#assert(_present(0))
+#for v in (none, "", []) { assert(not _present(v), message: repr(v)) }
+#for v in ("x", [x], 0) { assert(_present(v), message: repr(v)) }
 #assert(_present_str("x"))
-#assert(not _present_str([x]))
-#assert(not _present_str(""))
-#assert(not _present_str(3))
+#for v in ([x], "", 3) { assert(not _present_str(v), message: repr(v)) }
 
 // _fill_template: one pass, so a substituted value is never expanded.
 #assert.eq(
@@ -50,6 +44,8 @@
   _group_by_type(
     ((type: "OSS"), (:), (type: ""), (type: 3), (type: "OSS")),
     "Other",
-  ).pairs().map(((k, v)) => (k, v.len())),
+  )
+    .pairs()
+    .map(((k, v)) => (k, v.len())),
   (("OSS", 2), ("Other", 3)),
 )

@@ -63,7 +63,7 @@ make help        # summarise the available targets
 
 ### Helper unit tests
 
-Helpers that only compute a value (date parsing and formatting, URL encoding, location collapsing, the publication line builders, …) are checked directly with `assert.eq` under `tests/unit/`, one file per module. A failed assertion fails the compile, so `make test-unit` (part of `make test`) reports it with the expected and actual values. That's quicker and more precise than a PDF fixture for logic that doesn't need a render; `tests/unit/_plain.typ` flattens content to text for helpers that return content.
+Helpers that only compute a value are checked with `assert.eq` under `tests/unit/`, one file per module; `make test-unit` (part of `make test`) runs them. That's quicker and more precise than a PDF fixture. For helpers that return content, `tests/unit/_plain.typ` flattens it to text.
 
 ### Error-path tests
 

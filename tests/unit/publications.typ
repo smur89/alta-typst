@@ -35,7 +35,10 @@
 
 // _citation: journal-style tail, each part optional, page hyphens
 // set as one en dash.
-#assert.eq(_citation((volume: "12", issue: "3", pages: "45--67")), "12(3), 45–67")
+#assert.eq(
+  _citation((volume: "12", issue: "3", pages: "45--67")),
+  "12(3), 45–67",
+)
 #assert.eq(_citation((volume: "12")), "12")
 #assert.eq(_citation((issue: "3")), "(3)")
 #assert.eq(_citation((pages: "9")), "9")
@@ -43,12 +46,13 @@
 
 // _author_line: published order, trimmed, unusable entries skipped,
 // the owner (ignoring case and spaces) in bold.
-#let line = _author_line(
-  (authors: ("A. Smith", " jane doe ", "", 3, "B. Jones")),
-  "Jane Doe",
+#assert.eq(
+  plain(_author_line(
+    (authors: ("A. Smith", " jane doe ", "", 3, "B. Jones")),
+    "Jane Doe",
+  )),
+  "A. Smith, *jane doe*, B. Jones",
 )
-#assert.eq(plain(line), "A. Smith, jane doe, B. Jones")
-#assert(line.children.any(c => c.func() == strong))
 #assert.eq(_author_line((authors: "A. Smith"), "Jane Doe"), none)
 #assert.eq(plain(_author_line((authors: ("A. Smith",)), none)), "A. Smith")
 
