@@ -12,6 +12,7 @@
 // kernel.
 
 #import "presets.typ": maps-providers, palettes
+#import "text.typ": _altacv
 #import "../sections/experience.typ": _experience, _volunteer
 #import "../sections/focus-areas.typ": _focus_areas
 #import "../sections/skills.typ": _interests, _skills
@@ -26,12 +27,18 @@
 // Plain data: every renderer shares the `(entries, labels, prefs)`
 // signature, and `render-column` in `lib.typ` feeds it
 // `cv.at(key, default: ())` — so each dict key doubles as the CV
-// field it renders. Defined after the renderer imports because Typst
-// binds identifiers eagerly.
+// field it renders. An optional `read: cv => entries` overrides that
+// lookup, for `focusAreas`, whose data lives in `custom.altacv` (the
+// key still names the section). Defined after the renderer imports
+// because Typst binds identifiers eagerly.
 #let _sections = (
   work: (column: "left", render: _experience),
   volunteer: (column: "left", render: _volunteer),
-  focusAreas: (column: "right", render: _focus_areas),
+  focusAreas: (
+    column: "right",
+    render: _focus_areas,
+    read: cv => _altacv(cv, "focusAreas", default: ()),
+  ),
   skills: (column: "right", render: _skills),
   languages: (column: "right", render: _languages),
   education: (column: "right", render: _education),

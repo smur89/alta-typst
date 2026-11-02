@@ -32,7 +32,7 @@
 
 ## Features
 
-- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with two optional extensions (`focusAreas` and a numeric language `rating`).
+- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (focus areas, a numeric language rating and an award link), read from JSON Resume's `custom.altacv` namespace.
 - **Single-column ATS mode** (`columnRatio: 1`) alongside the default two-column layout, plus inverted variants with the side panel on either side.
 - **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value.
 - **Full label localisation** via inline dict or TOML file. Every display string is overridable; see [`examples/labels-ga.toml`](examples/labels-ga.toml) for a worked Irish translation.
@@ -73,7 +73,7 @@ Best when your CV already lives in a canonical `resume.json` ([JSON Resume schem
 ```
 <!-- x-release-please-end -->
 
-Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [two extensions](#data-schema) are optional, so a vanilla `resume.json` validates without edits.
+Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [extensions](#extensions) are optional, so a vanilla `resume.json` validates without edits. The `custom.altacv` forms don't validate on this route yet: gairm-import 0.9.0 rejects `custom` ([#217](https://github.com/smur89/alta-typst/issues/217)), so a `resume.json` still uses the deprecated top-level `focusAreas` and `languages[].rating` here.
 
 To inspect or transform the parsed dict before rendering, use `from-json-resume` directly:
 
@@ -161,14 +161,27 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or
 
 ### Extensions
 
-Two optional fields layered on top of JSON Resume:
+Three optional fields layered on top of JSON Resume. They have no spec field, so they live in JSON Resume's [`custom`](https://jsonresume.org/schema) object (root, `basics` and every section entry; added in 1.4.0) under altacv's own `altacv` namespace:
 
-- **`focusAreas`** — top-level array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
-- **`languages[].rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits.
+```typst
+(
+  custom: (altacv: (focusAreas: ([Distributed systems], [Developer tooling]))),
+  languages: ((language: "German", fluency: "Fluent", custom: (altacv: (rating: 3.5))),),
+  awards: ((title: "Best Paper", custom: (altacv: (url: "https://example.com/paper"))),),
+)
+```
+
+- **`custom.altacv.focusAreas`** (root) — array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported). The section key in `leftColumnSections` / `rightColumnSections` and `labels.focusAreas` stay `focusAreas`.
+- **`languages[].custom.altacv.rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying a rating enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits. An entry with neither a rating nor `fluency` panics.
+- **`awards[].custom.altacv.url`** — wraps the award title in an accent-coloured link (see [Awards](#awards)).
+
+JSON Resume says themes are "not expected to render" `custom`; altacv reads only its own `altacv` namespace and ignores every other key under `custom`.
+
+**Deprecated:** the top-level forms `focusAreas`, `languages[].rating` and `awards[].url` are still read, but `custom.altacv` wins when both are set. Move them under `custom.altacv`; the top-level forms are removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 ### Top-level keys
 
-Recognised: `basics`, `focusAreas`, `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)).
+Recognised: `basics`, `custom` (see [Extensions](#extensions)), `focusAreas` (deprecated), `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)).
 
 ### Dates
 
@@ -284,14 +297,15 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 
 #### Awards
 
-`url` is an altacv extension on top of JSON Resume.
+`url` is an altacv extension on top of JSON Resume, read from `custom.altacv.url` (see [Extensions](#extensions)).
 
 | Field | Type | Effect |
 |---|---|---|
 | `title` | string | Award name. Entry heading; linked to `url` when supplied. Missing / empty `title` → entry silently skipped. |
 | `awarder` | string | Granting organisation, accent colour beneath the title. |
 | `date` | string | Single date (not a range). Calendar-icon row. |
-| `url` | string | Wraps the title in an accent-coloured link — for a paper, conference page, or write-up. |
+| `custom.altacv.url` | string | Wraps the title in an accent-coloured link — for a paper, conference page, or write-up. |
+| `url` | string | **Deprecated** form of `custom.altacv.url` (which wins when both are set). |
 | `summary` | string or content | Paragraph below the date. |
 
 #### Publications
@@ -321,7 +335,7 @@ All fields are optional — omitted fields drop their line.
 
 #### Interests
 
-Same `{name, keywords}` shape as `skills[]`, rendered with the same pill-tag layout (`name` as a label-tag, each `keywords` entry as a regular tag). Use for personal interests / hobbies; reach for `focusAreas` instead when you want prose-style bullets.
+Same `{name, keywords}` shape as `skills[]`, rendered with the same pill-tag layout (`name` as a label-tag, each `keywords` entry as a regular tag). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
 
 | Field | Type | Effect |
 |---|---|---|
@@ -396,7 +410,7 @@ Override any subset of the keys below.
 | `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
-| `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Default matches LinkedIn's 0–5 scale; set to `6` for a CEFR-style scale, `4` for ILR-style 0–4, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half (`Native` fills every dot, `Professional Working` is 3 of 5 or 3.5 of 6); numeric `languages[].rating` values are used as given. |
+| `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Default matches LinkedIn's 0–5 scale; set to `6` for a CEFR-style scale, `4` for ILR-style 0–4, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half (`Native` fills every dot, `Professional Working` is 3 of 5 or 3.5 of 6); numeric `languages[].custom.altacv.rating` values are used as given.
 
 Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
 
@@ -598,7 +612,7 @@ meta: (
 | `icon(name, size: auto, shift: auto, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
-| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].rating` data field — the function is not auto-fed; pass the value explicitly. |
+| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |
 | `styled-link(content, dest: none)` | Accent-coloured italic styling for entry titles (publications, awards, projects). Wraps in a link when `dest` is supplied. |
