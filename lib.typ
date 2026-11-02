@@ -85,9 +85,6 @@
         + repr(basics),
     )
   }
-  // Deprecated forms become their current spelling first, so nothing
-  // below (validation included) sees a legacy shape.
-  let cv = _canonical_cv(cv)
   let labels = _strict_merge(
     _default_labels,
     _canonical_labels(labels),
@@ -101,6 +98,9 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
+  // Deprecated forms become their current spelling before anything
+  // reads the CV.
+  let cv = _canonical_cv(cv, preferences)
   // Shape-checked before anything reads it (the PDF keywords below
   // walk `skills`).
   let section-data = _read_sections(cv)

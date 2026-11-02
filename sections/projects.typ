@@ -17,7 +17,7 @@
 // One project entry block — shared by the flat and grouped layouts.
 // Returns the unwrapped body; callers supply the unbreakable block
 // (`_section` on the flat path, an explicit `block` when grouped).
-#let _render_project(project, labels, prefs) = {
+#let _render_project(project, (labels, prefs, ..)) = {
   let url = project.at("url", default: none)
   [=== #styled-link(project.name, dest: url)]
   // Small body-colour subtitle under the title — the company / client
@@ -44,9 +44,10 @@
   _tag_row(project.at("keywords", default: ()))
 }
 
-#let _projects(entries, (labels, prefs, ..)) = {
+#let _projects(entries, ctx) = {
+  let (labels, ..) = ctx
   let valid = entries.filter(p => _present(p.at("name", default: none)))
-  let render(p) = _render_project(p, labels, prefs)
+  let render(p) = _render_project(p, ctx)
 
   // `type` is an optional JSON Resume field. Cluster by it only when at
   // least one entry carries a usable (non-empty string) value —

@@ -7,8 +7,7 @@
 // unlinked title somewhere to point.
 
 #import "../internal/state.typ": _body_colour, _body_size_state
-#import "../internal/canonical.typ": _legacy_publication_icons
-#import "../internal/text.typ": _present, _present_str, styled-link
+#import "../internal/text.typ": _present, _present_str, _string_at, styled-link
 #import "../internal/primitives.typ": _group_by
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
@@ -23,16 +22,13 @@
   thesis: "book",
   talk: "microphone",
 )
-#let _default_publication_icons = (
-  _code_publication_icons + _legacy_publication_icons
-)
 
 // A publication's group key: its lowercased `type`, or `article` when
 // untyped or not a string, so `Talk` / `talk` and untyped / `article`
 // each share one subheading.
 #let _type_code(pub) = {
-  let raw = pub.at("type", default: none)
-  if _present_str(raw) { lower(raw) } else { "article" }
+  let raw = _string_at(pub, "type")
+  if raw != none { lower(raw) } else { "article" }
 }
 
 // JSON Resume 1.7.0 `publications[].identifiers`, keyed by scheme.
@@ -90,10 +86,7 @@
 // `none` when all are absent (a separator-less `join` treats `none` as
 // empty).
 #let _citation(pub) = {
-  let part(key) = {
-    let value = pub.at(key, default: none)
-    if _present_str(value) { value }
-  }
+  let part(key) = _string_at(pub, key)
   let issue = part("issue")
   let pages = part("pages")
   (
@@ -131,7 +124,7 @@
 // Groups appear in first-occurrence order (Typst dicts preserve
 // insertion order). Label tables arrive with lowercase keys
 // (`_canonical_labels`). Subheading icons resolve via
-// `labels.publicationIcons` → `_default_publication_icons` → `file`,
+// `labels.publicationIcons` → `_code_publication_icons` → `file`,
 // keyed by the type code.
 #let _publications(pubs, (labels, prefs, owner, ..)) = {
   // Drop entries with no usable `name` up front so the section
@@ -152,7 +145,7 @@
     for (code, items) in groups.pairs() [
       #let group-icon = labels.publicationIcons.at(
         code,
-        default: _default_publication_icons.at(code, default: "file"),
+        default: _code_publication_icons.at(code, default: "file"),
       )
       // A code with no heading is free text: every entry in its group
       // has a string `type`, so print the first as written. (Not via

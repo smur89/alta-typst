@@ -38,7 +38,7 @@
   let fluency = entry.at("fluency", default: none)
   if fluency == none {
     panic(
-      "Language entry needs either a numeric `custom.altacv.rating` (or the deprecated `rating`) or a `fluency` string. Got: "
+      "Language entry needs either a numeric `custom.altacv.rating` or a `fluency` string. Got: "
         + repr(entry),
     )
   }

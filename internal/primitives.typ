@@ -5,7 +5,7 @@
 
 #import "state.typ": _accent_state, _body_size_state, _divider_colour
 #import "icons.typ": icon
-#import "text.typ": _present, _present_str
+#import "text.typ": _present, _string_at
 #import "dates.typ": _format_date_range
 #import "location.typ": _format_location
 
@@ -133,8 +133,8 @@
 // `type` (a number, a dict) pools under `fallback` rather than
 // crashing as a dict key.
 #let _group_by_type(items, fallback) = _group_by(items, item => {
-  let raw = item.at("type", default: none)
-  if _present_str(raw) { raw } else { fallback }
+  let raw = _string_at(item, "type")
+  if raw != none { raw } else { fallback }
 })
 
 // The common section skeleton: level-2 heading, then one unbreakable

@@ -58,9 +58,15 @@
   _check_unknown_keys(overrides.keys(), defaults.keys(), name)
   let merge-key(key, value) = {
     let default = defaults.at(key)
-    if not nested or type(default) != dictionary { return value }
-    _require(name + "." + key, value, type(value) == dictionary, "a dictionary")
-    default + value
+    if nested and type(default) == dictionary {
+      _require(
+        name + "." + key,
+        value,
+        type(value) == dictionary,
+        "a dictionary",
+      )
+      default + value
+    } else { value }
   }
   defaults + overrides.pairs().map(((k, v)) => (k, merge-key(k, v))).to-dict()
 }

@@ -18,24 +18,35 @@
   if _present(summary) { summary }
 }
 
+#let _dict_or_empty(v) = if type(v) == dictionary { v } else { (:) }
+
+// `obj.custom.altacv`, or `(:)` when either level is missing or not a
+// dictionary.
+#let _altacv_ns(obj) = _dict_or_empty(
+  _dict_or_empty(obj.at("custom", default: none)).at("altacv", default: none),
+)
+
 // One of altacv's non-spec fields (`focusAreas`, `languages[].rating`,
 // `awards[].url`) from `obj` — the CV root or a section entry — read
 // from altacv's own namespace in JSON Resume's `custom` object (#242).
 // `_canonical_cv` has already lifted the deprecated top-level forms
 // there and made `custom` / `custom.altacv` dictionaries when it moved
 // anything. Other tools' `custom` namespaces are never read.
-#let _altacv(obj, key, default: none) = {
-  let custom = obj.at("custom", default: none)
-  let ns = if type(custom) == dictionary {
-    custom.at("altacv", default: none)
-  }
-  if type(ns) == dictionary { ns.at(key, default: default) } else { default }
-}
+#let _altacv(obj, key, default: none) = _altacv_ns(obj).at(
+  key,
+  default: default,
+)
 
 // Stricter than `_present` for fields that must be plain strings —
 // PDF metadata, grouping keys — where a content block or a number
 // would either be rejected downstream or render as a nonsense key.
 #let _present_str(v) = type(v) == str and v != ""
+
+// `obj.at(key)` when it's a non-empty string, else `none`.
+#let _string_at(obj, key) = {
+  let v = obj.at(key, default: none)
+  if _present_str(v) { v }
+}
 
 // Accent-coloured italic styling for entry titles. When `dest` is
 // present the styled content is wrapped in a `link()`, giving every

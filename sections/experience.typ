@@ -14,7 +14,7 @@
 // which also names the section label and the field in panic messages;
 // `org-key` is the dict key holding the organisation name (`"name"`
 // for work, `"organization"` for volunteer).
-#let _entry_section(entries, key, org-key, labels, prefs) = _section(
+#let _entry_section(entries, key, org-key, (labels, prefs, ..)) = _section(
   labels.at(key),
   entries,
   entry => [
@@ -39,21 +39,14 @@
 )
 
 // `work[]` — organisation held under `name`.
-#let _experience(work, (labels, prefs, ..)) = _entry_section(
-  work,
-  "work",
-  "name",
-  labels,
-  prefs,
-)
+#let _experience(work, ctx) = _entry_section(work, "work", "name", ctx)
 
 // `volunteer[]` — organisation held under `organization`; otherwise
 // identical to `work[]` (same summary preamble and linked-org
 // behaviour).
-#let _volunteer(entries, (labels, prefs, ..)) = _entry_section(
+#let _volunteer(entries, ctx) = _entry_section(
   entries,
   "volunteer",
   "organization",
-  labels,
-  prefs,
+  ctx,
 )
