@@ -382,7 +382,7 @@ A verbatim `resume.json` round-trips without panicking — fields altacv doesn't
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-`cv` is the data dict; `labels` and `preferences` are partial dicts that shallow-merge over the built-in defaults. Unknown keys panic — catches typos.
+`cv` is the data dict; `labels` and `preferences` are partial dicts that shallow-merge over the built-in defaults. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
 
 ### Preferences
 
@@ -390,10 +390,10 @@ Override any subset of the keys below.
 
 | Key | Default | Effect |
 |---|---|---|
-| `font` | `"Lato"` | Primary font family. Must be installed. |
-| `bodySize` | `10pt` | Base text size. Sub-elements scale via em-multipliers. |
+| `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
+| `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
 | `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
-| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins. Anything `set page(margin: ...)` accepts. |
+| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins: a length, `auto`, or a dict of them keyed by side, as `set page(margin: ...)` takes. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
 | `groupCertificates` | `true` | **Deprecated** and ignored: certificates render as entries, each showing its own issuer. Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 | `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |

@@ -29,7 +29,8 @@
 // `cv.at(key, default: ())` — so each dict key doubles as the CV
 // field it renders. An optional `read: cv => entries` overrides that
 // lookup, for `focusAreas`, whose data lives in `custom.altacv` (the
-// key still names the section). Defined after the renderer imports
+// key still names the section); an optional `items` lists the entry
+// types the section accepts (default: dictionaries). Defined after the renderer imports
 // because Typst binds identifiers eagerly.
 #let _sections = (
   work: (column: "left", render: _experience),
@@ -38,6 +39,7 @@
     column: "right",
     render: _focus_areas,
     read: cv => _altacv(cv, "focusAreas", default: ()),
+    items: (str, content),
   ),
   skills: (column: "right", render: _skills),
   languages: (column: "right", render: _languages),

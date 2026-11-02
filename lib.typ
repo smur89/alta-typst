@@ -25,7 +25,8 @@
 )
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": (
-  _strict_merge, _validate_labels, _validate_preferences,
+  _check_section_entries, _strict_merge, _validate_labels,
+  _validate_preferences,
 )
 #import "internal/text.typ": _fill_template, _present, _present_str, styled-link
 #import "internal/icons.typ": icon
@@ -92,6 +93,21 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
+  // Each section's data, shape-checked before anything reads it (the
+  // PDF keywords below walk `skills`).
+  let section-data = _sections
+    .pairs()
+    .map(((key, entry)) => {
+      let read = entry.at("read", default: cv => cv.at(key, default: ()))
+      let entries = read(cv)
+      _check_section_entries(
+        key,
+        entries,
+        entry.at("items", default: (dictionary,)),
+      )
+      (key, entries)
+    })
+    .to-dict()
   let column-ratio = preferences.columnRatio
   let max-rating = preferences.maxRating
   let accent = preferences.accent
@@ -118,7 +134,7 @@
   // verbatim after the skill keywords. Guard on `str` so a malformed
   // dict passed to `alta()` directly can't smuggle a non-string into a
   // field `set document(...)` requires be strings.
-  let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
+  let doc-keywords = _collect_keywords(section-data.skills)
   if _present_str(canonical) { doc-keywords.push(canonical) }
   if _present_str(version) { doc-keywords.push(version) }
   let doc-description = cv.basics.at("summary", default: none)
@@ -182,9 +198,7 @@
   // narrow column.
   let render-column(keys) = {
     for key in keys {
-      let entry = _sections.at(key)
-      let read = entry.at("read", default: cv => cv.at(key, default: ()))
-      (entry.render)(read(cv), labels, preferences)
+      (_sections.at(key).render)(section-data.at(key), labels, preferences)
     }
   }
 

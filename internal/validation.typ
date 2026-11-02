@@ -65,9 +65,81 @@
   }
 }
 
+#let _check_type(name, value, allowed, expected) = {
+  if type(value) not in allowed {
+    panic(name + " must be " + expected + ", got: " + repr(value))
+  }
+}
+
+// Every spacing token multiplies `bodySize`, so it must be an absolute
+// length: `1em` would resolve against itself, and a bare number reaches
+// `set text(...)` as a stray positional.
+#let _check_body_size(value) = {
+  if type(value) != length or value.em != 0 or value.abs <= 0pt {
+    panic(
+      "bodySize must be a positive absolute length (e.g. 10pt), got: "
+        + repr(value),
+    )
+  }
+}
+
+#let _is_margin_side(v) = type(v) in (length, ratio, relative) or v == auto
+
+// `margin` is handed to `set page(...)`: one side value, or a dict of
+// them keyed by side.
+#let _check_margin(value) = {
+  let ok = if type(value) == dictionary {
+    value.values().all(_is_margin_side)
+  } else { _is_margin_side(value) }
+  if not ok {
+    panic(
+      "margin must be a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm)), got: "
+        + repr(value),
+    )
+  }
+}
+
+// `font` is handed to `set text(font: ...)`: a family name, or a
+// fallback list of names / `(name, covers)` dicts.
+#let _check_font(value) = {
+  let ok = (
+    type(value) == str
+      or (
+        type(value) == array
+          and value.len() > 0
+          and value.all(f => type(f) in (str, dictionary))
+      )
+  )
+  if not ok {
+    panic(
+      "font must be a font family name or a non-empty array of them, got: "
+        + repr(value),
+    )
+  }
+}
+
 // `section-keys` is passed in (not imported from `layout.typ`) to
 // keep this module free of orchestration-layer dependencies.
+// `groupCertificates` is deprecated and ignored, so it isn't checked.
 #let _validate_preferences(preferences, section-keys) = {
+  // Accent drives `lighten` / `darken` on tags and dots, which only a
+  // colour supports — a palette name string is the common slip.
+  _check_type(
+    "accent",
+    preferences.accent,
+    (color,),
+    "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
+  )
+  _check_body_size(preferences.bodySize)
+  _check_type(
+    "imageSize",
+    preferences.imageSize,
+    (length, ratio, relative),
+    "a length (e.g. 6em)",
+  )
+  _check_type("paper", preferences.paper, (str,), "a paper name (e.g. \"a4\")")
+  _check_margin(preferences.margin)
+  _check_font(preferences.font)
   let column-ratio = preferences.columnRatio
   if (
     type(column-ratio) not in (int, float)
@@ -243,6 +315,25 @@
 // letter code case-insensitively; requiring lowercase keeps the label
 // files canonical and catches a language *name* ("Irish") up front.
 #let _lang_re = regex("^[a-z]{2,3}$")
+
+// A section's data must be an array of `item-types` (dicts for the
+// JSON Resume sections), so a dict where a list belongs fails here
+// rather than deep inside a renderer.
+#let _check_section_entries(key, entries, item-types) = {
+  if type(entries) != array {
+    panic(key + " must be an array, got: " + repr(entries))
+  }
+  let bad = entries.filter(e => type(e) not in item-types)
+  if bad.len() > 0 {
+    panic(
+      key
+        + " entries must be "
+        + item-types.map(repr).join(" or ")
+        + ", got: "
+        + repr(bad.first()),
+    )
+  }
+}
 
 #let _validate_labels(labels) = {
   let lang = labels.lang
