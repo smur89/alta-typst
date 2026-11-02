@@ -145,6 +145,7 @@
           four product teams.],
         [Mentored three engineers from mid to senior level.],
       ),
+      keywords: ("Scala", "Go", "Kafka", "Kubernetes"),
     ),
     (
       name: "Liffey Labs",
@@ -158,6 +159,7 @@
         [Introduced the CI/CD pipeline and developer-onboarding flow
           that scaled the engineering org from 3 to 15.],
       ),
+      keywords: ("Python", "Go", "AWS", "GitHub Actions"),
     ),
   ),
 
@@ -172,6 +174,7 @@
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
         [Curate the Scala / functional-programming track.],
       ),
+      keywords: ("Scala",),
     ),
   ),
 
