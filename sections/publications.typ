@@ -85,20 +85,20 @@
   _legacy_type_codes.at(code, default: code)
 }
 
-// Groups appear in first-occurrence order (Typst dicts preserve
-// insertion order). Subheading icons resolve via
-// `labels.publicationIcons` → `_default_publication_icons` → `file`,
-// keyed by the type code.
 // JSON Resume 1.7.0 `publications[].identifiers`, keyed by scheme.
 // Known schemes print under their conventional name (a proper noun, so
-// not a label) and link to a resolver where one exists; others print
-// as given. Resolvable schemes are listed in the order an unlinked
-// title prefers them.
+// not a label) and link to a URL prefix where one exists; others print
+// as given. Linkable schemes are listed in the order an unlinked title
+// prefers them.
 #let _identifier_schemes = (
-  doi: (name: "DOI", resolve: id => "https://doi.org/" + id),
-  arxiv: (name: "arXiv", resolve: id => "https://arxiv.org/abs/" + id),
-  pmid: (name: "PMID", resolve: id => "https://pubmed.ncbi.nlm.nih.gov/" + id),
-  isbn: (name: "ISBN", resolve: none),
+  doi: (name: "DOI", url: "https://doi.org/"),
+  arxiv: (name: "arXiv", url: "https://arxiv.org/abs/"),
+  pmid: (name: "PMID", url: "https://pubmed.ncbi.nlm.nih.gov/"),
+  isbn: (name: "ISBN", url: none),
+)
+#let _identifier_scheme(scheme) = _identifier_schemes.at(
+  scheme,
+  default: (name: scheme, url: none),
 )
 
 // A publication's usable identifiers as `(scheme, id)` pairs, schemes
@@ -113,32 +113,31 @@
     .map(((scheme, id)) => (lower(scheme), id))
 }
 
-#let _resolver(scheme) = (
-  _identifier_schemes.at(scheme, default: (:)).at("resolve", default: none)
-)
-
-// Where an unlinked title points: the first identifier with a
-// resolver, in `_identifier_schemes` order.
+// Where an unlinked title points: the first linkable identifier, in
+// `_identifier_schemes` order.
 #let _identifier_url(ids) = {
   let by-scheme = ids.to-dict()
-  let scheme = _identifier_schemes
-    .keys()
-    .find(s => s in by-scheme and _resolver(s) != none)
-  if scheme != none { _resolver(scheme)(by-scheme.at(scheme)) }
+  let hit = _identifier_schemes
+    .pairs()
+    .find(((scheme, s)) => s.url != none and scheme in by-scheme)
+  if hit != none { hit.at(1).url + by-scheme.at(hit.at(0)) }
 }
 
 // "DOI 10.1000/182 · arXiv 2101.00001", each value linked when its
-// scheme has a resolver.
+// scheme has a URL prefix.
 #let _identifier_line(ids) = (
   ids
     .map(((scheme, id)) => {
-      let name = _identifier_schemes.at(scheme, default: (name: scheme)).name
-      let resolve = _resolver(scheme)
-      [#name #if resolve == none { id } else { link(resolve(id), id) }]
+      let s = _identifier_scheme(scheme)
+      [#s.name #if s.url == none { id } else { link(s.url + id, id) }]
     })
     .join[ · ]
 )
 
+// Groups appear in first-occurrence order (Typst dicts preserve
+// insertion order). Subheading icons resolve via
+// `labels.publicationIcons` → `_default_publication_icons` → `file`,
+// keyed by the type code.
 #let _publications(pubs, labels, prefs) = {
   // Drop entries with no usable `name` up front so the section
   // doesn't render an empty bullet, and so an empty section doesn't
@@ -151,6 +150,8 @@
     let groups = _group_by(valid, _type_code)
     [== #labels.publications]
     let headings = _type_headings(labels)
+    // Date and identifier lines share this quieter style.
+    let meta = text.with(0.8 * body-size, fill: _body_colour.lighten(35%))
     let user-icons-lc = _lowercase_keys(labels.publicationIcons)
     for (code, items) in groups.pairs() [
       #let group-icon = user-icons-lc.at(
@@ -174,24 +175,18 @@
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
-          // `_present` so empty-string fields don't emit orphan `\` breaks.
+          // The optional lines under the title; absent ones drop out, so
+          // an empty field can't leave an orphan `\` break.
+          #let lines = (
+            if _present(publisher) {
+              text(0.85 * body-size, fill: _body_colour, publisher)
+            },
+            if _present(date) { meta(_format_date(date, prefs, labels)) },
+            if ids.len() > 0 { meta(_identifier_line(ids)) },
+            if _present(summary) { par(summary) },
+          ).filter(l => l != none)
           - #styled-link(title, dest: url).
-            #if _present(publisher) [\ #text(
-              0.85 * body-size,
-              fill: _body_colour,
-              publisher,
-            )]
-            #if _present(date) [\ #text(
-              0.8 * body-size,
-              fill: _body_colour.lighten(35%),
-              _format_date(date, prefs, labels),
-            )]
-            #if ids.len() > 0 [\ #text(
-              0.8 * body-size,
-              fill: _body_colour.lighten(35%),
-              _identifier_line(ids),
-            )]
-            #if _present(summary) [\ #par(summary)]
+            #for l in lines [\ #l]
         ]
       ]
     ]
