@@ -2,7 +2,9 @@
 // `name`, `term`, `tag`, `divider` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
-#import "state.typ": _accent_state, _body_size_state, _divider_colour
+#import "state.typ": (
+  _accent_state, _body_colour, _body_size_state, _divider_colour,
+)
 #import "icons.typ": icon
 #import "text.typ": _present, _string_at
 #import "dates.typ": _format_date_range
@@ -31,6 +33,12 @@
 // An organisation line via `name()`, linked when `url` is present
 // (`link()` inherits the bold accent). An absent organisation renders
 // nothing rather than an empty block that leaves a blank line.
+// A small body-colour line under an entry's heading: a project's
+// client, a referee's attribution. Absent bodies render nothing.
+#let _subtitle(body) = if _present(body) {
+  block(below: 0.5em, text(0.85em, fill: _body_colour, body))
+}
+
 #let _org_line(org, url: none) = if _present(org) {
   name(if _present(url) { link(url, org) } else { org })
 }
