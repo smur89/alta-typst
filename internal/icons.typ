@@ -56,16 +56,15 @@
 // carries meaning (a network beside a bare username), `alt` wraps it
 // in `figure(alt: ...)` instead, as `box` and `link` take no alt text;
 // the outer `box` keeps the figure inline.
-#let icon(name, size: auto, shift: auto, fill: auto, alt: none) = context {
+#let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
-  let resolved-shift = if shift == auto { 0pt } else { shift }
   let resolved-fill = if fill == auto { _body_colour } else { fill }
 
   let glyph = _icon_glyphs.at(name)
   let solid = name in _solid_names
   let mark = box(
-    baseline: resolved-shift,
+    baseline: shift,
     width: resolved-size,
     height: resolved-size,
     align(
