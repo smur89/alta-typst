@@ -1,15 +1,17 @@
-// Header — every above-the-grid surface driven by `basics`: name,
-// pronouns, label, contact bar, optional portrait and QR, and the
-// `_summary` paragraph. Preference shapes are validated up front in
-// `validation.typ`; nothing here re-checks them.
+// Header — every above-the-grid surface: name, pronouns, label,
+// contact bar and optional portrait and QR from `basics`, then the
+// `_intro` lines (`objective`, `basics.summary`). Preference shapes
+// are validated up front in `validation.typ`; cv fields are checked
+// here, where they're consumed.
 
 #import "state.typ": (
   _accent_state, _body_colour, _body_size_state, _emphasis_colour,
 )
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
-#import "text.typ": _present
-#import "validation.typ": _contact_channels
+#import "text.typ": _entry_summary, _present
+#import "primitives.typ": _preamble
+#import "validation.typ": _check_type, _contact_channels
 #import "location.typ": _format_location
 
 // Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
@@ -291,13 +293,37 @@
   }
 }
 
-// Lives here, not in `sections/`: it isn't dispatched via `_sections`
-// but rendered straight after the header from the same `basics`.
-#let _summary(basics) = context {
-  let summary = basics.at("summary", default: none)
-  if not _present(summary) { return }
-  let body-size = _body_size_state.get()
-  v(0.8 * body-size)
-  par(summary)
-  v(0.4 * body-size)
+// The CV's root `objective` (JSON Resume 1.4.0, a forward-looking
+// goal), then `basics.summary` (background), between the header and
+// the first section; either alone keeps the summary's spacing. The
+// objective is a step larger, italic and in the accent colour, with a
+// little extra space before the summary, so the goal reads apart from
+// the background prose.
+// Lives here, not in `sections/`: it isn't dispatched via `_sections`.
+#let _intro(cv) = {
+  let objective = cv.at("objective", default: none)
+  _check_type(
+    "objective",
+    objective,
+    (str, content, type(none)),
+    "a string or content",
+  )
+  let summary = _entry_summary(cv.basics)
+  if _present(objective) or summary != none {
+    context {
+      let body-size = _body_size_state.get()
+      let goal = _preamble(objective)
+      v(0.8 * body-size)
+      (
+        if goal != none {
+          text(1.15 * body-size, fill: _accent_state.get(), goal)
+        },
+        summary,
+      )
+        .filter(l => l != none)
+        .map(par)
+        .join(v(0.3 * body-size))
+      v(0.4 * body-size)
+    }
+  }
 }
