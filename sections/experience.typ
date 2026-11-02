@@ -7,7 +7,7 @@
 // `_entry_section` renderer below.
 
 #import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _section, name, term
+#import "../internal/primitives.typ": _section, _tag_row, name, term
 #import "../internal/dates.typ": _format_date_range
 
 // Shared renderer for the `work[]` / `volunteer[]` block lists.
@@ -51,6 +51,7 @@
       #emph(preamble)
     ]
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
+    #_tag_row(entry.at("keywords", default: ()))
   ],
 )
 
