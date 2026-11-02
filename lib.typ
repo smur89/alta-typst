@@ -25,8 +25,7 @@
 )
 #import "internal/defaults.typ": _default_labels
 #import "internal/validation.typ": (
-  _check_section_entries, _strict_merge, _validate_labels,
-  _validate_preferences,
+  _strict_merge, _validate_labels, _validate_preferences,
 )
 #import "internal/text.typ": _fill_template, _present, _present_str, styled-link
 #import "internal/icons.typ": icon
@@ -35,7 +34,7 @@
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _summary
 #import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": _default_preferences, _sections
+#import "internal/layout.typ": _default_preferences, _read_sections, _sections
 #import "internal/json-resume.typ": from-json-resume
 
 // Default portrait — a generic head-and-shoulders silhouette baked
@@ -93,21 +92,9 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
-  // Each section's data, shape-checked before anything reads it (the
-  // PDF keywords below walk `skills`).
-  let section-data = _sections
-    .pairs()
-    .map(((key, entry)) => {
-      let read = entry.at("read", default: cv => cv.at(key, default: ()))
-      let entries = read(cv)
-      _check_section_entries(
-        key,
-        entries,
-        entry.at("items", default: (dictionary,)),
-      )
-      (key, entries)
-    })
-    .to-dict()
+  // Shape-checked before anything reads it (the PDF keywords below
+  // walk `skills`).
+  let section-data = _read_sections(cv)
   let column-ratio = preferences.columnRatio
   let max-rating = preferences.maxRating
   let accent = preferences.accent

@@ -1,9 +1,9 @@
 // Shared validators — every `preferences` / `labels` shape check
 // panics here, up front, so errors surface at the caller instead of as
-// cryptic render-time failures. Shape checks on `cv` data fields
-// (`basics.image`, profile networks; `location` in `location.typ`)
-// stay with the code that consumes them, since they only apply when
-// that field is present.
+// cryptic render-time failures, as does the array-of-entries shape of
+// each CV section. Checks on individual `cv` fields (`basics.image`,
+// profile networks; `location` in `location.typ`) stay with the code
+// that consumes them, since they only apply when that field is present.
 
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code
@@ -16,6 +16,19 @@
 #let _contact_channels = ("email", "phone", "location", "url", "profiles")
 
 #let _quote(s) = "\"" + s + "\""
+
+// `"a" or "b"`, `"a", "b", or "c"` — one sentence shape for every
+// "must be one of" message.
+#let _prose_list(items) = items.join(
+  ", ",
+  last: if items.len() == 2 { " or " } else { ", or " },
+)
+
+// The one "must be …" panic every shape check shares: `ok` is the
+// verdict, `expected` names the accepted shape.
+#let _require(name, value, ok, expected) = {
+  if not ok { panic(name + " must be " + expected + ", got: " + repr(value)) }
+}
 
 // Uniform unknown-key panic for every strict surface. `what` is the
 // user-facing noun the message anchors to.
@@ -44,79 +57,40 @@
   defaults + overrides
 }
 
-// Shared validator for bool-typed preferences — keeps panic messages
-// uniform and avoids the same five-line `if type(...) != bool` block
-// across every new pref.
-#let _check_bool(name, value) = {
-  if type(value) != bool {
-    panic(name + " must be a bool, got: " + repr(value))
-  }
-}
+#let _check_type(name, value, allowed, expected) = _require(
+  name,
+  value,
+  type(value) in allowed,
+  expected,
+)
 
-// Shared validator for string-enum preferences. Renders the allowed
-// set as prose (`"a" or "b"`, `"a", "b", or "c"`) so every enum pref
-// panics with the same sentence shape.
-#let _check_enum(name, value, allowed) = {
-  if value not in allowed {
-    let options = allowed
-      .map(_quote)
-      .join(", ", last: if allowed.len() == 2 { " or " } else { ", or " })
-    panic(name + " must be " + options + ", got: " + repr(value))
-  }
-}
+#let _check_bool(name, value) = _check_type(name, value, (bool,), "a bool")
 
-#let _check_type(name, value, allowed, expected) = {
-  if type(value) not in allowed {
-    panic(name + " must be " + expected + ", got: " + repr(value))
-  }
-}
+#let _check_enum(name, value, allowed) = _require(
+  name,
+  value,
+  value in allowed,
+  _prose_list(allowed.map(_quote)),
+)
 
 // Every spacing token multiplies `bodySize`, so it must be an absolute
 // length: `1em` would resolve against itself, and a bare number reaches
 // `set text(...)` as a stray positional.
-#let _check_body_size(value) = {
-  if type(value) != length or value.em != 0 or value.abs <= 0pt {
-    panic(
-      "bodySize must be a positive absolute length (e.g. 10pt), got: "
-        + repr(value),
-    )
-  }
-}
-
-#let _is_margin_side(v) = type(v) in (length, ratio, relative) or v == auto
+#let _is_body_size(v) = type(v) == length and v.em == 0 and v.abs > 0pt
 
 // `margin` is handed to `set page(...)`: one side value, or a dict of
 // them keyed by side.
-#let _check_margin(value) = {
-  let ok = if type(value) == dictionary {
-    value.values().all(_is_margin_side)
-  } else { _is_margin_side(value) }
-  if not ok {
-    panic(
-      "margin must be a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm)), got: "
-        + repr(value),
-    )
-  }
-}
+#let _is_margin_side(v) = type(v) in (length, ratio, relative) or v == auto
+#let _is_margin(v) = if type(v) == dictionary {
+  v.values().all(_is_margin_side)
+} else { _is_margin_side(v) }
 
 // `font` is handed to `set text(font: ...)`: a family name, or a
 // fallback list of names / `(name, covers)` dicts.
-#let _check_font(value) = {
-  let ok = (
-    type(value) == str
-      or (
-        type(value) == array
-          and value.len() > 0
-          and value.all(f => type(f) in (str, dictionary))
-      )
-  )
-  if not ok {
-    panic(
-      "font must be a font family name or a non-empty array of them, got: "
-        + repr(value),
-    )
-  }
-}
+#let _is_font_list(v) = (
+  type(v) == array and v.len() > 0 and v.all(f => type(f) in (str, dictionary))
+)
+#let _is_font(v) = type(v) == str or _is_font_list(v)
 
 // `section-keys` is passed in (not imported from `layout.typ`) to
 // keep this module free of orchestration-layer dependencies.
@@ -130,7 +104,12 @@
     (color,),
     "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
   )
-  _check_body_size(preferences.bodySize)
+  _require(
+    "bodySize",
+    preferences.bodySize,
+    _is_body_size(preferences.bodySize),
+    "a positive absolute length (e.g. 10pt)",
+  )
   _check_type(
     "imageSize",
     preferences.imageSize,
@@ -138,8 +117,18 @@
     "a length (e.g. 6em)",
   )
   _check_type("paper", preferences.paper, (str,), "a paper name (e.g. \"a4\")")
-  _check_margin(preferences.margin)
-  _check_font(preferences.font)
+  _require(
+    "margin",
+    preferences.margin,
+    _is_margin(preferences.margin),
+    "a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm))",
+  )
+  _require(
+    "font",
+    preferences.font,
+    _is_font(preferences.font),
+    "a font family name or a non-empty array of them",
+  )
   let column-ratio = preferences.columnRatio
   if (
     type(column-ratio) not in (int, float)
@@ -318,21 +307,17 @@
 
 // A section's data must be an array of `item-types` (dicts for the
 // JSON Resume sections), so a dict where a list belongs fails here
-// rather than deep inside a renderer.
+// rather than deep inside a renderer. Returns `entries` once checked.
 #let _check_section_entries(key, entries, item-types) = {
-  if type(entries) != array {
-    panic(key + " must be an array, got: " + repr(entries))
-  }
-  let bad = entries.filter(e => type(e) not in item-types)
-  if bad.len() > 0 {
-    panic(
-      key
-        + " entries must be "
-        + item-types.map(repr).join(" or ")
-        + ", got: "
-        + repr(bad.first()),
-    )
-  }
+  _check_type(key, entries, (array,), "an array")
+  let bad = entries.find(e => type(e) not in item-types)
+  _require(
+    key + " entries",
+    bad,
+    bad == none,
+    _prose_list(item-types.map(repr)),
+  )
+  entries
 }
 
 #let _validate_labels(labels) = {

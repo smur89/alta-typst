@@ -13,6 +13,7 @@
 
 #import "presets.typ": maps-providers, palettes
 #import "text.typ": _altacv
+#import "validation.typ": _check_section_entries
 #import "../sections/experience.typ": _experience, _volunteer
 #import "../sections/focus-areas.typ": _focus_areas
 #import "../sections/skills.typ": _interests, _skills
@@ -25,13 +26,13 @@
 #import "../sections/references.typ": _references
 
 // Plain data: every renderer shares the `(entries, labels, prefs)`
-// signature, and `render-column` in `lib.typ` feeds it
-// `cv.at(key, default: ())` — so each dict key doubles as the CV
-// field it renders. An optional `read: cv => entries` overrides that
-// lookup, for `focusAreas`, whose data lives in `custom.altacv` (the
-// key still names the section); an optional `items` lists the entry
-// types the section accepts (default: dictionaries). Defined after the renderer imports
-// because Typst binds identifiers eagerly.
+// signature, and `_read_sections` feeds it `cv.at(key, default: ())`
+// — so each dict key doubles as the CV field it renders. An optional
+// `read: cv => entries` overrides that lookup, for `focusAreas`, whose
+// data lives in `custom.altacv` (the key still names the section); an
+// optional `items` lists the entry types the section accepts (default:
+// dictionaries). Defined after the renderer imports because Typst
+// binds identifiers eagerly.
 #let _sections = (
   work: (column: "left", render: _experience),
   volunteer: (column: "left", render: _volunteer),
@@ -50,6 +51,19 @@
   publications: (column: "left", render: _publications),
   interests: (column: "right", render: _interests),
   references: (column: "right", render: _references),
+)
+
+// Every section's entries keyed by section, each shape-checked against
+// its `items` before any renderer (or the PDF-keyword pass) reads it.
+#let _read_sections(cv) = (
+  _sections
+    .pairs()
+    .map(((key, entry)) => {
+      let read = entry.at("read", default: cv => cv.at(key, default: ()))
+      let items = entry.at("items", default: (dictionary,))
+      (key, _check_section_entries(key, read(cv), items))
+    })
+    .to-dict()
 )
 
 // Defaults derived from `_sections` so adding a section there

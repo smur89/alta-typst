@@ -317,10 +317,15 @@ test-panics:
 	  if [ -z "$$expect" ]; then \
 	    printf '%s: missing leading `// expect: <message>` line\n' "$$f" >&2; status=1; continue; \
 	  fi; \
+	  msg=; \
 	  if out=$$($(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null 2>&1); then \
-	    printf '%s: compiled, expected a failure containing: %s\n' "$$f" "$$expect" >&2; status=1; \
+	    msg="compiled, expected a failure containing: $$expect"; \
 	  elif ! printf '%s' "$$out" | grep -qF -- "$$expect"; then \
-	    printf '%s: failed without: %s\n%s\n' "$$f" "$$expect" "$$out" >&2; status=1; \
+	    msg="failed without: $$expect"; \
+	  fi; \
+	  if [ -n "$$msg" ]; then \
+	    status=1; printf '%s: %s\n%s\n' "$$f" "$$msg" "$$out" >&2; \
+	    if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::%s\n' "$$f" "$$msg"; fi; \
 	  fi; \
 	done; \
 	exit $$status
