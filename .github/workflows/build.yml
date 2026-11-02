@@ -33,6 +33,14 @@ env:
   # the same commit.
   TYPSTYLE_VERSION: v0.15.0
 
+# An explicit `bash` makes Actions run steps with `-eo pipefail`; the
+# implicit default is plain `bash -e`, under which a failing command on
+# the left of a pipe (`curl | tar`, `gh pr create | tail`,
+# `gh pr list | jq`) is masked by the command on the right.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # Syntax + manifest sanity check. Compiles lib.typ and the example
   # against the local file tree (no installation).
