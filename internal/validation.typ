@@ -48,13 +48,27 @@
 
 // Panics on the wrong override-shape (non-dictionary) up front, then
 // on unknown keys so typos surface as errors instead of being silently
-// absorbed.
-#let _strict_merge(defaults, overrides, name) = {
+// absorbed. With `nested: true`, a dictionary-valued default (a label
+// table such as `publicationTypes`) merges with its override key by
+// key instead of being replaced, so a partial table keeps the rest.
+#let _strict_merge(defaults, overrides, name, nested: false) = {
   if type(overrides) != dictionary {
     panic(name + " must be a dictionary, got: " + repr(overrides))
   }
   _check_unknown_keys(overrides.keys(), defaults.keys(), name)
-  defaults + overrides
+  let merge-key(key, value) = {
+    let default = defaults.at(key)
+    if nested and type(default) == dictionary {
+      _require(
+        name + "." + key,
+        value,
+        type(value) == dictionary,
+        "a dictionary",
+      )
+      default + value
+    } else { value }
+  }
+  defaults + overrides.pairs().map(((k, v)) => (k, merge-key(k, v))).to-dict()
 }
 
 #let _check_type(name, value, allowed, expected) = _require(
@@ -256,12 +270,6 @@
 // override panics with a clear message rather than failing inside
 // `array.at()` or string slicing at render time.
 //
-// `labels.publicationTypes` / `labels.publicationIcons` matching is
-// case-insensitive, so the renderer lowercases their keys. Two source
-// keys collapsing onto one (e.g. `Talks` + `talks`) would silently
-// resolve last-write-wins; panic so it surfaces as a configuration
-// error — whether or not the CV has publications to render.
-//
 // `labels.pageNumber` / `labels.documentTitle` are `{key}` templates.
 // A missing required placeholder or a misspelt one (`{totl}`) would
 // otherwise render literally — or, for the title, land silently in
@@ -339,18 +347,5 @@
     panic(
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
-  }
-  for table in ("publicationTypes", "publicationIcons") {
-    let keys = labels.at(table).keys()
-    if keys.map(lower).dedup().len() != keys.len() {
-      panic(
-        "labels."
-          + table
-          + " has keys that collide after lowercasing — "
-          + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
-          + "Source keys: "
-          + repr(keys),
-      )
-    }
   }
 }

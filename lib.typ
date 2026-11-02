@@ -21,9 +21,10 @@
 #import "internal/presets.typ": maps-providers, palettes
 #import "internal/state.typ": (
   _accent_state, _body_colour, _body_size_state, _emphasis_colour,
-  _max_rating_state, _owner_state,
+  _max_rating_state,
 )
 #import "internal/defaults.typ": _default_labels
+#import "internal/canonical.typ": _canonical_cv, _canonical_labels
 #import "internal/validation.typ": (
   _strict_merge, _validate_labels, _validate_preferences,
 )
@@ -84,7 +85,12 @@
         + repr(basics),
     )
   }
-  let labels = _strict_merge(_default_labels, labels, "labels")
+  let labels = _strict_merge(
+    _default_labels,
+    _canonical_labels(labels),
+    "labels",
+    nested: true,
+  )
   let preferences = _strict_merge(
     _default_preferences,
     preferences,
@@ -92,6 +98,9 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
+  // Deprecated forms become their current spelling before anything
+  // reads the CV.
+  let cv = _canonical_cv(cv, preferences)
   // Shape-checked before anything reads it (the PDF keywords below
   // walk `skills`).
   let section-data = _read_sections(cv)
@@ -102,7 +111,6 @@
   _accent_state.update(accent)
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
-  _owner_state.update(cv.basics.name)
 
   // PDF metadata is sourced from `basics` (title, author, description)
   // and the JSON Resume `meta` block (date, keywords). Each optional
@@ -183,9 +191,12 @@
   // Section renderers are width-agnostic — they fill their container,
   // so the same renderer works whether dropped into the wide or the
   // narrow column.
+  // What every renderer reads besides its entries; `owner` bolds the
+  // CV owner among publication authors.
+  let ctx = (labels: labels, prefs: preferences, owner: cv.basics.name)
   let render-column(keys) = {
     for key in keys {
-      (_sections.at(key).render)(section-data.at(key), labels, preferences)
+      (_sections.at(key).render)(section-data.at(key), ctx)
     }
   }
 

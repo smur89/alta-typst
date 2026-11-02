@@ -9,6 +9,7 @@
   _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
 )
 #import "text.typ": _altacv
+#import "validation.typ": _require
 
 // Half-dot precision is the only fraction the renderer can draw.
 #let _round_half(x) = calc.round(x * 2) / 2
@@ -24,8 +25,7 @@
   "elementary": 0.2,
 )
 
-// A numeric rating (`custom.altacv.rating`, or the deprecated
-// `rating`) is used as given and wins over `fluency`, so callers can
+// A numeric `custom.altacv.rating` is used as given and wins over `fluency`, so callers can
 // opt into fractional precision without rewriting their data. A
 // recognised `fluency` becomes that fraction of `max` (the dot count),
 // rounded to the nearest half, so it fits any scale.
@@ -39,7 +39,7 @@
   let fluency = entry.at("fluency", default: none)
   if fluency == none {
     panic(
-      "Language entry needs either a numeric `custom.altacv.rating` (or the deprecated `rating`) or a `fluency` string. Got: "
+      "Language entry needs either a numeric `custom.altacv.rating` or a `fluency` string. Got: "
         + repr(entry),
     )
   }
@@ -62,10 +62,19 @@
   (_empty_dot_colour, 100%),
 )
 
-#let rating(label, value) = context {
+// `max` (the dot count) defaults to `preferences.maxRating` of the
+// enclosing `alta()`.
+#let rating(label, value, max: auto) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  let max-rating = _max_rating_state.get()
+  let max-rating = if max == auto { _max_rating_state.get() } else { max }
+  // The state is validated as `maxRating`; an explicit `max` isn't.
+  _require(
+    "rating() max",
+    max-rating,
+    type(max-rating) == int and max-rating >= 1,
+    "a positive integer",
+  )
   if type(value) not in (int, float) {
     panic("Rating must be numeric, got: " + repr(value))
   }

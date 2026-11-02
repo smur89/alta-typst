@@ -18,7 +18,7 @@
   [\ ]
 }
 
-#let _languages(items, labels, prefs) = _section(
+#let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,
   // Nameless entries are dropped, not a panic — the filter-first
   // convention of the other sections.
@@ -26,7 +26,7 @@
   lang => {
     let value = _resolve_rating(lang, prefs.maxRating)
     if value != none {
-      rating(lang.language, value)
+      rating(lang.language, value, max: prefs.maxRating)
     } else {
       _label_only(lang.language, lang.at("fluency", default: none))
     }

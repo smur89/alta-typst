@@ -1,5 +1,5 @@
 // Awards — title (optionally linked via the altacv `url` extension,
-// read from `custom.altacv.url` or the deprecated top-level `url`),
+// read from `custom.altacv.url`),
 // accent awarder line, single date, optional summary paragraph.
 // Entries without a `title` are skipped so a stray entry can't emit
 // an orphan heading.
@@ -8,7 +8,7 @@
 #import "../internal/primitives.typ": _section, name, term
 #import "../internal/dates.typ": _format_date
 
-#let _awards(entries, labels, prefs) = _section(
+#let _awards(entries, (labels, prefs, ..)) = _section(
   labels.awards,
   entries.filter(a => _present(a.at("title", default: none))),
   award => {

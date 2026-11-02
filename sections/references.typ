@@ -9,17 +9,16 @@
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section
 
-#let _references(entries, labels, prefs) = {
+#let _references(entries, (labels, ..)) = {
   // Only a real boolean counts, so a stray `"yes"` doesn't hide a quote.
   let on-request(r) = r.at("availableOnRequest", default: false) == true
   let valid = entries.filter(r => (
     on-request(r) or _present(r.at("reference", default: none))
   ))
   // `all` holds on an empty list, so this branch also covers "no
-  // usable entries", which renders nothing unless the deprecated
-  // preference asks for the line (#239: drop the `or` clause).
+  // usable entries", which renders nothing.
   if valid.all(on-request) {
-    if valid != () or prefs.referencesAvailableOnRequest {
+    if valid != () {
       [== #labels.references]
       emph(labels.referencesAvailableOnRequest)
     }

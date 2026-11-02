@@ -382,7 +382,7 @@ A verbatim `resume.json` round-trips without panicking — fields altacv doesn't
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-`cv` is the data dict; `labels` and `preferences` are partial dicts that shallow-merge over the built-in defaults. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
+`cv` is the data dict; `labels` and `preferences` are partial dicts merged over the built-in defaults: a key you set replaces the default, except the label tables `publicationTypes` and `publicationIcons`, which merge entry by entry. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
 
 ### Preferences
 
@@ -557,7 +557,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.7.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` and `publicationIcons` merge entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.7.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ## Header QR code (`preferences.qrCode`)
 
@@ -615,7 +615,7 @@ meta: (
 | `icon(name, size: auto, shift: auto, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
 | `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
-| `rating(label, value)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`preferences.maxRating` (default 5); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
+| `rating(label, value, max: auto)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`max`, which defaults to `preferences.maxRating` (5 unless set); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |
 | `divider()` | Dashed grey rule used between entries within a section. |
 | `styled-link(content, dest: none)` | Accent-coloured italic styling for entry titles (publications, awards, projects). Wraps in a link when `dest` is supplied. |
