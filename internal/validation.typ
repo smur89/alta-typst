@@ -1,9 +1,9 @@
 // Shared validators — every `preferences` / `labels` shape check
 // panics here, up front, so errors surface at the caller instead of as
 // cryptic render-time failures. Shape checks on `cv` data fields
-// (`basics.location`, `basics.image`, profile networks) stay with the
-// renderer that consumes them, since they only apply when that field
-// is present.
+// (`basics.image`, profile networks; `location` in `location.typ`)
+// stay with the code that consumes them, since they only apply when
+// that field is present.
 
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code

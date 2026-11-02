@@ -2,8 +2,8 @@
 // circular portrait. Owns every above-the-grid surface driven by
 // `basics`: the header block itself, the `_summary` paragraph that
 // sits between the contact bar and the first section heading, and the
-// `_format_location` / `_url_encode` helpers that feed the maps deep
-// link (single-caller helpers, kept adjacent to their consumer).
+// `_url_encode` helper that feeds the maps deep link (single-caller,
+// kept adjacent to its consumer).
 //
 // `_header` composes three stages — `_contact_entries` (pure data),
 // `_header_text` (name / label / contact bar) and `_header_layout`
@@ -15,43 +15,8 @@
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
 #import "text.typ": _present
-#import "validation.typ": _check_unknown_keys, _contact_channels
-
-// JSON Resume's structured `location` dict collapsed to a single
-// header line. `address`/`postalCode` round-trip but aren't rendered
-// — a CV header isn't a mailing label. Unknown keys panic to surface
-// typos. The result drives both the displayed text and the maps
-// deep link, so reader and link target stay in sync. Empty strings
-// normalise to `none` so downstream `!= none` checks treat them as
-// absent (no orphan location row, no blank-query maps URL).
-#let _location_fields = (
-  "address",
-  "postalCode",
-  "city",
-  "countryCode",
-  "region",
-)
-#let _location_display_order = ("city", "region", "countryCode")
-#let _format_location(value) = {
-  if value == none { return none }
-  if type(value) == str {
-    if value == "" { return none }
-    return value
-  }
-  if type(value) != dictionary {
-    panic(
-      "basics.location must be a string or a dict matching JSON Resume's"
-        + " {address, postalCode, city, countryCode, region}, got: "
-        + repr(value),
-    )
-  }
-  _check_unknown_keys(value.keys(), _location_fields, "basics.location")
-  let parts = _location_display_order
-    .map(k => value.at(k, default: none))
-    .filter(v => v != none and v != "")
-  if parts.len() == 0 { return none }
-  parts.join(", ")
-}
+#import "validation.typ": _contact_channels
+#import "location.typ": _format_location
 
 // Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
 // locations like "Zürich" or "京都" round-trip through the maps URL.
@@ -141,12 +106,12 @@
 #let _contact_entries(basics, maps-provider) = {
   let email = basics.at("email", default: none)
   let phone = basics.at("phone", default: none)
-  // `_format_location` collapses the JSON Resume dict form
-  // `{address, postalCode, city, countryCode, region}` to a single
-  // line, leaves an already-flat string untouched, and returns `none`
-  // when every relevant field is empty. Both the display value and the
-  // maps deep link are fed from the same result so they cannot drift.
-  let location = _format_location(basics.at("location", default: none))
+  // Both the display value and the maps deep link are fed from the
+  // same collapsed result so they cannot drift.
+  let location = _format_location(
+    basics.at("location", default: none),
+    "basics.location",
+  )
   let url = basics.at("url", default: none)
   let fields = (
     if _present(email) {

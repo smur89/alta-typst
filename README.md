@@ -227,7 +227,7 @@ Each per-section entry follows JSON Resume's schema. Tables show the practical s
 | `position` | string | Job title. Entry heading. |
 | `name` | string | Company / employer, accent colour beneath the title; wrapped in a link when `url` is supplied. |
 | `url` | string | Wraps `name` in a link (visual treatment unchanged — bold accent, no italic / underline). |
-| `location` | string | Rendered alongside the date range via the location-icon row. |
+| `location` | string or dict | Rendered alongside the date range via the location-icon row. Accepts a plain string or JSON Resume's `{address, postalCode, city, countryCode, region}` dict, collapsed to `city, region, countryCode` like `basics.location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
 | `description` | string or content | Alternative spelling used by some exporters — rendered identically to `summary`; `summary` wins when both are supplied. |
@@ -242,7 +242,7 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | `position` | string | Role title. Entry heading. |
 | `organization` | string | Granting organisation, accent colour beneath the position; wrapped in a link when `url` is supplied. |
 | `url` | string | Wraps `organization` in a link (visual treatment unchanged — bold accent, no italic / underline). |
-| `location` | string | Rendered next to the date range. |
+| `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
