@@ -26,7 +26,7 @@
 #import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _iso_datetime
-#import "internal/header.typ": _header, _summary
+#import "internal/header.typ": _header, _intro
 #import "internal/footer.typ": _resolve_page_footer
 #import "internal/layout.typ": _default_preferences, _read_sections, _sections
 #import "internal/json-resume.typ": from-json-resume
@@ -155,7 +155,7 @@
   show heading.where(level: 4): sub-heading(0.6, 0.6, "bold")
 
   _header(cv.basics, preferences)
-  _summary(cv.basics)
+  _intro(cv.at("objective", default: none), cv.basics)
 
   // Renderers are width-agnostic, so any section fits either column.
   // `owner` bolds the CV owner among publication authors.

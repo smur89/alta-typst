@@ -1,6 +1,6 @@
-// Header — every above-the-grid surface driven by `basics`: name,
-// pronouns, label, contact bar, optional portrait and QR, and the
-// `_summary` paragraph. Preference shapes are validated up front in
+// Header — every above-the-grid surface: name, pronouns, label,
+// contact bar and optional portrait and QR from `basics`, then the
+// `_intro` lines (`objective`, `basics.summary`). Preference shapes are validated up front in
 // `validation.typ`; nothing here re-checks them.
 
 #import "state.typ": (
@@ -9,7 +9,7 @@
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
 #import "text.typ": _present
-#import "validation.typ": _contact_channels
+#import "validation.typ": _check_type, _contact_channels
 #import "location.typ": _format_location
 
 // Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
@@ -291,13 +291,25 @@
   }
 }
 
-// Lives here, not in `sections/`: it isn't dispatched via `_sections`
-// but rendered straight after the header from the same `basics`.
-#let _summary(basics) = context {
+// The CV's root `objective` (JSON Resume 1.4.0, a forward-looking
+// goal) in italics, then `basics.summary` (background), between the
+// header and the first section; either alone keeps the same spacing.
+// Lives here, not in `sections/`: it isn't dispatched via `_sections`.
+#let _intro(objective, basics) = {
+  if objective != none {
+    _check_type("objective", objective, (str, content), "a string or content")
+  }
   let summary = basics.at("summary", default: none)
-  if not _present(summary) { return }
-  let body-size = _body_size_state.get()
-  v(0.8 * body-size)
-  par(summary)
-  v(0.4 * body-size)
+  let lines = (
+    if _present(objective) { par(emph(objective)) },
+    if _present(summary) { par(summary) },
+  ).filter(l => l != none)
+  if lines.len() > 0 {
+    context {
+      let body-size = _body_size_state.get()
+      v(0.8 * body-size)
+      lines.join()
+      v(0.4 * body-size)
+    }
+  }
 }
