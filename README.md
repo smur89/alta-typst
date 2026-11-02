@@ -32,7 +32,7 @@
 
 ## Features
 
-- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (`focusAreas`, numeric language `rating`, publication `type` grouping).
+- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with two optional extensions (`focusAreas` and a numeric language `rating`).
 - **Single-column ATS mode** (`columnRatio: 1`) alongside the default two-column layout, plus inverted variants with the side panel on either side.
 - **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value.
 - **Full label localisation** via inline dict or TOML file. Every display string is overridable; see [`examples/labels-ga.toml`](examples/labels-ga.toml) for a worked Irish translation.
@@ -73,7 +73,7 @@ Best when your CV already lives in a canonical `resume.json` ([JSON Resume schem
 ```
 <!-- x-release-please-end -->
 
-Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [three extensions](#data-schema) are optional, so a vanilla `resume.json` validates without edits.
+Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [two extensions](#data-schema) are optional, so a vanilla `resume.json` validates without edits.
 
 To inspect or transform the parsed dict before rendering, use `from-json-resume` directly:
 
@@ -161,11 +161,10 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or
 
 ### Extensions
 
-Three optional fields layered on top of JSON Resume:
+Two optional fields layered on top of JSON Resume:
 
 - **`focusAreas`** — top-level array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
 - **`languages[].rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits.
-- **`publications[].type`** — part of JSON Resume since 1.4.0 (`alta-from-json` still registers it until altacv moves to gairm-import 0.10.1). Entries sharing a `type` cluster under one subheading. The spec codes `article`, `book`, `patent`, `thesis` and `talk` take their heading from [`labels.publicationTypes`](#labels); entries without `type` fall under `labels.articles`. **Deprecated:** free-text types (`"Articles"`, `"Talks"`) still print as given, but use the codes instead; free-text headings are dropped in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 ### Top-level keys
 
@@ -292,8 +291,6 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 
 #### Publications
 
-`type` is part of JSON Resume (1.4.0).
-
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Publication title. Bullet body; linked to `url` when supplied, italicised when not. |
@@ -301,7 +298,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Paragraph below the date. |
-| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Free-text values print as given (deprecated). |
+| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Free-text values (`"Articles"`, `"Talks"`) print as given; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
 All fields are optional — omitted fields drop their line.
 
@@ -336,11 +333,9 @@ interests: (
 |---|---|---|
 | `name` | string | Referee name, level-3 heading above the quote. Omitted entries render the quote anonymously. |
 | `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
-| `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
+| `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` (localisable) in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
 
-The line text is `labels.referencesAvailableOnRequest`, so it localises alongside the other display strings.
-
-**Deprecated:** `preferences.referencesAvailableOnRequest` renders the same line when `references[]` is empty (or no entry has a `reference`). Prefer `availableOnRequest` on the entries; the preference is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+The [`referencesAvailableOnRequest` preference](#preferences) is deprecated in favour of `availableOnRequest`.
 
 ### Profile networks
 

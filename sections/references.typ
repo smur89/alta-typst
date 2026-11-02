@@ -15,16 +15,15 @@
   let valid = entries.filter(r => (
     on-request(r) or _present(r.at("reference", default: none))
   ))
-  let on-request-line = {
-    [== #labels.references]
-    emph(labels.referencesAvailableOnRequest)
-  }
-  // The preference fallback is opt-in so an empty `references` block
-  // stays silent by default — matching every other section's no-data
-  // behaviour.
-  if valid.len() > 0 and valid.all(on-request) {
-    on-request-line
-  } else if valid.len() > 0 {
+  // `all` holds on an empty list, so this branch also covers "no
+  // usable entries", which renders nothing unless the deprecated
+  // preference asks for the line (#239: drop the `or` clause).
+  if valid.all(on-request) {
+    if valid != () or prefs.referencesAvailableOnRequest {
+      [== #labels.references]
+      emph(labels.referencesAvailableOnRequest)
+    }
+  } else {
     _section(labels.references, valid, entry => {
       let name = entry.at("name", default: none)
       if _present(name) [=== #name]
@@ -32,7 +31,5 @@
         entry.reference
       })
     })
-  } else if prefs.referencesAvailableOnRequest {
-    on-request-line
   }
 }

@@ -10,22 +10,26 @@
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
-// Built-in icon hints for common publication `type` strings. Lookup
-// is case-insensitive (`"Talks"` and `"talks"` both match) but not
-// number-insensitive — singular and plural forms are listed explicitly
-// so callers can use either without thinking. Extend via
+// Built-in icons, keyed by `type` (case-insensitive). Extend via
 // `labels.publicationIcons`; unmatched types fall back to `file`.
-#let _default_publication_icons = (
-  articles: "newspaper",
+// JSON Resume's codes (`patent` has no dedicated glyph, so it takes
+// the `file` fallback):
+#let _code_publication_icons = (
   article: "newspaper",
+  book: "book",
+  thesis: "book",
+  talk: "microphone",
+)
+// Plural and free-text keys for the deprecated free-text headings
+// (`"Articles"`, `"Talks"`); dropped with them in the next major
+// (#239).
+#let _legacy_publication_icons = (
+  articles: "newspaper",
   "blog posts": "newspaper",
   "blog post": "newspaper",
   books: "book",
-  book: "book",
-  talks: "microphone",
-  talk: "microphone",
   theses: "book",
-  thesis: "book",
+  talks: "microphone",
   presentations: "microphone",
   presentation: "microphone",
   "conference papers": "newspaper",
@@ -33,21 +37,20 @@
   papers: "newspaper",
   paper: "newspaper",
 )
+#let _default_publication_icons = (
+  _code_publication_icons + _legacy_publication_icons
+)
 
-// A label table keyed case-insensitively: user keys lowercased once,
-// so `(Talks: ...)` matches `type: "talks"` and vice versa.
-// Collisions after lowercasing are rejected up front by
-// `_validate_labels`.
+// Lowercase a label table's keys for case-insensitive lookup;
+// `_validate_labels` rejects keys that collide.
 #let _lowercase_keys(table) = table
 .pairs()
 .fold((:), (acc, (k, v)) => acc + ((lower(k)): v))
 
 // Groups appear in first-occurrence order (Typst dicts preserve
-// insertion order). A JSON Resume type code (`article`, `talk`, …)
-// takes its subheading from `labels.publicationTypes`; any other type
-// is printed as given. Untyped entries fall under `labels.articles`.
-// Subheading icons resolve via `labels.publicationIcons` →
-// `_default_publication_icons` → `file`, keyed by the raw type.
+// insertion order). Subheading icons resolve via
+// `labels.publicationIcons` → `_default_publication_icons` → `file`,
+// keyed by the raw type.
 #let _publications(pubs, labels, prefs) = {
   // Drop entries with no usable `name` up front so the section
   // doesn't render an empty bullet, and so an empty section doesn't
