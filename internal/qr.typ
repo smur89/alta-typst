@@ -1,31 +1,13 @@
-// Header QR matrix — opt-in via `preferences.qrCode`. Printed CVs lose
-// the clickability of digital PDFs; a QR code rescues that one link
-// the reader is most likely to follow (the homepage URL). Off by
-// default — turn it on with `preferences.qrCode: auto` (encode
-// `basics.url`) or any literal URL string.
-//
-// Generation is delegated to `@preview/zebra`, the only third-party
-// Typst dependency this package pulls in. Zebra emits native Typst
-// vector paths (not a rasterised image), so the matrix stays crisp at
-// any size and inherits a `fill` colour like any other shape. The
-// dependency is fetched on first compile and cached thereafter.
-//
-// This module owns three concerns and nothing else: validating the
-// preference value, resolving it against `basics.url`, and rendering
-// the matrix wrapped in `link()`. `internal/header.typ` consumes
-// `_qr_render` and composes the result into the header layout — the
-// header file doesn't import zebra directly, so swapping QR
-// implementations stays a one-file change.
+// Header QR code (opt-in via `preferences.qrCode`), restoring the
+// most-followed link on a printed CV. Validates, resolves and renders
+// the preference; only this file imports `@preview/zebra`, so swapping
+// QR implementations stays a one-file change. Zebra emits vector
+// paths, so the matrix stays crisp and takes a `fill` like any shape.
 
 #import "@preview/zebra:0.1.0": qrcode
 
-// Validates `preferences.qrCode`. Accepted shapes:
-//   - `none`              — no QR rendered
-//   - `auto`              — encode `basics.url` at render time
-//   - any non-empty string — encode that string verbatim
-// Anything else panics with a message anchored at the preferences
-// call site, so a typo (`qrCode: true`, `qrCode: 42`) surfaces up
-// front rather than as a render-time failure inside `qrcode(...)`.
+// Called from `_validate_preferences`, so a typo (`qrCode: true`)
+// fails up front rather than inside `qrcode(...)` at render time.
 #let _check_qr_code(value) = {
   if value == none or value == auto { return }
   if type(value) != str {
@@ -38,10 +20,7 @@
   }
 }
 
-// Resolves the validated preference against `basics`. Returns the URL
-// string to encode, or `none` when no QR should render. Separated
-// from `_check_qr_code` because the `auto` lookup depends on `basics`
-// — only callable once `alta()` has the data dict in hand.
+// Separate from `_check_qr_code` because `auto` needs `basics`.
 #let _resolve_qr_url(qr-code, basics) = {
   if qr-code == none { return none }
   if qr-code != auto { return qr-code }
@@ -64,19 +43,13 @@
   url
 }
 
-// `quiet-zone: 0` because the surrounding header padding already
-// supplies enough whitespace; zebra's default 4-module quiet zone
-// would shrink the dark matrix at the print size we target. The
-// `link()` wrap lets digital readers click through to the same
-// destination the QR encodes.
+// `quiet-zone: 0`: the header padding already supplies whitespace, and
+// zebra's default 4-module zone would shrink the matrix.
 //
-// Zebra emits bare vector curves with no alt parameter, and `link`
-// has none either, so the matrix is wrapped in `figure(alt: url)` —
-// Typst's documented carrier for alt text on non-image content in
-// tagged PDF output. Without it a screen reader meets an unlabelled
-// link. The figure is unnumbered, unoutlined and gap-free, and its
-// centred body exactly fills the `auto`-width header cell, so layout
-// is unchanged.
+// Neither zebra's output nor `link` takes alt text, so the matrix goes
+// in `figure(alt: url)`, Typst's carrier for alt text on non-image
+// content in tagged PDF. Unnumbered, unoutlined and gap-free, it
+// leaves the layout unchanged.
 #let _qr_render(url, size, fill) = link(
   url,
   figure(

@@ -1,7 +1,6 @@
-// Low-level rendering primitives shared by every section renderer.
-// `name`, `term`, `tag`, `divider` are re-exported as public surface
-// from `lib.typ` for callers composing custom layouts; the leading-
-// underscore helpers are used internally by the section renderers.
+// Low-level rendering primitives shared by the section renderers.
+// `name`, `term`, `tag`, `divider` are re-exported from `lib.typ` for
+// custom layouts; underscored helpers are internal.
 
 #import "state.typ": _accent_state, _body_size_state, _divider_colour
 #import "icons.typ": icon
@@ -16,8 +15,6 @@
   dash: "dashed",
 )
 
-// Bold accent-coloured line — designed for the company / institution
-// row beneath a role or education entry.
 // The bold accent text `name()` sets on its own line, for inline use
 // (e.g. a certificate's issuer on its term row).
 #let _accent_strong(body) = context text(
@@ -31,18 +28,14 @@
   block(above: 0pt, below: 0.6 * body-size, _accent_strong(body))
 }
 
-// An entry's organisation line (employer, institution, awarder) via
-// `name()`, linked to `url` when one is present — `link()` inherits the
-// bold accent, so the line looks the same either way. An absent
-// organisation renders nothing, rather than an empty block whose
-// spacing leaves a blank line.
+// An organisation line via `name()`, linked when `url` is present
+// (`link()` inherits the bold accent). An absent organisation renders
+// nothing rather than an empty block that leaves a blank line.
 #let _org_line(org, url: none) = if _present(org) {
   name(if _present(url) { link(url, org) } else { org })
 }
 
-// An entry's italic prose preamble (`summary`). Softer than `name()`
-// (the bold accent line) so it doesn't compete with the headings or
-// the bullets around it. Absent values render nothing.
+// Italic, so a `summary` doesn't compete with the bold `name()` line.
 #let _preamble(body) = if _present(body) { emph(body) }
 
 // The term row's frame: indented small text under an entry's heading.
@@ -56,8 +49,7 @@
   )
 }
 
-// One icon-led part of a term row; a `none` body renders nothing. The
-// 50% default lines a period up with a location column.
+// The 50% default lines a period up with a location column.
 #let _term_part(icon-name, body, width: 50%) = if body != none {
   box(width: width, {
     icon(icon-name)
@@ -65,8 +57,8 @@
   })
 }
 
-// Either side may be `none` — the box is skipped, so undated /
-// unlocated entries don't emit a stray icon.
+// A `none` side is skipped, so undated or unlocated entries don't
+// emit a stray icon.
 #let term(period, location: none) = {
   if period == none and location == none { return }
   _term_row({
@@ -75,9 +67,7 @@
   })
 }
 
-// The date + location term row of a dated entry. `location` is a
-// string or JSON Resume's structured dict; `key` names the section in
-// panic messages (e.g. "education" → "education[].location").
+// `key` names the section in panic messages ("education[].location").
 #let _entry_term(entry, key, prefs, labels) = term(
   _format_date_range(entry, prefs, labels),
   location: _format_location(
@@ -86,12 +76,8 @@
   ),
 )
 
-// `label: true` is the category-heading variant (darker fill, bold
-// text) — used to distinguish a group's leading pill from the item
-// pills that follow it on the same row. `trailing: false` suppresses
-// the inter-tag gap that would otherwise sit after the pill; callers
-// composing a row of tags pass `false` on the final one so the row
-// doesn't end on dead horizontal space.
+// `label: true` is the darker, bold category pill. Pass
+// `trailing: false` on a row's last pill so it doesn't end on a gap.
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
@@ -121,12 +107,10 @@
   }
 }
 
-// Inter-entry dashed rule. Suppressed when it would render near the
-// top of a page — Typst has no "stick to previous block" attribute, so
-// when an entry overflows onto a new page the divider that preceded
-// it would otherwise orphan above the first item on that page. "Near"
-// is within 0.5cm of the top margin, a buffer for any section heading
-// that immediately follows, so it tracks `preferences.margin`.
+// Typst has no keep-with-previous, so a divider before an entry that
+// moved to a new page would orphan at its top. Suppress it within
+// 0.5cm of the top margin (headroom for a following heading), so it
+// tracks `preferences.margin`.
 #let divider() = context {
   let body-size = _body_size_state.get()
   if here().position().y < _top_margin() + 0.5cm { return }
@@ -135,8 +119,8 @@
   v(0.3 * body-size)
 }
 
-// Buckets `items` under `key-of(item)` in first-occurrence order
-// (Typst dicts preserve insertion order). Keys must be strings.
+// First-occurrence order (Typst dicts keep insertion order). Keys
+// must be strings.
 #let _group_by(items, key-of) = items.fold((:), (acc, item) => {
   let key = key-of(item)
   acc + ((key): acc.at(key, default: ()) + (item,))
@@ -145,29 +129,23 @@
 // Rules between neighbours only, so sections don't end on a stray rule.
 #let _join_with_dividers(items, render) = items.map(render).join(divider())
 
-// Buckets by `item.type` when it's a non-empty string, else under
-// `fallback` — the optional JSON Resume `type` field drives the
-// `====` subheadings in projects and publications. A non-string
-// `type` (a number, a dict) pools under `fallback` rather than
+// Drives the `====` subheadings in projects and publications. A
+// missing or non-string `type` pools under `fallback` rather than
 // crashing as a dict key.
 #let _group_by_type(items, fallback) = _group_by(items, item => {
   let raw = _string_at(item, "type")
   if raw != none { raw } else { fallback }
 })
 
-// The common section skeleton: level-2 heading, then one unbreakable
-// block per entry joined by dividers. Empty `entries` renders nothing
-// — not even the heading — so callers filter out unusable entries
-// first and the "no orphan heading" rule holds by construction.
+// Empty `entries` renders nothing, not even the heading, so callers
+// filter unusable entries first and no heading is orphaned.
 #let _section(heading, entries, render-entry) = if entries.len() > 0 {
   [== #heading]
   _join_with_dividers(entries, e => block(breakable: false, render-entry(e)))
 }
 
-// Suppresses the inter-tag gap on the final pill so rows don't end
-// in dead horizontal space. `label` forwards to `tag` so a caller can
-// render the whole row in the darker category variant (e.g. project
-// roles, set apart from the lighter keyword pills).
+// `label` renders the whole row in the darker variant (e.g. project
+// roles, set apart from keyword pills).
 #let _tag_row(items, label: false) = {
   for (i, item) in items.enumerate() {
     tag(item, label: label, trailing: i < items.len() - 1)

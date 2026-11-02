@@ -1,8 +1,7 @@
-// Page footer — resolves the `pageFooter` / `lastModifiedFooter`
-// preferences into the value handed to `set page(...)`, and renders
-// the "auto" variant. The auto footer suppresses itself on single-page
-// documents (the common case stays clean) via the reactive page
-// counter, so content growth brings it back without a caller change.
+// Page footer — resolves `pageFooter` / `lastModifiedFooter` into the
+// value for `set page(...)`. The "auto" footer hides itself on
+// single-page documents via the reactive page counter, so it returns
+// on its own when content grows.
 
 #import "state.typ": _body_colour, _body_size_state
 #import "text.typ": _fill_template, _present, _present_str
@@ -23,12 +22,8 @@
   )
 }
 
-// `pageFooter` is the general mechanism and takes precedence;
-// `lastModifiedFooter` is sugar that applies only when `pageFooter`
-// is `none` (its default). Resulting value passed to `set page(...)`:
-//   `none`             — no footer
-//   auto renderer      — name + `labels.pageNumber`, multi-page only
-//   verbatim content   — rendered on every page
+// `pageFooter` takes precedence; `lastModifiedFooter` is sugar that
+// applies only when `pageFooter` is `none`.
 #let _resolve_page_footer(preferences, labels, meta, name) = {
   let page-footer = preferences.pageFooter
   let last-modified = meta.at("lastModified", default: none)
@@ -39,10 +34,8 @@
       page-footer
     }
   } else if preferences.lastModifiedFooter and _present(last-modified) {
-    // `footerVersion` appends `meta.version` in parentheses (e.g.
-    // "(v1.0.0)") — rendered verbatim, since the schema's own example
-    // value already carries the "v". Rides the last-updated line; no
-    // standalone footer of its own.
+    // `meta.version` is verbatim: the schema's own example already
+    // carries the "v".
     let version = meta.at("version", default: none)
     let version-suffix = if (
       preferences.footerVersion and _present_str(version)

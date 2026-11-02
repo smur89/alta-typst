@@ -1,20 +1,15 @@
-# Default labels — every display string the template emits. Loaded by
-# `internal/defaults.typ` and merged with caller overrides in `alta()`.
-# Override any subset via `alta(labels: ...)`; unknown keys panic
-# (`internal/validation.typ#_strict_merge`).
+# Default labels — every display string the template emits, loaded by
+# `internal/defaults.typ`. Override any subset via `alta(labels: ...)`;
+# unknown keys panic.
 #
-# Keys mirror JSON Resume's section keys (work, certificates, …) so
-# callers think in a single vocabulary. The values are editorial:
-# "Experience" reads better than "Work" as a CV heading, "Certifications"
-# than "Certificates".
+# Keys mirror JSON Resume's section keys; values are editorial
+# ("Experience" reads better than "Work" as a heading).
 #
-# Translators: copy this file, rename it (e.g. labels-de.toml), and
-# translate the values. Load it at the call site via:
+# Translators: copy and translate this file, then pass
 #   #alta(cv, labels: toml("labels-de.toml"))
 
-# Document language — an ISO 639 code (2–3 lowercase letters, e.g.
-# "de", "ga"). Drives hyphenation, smart quotes, and the PDF's
-# language tag (read by screen readers). Validated in alta().
+# Lowercase ISO 639 code. Drives hyphenation, smart quotes and the
+# PDF language tag (read by screen readers).
 lang = "en"
 
 # Section headings.
@@ -32,14 +27,12 @@ interests    = "Interests"
 references   = "References"
 referencesAvailableOnRequest = "References available upon request."
 
-# Deprecated: untyped publications now head from
-# `publicationTypes.article`. Still honoured when overridden; removed
-# in the next major (#239).
+# Deprecated for `publicationTypes.article`; still honoured when
+# overridden, removed in the next major (#239).
 articles = "Articles"
 
-# Cluster heading for projects without an explicit `type`, when at
-# least one other project is typed (an all-untyped `projects` list
-# renders flat, with no subheadings).
+# Heading for untyped projects when another project is typed (an
+# all-untyped list renders flat).
 otherProjects = "Other"
 
 # Rendered in date ranges when `endDate` is empty.
@@ -49,31 +42,25 @@ present = "Present"
 lastModified = "Last updated"
 
 # Templates rather than prefixes, so a translation can reorder the
-# parts. `{…}` placeholders are substituted at render time; unknown
-# placeholders panic (validated in alta()).
+# parts; unknown placeholders panic.
 #
-# Page counter in the `pageFooter: "auto"` footer. `{current}` is
-# required, `{total}` optional.
+# `pageFooter: "auto"` counter. `{current}` required, `{total}` optional.
 pageNumber = "Page {current} / {total}"
 
-# PDF Title metadata. `{name}` (required) is `basics.name`, verbatim.
-# A plain string, not markup — write a real em dash, since `---` only
-# becomes one in Typst markup.
+# PDF Title; `{name}` required. A plain string, not markup, so write a
+# real em dash — `---` only becomes one in Typst markup.
 documentTitle = "{name} — CV"
 
-# Twelve abbreviated month names (January–December). Consumed by the
-# built-in `dateFormat: "long"` formatter and the `[month repr:long]` /
-# `[month repr:short]` template tokens. Must keep length 12 (validated
-# in alta()).
+# Exactly twelve. Used by `dateFormat: "long"` and the
+# `[month repr:long]` / `[month repr:short]` template tokens.
 months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ]
 
-# Subheadings for JSON Resume's `publications[].type` codes (untyped
-# entries count as `article`). Keys match the `type` string
-# case-insensitively; a type with no entry here is printed as given.
-# Overrides layer over these defaults.
+# Subheadings for `publications[].type` codes (untyped counts as
+# `article`), matched case-insensitively; other types print as given.
+# Overrides merge key by key.
 [publicationTypes]
 article = "Articles"
 book    = "Books"
@@ -81,11 +68,8 @@ patent  = "Patents"
 thesis  = "Theses"
 talk    = "Talks"
 
-# Per-`publications[].type` icon overrides. Keys match the `type`
-# string (case-insensitive); values are utility-icon names. The module
-# ships defaults for the type codes (`_code_publication_icons` in
-# `sections/publications.typ`) and the deprecated free-text types
-# (`_legacy_publication_icons` in `internal/canonical.typ`), and falls
-# back to `file` for unknown types. Override here to add a
-# custom type or remap a built-in.
+# Icon names per `publications[].type`, matched case-insensitively.
+# Built-ins live in `_code_publication_icons` (`sections/
+# publications.typ`) and `_legacy_publication_icons`
+# (`internal/canonical.typ`); unknown types fall back to `file`.
 [publicationIcons]

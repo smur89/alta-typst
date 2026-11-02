@@ -1,21 +1,15 @@
-// `_skills` and `_interests` consume the same JSON Resume
-// `{name, keywords}` shape and render identically (a row of pill
-// tags led by a "label" pill). The shared layout lives in
-// `_name_keywords_section`; the two public renderers differ only in
-// which `labels.*` heading they pass.
+// `_skills` and `_interests` share the JSON Resume `{name, keywords}`
+// shape and render identically, differing only in heading.
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/primitives.typ": _tag_row, tag
 
-// `text("-")` (not `[-]`) — markup-bracketed `-` parses as a list-item
-// bullet. The trailing `h(...)` after the dash mirrors the gap that
-// `tag()` already emits to its left, keeping the label pill visually
-// centred between its two whitespace gutters.
+// `text("-")`, not `[-]`, which markup parses as a list bullet. The
+// `h(...)` after it mirrors the gap `tag()` leaves on its left, so the
+// dash sits centred between the pills.
 #let _name_keywords_section(groups, heading) = {
-  // Filter empty-keywords groups up front so we can also skip the
-  // section heading: rendering a bare "Skills" with nothing underneath
-  // (every group had an empty `keywords:`) reads worse than skipping
-  // the section entirely.
+  // Drop groups with no keywords first, so a section with none left
+  // skips its heading rather than rendering it bare.
   let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
   if visible.len() == 0 { return }
   context {

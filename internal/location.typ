@@ -1,18 +1,12 @@
-// JSON Resume's `location`: a free-text string or the shared
-// `{address, postalCode, city, countryCode, region}` dict. One
-// collapse for every caller (the header's `basics.location`, the
-// `work[]` / `volunteer[]` term rows), so a location reads the same
-// everywhere.
+// JSON Resume's `location` (a string or the shared dict), collapsed
+// one way for every caller so a location reads the same everywhere.
 
 #import "text.typ": _present
 #import "validation.typ": _check_unknown_keys
 
-// `address`/`postalCode` round-trip but aren't rendered — a CV isn't
-// a mailing label. Unknown keys panic to surface typos. Absent values
-// (`_present`) normalise to `none` so downstream `!= none` checks
-// treat them as absent (no orphan location row, no blank-query maps
-// URL). `what` names the field in panic messages (e.g.
-// "work[].location").
+// `address` / `postalCode` are accepted but not rendered — a CV isn't
+// a mailing label. Absent values become `none`, so callers' `!= none`
+// checks leave no orphan row or blank-query maps URL.
 #let _location_fields = (
   "address",
   "postalCode",

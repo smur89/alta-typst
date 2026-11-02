@@ -1,6 +1,5 @@
-// Languages — one row per entry. Dots when `_resolve_rating` returns
-// a number; label-only annotation when it returns `none` (a `fluency`
-// not in `_fluency_rating` — canonical JSON Resume shape).
+// Languages: rating dots when `_resolve_rating` gives a number, else
+// the `fluency` text alone (one not in `_fluency_rating`).
 
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section
@@ -20,8 +19,7 @@
 
 #let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,
-  // Nameless entries are dropped, not a panic — the filter-first
-  // convention of the other sections.
+  // Nameless entries are dropped, not a panic.
   items.filter(l => _present(l.at("language", default: none))),
   lang => {
     let value = _resolve_rating(lang, prefs.maxRating)

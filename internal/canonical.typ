@@ -1,8 +1,7 @@
-// Rewrites caller input into the one shape the renderers read, before
-// anything renders: deprecated CV, preference and label forms (#239)
-// become their current spelling, and the case-insensitive label tables
-// are folded to lowercase keys. Renderers never see a legacy shape, so
-// dropping one in the next major is a change to this module alone.
+// Rewrites caller input into the one shape renderers read: deprecated
+// CV, preference and label forms (#239) become their current spelling,
+// and case-insensitive label tables get lowercase keys. Dropping a
+// legacy form in the next major then touches only this module.
 
 #import "text.typ": (
   _altacv_ns, _dict_or_empty, _entry_summary, _present, _string_at,
@@ -16,9 +15,8 @@
 // #239: sections whose `description` is a deprecated alias of `summary`.
 #let _summary_alias_sections = ("work", "volunteer", "projects")
 
-// #239: plural free-text publication types, grouped with their JSON
-// Resume code so a legacy CV mixing `"Articles"` and untyped entries
-// keeps one subheading.
+// #239: plural free-text publication types, mapped to their code so
+// `"Articles"` and untyped entries share one subheading.
 #let _legacy_type_codes = (
   articles: "article",
   books: "book",
@@ -27,8 +25,8 @@
   talks: "talk",
 )
 
-// #239: icons for the deprecated free-text publication headings, keyed
-// by lowercased `type`. Seeded under the caller's `publicationIcons`.
+// #239: icons for deprecated free-text publication types, seeded under
+// the caller's `publicationIcons`.
 #let _legacy_publication_icons = (
   "blog posts": "newspaper",
   "blog post": "newspaper",
@@ -40,12 +38,10 @@
   paper: "newspaper",
 )
 
-// Label tables matched case-insensitively, so keyed in lowercase.
 #let _case_insensitive_tables = ("publicationTypes", "publicationIcons")
 
-// Moves each of `keys` present on `obj` into `obj.custom.altacv`
-// unless that namespace already holds it. A non-dictionary `custom` or
-// `altacv` is replaced, as nothing else reads it.
+// `custom.altacv` wins when both are set. A non-dictionary `custom`
+// or `altacv` is replaced, as nothing else reads it.
 #let _lift_into_custom(obj, keys) = {
   let ns = _altacv_ns(obj)
   let lifted = keys
@@ -67,8 +63,7 @@
   }
 }
 
-// A string `type` loses surrounding spaces, and one that is only
-// spaces becomes untyped, so `" talk "` groups with `talk`.
+// `" talk "` groups with `talk`; an all-space `type` becomes untyped.
 #let _trim_type(entry) = {
   let raw = _string_at(entry, "type")
   if raw == none { entry } else {
@@ -84,8 +79,7 @@
   if code == none { pub } else { pub + (type: code) }
 }
 
-// Applies `f` to every dictionary entry of `cv.at(key)`; anything else
-// is left for the shape checks to report.
+// Non-dictionary entries are left for the shape checks to report.
 #let _map_entries(cv, key, f) = {
   let entries = cv.at(key, default: none)
   if type(entries) != array { cv } else {
@@ -93,9 +87,8 @@
   }
 }
 
-// #239: `preferences.referencesAvailableOnRequest` shows the
-// on-request line when no reference is usable — the same as one entry
-// with JSON Resume's `availableOnRequest: true`, so it becomes one.
+// #239: `preferences.referencesAvailableOnRequest` means the same as
+// one `availableOnRequest: true` entry when no reference is usable.
 #let _references_on_request(cv, prefs) = {
   let refs = cv.at("references", default: ())
   let usable(r) = (
@@ -132,9 +125,8 @@
   cv => _references_on_request(cv, prefs),
 ).fold(cv, (acc, step) => step(acc))
 
-// Lowercases a case-insensitive label table's keys, panicking when two
-// source keys collapse onto one (e.g. `Talks` + `talks`) instead of
-// letting the last silently win.
+// Panics when two keys collapse onto one (`Talks` + `talks`) rather
+// than letting the last silently win.
 #let _lowercase_table(table, name) = {
   let keys = table.keys()
   if keys.map(lower).dedup().len() != keys.len() {
@@ -150,9 +142,8 @@
   table.pairs().map(((k, v)) => (lower(k), v)).to-dict()
 }
 
-// Canonicalises the caller's `labels` overrides before they merge over
-// the defaults. A non-dictionary (overall, or as a table) is passed
-// through for `_strict_merge` to reject.
+// Runs before the merge over the defaults; a non-dictionary (overall
+// or as a table) passes through for `_strict_merge` to reject.
 #let _canonical_labels(overrides) = if type(overrides) != dictionary {
   overrides
 } else {

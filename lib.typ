@@ -4,19 +4,12 @@
 // (https://github.com/GeorgeHoneywood/alta-typst, MIT, © 2023 George
 // Honeywood) and rewritten around a JSON Resume-style data dict.
 //
-// Public entry: `alta(cv, ...)` plus the helpers documented in the
-// README. Implementation lives under:
+// Public entry: `alta(cv, ...)` plus the helpers in the README.
+// `internal/` holds shared infrastructure; `sections/` one renderer per
+// CV section, dispatched from `internal/layout.typ`'s `_sections`.
 //
-//   internal/   — shared infrastructure (presets, state, dates, icons,
-//                 primitives, ratings, header, footer, layout catalogue)
-//   sections/   — one renderer per CV section (work, education,
-//                 certificates, …) — the "component" layer dispatched
-//                 from `internal/layout.typ`'s `_sections` table.
-//
-// Spacing tokens are em-multipliers of `body-size`, so changing one
-// knob scales the document proportionally. The few absolute values
-// (page margins, column gutter, rule thicknesses) are visual choices
-// independent of text size.
+// Spacing tokens are em-multipliers of `body-size`; the few absolute
+// values (margins, gutter, rule thicknesses) deliberately don't scale.
 
 #import "internal/presets.typ": maps-providers, palettes
 #import "internal/state.typ": (
@@ -38,21 +31,11 @@
 #import "internal/layout.typ": _default_preferences, _read_sections, _sections
 #import "internal/json-resume.typ": from-json-resume
 
-// Default portrait — a generic head-and-shoulders silhouette baked
-// into the package. Exposed so the `typst init` template (and any
-// downstream consumer) can render a working `basics.image` without
-// shipping its own SVG. Pre-loaded as bytes so the consumer just
-// passes it through:
-//
-//   #import "@preview/altacv:<version>": alta, avatar-placeholder
-//   basics: (..., image: avatar-placeholder)
-//
-// Replace with `read("your-photo.png", encoding: none)` (or `none`
-// to drop the portrait entirely).
+// Generic silhouette, exposed as bytes so the `typst init` template
+// (and any consumer) gets a working `basics.image` without its own SVG.
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
-// Every skill group's `keywords`, de-duplicated for the PDF `Keywords`
-// field. First occurrences win so the author's ordering survives.
+// Skill keywords for the PDF `Keywords` field, first occurrence first.
 #let _collect_keywords(skills) = (
   skills
     .map(group => group.at("keywords", default: ()))
@@ -61,17 +44,15 @@
     .dedup()
 )
 
-// `cv` follows the JSON Resume schema (see `examples/example_full.typ`
-// for a fully-populated demo, or `template/cv.typ` for the starter
-// `typst init` produces). `labels` and `preferences` are partial
-// dicts merged over the defaults; unknown keys panic.
+// `cv` follows the JSON Resume schema; `labels` and `preferences` are
+// partial dicts merged over the defaults (unknown keys panic).
 #let alta(
   cv,
   labels: (:),
   preferences: (:),
 ) = {
-  // `basics.name` is the only required field — checked up front so
-  // the panic is guided rather than a bare missing-key error.
+  // `basics.name` is the only required field; a guided panic beats a
+  // bare missing-key error.
   if type(cv) != dictionary {
     panic("alta() expects a CV data dictionary, got: " + repr(cv))
   }
@@ -98,11 +79,8 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
-  // Deprecated forms become their current spelling before anything
-  // reads the CV.
   let cv = _canonical_cv(cv, preferences)
-  // Shape-checked before anything reads it (the PDF keywords below
-  // walk `skills`).
+  // Before the PDF keywords below walk `skills`.
   let section-data = _read_sections(cv)
   let column-ratio = preferences.columnRatio
   let max-rating = preferences.maxRating
@@ -112,23 +90,17 @@
   _body_size_state.update(body-size)
   _max_rating_state.update(max-rating)
 
-  // PDF metadata is sourced from `basics` (title, author, description)
-  // and the JSON Resume `meta` block (date, keywords). Each optional
-  // field is only set when its source is non-empty — `set document(...)`
-  // rejects `none` for `date`, and emitting empty strings for
-  // `description` / `keywords` would still write a present-but-empty
-  // entry.
+  // Optional metadata is set only when non-empty: `set document(...)`
+  // rejects a `none` date, and empty strings would still write an entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
   let canonical = meta.at("canonical", default: none)
   let version = meta.at("version", default: none)
   let doc-date = _iso_datetime(last-modified-raw)
-  // Typst 0.15's `set document(...)` exposes no dedicated field for a
-  // document URL or version, so `meta.canonical` and `meta.version`
-  // ride the Keywords array — the only machine-readable home — appended
-  // verbatim after the skill keywords. Guard on `str` so a malformed
-  // dict passed to `alta()` directly can't smuggle a non-string into a
-  // field `set document(...)` requires be strings.
+  // `set document(...)` has no URL or version field, so
+  // `meta.canonical` / `meta.version` ride the Keywords — the only
+  // machine-readable home. `_present_str` because Keywords must be
+  // strings and a dict passed to `alta()` directly is unvalidated.
   let doc-keywords = _collect_keywords(section-data.skills)
   if _present_str(canonical) { doc-keywords.push(canonical) }
   if _present_str(version) { doc-keywords.push(version) }
@@ -164,10 +136,8 @@
     spacing: 0.55em,
   )
 
-  // Heading levels map to semantic CV roles:
-  //   ==   section title (e.g. Experience)
-  //   ===  role / qualification line
-  //   ==== sub-grouping (publication type)
+  // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
+  // (e.g. publication type).
   show heading.where(level: 2): it => block(sticky: true)[
     #v(0.6 * body-size)
     #text(1.7 * body-size, fill: accent, weight: "bold", upper(it.body))
@@ -175,7 +145,6 @@
     #line(length: 100%, stroke: 2pt + accent)
     #v(0.2 * body-size)
   ]
-  // Levels 3 and 4 share one look and differ only in spacing and weight.
   let sub-heading(above, below, weight) = it => block(
     above: above * body-size,
     below: below * body-size,
@@ -188,11 +157,8 @@
   _header(cv.basics, preferences)
   _summary(cv.basics)
 
-  // Section renderers are width-agnostic — they fill their container,
-  // so the same renderer works whether dropped into the wide or the
-  // narrow column.
-  // What every renderer reads besides its entries; `owner` bolds the
-  // CV owner among publication authors.
+  // Renderers are width-agnostic, so any section fits either column.
+  // `owner` bolds the CV owner among publication authors.
   let ctx = (labels: labels, prefs: preferences, owner: cv.basics.name)
   let render-column(keys) = {
     for key in keys {
@@ -200,14 +166,8 @@
     }
   }
 
-  // Three layout shapes: full-width merge when columnRatio is 1,
-  // left-only when the right side is empty, otherwise the canonical
-  // two-column grid. The grid's fr columns split whatever width the
-  // gutter leaves in `columnRatio` proportion, so both sides give up
-  // a share of the gutter.
-  //
-  // Swapping the column-section arrays and inverting `columnRatio`
-  // gives a mirrored layout.
+  // The fr columns split what the gutter leaves, so both sides give up
+  // a proportional share of it.
   if column-ratio == 1 {
     render-column(
       preferences.leftColumnSections + preferences.rightColumnSections,
@@ -224,10 +184,9 @@
   }
 }
 
-// `..rest` forwards every kwarg added to `alta` in a future release
-// without an adapter edit. Extra positionals are rejected up front so
-// `alta-from-json(p, my-prefs)` (drift from the kwarg form) panics
-// with a wrapper-aware diagnostic instead of an alta-level one.
+// `..rest` forwards future `alta` kwargs without an edit here. Extra
+// positionals (`alta-from-json(p, my-prefs)`) panic with a
+// wrapper-aware message rather than an `alta`-level one.
 #let alta-from-json(data, ..rest) = {
   if rest.pos().len() > 0 {
     panic(

@@ -1,9 +1,6 @@
-// Language / skill fluency rendering — text label on the left, filled
-// / half-filled / empty dots on the right.
-//
-// Half-fill (1.5 → 1 full + 1 half + 3 empty) uses a 50%/50% linear
-// gradient — Typst has no native half-circle fill, and a gradient
-// produces a sharp boundary where a transparent overlay wouldn't.
+// Language fluency as a label and a row of dots (the public `rating`).
+// A half dot is a hard-stop gradient: Typst has no half-circle fill,
+// and a gradient gives a sharper edge than a transparent overlay.
 
 #import "state.typ": (
   _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
@@ -11,11 +8,10 @@
 #import "text.typ": _altacv
 #import "validation.typ": _require
 
-// Half-dot precision is the only fraction the renderer can draw.
 #let _round_half(x) = calc.round(x * 2) / 2
 
-// LinkedIn-style fluency strings, as fractions of full fluency. Keys
-// are lowercase; `fluency` is matched case-insensitively.
+// LinkedIn fluency strings as fractions of full fluency; matched
+// case-insensitively.
 #let _fluency_rating = (
   "native": 1.0,
   "bilingual": 1.0,
@@ -25,14 +21,10 @@
   "elementary": 0.2,
 )
 
-// A numeric `custom.altacv.rating` is used as given and wins over `fluency`, so callers can
-// opt into fractional precision without rewriting their data. A
-// recognised `fluency` becomes that fraction of `max` (the dot count),
-// rounded to the nearest half, so it fits any scale.
-// `none` = caller should render label-only (a `fluency` not in
-// `_fluency_rating`). Both-absent and non-string fluency panic so a
-// typo'd key or wrong-typed value surfaces immediately. Numeric
-// type/bounds checks live in `rating()`.
+// A `custom.altacv.rating` wins over `fluency`; a known `fluency`
+// scales to `max` dots, rounded to the half. `none` (an unknown
+// `fluency`) means render the label only. Numeric checks live in
+// `rating()`.
 #let _resolve_rating(entry, max) = {
   let value = _altacv(entry, "rating") // avoid shadowing `rating()`
   if value != none { return value }
@@ -62,8 +54,7 @@
   (_empty_dot_colour, 100%),
 )
 
-// `max` (the dot count) defaults to `preferences.maxRating` of the
-// enclosing `alta()`.
+// `max` defaults to the enclosing `alta()`'s `preferences.maxRating`.
 #let rating(label, value, max: auto) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
@@ -87,10 +78,8 @@
         + ".",
     )
   }
-  // Half-dot precision is the only fractional shape the renderer can
-  // express (a single `_half_fill` gradient). Reject other fractions
-  // up front so `3.1` and `3.9` don't both silently round to a
-  // half-dot — callers either ask for a full step or a half step.
+  // Half dots are the only fraction drawable; rejecting others stops
+  // `3.1` and `3.9` silently rounding alike.
   if _round_half(value) != value {
     panic("Rating must use 0.5 increments, got: " + repr(value))
   }

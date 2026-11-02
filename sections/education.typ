@@ -1,7 +1,5 @@
-// Education entries — qualification heading, accent-coloured
-// institution (optionally linked), date range and location, italic
-// summary, score, and pill-tagged courses. Falls back to `area` when
-// `studyType` is missing.
+// Education. The heading falls back to `area` when `studyType` is
+// absent; `courses` render as pills like other string arrays.
 
 #import "../internal/text.typ": _entry_summary, _present
 #import "../internal/primitives.typ": (
@@ -29,9 +27,6 @@
 
     #let score = edu.at("score", default: none)
     #if _present(score) [#score]
-    // Courses render as pill tags — same treatment as `skills[].keywords`
-    // and `projects[].keywords`, which are the other array-of-strings
-    // surfaces in the template. Empty arrays skip silently.
     #let courses = edu.at("courses", default: ())
     #if courses.len() > 0 [
       #for course in courses [#tag(course)]
