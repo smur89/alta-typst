@@ -18,7 +18,7 @@
   basics: (
     name: "Seán Ó Murchú",
     // Shown after the name only with `preferences.showPronouns: true`.
-    pronouns: "he/him",
+    pronouns: "they/them",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
