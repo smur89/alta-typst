@@ -79,23 +79,23 @@
 // The contact bar's entries in display order, one
 // `(channel, icon, value, url)` dict per present field; `channel` keys
 // into the resolved `linkContactInfo` config. Pure data, no `context`.
-// `_present` (not `!= none`) so an empty string doesn't render a bare
-// icon behind a dead `mailto:` / `tel:` link.
+// An empty string counts as absent, so it never renders a bare icon
+// behind a dead `mailto:` / `tel:` link.
 #let _contact_entries(basics, maps-provider) = {
-  let email = basics.at("email", default: none)
-  let phone = basics.at("phone", default: none)
+  let email = _field(basics, "email")
+  let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
   // cannot drift.
   let location = _format_location(
     basics.at("location", default: none),
     "basics.location",
   )
-  let url = basics.at("url", default: none)
+  let url = _field(basics, "url")
   let fields = (
-    if _present(email) {
+    if email != none {
       (channel: "email", icon: "email", value: email, url: "mailto:" + email)
     },
-    if _present(phone) {
+    if phone != none {
       // Strip RFC 3966 visual separators (spaces, parens, hyphens,
       // dots) from the dialable URI; the displayed value keeps them.
       (
@@ -115,7 +115,7 @@
         },
       )
     },
-    if _present(url) { (channel: "url", icon: "link", value: url, url: url) },
+    if url != none { (channel: "url", icon: "link", value: url, url: url) },
   ).filter(e => e != none)
   fields + basics.at("profiles", default: ()).map(_profile_entry)
 }
@@ -124,8 +124,8 @@
 // single `context` read.
 #let _header_text(basics, preferences, body-size, accent) = {
   let link-config = _resolve_link_config(preferences.linkContactInfo)
-  let headline = basics.at("label", default: none)
-  let pronouns = basics.at("pronouns", default: none)
+  let headline = _field(basics, "label")
+  let pronouns = _field(basics, "pronouns")
   let bar-icon = icon.with(
     size: 0.9 * body-size,
     shift: 0.2 * body-size,
@@ -149,14 +149,14 @@
         )
         // Outside `upper(...)`: pronouns aren't part of the name. The
         // `box` keeps "(they/them)" whole when a long name wraps.
-        if preferences.showPronouns and _present(pronouns) {
+        if preferences.showPronouns and pronouns != none {
           h(0.5 * body-size)
           box(text(body-size, fill: _body_colour, [(#pronouns)]))
         }
       },
     )
 
-    if _present(headline) {
+    if headline != none {
       block(
         spacing: 0pt,
         below: 0.8 * body-size,

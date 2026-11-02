@@ -18,8 +18,8 @@
     org: _field(cert, "issuer"),
     details: (_field(cert, "credentialId"),),
     period: _format_date_span(
-      cert.at("date", default: none),
-      cert.at("expiryDate", default: none),
+      _field(cert, "date"),
+      _field(cert, "expiryDate"),
       prefs,
       labels,
     ),

@@ -108,16 +108,18 @@
 #let _render_publication(pub, (labels, prefs, owner, ..)) = {
   let ids = _identifiers(pub)
   let url = _field(pub, "url")
-  let lines = (
-    _small(_author_line(pub, owner)),
-    _small(_source(pub)),
-    _meta(_format_date(_field(pub, "releaseDate"), prefs, labels)),
-    _meta(_identifier_line(ids)),
-    _preamble(_field(pub, "summary")),
+  let dest = if url != none { url } else { _identifier_url(ids) }
+  let lines = _join_present(
+    (
+      _small(_author_line(pub, owner)),
+      _small(_source(pub)),
+      _meta(_format_date(_field(pub, "releaseDate"), prefs, labels)),
+      _meta(_identifier_line(ids)),
+      _preamble(_field(pub, "summary")),
+    ),
+    [\ ],
   )
-  [
-    - #styled-link(pub.name, dest: if url != none { url } else { _identifier_url(ids) }). #for l in lines.filter(l => l != none) [\ #l]
-  ]
+  [- #styled-link(pub.name, dest: dest). #if lines != none [\ #lines]]
 }
 
 // Label tables arrive lowercase-keyed (`_canonical_labels`). Icons

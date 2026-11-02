@@ -7,7 +7,7 @@
 // ourselves while mirroring its bracketed token syntax, so a template
 // carries over to other Typst code.
 
-#import "text.typ": _join_present, _present
+#import "text.typ": _field, _join_present, _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
 // `(year, month, day)` dict, or `none` so callers render anything else
@@ -143,10 +143,11 @@
 
 // `start – end`; a missing side drops out with its dash. `open-end`
 // stands in for a missing end — `none` suits ranges with no end, such
-// as a certificate that doesn't expire.
+// as a certificate that doesn't expire. Callers read the sides with
+// `_field`, so `none` is the only absent form here.
 #let _format_date_span(start, end, prefs, labels, open-end: none) = {
-  let start-text = if _present(start) { _format_date(start, prefs, labels) }
-  let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
+  let start-text = if start != none { _format_date(start, prefs, labels) }
+  let end-text = if end != none { _format_date(end, prefs, labels) } else {
     open-end
   }
   _join_present((start-text, end-text), [ – ])
@@ -156,8 +157,8 @@
 // `labels.present`; a fully undated entry stays `none`, not a bare
 // "Present". Argument order matches `_format_date`.
 #let _format_date_range(entry, prefs, labels) = {
-  let start = entry.at("startDate", default: none)
-  let end = entry.at("endDate", default: none)
-  if not _present(start) and not _present(end) { return none }
+  let start = _field(entry, "startDate")
+  let end = _field(entry, "endDate")
+  if start == none and end == none { return none }
   _format_date_span(start, end, prefs, labels, open-end: labels.present)
 }
