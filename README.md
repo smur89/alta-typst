@@ -237,7 +237,7 @@ Each per-section entry follows JSON Resume's schema. Tables show the practical s
 
 #### Volunteer
 
-Same shape as `work[]`, but with `organization` in place of `name`.
+Same shape as `work[]`, but with `organization` in place of `name`. The `keywords` field is not available for this section.
 
 | Field | Type | Effect |
 |---|---|---|
@@ -248,7 +248,6 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
-| `keywords` | array of strings | Row of pill tags below the highlights. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
 
