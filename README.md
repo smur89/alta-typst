@@ -315,7 +315,8 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `name` | string | Publication title. Bullet body; linked to `url` when supplied, italicised when not. |
 | `publisher` | string | Subtitle below the title, body colour at 0.85em. |
 | `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |
-| `url` | string | Wraps the title in an accent-coloured link. |
+| `url` | string | Wraps the title in an accent-coloured link. Without it, the title links to the first resolvable identifier (DOI, then arXiv, then PMID). |
+| `identifiers` | object | JSON Resume 1.7.0 persistent IDs keyed by scheme. Listed below the date as `DOI 10.1000/182 · arXiv 2101.00001`: `doi`, `arxiv` and `pmid` link to doi.org, arxiv.org and PubMed, `isbn` prints as is, and other schemes print as given. Empty or non-string values are skipped. |
 | `summary` | string or content | Paragraph below the date. |
 | `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Untyped entries count as `article`. Free-text values (`"Articles"`, `"Talks"`) still work, and the common plurals group with their code; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
