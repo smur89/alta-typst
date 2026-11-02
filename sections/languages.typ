@@ -18,15 +18,15 @@
   [\ ]
 }
 
-// `prefs` is unused (the dot scale reads `maxRating` from state); it's
-// accepted so every renderer shares the dispatch signature.
+// `prefs.maxRating` scales LinkedIn `fluency` values to the dot
+// count.
 #let _languages(items, labels, prefs) = _section(
   labels.languages,
   // Nameless entries are dropped, not a panic — the filter-first
   // convention of the other sections.
   items.filter(l => _present(l.at("language", default: none))),
   lang => {
-    let value = _resolve_rating(lang)
+    let value = _resolve_rating(lang, prefs.maxRating)
     if value != none {
       rating(lang.language, value)
     } else {
