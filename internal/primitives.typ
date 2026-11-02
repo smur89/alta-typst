@@ -101,17 +101,26 @@
   if trailing { h(0.25 * body-size) }
 }
 
+// The page's top margin as an absolute length. Typst's `auto` margin is
+// 2.5/21 of the shorter page side.
+#let _top_margin() = {
+  let margin = page.margin
+  let top = if type(margin) == dictionary { margin.top } else { margin }
+  if top == auto { calc.min(page.width, page.height) * 2.5 / 21 } else {
+    let top = top + 0% // a plain length or ratio, as a relative
+    top.length.to-absolute() + top.ratio * page.height
+  }
+}
+
 // Inter-entry dashed rule. Suppressed when it would render near the
 // top of a page — Typst has no "stick to previous block" attribute, so
 // when an entry overflows onto a new page the divider that preceded
-// it would otherwise orphan above the first item on that page. The
-// `2cm` threshold covers the default `margin.y` (1.5cm) plus a small
-// buffer for any section heading that immediately follows; callers
-// running tighter margins still see the divider only between
-// in-flow neighbours.
+// it would otherwise orphan above the first item on that page. "Near"
+// is within 0.5cm of the top margin, a buffer for any section heading
+// that immediately follows, so it tracks `preferences.margin`.
 #let divider() = context {
   let body-size = _body_size_state.get()
-  if here().position().y < 2cm { return }
+  if here().position().y < _top_margin() + 0.5cm { return }
   v(0.3 * body-size)
   line(length: 100%, stroke: _divider_stroke)
   v(0.3 * body-size)
