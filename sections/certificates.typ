@@ -1,16 +1,15 @@
 // Certificates — pill-row rendering with optional issuer grouping.
 // Multi-issuer clusters get a labelled-divider header; singleton
-// issuers pool into a trailing unlabelled group. A cert with a
-// `summary` takes its own line, with the paragraph under its pill.
+// issuers pool into a trailing unlabelled group.
 
 #import "../internal/state.typ": _body_colour, _body_size_state
-#import "../internal/text.typ": _present
+#import "../internal/text.typ": _entry_summary, _present
 #import "../internal/primitives.typ": _group_by, _labelled_divider, divider, tag
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date_span
 
-// Normalises a cert into the record the renderer consumes (every
-// field it reads, issuer included); `none` when there's no usable name.
+// Normalises a cert into the record the renderer consumes; `none`
+// when there's no usable name.
 // Optional fields collapse to `none` when empty so downstream
 // nil-checks don't render orphans; "no issuer" (missing / `none` /
 // "") normalises to "" because Typst dict keys can't be `none`.
@@ -26,7 +25,7 @@
     name: name,
     date: optional("date"),
     expiryDate: optional("expiryDate"),
-    summary: optional("summary"),
+    summary: _entry_summary(cert),
     credentialId: optional("credentialId"),
     url: optional("url"),
     issuer: if issuer == none { "" } else { issuer },
@@ -70,14 +69,10 @@
 // wrapped in a box so it never breaks across lines; only the middot's
 // surrounding space is a valid break point if the pill has to wrap.
 //
-// The period is `date`, or `date – expiryDate` for a cert that
-// expires, routed through `_format_date_span` so it honours
-// `preferences.dateFormat` the same way the work / education / awards
-// / publications dates do. No `open-end`: a cert without `expiryDate`
-// doesn't expire, so the end is left off rather than read as
-// "Present". The credential ID is prefixed by `labels.credentialId`
-// (an unlabelled code is unclear to the reader) and set in body colour
-// so the verification detail reads quieter than the accent name.
+// The period has no `open-end`: a cert without `expiryDate` doesn't
+// expire, so it is never read as "Present". The credential ID carries
+// the `labels.credentialId` prefix (a bare code is unclear) in body
+// colour, quieter than the accent name.
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
   let period = _format_date_span(item.date, item.expiryDate, prefs, labels)
@@ -95,7 +90,7 @@
     },
   ).filter(d => d != none)
   let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
-  let pill = tag((([#item.name],) + details).join(bullet))
+  let pill = tag((item.name, ..details).join(bullet))
   if item.url != none { link(item.url, pill) } else { pill }
 }
 
@@ -127,16 +122,27 @@
     if g.issuer != none { _labelled_divider(g.issuer) } else if i > 0 {
       divider()
     }
-    block(breakable: false, {
-      for item in g.items {
-        let pill = _cert_tag(item, prefs, labels)
-        // A summary is a paragraph, so its cert leaves the inline pill
-        // flow: the pill takes its own line with the paragraph under
-        // it, rather than sharing the line with pills it isn't about.
-        if item.summary == none { pill } else {
-          block(pill + par(item.summary))
-        }
+    // Consecutive pill-only certs share one unbreakable row. A cert
+    // with a summary leaves the pill flow as its own block (pill, then
+    // paragraph), so a section with several summaries can still break
+    // between them rather than moving as one tall block.
+    let runs = g.items.fold((), (runs, item) => {
+      let joins = (
+        item.summary == none
+          and runs.len() > 0
+          and runs.last().first().summary == none
+      )
+      if joins { runs.slice(0, -1) + (runs.last() + (item,),) } else {
+        runs + ((item,),)
       }
     })
+    for run in runs {
+      let first = run.first()
+      block(breakable: false, if first.summary == none {
+        run.map(item => _cert_tag(item, prefs, labels)).join()
+      } else {
+        _cert_tag(first, prefs, labels) + par(first.summary)
+      })
+    }
   }
 }

@@ -185,16 +185,14 @@
   let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
     open-end
   }
-  let sides = (start-text, end-text).filter(s => s != none)
-  if sides.len() > 0 { [#sides.join[ – ]] }
+  (start-text, end-text).filter(s => s != none).join[ – ]
 }
 
 // A `startDate` / `endDate` entry, where a missing end means ongoing
-// and reads `labels.present`. Returns `none` when neither date is
-// supplied so callers can skip emitting the term row, rather than
-// falsely rendering "Present" for a fully undated entry. Argument
-// order matches `_format_date` (`value/entry, prefs, labels`) so
-// callers can't accidentally swap the two helpers' last two args.
+// and reads `labels.present`. The guard keeps a fully undated entry
+// at `none` rather than a bare "Present". Argument order matches
+// `_format_date` (`value/entry, prefs, labels`) so callers can't
+// accidentally swap the two helpers' last two args.
 #let _format_date_range(entry, prefs, labels) = {
   let start = entry.at("startDate", default: none)
   let end = entry.at("endDate", default: none)
