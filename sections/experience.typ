@@ -51,7 +51,10 @@
       #emph(preamble)
     ]
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
-    #_tag_row(entry.at("keywords", default: ()))
+    #if org-key == "name" [
+      // Render `keywords` only for `work[]`
+      #_tag_row(entry.at("keywords", default: ()))
+    ]
   ],
 )
 
