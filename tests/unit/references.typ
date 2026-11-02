@@ -11,7 +11,11 @@
 )
 
 #assert.eq(
-  attribution((relationship: "Manager", organization: "Pied Piper", date: "2024")),
+  attribution((
+    relationship: "Manager",
+    organization: "Pied Piper",
+    date: "2024",
+  )),
   "Manager, Pied Piper · 2024",
 )
 #assert.eq(attribution((organization: "Pied Piper")), "Pied Piper")
@@ -22,3 +26,5 @@
   none,
 )
 #assert.eq(attribution((:)), none)
+// A non-string date is skipped like the other parts.
+#assert.eq(attribution((relationship: "Peer", date: 2024)), "Peer")

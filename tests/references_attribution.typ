@@ -1,12 +1,11 @@
 // JSON Resume 1.7.0 `references[].relationship`, `organization` and
 // `date` render as one line under the referee's name, missing parts
-// dropping out with their separator. The date follows
-// `preferences.dateFormat`, so the second page repeats the CV with
-// `dateFormat: "short"`.
+// dropping out with their separator. (`dateFormat` handling is
+// covered in tests/unit/references.typ.)
 
 #import "../lib.typ": alta
 
-#let cv = (
+#alta((
   basics: (name: "Jane Doe", email: "jane@example.com"),
   references: (
     (
@@ -43,10 +42,4 @@
       reference: "Rigorous and generous with her time.",
     ),
   ),
-)
-
-#alta(cv)
-
-#pagebreak()
-
-#alta(cv, preferences: (dateFormat: "short"))
+))

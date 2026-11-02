@@ -358,7 +358,7 @@ interests: (
 |---|---|---|
 | `name` | string | Referee name, level-3 heading above the quote. Omitted entries render the quote anonymously. |
 | `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
-| `relationship` | string | JSON Resume 1.7.0. How the referee knows you (`Manager`, `Thesis advisor`). First part of a small line under the name: `Manager, Pied Piper · Mar 2024`. |
+| `relationship` | string | JSON Resume 1.7.0. How the referee knows you (`Manager`, `Thesis advisor`). Leads a small line under the name: `Manager, Pied Piper · Mar 2024`. |
 | `organization` | string | JSON Resume 1.7.0. Where you worked together, after `relationship` on the same line. |
 | `date` | string | JSON Resume 1.7.0. ISO 8601, formatted by `preferences.dateFormat`, closing the same line. Missing parts drop out with their separator; with none, there is no line. |
 | `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` (localisable) in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
