@@ -557,7 +557,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and shallow-merges over the English defaults — unknown keys still panic, partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.7.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` and `publicationIcons` merge entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.7.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ## Header QR code (`preferences.qrCode`)
 
