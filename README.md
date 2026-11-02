@@ -185,7 +185,7 @@ Recognised: `basics`, `objective` (see below), `custom` (see [Extensions](#exten
 
 ### Objective
 
-`objective` (JSON Resume 1.4.0) is a short, forward-looking career goal, separate from `basics.summary`, which describes background. It renders in italics between the header and the first section, above the summary when both are set. A string or `[...]` content (empty or missing renders nothing); anything else panics. Like the other JSON Resume 1.4+ fields, it reaches `alta-from-json` once [#217](https://github.com/smur89/alta-typst/issues/217) upgrades the validator; `alta()` renders it now.
+`objective` (JSON Resume 1.4.0) is a short, forward-looking career goal, separate from `basics.summary`, which describes background. It renders between the header and the first section, above the summary when both are set: italic, in the accent colour and a step larger than body text, so the goal reads apart from the background summary. A string or `[...]` content (empty or missing renders nothing); anything else panics. Like the other JSON Resume 1.4+ fields, it reaches `alta-from-json` once [#217](https://github.com/smur89/alta-typst/issues/217) upgrades the validator; `alta()` renders it now.
 
 ```typst
 #alta((
