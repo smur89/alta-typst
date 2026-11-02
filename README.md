@@ -176,6 +176,8 @@ ISO 8601 strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume cano
 
 ### `basics`
 
+`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses, in smaller body-colour text — `JANE DOE (she/her)` — when `preferences.showPronouns` is `true`. It's opt-in, so a shared `resume.json` that carries pronouns doesn't show them unless the CV asks. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
+
 `basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with a generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It is distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
 
 `basics.location` accepts a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed by joining `city`, `region`, `countryCode` with `", "`, skipping missing fields — `(city: "Dublin", region: "Leinster", countryCode: "IE")` → `Dublin, Leinster, IE`; `(city: "Tokyo")` → `Tokyo`. `address` and `postalCode` are accepted for `resume.json` round-tripping but not rendered (a CV header is not a mailing label). Unknown keys panic. The joined string also drives the maps link, so display and link stay in sync.
@@ -219,6 +221,8 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 Each per-section entry follows JSON Resume's schema. Tables show the practical subset rendered. Where dates appear, `startDate` / `endDate` follow the same conventions (omit `endDate` → "Present"); `summary` accepts a string or `[...]` content for markup.
 
+**Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
 #### Work
 
 | Field | Type | Effect |
@@ -229,7 +233,7 @@ Each per-section entry follows JSON Resume's schema. Tables show the practical s
 | `location` | string or dict | Rendered alongside the date range via the location-icon row. Accepts a plain string or JSON Resume's `{address, postalCode, city, countryCode, region}` dict, collapsed to `city, region, countryCode` like `basics.location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
-| `description` | string or content | Alternative spelling used by some exporters — rendered identically to `summary`; `summary` wins when both are supplied. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"). |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 #### Volunteer
@@ -244,6 +248,7 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). Not a JSON Resume field; it renders only because `volunteer[]` shares the `work[]` renderer. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
@@ -270,7 +275,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Italic line beneath the title (below `entity` when both are present), body colour. |
-| `description` | string or content | Deprecated alias of `summary` (JSON Resume 1.6.0); rendered identically. `summary` wins when both are supplied. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
 | `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |
@@ -379,6 +384,7 @@ Override any subset of the keys below.
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
+| `showPronouns` | `false` | When `true`, renders `basics.pronouns` after the name — see [`basics`](#basics). |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |

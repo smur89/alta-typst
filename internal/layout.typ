@@ -85,6 +85,10 @@
   // PDF metadata (title / author) stays as-supplied regardless of
   // this flag — see the comment above `set document(...)`.
   uppercaseName: true,
+  // When true, `basics.pronouns` renders after the name. Opt-in, so a
+  // shared `resume.json` that carries pronouns doesn't show them
+  // unless the CV asks.
+  showPronouns: false,
   // When true and `cv.meta.lastModified` is set, render a small
   // "Last updated: <value>" line in the page footer. PDF metadata
   // (date / keywords / description) is populated from `meta` and

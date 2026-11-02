@@ -13,7 +13,8 @@
 #let _present(v) = v != none and v != "" and v != []
 
 // An entry's JSON Resume `summary`, or `none` when absent. `fallback`
-// names an older field accepted in its place; an empty `summary` falls
+// names an older field accepted in its place (only the deprecated
+// `description` aliases use it, so #239 can drop the parameter); an empty `summary` falls
 // through to it, so either spelling gives the same preamble.
 #let _entry_summary(entry, fallback: none) = {
   let summary = entry.at("summary", default: none)

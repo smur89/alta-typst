@@ -32,6 +32,7 @@
   // term row below matches the institution-line → term spacing in
   // `_experience` / `_education`; a bare `linebreak()` here leaves no
   // paragraph spacing.
+  // #239: drop the deprecated `description` fallback.
   let preamble = _preamble(_entry_summary(project, fallback: "description"))
   if preamble != none { block(below: 0.6em, preamble) }
   // `roles` — the person's role(s) on the project — render as a row of
