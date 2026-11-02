@@ -6,9 +6,9 @@
 // (single-caller, kept adjacent to its consumer).
 //
 // `_header` composes three stages — `_contact_entries` (pure data),
-// `_header_text` (name + pronouns / label / contact bar) and
-// `_header_layout` (photo + QR placement) — so each can change without
-// re-reading the others. Preference shapes are validated up front in
+// `_header_text` (name / label / contact bar) and `_header_layout`
+// (photo + QR placement) — so each can change without re-reading the
+// others. Preference shapes are validated up front in
 // `validation.typ`; nothing here re-checks them.
 
 #import "state.typ": (
@@ -145,8 +145,8 @@
 }
 
 // Name (with optional pronouns), optional label, and contact bar,
-// aligned per `headerTextAlign`. Takes the already-resolved `body-size` / `accent`
-// so `_header` owns the single `context` read.
+// aligned per `headerTextAlign`. Takes the already-resolved
+// `body-size` / `accent` so `_header` owns the single `context` read.
 #let _header_text(basics, preferences, body-size, accent) = {
   let link-config = _resolve_link_config(preferences.linkContactInfo)
   let headline = basics.at("label", default: none)
@@ -172,9 +172,9 @@
             basics.name
           },
         )
-        // Opt-in via `showPronouns`. Pronouns sit on the name's
-        // baseline, outside `upper(...)`: they aren't part of the name,
-        // so `uppercaseName` leaves them as written. The `box` keeps
+        // Pronouns sit on the name's baseline, outside `upper(...)`:
+        // they aren't part of the name, so `uppercaseName` leaves them
+        // as written. The `box` keeps
         // "(they/them)" in one piece when a long name wraps.
         if preferences.showPronouns and _present(pronouns) {
           h(0.5 * body-size)

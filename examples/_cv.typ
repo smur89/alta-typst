@@ -31,9 +31,3 @@
 // panic on a missing key) and reads as an expression rather than a
 // statement sequence.
 #let no-image(cv) = cv + (basics: cv.basics + (image: none))
-
-// Returns the CV with `basics.pronouns` set. Pronouns only render with
-// `preferences.showPronouns: true`, so frames pair the two.
-#let with-pronouns(cv, pronouns: "he/him") = (
-  cv + (basics: cv.basics + (pronouns: pronouns))
-)

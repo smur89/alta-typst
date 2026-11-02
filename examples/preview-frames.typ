@@ -25,7 +25,7 @@
 // reads as an afterthought when stacked below the contact bar.
 
 #import "../lib.typ": alta, maps-providers, palettes
-#import "_cv.typ": cv, no-image, with-pronouns
+#import "_cv.typ": cv, no-image
 
 // Irish-language label overrides used by one of the frames to
 // demonstrate localisation. Loaded once at parse time — the same
@@ -95,7 +95,7 @@
   // the navy baseline so the palette swap is also visible. Pronouns
   // shown (`showPronouns`), centred with the name.
   (
-    with-pronouns(cv),
+    cv,
     base
       + (
         accent: palettes.charcoal,
@@ -174,7 +174,7 @@
   // the volunteer arrangement is the distinctive shape here. Pronouns
   // shown after the right-aligned name.
   (
-    with-pronouns(no-image(cv)),
+    no-image(cv),
     base
       + (
         accent: palettes.forest,

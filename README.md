@@ -221,6 +221,8 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 Each per-section entry follows JSON Resume's schema. Tables show the practical subset rendered. Where dates appear, `startDate` / `endDate` follow the same conventions (omit `endDate` → "Present"); `summary` accepts a string or `[...]` content for markup.
 
+**Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
 #### Work
 
 | Field | Type | Effect |
@@ -231,7 +233,7 @@ Each per-section entry follows JSON Resume's schema. Tables show the practical s
 | `location` | string or dict | Rendered alongside the date range via the location-icon row. Accepts a plain string or JSON Resume's `{address, postalCode, city, countryCode, region}` dict, collapsed to `city, region, countryCode` like `basics.location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
-| `description` | string or content | **Deprecated** alias of `summary`, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)); rendered identically, and `summary` wins when both are supplied. JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"), so rename it to `summary` if it holds the role summary. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"). |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 #### Volunteer
@@ -246,7 +248,7 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
-| `description` | string or content | **Deprecated**, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)). Not a JSON Resume field: it renders like `summary` (which wins when both are supplied) only because `volunteer[]` shares the `work[]` renderer. Rename it to `summary`. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). Not a JSON Resume field; it renders only because `volunteer[]` shares the `work[]` renderer. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
@@ -273,7 +275,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Italic line beneath the title (below `entity` when both are present), body colour. |
-| `description` | string or content | **Deprecated** alias of `summary`, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)); rendered identically, and `summary` wins when both are supplied. JSON Resume deprecated it in 1.6.0. Rename it to `summary`. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
 | `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |
@@ -379,7 +381,7 @@ Override any subset of the keys below.
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
-| `showPronouns` | `false` | When `true` and `basics.pronouns` is set, renders the pronouns after the name, e.g. `JANE DOE (she/her)`. |
+| `showPronouns` | `false` | When `true`, renders `basics.pronouns` after the name — see [`basics`](#basics). |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |

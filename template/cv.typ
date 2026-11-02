@@ -17,6 +17,8 @@
 #let cv = (
   basics: (
     name: "Seán Ó Murchú",
+    // Shown after the name only with `preferences.showPronouns: true`.
+    pronouns: "he/him",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing

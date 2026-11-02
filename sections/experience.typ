@@ -33,6 +33,7 @@
     #name[#if _present(url) { link(url, org) } else { org }]
     #_entry_term(entry, key, prefs, labels)
 
+    // #239: drop the deprecated `description` fallback.
     #_preamble(_entry_summary(entry, fallback: "description"))
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
   ],
