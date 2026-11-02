@@ -1,10 +1,8 @@
-// References — referee `name` as a level-3 heading with the
-// `reference` quote in italic beneath, joined by the standard divider
-// rule. An entry with JSON Resume's `availableOnRequest: true` shows
-// `labels.referencesAvailableOnRequest` in place of its quote; when
-// every entry is on request, the section is that one line, with no
-// names. Entries with neither a quote nor the flag are skipped (no
-// orphan heading); entries lacking `name` render anonymously.
+// References. `availableOnRequest: true` shows
+// `labels.referencesAvailableOnRequest` instead of a quote; when every
+// entry is on request the section is that one line, with no names.
+// Entries with neither quote nor flag are skipped; nameless ones
+// render anonymously.
 
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section

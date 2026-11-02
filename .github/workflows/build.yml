@@ -21,16 +21,11 @@ env:
   # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
   # every CI job that compiles the package downloads v7 from upstream.
   FA_VERSION: 7.0.0
-  # Package name as it appears in typst.toml's `package.name`. Surfaced
-  # here so branch names, tarball names, PR titles, and the supersede
-  # filter all derive from one place; rename the package by editing
-  # both this and typst.toml.
+  # Must match typst.toml's `package.name`; tarball, branch and PR
+  # names all derive from it.
   PACKAGE_NAME: altacv
-  # typstyle release tag the `typstyle` job pins to. Formatter output
-  # can shift between versions, so keep this in lockstep with the
-  # version contributors run locally (see CONTRIBUTING) — otherwise the
-  # check disagrees with `make fmt`. Bump deliberately, reformatting in
-  # the same commit.
+  # Formatter output can shift between versions: bump deliberately and
+  # reformat in the same commit (see CONTRIBUTING).
   TYPSTYLE_VERSION: v0.15.0
 
 # An explicit `bash` makes Actions run steps with `-eo pipefail`; the
@@ -42,8 +37,6 @@ defaults:
     shell: bash
 
 jobs:
-  # Syntax + manifest sanity check. Compiles lib.typ and the example
-  # against the local file tree (no installation).
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -61,28 +54,18 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Also compile-checks template/cv.typ (the `typst init` starter)
-      # via its import-swapped copy, so a broken starter trips here
-      # before release.
       - name: Compile examples, test fixtures + template
         run: make test
 
-      # `-B` forces a re-render: the PDFs are tracked, so on a fresh
-      # checkout their mtimes reflect checkout order rather than
-      # history and make may judge them up to date, leaving the gate
-      # comparing the committed files to themselves. See the
-      # Makefile's `check-drift` for what counts as drift.
+      # `-B`: tracked PDFs get checkout-order mtimes, so make could
+      # skip them and the gate would compare the committed files to
+      # themselves.
       - name: Verify examples/tests/*.pdf are in sync
         run: |
           make -B test-pdfs
           make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make test-pdfs'
 
-  # Enforce typstyle formatting. typstyle parses source only — it needs
-  # neither Typst nor the fonts — so this job skips setup-typst and just
-  # fetches the pinned binary (same download-a-pinned-binary pattern as
-  # setup-typst does for Typst itself). `make fmt-check` is the exact
-  # command contributors run locally, so a green run here means
-  # `make fmt` produced no diff.
+  # typstyle parses source only, so no setup-typst or fonts needed.
   format:
     name: typstyle
     runs-on: ubuntu-latest
@@ -95,9 +78,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # Prebuilt musl-free gnu binary for the x86_64 ubuntu runner,
-      # pinned to TYPSTYLE_VERSION so the check can't drift from the
-      # version that produced the committed formatting.
       - name: Install typstyle
         run: |
           curl -sSfL -o /usr/local/bin/typstyle \
@@ -108,9 +88,7 @@ jobs:
       - name: Check formatting
         run: make fmt-check
 
-  # Build the example PDF and a first-page preview PNG. Uploaded as
-  # workflow artifacts on every run so reviewers can download and
-  # inspect the rendered output without checking it out locally.
+  # Rendered output as workflow artifacts for reviewers.
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -128,18 +106,10 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Includes the Universe package-card thumbnail — not uploaded,
-      # but building it render-checks the template (`make test` in the
-      # lint job is the compile gate). Not bit-compared here: this job
-      # runs in setup-typst, where raster output varies across
-      # systems. The byte-exact drift check lives in the
-      # `preview-images-in-sync` job below, which regenerates inside
-      # the pinned image.
-      #
-      # The uploads below stay as three separate artifacts rather than
-      # one multi-path step: a reviewer usually wants one file, and
-      # separate artifacts keep that a single small download with a
-      # self-describing name instead of one bundled zip.
+      # Not byte-compared: raster output varies under setup-typst; the
+      # `preview-images-in-sync` job checks drift in the pinned image.
+      # Separate uploads so a reviewer downloads one small, named file
+      # rather than a bundled zip.
       - name: Build cv.pdf + cv.png + example_full.pdf + thumbnail.png
         run: make release-artifacts
 
@@ -167,10 +137,8 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-  # Required check: catch tarball-list drift, README-link rot, and
-  # deprecated-API warnings before release-please cuts a tag — same
-  # tool the typst/packages CI bot runs. A failure here blocks merge
-  # (branch protection lists `typst-package-check` as required).
+  # Runs the same checker as typst/packages' CI before a release is
+  # cut. Required by branch protection.
   package-check:
     name: typst-package-check
     if: github.event_name == 'pull_request'
@@ -179,8 +147,7 @@ jobs:
     permissions:
       contents: read
     env:
-      # Bump deliberately. Pin via tag so a future check-tool change
-      # can't silently flip the verdict on the same source.
+      # Pinned so a checker update can't flip the verdict on the same source.
       PCHECK_IMAGE: ghcr.io/typst/package-check:0.6.0
     steps:
       - name: Checkout
@@ -194,17 +161,13 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Populates ~/.cache/typst with altacv's @preview deps
-      # (fontawesome etc.). The validate step below mounts that cache
-      # into the check container so dep resolution succeeds offline.
-      # `thumbnail` matches what attach-release-artifacts generates,
-      # so the staged dir mirrors the release tarball.
+      # Also fills ~/.cache/typst with @preview deps, which the
+      # validate step mounts into the check container.
       - name: Render artifacts the release tarball contains
         run: make release-artifacts
 
-      # Stage at the package's actual version (from typst.toml) — the
-      # template's self-import `@preview/altacv:<version>` resolves to
-      # the staged directory, otherwise the check can't compile it.
+      # Stage at typst.toml's version so the template's self-import
+      # resolves to the staged directory.
       - name: Stage package directory matching the release tarball
         run: |
           PKG_VERSION=$(awk -F'"' '/^version = / {print $2; exit}' typst.toml)
@@ -213,12 +176,8 @@ jobs:
           echo "PKG_VERSION=${PKG_VERSION}" >> "${GITHUB_ENV}"
 
       - name: Validate package
-        # The official image's entrypoint is typst-package-check; pass
-        # the subcommand + args directly. --workdir matches the tool's
-        # requirement to be invoked from the `packages` subdir. The
-        # host's Typst cache is mounted at /.cache/typst — the image
-        # has HOME=/ (no /root, no /home/typst), so that's where the
-        # in-container Typst looks for @preview/fontawesome etc.
+        # The tool must run from the `packages` subdir. The image has
+        # HOME=/, so its Typst looks for the package cache at /.cache/typst.
         run: |
           docker run --rm \
             -v /tmp/pkg-check:/data \
@@ -227,13 +186,8 @@ jobs:
             ${PCHECK_IMAGE} \
             check @preview/${PACKAGE_NAME}:${PKG_VERSION}
 
-  # The tracked preview PNGs — examples/cv.png (README hero) and
-  # thumbnail.png (Universe card) — rasterise from template/cv.typ.
-  # Raster output is environment-sensitive, so unlike the fixture PDFs
-  # (byte-checked in the lint job under setup-typst) these only
-  # reproduce inside the pinned image. Regenerate them there and fail
-  # on drift, so a rendering change that isn't reflected in the
-  # committed images is caught before it ships to the README / card.
+  # Raster output only reproduces inside the pinned image (unlike the
+  # fixture PDFs), so the tracked preview PNGs are checked there.
   # Add `preview-images-in-sync` to branch protection to make it
   # blocking.
   preview-image-drift:
@@ -249,23 +203,15 @@ jobs:
         with:
           persist-credentials: false
 
-      # Regenerates via the same Makefile target contributors run, so
-      # the gate environment matches the commit environment exactly.
-      # The pinned image ships Typst + Lato + FontAwesome, so no
-      # setup-typst step is needed; `docker run` auto-pulls it.
+      # The image ships Typst + fonts, so no setup-typst step.
       - name: Regenerate preview PNGs in the pinned image
         run: make docker-preview-images
 
       - name: Verify examples/cv.png + thumbnail.png are in sync
         run: make check-drift DRIFT_PATHS='examples/cv.png thumbnail.png' DRIFT_FIX='make docker-preview-images'
 
-  # release-please reads conventional-commit messages since the last
-  # tag, opens (or updates) a Release PR with the bumped version, and
-  # — when that PR is merged — cuts the tag + GitHub Release.
-  #
-  # The release-please-config.json declares typst.toml's
-  # `package.version` field as an extra-file, so the manifest version
-  # stays in lockstep with the released tag automatically.
+  # release-please-config.json bumps typst.toml's `package.version`
+  # as an extra-file, keeping it in lockstep with the tag.
   release-please:
     needs: [lint, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -285,12 +231,6 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  # Runs only on the workflow run where release-please just created a
-  # release. Builds a `altacv-<version>.tar.gz` containing the package
-  # files that should be submitted to typst/packages (typst.toml,
-  # lib.typ, internal/, sections/, assets/, template/,
-  # thumbnail.png, LICENSE, README.md) and attaches it to the release
-  # alongside the rendered cv.pdf / cv.png / example_full.pdf.
   attach-release-artifacts:
     needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
@@ -314,42 +254,13 @@ jobs:
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
         run: make release-artifacts
 
-      # The tarball contains exactly the files that go into
-      # typst/packages/preview/<PACKAGE_NAME>/<version>/. Everything else
-      # (CI, test fixtures, build helpers, .gitignore) is repo-only and
-      # intentionally excluded from the package payload.
-      #
-      # `internal/` and `sections/` carry the modules that lib.typ
-      # `#import`s; they must ship with the package or compile fails
-      # at the user's site with "file not found". `assets/` carries
-      # the bundled avatar-placeholder SVG re-exported as
-      # `avatar-placeholder` from `lib.typ`.
-      #
-      # FontAwesome glyphs are resolved via `@preview/fontawesome`
-      # (pulled in transitively by `internal/icons.typ`), which reads
-      # them from the desktop FA fonts installed on the user's system
-      # or preinstalled on typst.app. No font files ship with this
-      # package.
-      #
-      # `template/` provides the starter project that `typst init
-      # @preview/altacv` copies to the user; `thumbnail.png` is the
-      # image Typst Universe displays on the package card. Both are
-      # referenced from typst.toml's `[template]` section and must
-      # ship with the package or the linter reports them missing.
-      #
-      # The `examples/*` files are documentation assets the README
-      # links to (preview GIF, gallery PDFs / PNGs, Irish translation
-      # demo). They ship in the typst/packages directory so the
-      # README's local links resolve on Universe at the matching
-      # version, but they are listed under `exclude` in typst.toml so
-      # the compiler bundle a downstream `#import` pulls stays small.
-      # Update this list (and the README) when adding new README
-      # links — anything not listed here will 404 from Universe.
+      # File list: the Makefile's PACKAGE_FILES. The `examples/*`
+      # entries ship only so README links resolve on Universe (typst.toml
+      # `exclude`s them from the compiler bundle); a README link to a
+      # file not listed there will 404 on Universe.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
-        # File list lives in the Makefile's PACKAGE_FILES — single
-        # source of truth shared with the PR-time package-check job.
         run: make package-tarball PACKAGE_TARBALL="${PACKAGE_NAME}-${VERSION}.tar.gz"
 
       - name: Attach assets to release
@@ -363,11 +274,8 @@ jobs:
             examples/example_full.pdf
           make_latest: 'true'
 
-  # When release-please cuts a new tag, automatically open a PR on
-  # typst/packages submitting altacv:<version> to Typst Universe. The
-  # PR is created from a maintainer-owned fork (smur89/packages),
-  # branched off the current typst/packages main so the diff is just
-  # the new package directory.
+  # Opens the typst/packages PR for the new version from the
+  # smur89/packages fork, branched off upstream main.
   #
   # Prerequisites (one-time setup):
   #   1. Fork github.com/typst/packages to smur89/packages.
@@ -380,20 +288,13 @@ jobs:
   #   3. Store the PAT as a repository secret named TYPST_UNIVERSE_TOKEN
   #      on smur89/alta-typst.
   #
-  # The job is idempotent: re-running for an already-submitted version
-  # detects the existing PR, captures its URL, and skips creation.
-  # Older `altacv:*` PRs we own are then auto-closed with a supersede
-  # comment pointing at the current submission — the typst/packages
-  # review queue runs slower than this repo's release cadence, so
-  # stacking version PRs wastes reviewer time and merges stale bugs.
+  # Idempotent: a re-run reuses an already-open PR for the version.
   submit-to-typst-universe:
     needs: [release-please, attach-release-artifacts]
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # All write operations target external repos (smur89/packages and
-    # typst/packages) via TYPST_UNIVERSE_TOKEN, so no permissions on
-    # the workflow repo itself are needed.
+    # All writes go to external repos via TYPST_UNIVERSE_TOKEN.
     permissions: {}
     env:
       VERSION: ${{ needs.release-please.outputs.version }}
@@ -405,10 +306,8 @@ jobs:
       - name: Skip if a PR for this version is already open
         id: check
         run: |
-          # Filter by head branch (one branch per version) rather than
-          # title-substring search — GitHub's search syntax interprets
-          # `altacv:` as an unknown filter qualifier and returns nothing
-          # useful for a title containing a colon.
+          # Filter by head branch: search treats `altacv:` in a title
+          # query as an unknown qualifier.
           existing=$(gh pr list \
             --repo "$UPSTREAM_REPO" \
             --head "${FORK_REPO%%/*}:${PACKAGE_NAME}-${VERSION}" \
@@ -417,17 +316,12 @@ jobs:
           if [ -n "$existing" ]; then
             echo "PR already open: $existing — skipping submission"
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            # Surface the existing URL so the supersede step below can
-            # reference *this* version's PR regardless of whether we
-            # created it on this run or a previous one.
+            # For the supersede step, whichever run created the PR.
             echo "pr_url=$existing" >> "$GITHUB_OUTPUT"
           fi
 
-      # Sparse-checkout the PR-body template; full checkout would
-      # pull lib.typ and assets we don't need in this job. The body
-      # uses the slim "update" variant of typst/packages' PR
-      # template — the first submission of altacv was opened
-      # manually, so this job only ever opens version-bump PRs.
+      # Uses typst/packages' "update" PR template: this job only opens
+      # version bumps (the first submission was manual).
       - name: Checkout PR body template
         if: steps.check.outputs.skip != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -443,17 +337,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # The fork mirrors all of typst/packages (~70 000 files). A
-      # plain shallow clone takes 30-60s materialising every blob;
-      # the partial-clone (--filter=blob:none) plus sparse-checkout
-      # variant skips that entirely — we only read/write our own
-      # package directory in this fork, never any existing package.
-      # Net: ~5-10s in place of 30-60s.
-      #
-      # We use plain `git clone` (not `gh repo clone`) because the
-      # gh wrapper auto-fetches upstream without our filter, which
-      # would defeat the speedup. `gh auth setup-git` above already
-      # configured github.com credentials, so no embedded token.
+      # Blobless + sparse: the fork mirrors all of typst/packages, and
+      # we only touch our own directory. Plain `git clone`, because
+      # `gh repo clone` fetches upstream without the filter.
       - name: Clone fork (sparse, blobless) and branch off upstream/main
         if: steps.check.outputs.skip != 'true'
         run: |
@@ -479,30 +365,22 @@ jobs:
           git add "$PKG_DIR"
           git commit -m "${PACKAGE_NAME}:${VERSION}"
 
-      # `--force` because the branch is auto-generated per version and
-      # only this workflow ever pushes to it — overwriting stale state
-      # from a partially-failed prior run (branch pushed, PR creation
-      # later failed) is the desired behaviour. Without it, re-runs
-      # fail with "fetch first" once any previous attempt got past the
-      # push step.
+      # `--force`: only this workflow pushes the per-version branch, and
+      # a re-run after a failed PR creation must overwrite it.
       - name: Push branch to fork
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
           git push --force origin "${PACKAGE_NAME}-${VERSION}"
 
-      # envsubst is restricted to the expected variable names so any
-      # incidental $-references in the template (e.g. a stray $PATH)
-      # are not silently expanded.
+      # envsubst is restricted to named variables so stray `$` refs in
+      # the template survive.
       - name: Open PR upstream
         id: open
         if: steps.check.outputs.skip != 'true'
         run: |
           cd pkg
-          # `gh pr create` ordinarily prints just the URL, but some
-          # versions also emit a "Creating pull request for X into Y"
-          # preamble line first. `tail -n 1` keeps the capture robust
-          # across either format.
+          # Some gh versions print a preamble line before the URL.
           new_pr_url=$(envsubst '${VERSION} ${TAG} ${GITHUB_REPOSITORY}' \
             < "$GITHUB_WORKSPACE/.github/typst-universe-pr-body.md" \
             | gh pr create \
@@ -515,41 +393,19 @@ jobs:
           echo "Opened: $new_pr_url"
           echo "pr_url=$new_pr_url" >> "$GITHUB_OUTPUT"
 
-      # The typst/packages review queue moves slower than releases here
-      # — a v1.0.0 submission can sit pending while v1.1.0 is ready
-      # to go. Once a *newer* submission is open, the older one is
-      # stale (its bugs are fixed in the newer release, and merging
-      # both wastes reviewer time). We close every other open
-      # ${PACKAGE_NAME}:* PR we own with a supersede comment pointing
-      # at the current one. Runs regardless of whether this run
-      # *created* the current PR or detected it from a previous run,
-      # so a retried workflow still tidies up stragglers.
+      # The upstream review queue is slower than our releases, so close
+      # our older ${PACKAGE_NAME} PRs in favour of the current one.
       #
-      # Safety:
-      #   - `--author "@me"` scopes to PRs opened by the PAT identity
-      #     (whoever owns TYPST_UNIVERSE_TOKEN), so we never touch
-      #     anyone else's submissions even in the unlikely case of a
-      #     name collision. **Caveat**: rotating TYPST_UNIVERSE_TOKEN
-      #     to a different account orphans PRs opened under the old
-      #     identity from this filter — close those manually if a
-      #     rotation happens while prior-version PRs are still open.
-      #   - Filtering on the head branch starting with `${PACKAGE_NAME}-`
-      #     is a belt-and-braces check against any non-package PR the
-      #     bot might also have opened against typst/packages.
-      #   - We exclude `${PACKAGE_NAME}-${VERSION}` (the current
-      #     submission) from the close list so it survives.
+      # Safety: `--author "@me"` scopes to the TYPST_UNIVERSE_TOKEN
+      # identity, and only `${PACKAGE_NAME}-*` head branches match.
+      # Caveat: rotating the token to another account orphans PRs
+      # opened under the old one; close those manually.
       - name: Supersede earlier package PRs
         env:
           CURRENT_PR_URL: ${{ steps.check.outputs.pr_url || steps.open.outputs.pr_url }}
           SERVER_URL: ${{ github.server_url }}
         run: |
-          # GHA's default shell for `run:` is `bash --noprofile --norc
-          # -eo pipefail {0}`, so a `gh` failure on the upstream side
-          # of the `| jq` pipe aborts the step. `jq -r --arg cur` is
-          # quote-safe regardless of what release-please ever emits as
-          # the version string. `--limit 100` defeats the 30-item gh
-          # default — a long upstream review hiatus could otherwise let
-          # stragglers slip past unseen.
+          # `--limit 100` overrides gh's default of 30.
           stale=$(gh pr list \
             --repo "$UPSTREAM_REPO" \
             --author "@me" \
@@ -564,10 +420,7 @@ jobs:
           fi
           release_notes="${SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
           body="Closing in favour of \`${PACKAGE_NAME}:${VERSION}\` at ${CURRENT_PR_URL}. The newer release supersedes this submission — see the [release notes](${release_notes}) for the cumulative changes."
-          # Tolerate per-PR close failures (e.g. someone manually closed
-          # one between the list and now): log and continue rather than
-          # aborting the batch and leaving the rest open until the next
-          # release happens by.
+          # Warn and continue on a per-PR failure (e.g. closed meanwhile).
           for pr in $stale; do
             if gh pr close "$pr" --repo "$UPSTREAM_REPO" --comment "$body"; then
               echo "Superseded PR #$pr"

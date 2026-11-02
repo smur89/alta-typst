@@ -1,13 +1,8 @@
-// Private state cells + colour constants. `alta()` sets the state at
-// render time; helpers throughout the package read it inside every
-// `context { }` block. Public presets (the `palettes` dict for the
-// `_accent_state` default, plus `maps-providers`) live separately in
-// `presets.typ`.
+// Private state cells and colour constants. `alta()` sets the state
+// once; helpers read it inside `context { }`.
 
 #import "presets.typ": palettes
 
-// State cells consulted by helpers throughout the package — set once
-// by `alta()` and read inside every `context { }` block downstream.
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", palettes.teal)
 // Read only by the public `rating()` helper's default `max`; the

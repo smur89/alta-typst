@@ -1,15 +1,10 @@
-// Section dispatch catalogue + the default preferences that
-// reference it. Adding a section here places it in the default
-// layout — still need to write the renderer (under `sections/`, taking
-// `(entries, ctx)`) and add a `labels` key in `labels-en.toml`.
+// Section dispatch catalogue and the default preferences. A new section
+// also needs a renderer under `sections/` and a heading in
+// `labels-en.toml`.
 //
-// `_default_preferences` lives in this module rather than
-// `defaults.typ` because its `leftColumnSections` /
-// `rightColumnSections` defaults derive from `_sections` (via
-// `_keys_for_column`). Keeping the foundation (`defaults.typ`) free
-// of imports from this orchestration layer preserves the dependency
-// layering: `defaults.typ` is leaf data; this file is the layout
-// kernel.
+// `_default_preferences` lives here, not in `defaults.typ`, because the
+// column defaults derive from `_sections`; `defaults.typ` stays leaf
+// data with no imports.
 
 #import "presets.typ": maps-providers, palettes
 #import "text.typ": _altacv
@@ -25,14 +20,11 @@
 #import "../sections/publications.typ": _publications
 #import "../sections/references.typ": _references
 
-// Plain data: every renderer shares the `(entries, ctx)` signature —
-// `ctx` is `(labels, prefs, owner)`, which renderers destructure — and
-// `_read_sections` feeds it `cv.at(key, default: ())`
-// — so each dict key doubles as the CV field it renders. An optional
-// `read: cv => entries` overrides that lookup, for `focusAreas`, whose
-// data lives in `custom.altacv` (the key still names the section); an
-// optional `items` lists the entry types the section accepts (default:
-// dictionaries). Defined after the renderer imports because Typst
+// Renderers take `(entries, ctx)`, `ctx` being `(labels, prefs,
+// owner)`. Each key doubles as the CV field read, unless `read`
+// overrides it (`focusAreas` lives in `custom.altacv`); `items` lists
+// the accepted entry types (default: dictionaries). Insertion order is
+// the default render order. Must follow the renderer imports: Typst
 // binds identifiers eagerly.
 #let _sections = (
   work: (column: "left", render: _experience),
@@ -54,8 +46,8 @@
   references: (column: "right", render: _references),
 )
 
-// Every section's entries keyed by section, each shape-checked against
-// its `items` before any renderer (or the PDF-keyword pass) reads it.
+// Every section's entries, shape-checked before any renderer (or the
+// PDF-keyword pass) reads them.
 #let _read_sections(cv) = (
   _sections
     .pairs()
@@ -67,91 +59,42 @@
     .to-dict()
 )
 
-// Defaults derived from `_sections` so adding a section there
-// automatically places it in the default layout for its declared
-// column. Insertion order in `_sections` controls render order.
 #let _keys_for_column(col) = (
   _sections.keys().filter(k => _sections.at(k).column == col)
 )
 
-// User-facing reference for these prefs lives in the README. Comments
-// below capture only what isn't recoverable from the key name + default
-// — non-obvious constraints, footguns, and design rationale.
+// Documented in the README's preferences table; comments here note
+// only constraints the README doesn't need.
 #let _default_preferences = (
-  // Must be installed on the build host (CI installs Lato).
+  // Must be installed on the build host (CI installs it: apt in
+  // setup-typst, apk in the pinned image).
   font: "Lato",
-  // Every spacing token is an em-multiplier of this, so changing one
-  // knob scales the whole document proportionally.
   bodySize: 10pt,
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
-  // `palettes.teal` — see the `palettes` dict for the curated set
-  // (`teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`).
   accent: palettes.teal,
-  // Deprecated and ignored: certificates render as entries, each
-  // showing its own issuer. Still accepted; removed in the next major
-  // (#239).
+  // Deprecated and ignored; removed in the next major (#239).
   groupCertificates: true,
   imageSize: 6em,
   linkContactInfo: true,
-  // `{q}` is substituted with the URL-encoded location. A string
-  // missing that placeholder panics so a typo is caught up front
-  // rather than producing a dead link.
   mapsProvider: maps-providers.google,
   imagePosition: "right",
-  // Only consulted when `imagePosition` is "center" — chooses whether
-  // the centred portrait stacks above or below the header text block.
   imageStackOrder: "above",
   headerTextAlign: "left",
-  // `auto` encodes `basics.url`; any non-empty string is encoded
-  // verbatim. Backed by `@preview/zebra` via `internal/qr.typ`.
   qrCode: none,
-  // PDF metadata (title / author) stays as-supplied regardless of
-  // this flag — see the comment above `set document(...)`.
+  // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
-  // When true, `basics.pronouns` renders after the name. Opt-in, so a
-  // shared `resume.json` that carries pronouns doesn't show them
-  // unless the CV asks.
   showPronouns: false,
-  // When true and `cv.meta.lastModified` is set, render a small
-  // "Last updated: <value>" line in the page footer. PDF metadata
-  // (date / keywords / description) is populated from `meta` and
-  // `basics` independently of this flag.
   lastModifiedFooter: false,
-  // When true and `cv.meta.version` is set, append it in parentheses to
-  // the `lastModifiedFooter` line (e.g. "Last updated: 2026-06-12
-  // (v1.0.0)"). No-op unless `lastModifiedFooter` is also active — the
-  // version rides the last-updated line, it is not a footer of its own.
-  // The version renders verbatim (the schema's own example is "v1.0.0",
-  // so no "v" is prepended). PDF Keywords carry `meta.version` (and
-  // `meta.canonical`) independently of this flag.
+  // Rides the `lastModifiedFooter` line; no-op without it.
   footerVersion: false,
-  // Controls how ISO 8601 date strings ("2024", "2024-06", "2024-06-15")
-  // are rendered wherever the template surfaces a date. Non-ISO strings
-  // (e.g. "Jan 2022", "May 2016 – Jul 2017") pass through verbatim
-  // regardless of this setting, so pre-formatted data keeps working.
-  //   "long"  — "Jun 2024" / "15 Jun 2024" (month names from labels.months)
-  //   "short" — "06/2024"  / "15/06/2024"
-  //   "iso"   — passthrough of the original string
-  //   closure — (parts) -> str, where parts is (year, month?, day?)
   dateFormat: "long",
-  // Fraction in (0, 1] (validated in alta()). Use the complement
-  // (`1 - r`) and swap the column-section arrays to invert the layout;
-  // exactly 1 collapses the grid to a single full-width column.
   columnRatio: 0.65,
-  // `none` (default) — no footer. `"auto"` — name + "Page N / M" on
-  // multi-page documents only (single-page stays clean). Any content
-  // value — rendered verbatim as the footer on every page.
   pageFooter: none,
-  // Sections omitted from BOTH arrays don't render even if their data
-  // is present; sections listed in both render twice. Defaults derive
-  // from `_sections` so adding a section there places it automatically.
   leftColumnSections: _keys_for_column("left"),
   rightColumnSections: _keys_for_column("right"),
-  // Opt-in: emit `labels.referencesAvailableOnRequest` under the
-  // References heading when no entry has a `reference` quote, instead
-  // of suppressing the section.
+  // Deprecated (#239): `_canonical_cv` turns it into a
+  // `references[].availableOnRequest` entry.
   referencesAvailableOnRequest: false,
-  // Number of dots on the language scale.
   maxRating: 5,
 )

@@ -1,27 +1,18 @@
-// JSON Resume's `work[]` and `volunteer[]` render as the same block
-// list — position heading, accent-coloured (optionally linked) org
-// line, optional term row + location, optional italic preamble,
-// bulleted highlights. They differ only in their section label and in
-// the dict key naming the organisation (`work` uses `name`,
-// `volunteer` uses `organization`), so both delegate to the shared
-// `_entry_section` renderer below.
+// `work[]` and `volunteer[]` render identically, differing only in
+// section label and organisation key, so both use `_entry_section`.
 
 #import "../internal/text.typ": _entry_summary, _present
 #import "../internal/primitives.typ": (
   _entry_term, _org_line, _preamble, _section,
 )
 
-// Shared renderer for the `work[]` / `volunteer[]` block lists.
-// `key` is the JSON Resume section key (`"work"` / `"volunteer"`),
-// which also names the section label and the field in panic messages;
-// `org-key` is the dict key holding the organisation name (`"name"`
-// for work, `"organization"` for volunteer).
+// `key` (`"work"` / `"volunteer"`) names the label and the field in
+// panic messages; `org-key` holds the organisation name.
 #let _entry_section(entries, key, org-key, (labels, prefs, ..)) = _section(
   labels.at(key),
   entries,
   entry => [
-    // `position` is optional in JSON Resume — without it the org
-    // line leads the entry.
+    // `position` is optional; without it the org line leads.
     #let position = entry.at("position", default: none)
     #if _present(position) [=== #position]
     #_org_line(
@@ -35,12 +26,8 @@
   ],
 )
 
-// `work[]` — organisation held under `name`.
 #let _experience(work, ctx) = _entry_section(work, "work", "name", ctx)
 
-// `volunteer[]` — organisation held under `organization`; otherwise
-// identical to `work[]` (same summary preamble and linked-org
-// behaviour).
 #let _volunteer(entries, ctx) = _entry_section(
   entries,
   "volunteer",

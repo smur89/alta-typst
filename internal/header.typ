@@ -1,14 +1,6 @@
-// Header — name + pronouns + label + summary + contact bar,
-// optionally with a circular portrait. Owns every above-the-grid
-// surface driven by `basics`: the header block itself, the `_summary`
-// paragraph that sits between the contact bar and the first section
-// heading, and the `_url_encode` helper that feeds the maps deep link
-// (single-caller, kept adjacent to its consumer).
-//
-// `_header` composes three stages — `_contact_entries` (pure data),
-// `_header_text` (name / label / contact bar) and `_header_layout`
-// (photo + QR placement) — so each can change without re-reading the
-// others. Preference shapes are validated up front in
+// Header — every above-the-grid surface driven by `basics`: name,
+// pronouns, label, contact bar, optional portrait and QR, and the
+// `_summary` paragraph. Preference shapes are validated up front in
 // `validation.typ`; nothing here re-checks them.
 
 #import "state.typ": (
@@ -36,13 +28,10 @@
   out
 }
 
-// `image()` resolves bare string paths at THIS file, which lives
-// in the @preview cache for installed users. Accepting `path` and
-// `bytes` lets callers anchor resolution at their own .typ; README
-// documents the forms. `fit: "cover"` keeps non-square sources
-// from distorting. `alt` becomes the image's `/Alt` in Typst's tagged
-// PDF output, so screen readers announce the portrait instead of
-// meeting an unlabelled figure.
+// `image()` resolves bare string paths at THIS file, which lives in
+// the @preview cache for installed users; `path` and `bytes` sources
+// let callers anchor resolution at their own .typ. `alt` becomes the
+// image's `/Alt` in tagged PDF output.
 #let _portrait(source, size, alt) = box(
   width: size,
   height: size,
@@ -51,13 +40,9 @@
   image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
 )
 
-// Returns a fully-populated per-channel dict so downstream code can
-// always `link-config.at(channel)` without missing-key guards. The
-// shape (bool, or a dict of bools keyed by `_contact_channels`) is
-// already enforced by `_validate_preferences`.
+// Fully populated per channel, so callers can `link-config.at(channel)`
+// without missing-key guards.
 #let _resolve_link_config(value) = {
-  // Sourcing the channel set from `_contact_channels` keeps adding a
-  // channel a one-line change there, not here.
   let all-channels(v) = _contact_channels.fold((:), (acc, c) => acc + ((c): v))
   if type(value) == bool { all-channels(value) } else {
     all-channels(true) + value
@@ -79,37 +64,26 @@
   (
     channel: "profiles",
     icon: network,
-    // The display value is usually a bare username, so the icon is the
-    // only thing naming the network; `alt` tags it with that name
-    // instead of leaving it a decorative artifact. The user's own
-    // `network` string, not the lowercased key, carries their
-    // capitalisation ("GitHub", "LinkedIn").
+    // The value is usually a bare username, so the icon is the only
+    // thing naming the network. The user's own string, not the
+    // lowercased key, keeps their capitalisation ("GitHub").
     alt: profile.network,
-    // Partial profiles (no `url`) keep working: the display value
-    // falls back to `url` then "", and the link wrap is gated on
-    // `entry.url != none` in `_header_text` — using
-    // `.at("url", default: none)` instead of direct access means a
-    // profile with only `network` + `username` renders the username
-    // and skips the link.
+    // A profile without `url` renders unlinked rather than failing.
     value: profile.at("username", default: profile.at("url", default: "")),
     url: profile.at("url", default: none),
   )
 }
 
 // The contact bar's entries in display order, one
-// `(channel, icon, value, url)` dict per present field. `channel` keys
-// into the resolved `linkContactInfo` config; `url: none` renders the
-// value unlinked. Profile entries add an `alt` for their icon; the
-// rest leave it out, since their value speaks for itself. Pure data —
-// no `context` — so the bar's contents can be reasoned about apart
-// from its styling. `_present` (not `!= none`) so an empty-string
-// field is skipped rather than rendering a bare icon behind a dead
-// `mailto:` / `tel:` link.
+// `(channel, icon, value, url)` dict per present field; `channel` keys
+// into the resolved `linkContactInfo` config. Pure data, no `context`.
+// `_present` (not `!= none`) so an empty string doesn't render a bare
+// icon behind a dead `mailto:` / `tel:` link.
 #let _contact_entries(basics, maps-provider) = {
   let email = basics.at("email", default: none)
   let phone = basics.at("phone", default: none)
-  // Both the display value and the maps deep link are fed from the
-  // same collapsed result so they cannot drift.
+  // One collapsed value feeds both display and maps link, so they
+  // cannot drift.
   let location = _format_location(
     basics.at("location", default: none),
     "basics.location",
@@ -144,9 +118,8 @@
   fields + basics.at("profiles", default: ()).map(_profile_entry)
 }
 
-// Name (with optional pronouns), optional label, and contact bar,
-// aligned per `headerTextAlign`. Takes the already-resolved
-// `body-size` / `accent` so `_header` owns the single `context` read.
+// Takes the resolved `body-size` / `accent` so `_header` owns the
+// single `context` read.
 #let _header_text(basics, preferences, body-size, accent) = {
   let link-config = _resolve_link_config(preferences.linkContactInfo)
   let headline = basics.at("label", default: none)
@@ -172,10 +145,8 @@
             basics.name
           },
         )
-        // Pronouns sit on the name's baseline, outside `upper(...)`:
-        // they aren't part of the name, so `uppercaseName` leaves them
-        // as written. The `box` keeps
-        // "(they/them)" in one piece when a long name wraps.
+        // Outside `upper(...)`: pronouns aren't part of the name. The
+        // `box` keeps "(they/them)" whole when a long name wraps.
         if preferences.showPronouns and _present(pronouns) {
           h(0.5 * body-size)
           box(text(body-size, fill: _body_colour, [(#pronouns)]))
@@ -197,10 +168,8 @@
     }
 
     set text(0.8 * body-size, weight: "bold")
-    // Each entry is wrapped in `box(...)` so the icon and its display
-    // text stay together when the contact bar wraps — line breaks fall
-    // on the inter-entry `h(...)` joins, never between an icon and the
-    // text it labels.
+    // `box` per entry so the bar wraps between entries, never between
+    // an icon and its text.
     _contact_entries(basics, preferences.mapsProvider)
       .map(entry => box({
         bar-icon(entry.icon, alt: entry.at("alt", default: none))
@@ -210,18 +179,14 @@
         } else { value }
       }))
       .join(h(1.2 * body-size))
-    // Inherits par.spacing, so the gap stays in sync with the rest of
-    // the document even when bodySize is tweaked.
+    // Inherits `par.spacing`, so the gap tracks the rest of the document.
     parbreak()
   })
 }
 
-// `path` is always populated by construction (no public way to make an
-// empty one); `str` and `bytes` can be empty and should silently skip
-// the frame. Panicking on other types avoids a cryptic `image()`
-// failure or a silent missing photo. `alt` is the portrait's
-// accessible description — the person's name, which is
-// language-neutral and so needs no label key.
+// A `path` can't be empty; an empty `str` / `bytes` skips the frame.
+// Other types panic here rather than as a cryptic `image()` failure.
+// `alt` is the person's name: language-neutral, so no label key.
 #let _header_photo(image-src, size, alt) = {
   let has-image = if image-src == none {
     false
@@ -238,21 +203,15 @@
   if has-image { _portrait(image-src, size, alt) }
 }
 
-// Places the optional photo and QR around `header-text` per
-// `imagePosition` / `imageStackOrder`. `photo` and `qr` are `none`
-// when absent.
+// `photo` and `qr` are `none` when absent.
 #let _header_layout(header-text, photo, qr, qr-size, body-size, preferences) = {
-  // Centred portrait: photo stacks on its own row above or below the
-  // text block. Full-width `block` centres the photo against the
-  // document width (a bare `align(center, box)` would centre against
-  // the default inline position). When a QR is present, the top row
-  // is wrapped in a `(auto, 1fr, auto)` grid — QR on the left,
-  // content centred page-wise in the 1fr column, `qr-size` spacer on
-  // the right — so the QR stays anchored to the header's top corner
-  // regardless of stack order. The inter-row gap is applied
-  // externally via `v(...)` so it survives the grid wrap (block
-  // spacing inside a grid cell is consumed by the cell, not the
-  // surrounding flow).
+  // Full-width `block` centres the photo against the page (a bare
+  // `align(center, box)` centres against the inline position). The
+  // `qr-size` spacer balances the QR so the content stays centred
+  // page-wise. Only the top row gets the QR grid, so the QR stays at
+  // the header's top corner whichever way the stack runs. The row gap
+  // is an explicit `v(...)` because block spacing inside a grid cell
+  // is consumed by the cell.
   if preferences.imagePosition == "center" {
     let centred-photo = if photo != none {
       block(width: 100%, align(center, photo))
@@ -280,13 +239,9 @@
       bottom
     }
   } else {
-    // Horizontal layout: photo on the requested side, QR opposite.
-    // With no portrait, "opposite of imagePosition" still applies —
-    // a default (imagePosition: "right") CV with only a QR puts it
-    // on the left, matching where it would land if a photo were
-    // added later. Dropping absent ornaments (rather than rendering
-    // empty cells) avoids an extra 1em column-gutter on the
-    // surviving side.
+    // QR goes opposite `imagePosition` even with no photo, so adding
+    // one later doesn't move it. Absent ornaments are dropped rather
+    // than left as empty cells, which would add a stray gutter.
     let (left-ornament, right-ornament) = if (
       preferences.imagePosition == "left"
     ) {
@@ -312,18 +267,14 @@
   }
 }
 
-// `preferences` is the merged dict from `alta()`, already validated by
-// `_validate_preferences` — so the header reads it directly rather than
-// re-declaring each pref's default as a kwarg.
+// `preferences` is the merged, validated dict from `alta()`.
 #let _header(basics, preferences) = {
   let qr-url = _resolve_qr_url(preferences.qrCode, basics)
   context {
     let body-size = _body_size_state.get()
     let accent = _accent_state.get()
-    // 3.5em ≈ small enough to stay out of the way of the contact bar,
-    // large enough to remain scannable at typical print DPIs. The QR
-    // inherits `accent` so it sits with the rest of the header's
-    // coloured ornaments instead of fighting them with pure black.
+    // Small enough to stay clear of the contact bar, large enough to
+    // scan in print. Filled with `accent` to match the other ornaments.
     let qr-size = 3.5 * body-size
     _header_layout(
       _header_text(basics, preferences, body-size, accent),
@@ -340,11 +291,8 @@
   }
 }
 
-// `basics.summary` rendered as a prose block between the header and
-// the first section heading. Silently skipped when absent / empty.
-// Lives next to `_header` (not in `sections/`) because it isn't
-// dispatched via `_sections`; it's a header peer driven by the same
-// `basics` block.
+// Lives here, not in `sections/`: it isn't dispatched via `_sections`
+// but rendered straight after the header from the same `basics`.
 #let _summary(basics) = context {
   let summary = basics.at("summary", default: none)
   if not _present(summary) { return }

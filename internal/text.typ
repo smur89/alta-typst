@@ -1,18 +1,12 @@
-// Small text predicates and the styled-link helper.
-//
-// Empty-string normalisation: callers receive `none` for any field
-// that's effectively absent (none / "" / empty content). `_present`
-// is the canonical predicate; data-shape normalisers live in their
-// own module when shared (`location.typ`) or with their one consumer
-// (the header's url-encode).
+// Small text predicates, `custom.altacv` access, label templates and
+// the `styled-link` helper. `_present` is the canonical "is this field
+// set" check.
 
 #import "state.typ": _accent_state
 
-// Rejects `none`, the empty string, and the empty content block —
-// the three ways a section field can be effectively absent.
+// The three ways a field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-// An entry's JSON Resume `summary`, or `none` when absent.
 #let _entry_summary(entry) = {
   let summary = entry.at("summary", default: none)
   if _present(summary) { summary }
@@ -20,49 +14,40 @@
 
 #let _dict_or_empty(v) = if type(v) == dictionary { v } else { (:) }
 
-// `obj.custom.altacv`, or `(:)` when either level is missing or not a
-// dictionary.
+// `(:)` when either level is missing or not a dictionary.
 #let _altacv_ns(obj) = _dict_or_empty(
   _dict_or_empty(obj.at("custom", default: none)).at("altacv", default: none),
 )
 
 // One of altacv's non-spec fields (`focusAreas`, `languages[].rating`,
-// `awards[].url`) from `obj` — the CV root or a section entry — read
-// from altacv's own namespace in JSON Resume's `custom` object (#242).
-// `_canonical_cv` has already lifted the deprecated top-level forms
-// there and made `custom` / `custom.altacv` dictionaries when it moved
-// anything. Other tools' `custom` namespaces are never read.
+// `awards[].url`) from its own `custom` namespace (#242), on the CV
+// root or an entry. `_canonical_cv` has already lifted the deprecated
+// top-level forms there.
 #let _altacv(obj, key, default: none) = _altacv_ns(obj).at(
   key,
   default: default,
 )
 
-// Stricter than `_present` for fields that must be plain strings —
-// PDF metadata, grouping keys — where a content block or a number
-// would either be rejected downstream or render as a nonsense key.
+// Stricter than `_present` where a plain string is required (PDF
+// metadata, grouping keys).
 #let _present_str(v) = type(v) == str and v != ""
 
-// `obj.at(key)` when it's a non-empty string, else `none`.
 #let _string_at(obj, key) = {
   let v = obj.at(key, default: none)
   if _present_str(v) { v }
 }
 
-// Accent-coloured italic styling for entry titles. When `dest` is
-// present the styled content is wrapped in a `link()`, giving every
-// linked + unlinked title a uniform visual — URL presence is purely
-// a clickability concern, not a styling one. `_present` (rather than
-// `!= none`) so an empty-string `url` doesn't become a dead link.
+// Entry titles look the same linked or not. `_present` rather than
+// `!= none` so an empty `url` doesn't become a dead link.
 #let styled-link(content, dest: none) = context {
   let accent = _accent_state.get()
   let styled = emph(text(fill: accent, content))
   if _present(dest) { link(dest, styled) } else { styled }
 }
 
-// `{key}` placeholders in a label template (`labels.pageNumber`,
-// `labels.documentTitle`). A single regex pass, so a substituted value
-// that itself contains `{…}` (e.g. a name) is never re-expanded.
-// Unknown placeholders are rejected up front by `_validate_labels`.
+// `{key}` label templates. One regex pass, so a substituted value
+// containing `{…}` (e.g. a name) is never re-expanded. Unknown
+// placeholders are rejected by `_validate_labels`.
 #let _placeholder_re = regex("\{(\w+)\}")
 #let _fill_template(template, values) = template.replace(
   _placeholder_re,

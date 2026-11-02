@@ -1,8 +1,5 @@
-// Awards — title (optionally linked via the altacv `url` extension,
-// read from `custom.altacv.url`),
-// accent awarder line, single date, optional summary paragraph.
-// Entries without a `title` are skipped so a stray entry can't emit
-// an orphan heading.
+// Awards. The title links via the altacv `custom.altacv.url`
+// extension; entries without a `title` are skipped.
 
 #import "../internal/text.typ": _altacv, _present, styled-link
 #import "../internal/primitives.typ": _org_line, _section, term
