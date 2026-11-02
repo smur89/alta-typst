@@ -26,6 +26,13 @@
       endDate: "2017",
     ),
     (
+      // An empty `studyType` falls back to `area` like a missing one.
+      institution: "Night School",
+      studyType: "",
+      area: "Statistics",
+      startDate: "2008",
+    ),
+    (
       // Falls back to `area` when `studyType` is missing.
       institution: "Trinity Hall",
       url: "https://example.com/trinity",
@@ -34,8 +41,8 @@
       endDate: "2014",
     ),
     (
-      // URL with empty institution — the link is suppressed (no
-      // clickable empty span) but the entry still renders its title.
+      // URL with empty institution — no institution line (and no
+      // blank gap for one), but the entry still renders its title.
       institution: "",
       url: "https://example.com/empty",
       studyType: "Diploma",

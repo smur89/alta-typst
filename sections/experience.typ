@@ -24,13 +24,13 @@
     #if _present(position) [=== #position]
     // `link()` inherits the surrounding bold + accent from `name()`,
     // so the org stays visually identical to the unlinked case and
-    // just gains click behaviour. `styled-link` would impose the
-    // italic / underline treatment used for publication titles.
-    // `_present` (rather than `!= none`) so an empty-string url
-    // doesn't render a dead link.
-    #let org = entry.at(org-key, default: "")
+    // just gains click behaviour. No org, no line (and no empty
+    // block's spacing).
+    #let org = entry.at(org-key, default: none)
     #let url = entry.at("url", default: none)
-    #name[#if _present(url) { link(url, org) } else { org }]
+    #if _present(org) {
+      name[#if _present(url) { link(url, org) } else { org }]
+    }
     #_entry_term(entry, key, prefs, labels)
 
     #_preamble(_entry_summary(entry))

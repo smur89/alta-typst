@@ -12,18 +12,21 @@
   labels.education,
   entries,
   edu => [
-    #let title = edu.at("studyType", default: edu.at("area", default: ""))
-    #if _present(title) [=== #title]
-    #let institution = edu.at("institution", default: "")
+    // An empty `studyType` falls through to `area`, as a missing one does.
+    #let title = (
+      edu.at("studyType", default: none),
+      edu.at("area", default: none),
+    ).find(_present)
+    #if title != none [=== #title]
+    #let institution = edu.at("institution", default: none)
     #let url = edu.at("url", default: none)
-    #let body = name[#institution]
     // `link()` wraps the `name()` block as-is, so the accent-bold
     // treatment is preserved — the only visible change is that the
-    // institution becomes clickable. `_present` (rather than
-    // `!= none`) so a missing JSON field — present-but-`none` or
-    // present-but-empty — doesn't render a dead link.
-    #if _present(url) and _present(institution) { link(url, body) } else {
-      body
+    // institution becomes clickable. No institution, no line (and no
+    // empty block's spacing).
+    #if _present(institution) {
+      let body = name[#institution]
+      if _present(url) { link(url, body) } else { body }
     }
     #_entry_term(edu, "education", prefs, labels)
 

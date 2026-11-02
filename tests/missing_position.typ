@@ -1,5 +1,6 @@
 // `position` is optional in JSON Resume — entries without it must
-// render (org line leads, no role heading) rather than panic.
+// render (org line leads, no role heading) rather than panic. An entry
+// without an org skips the org line, leaving no blank gap.
 
 #import "../lib.typ": alta
 
@@ -18,6 +19,13 @@
       startDate: "2020-03",
       endDate: "2021-12",
       highlights: ([Un-positioned entry keeps its org line and bullets.],),
+    ),
+    (
+      // No `name` — the term row follows the heading directly.
+      position: "Freelance Consultant",
+      startDate: "2018",
+      endDate: "2020",
+      highlights: ([Org-less entry has no empty org line.],),
     ),
   ),
   volunteer: (
