@@ -174,7 +174,6 @@
         [Weekly mentoring sessions for 10–14 year-olds learning to code.],
         [Curate the Scala / functional-programming track.],
       ),
-      keywords: ("Scala",),
     ),
   ),
 
