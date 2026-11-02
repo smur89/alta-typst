@@ -28,7 +28,9 @@
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _intro
 #import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": _default_preferences, _read_sections, _sections
+#import "internal/layout.typ": (
+  _check_cv_keys, _default_preferences, _read_sections, _sections,
+)
 #import "internal/json-resume.typ": from-json-resume
 
 // Generic silhouette, exposed as bytes so the `typst init` template
@@ -66,6 +68,7 @@
         + repr(basics),
     )
   }
+  _check_cv_keys(cv)
   let labels = _strict_merge(
     _default_labels,
     _canonical_labels(labels),

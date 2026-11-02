@@ -181,7 +181,7 @@ JSON Resume says themes are "not expected to render" `custom`; altacv reads only
 
 ### Top-level keys
 
-Recognised: `basics`, `objective` (see below), `custom` (see [Extensions](#extensions)), `focusAreas` (deprecated), `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)).
+Recognised: `basics`, `objective` (see below), `custom` (see [Extensions](#extensions)), `focusAreas` (deprecated), `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)), and `$schema` (accepted, not rendered). Any other key panics, naming it, so a misspelt section (`publication` for `publications`) fails instead of silently dropping the section.
 
 ### Objective
 
