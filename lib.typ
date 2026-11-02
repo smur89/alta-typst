@@ -19,7 +19,7 @@
 #import "internal/defaults.typ": _default_labels
 #import "internal/canonical.typ": _canonical_cv, _canonical_labels
 #import "internal/validation.typ": (
-  _strict_merge, _validate_labels, _validate_preferences,
+  _check_unknown_keys, _strict_merge, _validate_labels, _validate_preferences,
 )
 #import "internal/text.typ": _fill_template, _present, _present_str, styled-link
 #import "internal/icons.typ": icon
@@ -28,7 +28,9 @@
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _intro
 #import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": _default_preferences, _read_sections, _sections
+#import "internal/layout.typ": (
+  _cv_keys, _default_preferences, _read_sections, _sections,
+)
 #import "internal/json-resume.typ": from-json-resume
 
 // Generic silhouette, exposed as bytes so the `typst init` template
@@ -66,6 +68,8 @@
         + repr(basics),
     )
   }
+  // A misspelt section (`publication:`) would otherwise vanish silently.
+  _check_unknown_keys(cv.keys(), _cv_keys, "CV top-level")
   let labels = _strict_merge(
     _default_labels,
     _canonical_labels(labels),
