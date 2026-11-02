@@ -268,7 +268,8 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `name` | string | Project title. Heading; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
 | `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
-| `description` | string | Italic line beneath the title (below `entity` when both are present), body colour. |
+| `summary` | string or content | Italic line beneath the title (below `entity` when both are present), body colour. |
+| `description` | string or content | Deprecated alias of `summary` (JSON Resume 1.6.0); rendered identically. `summary` wins when both are supplied. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
 | `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |

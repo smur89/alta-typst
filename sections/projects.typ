@@ -1,14 +1,14 @@
 // Projects — name (optionally linked), optional `entity` subtitle,
-// italic description, date range, bulleted highlights, `roles` pills,
+// italic summary, date range, bulleted highlights, `roles` pills,
 // keyword pills. JSON Resume's `projects[]` schema. When at least one
 // entry carries a `type`, entries cluster under `====` subheadings
 // (mirroring `publications[].type`); an all-untyped list renders flat.
 // Entries without a `name` are skipped to avoid an orphan heading.
 
 #import "../internal/state.typ": _body_colour
-#import "../internal/text.typ": _present, _present_str, styled-link
+#import "../internal/text.typ": _present, _present_str, _summary, styled-link
 #import "../internal/primitives.typ": (
-  _group_by_type, _join_with_dividers, _section, _tag_row, term,
+  _group_by_type, _join_with_dividers, _preamble, _section, _tag_row, term,
 )
 #import "../internal/dates.typ": _format_date_range
 
@@ -25,15 +25,13 @@
   if _present(entity) {
     block(below: 0.5em, text(0.85em, fill: _body_colour, entity))
   }
-  let description = project.at("description", default: none)
-  if _present(description) {
-    // Softer than `name()` (which is bold + accent) so the description
-    // doesn't compete visually with a linked title. Wrapped in a block
-    // so the gap to the roles / term row below matches the
-    // institution-line → term spacing in `_experience` / `_education`;
-    // using a bare `linebreak()` here leaves no paragraph spacing.
-    block(below: 0.6em, emph(description))
-  }
+  // JSON Resume 1.6.0 prefers `summary`; `description` is its
+  // deprecated alias. Wrapped in a block so the gap to the roles /
+  // term row below matches the institution-line → term spacing in
+  // `_experience` / `_education`; a bare `linebreak()` here leaves no
+  // paragraph spacing.
+  let summary = _summary(project, fallback: "description")
+  if _present(summary) { block(below: 0.6em, _preamble(summary)) }
   // `roles` — the person's role(s) on the project — render as a row of
   // darker (label-variant) pills just below the description and above
   // the date row, set apart from the lighter keyword pills at the foot
