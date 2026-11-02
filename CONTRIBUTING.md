@@ -21,6 +21,7 @@ assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
 tests/panics/     # must-fail fixtures — each names the error it expects
+tests/unit/       # `assert` checks of the side-effect-free helpers (dates, text, header, …)
 ```
 
 Each `internal/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ` for a quick directory.
@@ -49,6 +50,7 @@ make example-full # build examples/example_full.pdf + per-page gallery PNGs
 make thumbnail   # build thumbnail.png (Universe package-card image)
 make test        # compile every example + fixture + template/cv.typ (same shape as CI lint)
 make test-panics # check every tests/panics/*.typ fails with its `// expect:` message
+make test-unit   # run the helper checks under tests/unit/
 make test-template # compile-check just template/cv.typ (the `typst init` starter)
 make fmt         # format every tracked .typ in place (typstyle)
 make fmt-check   # check formatting without writing (the CI gate)
@@ -58,6 +60,10 @@ make help        # summarise the available targets
 ```
 
 `make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+
+### Helper unit tests
+
+Helpers that only compute a value (date parsing and formatting, URL encoding, location collapsing, the publication line builders, …) are checked directly with `assert.eq` under `tests/unit/`, one file per module. A failed assertion fails the compile, so `make test-unit` (part of `make test`) reports it with the expected and actual values. That's quicker and more precise than a PDF fixture for logic that doesn't need a render; `tests/unit/_plain.typ` flattens content to text for helpers that return content.
 
 ### Error-path tests
 
