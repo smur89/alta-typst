@@ -44,7 +44,7 @@
 #pagebreak()
 
 // Grouping keys on the code: untyped entries and `type: "article"`
-// share one "Articles" subheading, and `Talk` joins `talk`. A
+// share one "Articles" subheading, and `Talk` and ` talk ` join `talk`. A
 // translation can override a single code (the rest stay English), and
 // the deprecated `labels.articles` still heads the `article` group.
 #alta(
@@ -55,6 +55,7 @@
       (name: "An Article", type: "article", releaseDate: "2023"),
       (name: "A Talk", type: "talk", releaseDate: "2022"),
       (name: "Another Talk", type: "Talk", releaseDate: "2021"),
+      (name: "A Padded Talk", type: " talk ", releaseDate: "2021"),
       (name: "A Book", type: "book", releaseDate: "2020"),
     ),
   ),

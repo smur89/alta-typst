@@ -7,7 +7,9 @@
 // `_entry_section` renderer below.
 
 #import "../internal/text.typ": _entry_summary, _present
-#import "../internal/primitives.typ": _entry_term, _preamble, _section, name
+#import "../internal/primitives.typ": (
+  _entry_term, _org_line, _preamble, _section,
+)
 
 // Shared renderer for the `work[]` / `volunteer[]` block lists.
 // `key` is the JSON Resume section key (`"work"` / `"volunteer"`),
@@ -22,15 +24,10 @@
     // line leads the entry.
     #let position = entry.at("position", default: none)
     #if _present(position) [=== #position]
-    // `link()` inherits the surrounding bold + accent from `name()`,
-    // so the org stays visually identical to the unlinked case and
-    // just gains click behaviour. `styled-link` would impose the
-    // italic / underline treatment used for publication titles.
-    // `_present` (rather than `!= none`) so an empty-string url
-    // doesn't render a dead link.
-    #let org = entry.at(org-key, default: "")
-    #let url = entry.at("url", default: none)
-    #name[#if _present(url) { link(url, org) } else { org }]
+    #_org_line(
+      entry.at(org-key, default: none),
+      url: entry.at("url", default: none),
+    )
     #_entry_term(entry, key, prefs, labels)
 
     #_preamble(_entry_summary(entry))

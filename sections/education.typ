@@ -5,26 +5,23 @@
 
 #import "../internal/text.typ": _entry_summary, _present
 #import "../internal/primitives.typ": (
-  _entry_term, _preamble, _section, name, tag,
+  _entry_term, _org_line, _preamble, _section, tag,
 )
 
 #let _education(entries, (labels, prefs, ..)) = _section(
   labels.education,
   entries,
   edu => [
-    #let title = edu.at("studyType", default: edu.at("area", default: ""))
-    #if _present(title) [=== #title]
-    #let institution = edu.at("institution", default: "")
-    #let url = edu.at("url", default: none)
-    #let body = name[#institution]
-    // `link()` wraps the `name()` block as-is, so the accent-bold
-    // treatment is preserved — the only visible change is that the
-    // institution becomes clickable. `_present` (rather than
-    // `!= none`) so a missing JSON field — present-but-`none` or
-    // present-but-empty — doesn't render a dead link.
-    #if _present(url) and _present(institution) { link(url, body) } else {
-      body
-    }
+    // An empty `studyType` falls through to `area`, as a missing one does.
+    #let title = (
+      edu.at("studyType", default: none),
+      edu.at("area", default: none),
+    ).find(_present)
+    #if title != none [=== #title]
+    #_org_line(
+      edu.at("institution", default: none),
+      url: edu.at("url", default: none),
+    )
     #_entry_term(edu, "education", prefs, labels)
 
     // Own paragraph, so the score below starts on a new line.

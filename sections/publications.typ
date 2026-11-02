@@ -23,7 +23,8 @@
   talk: "microphone",
 )
 
-// A publication's group key: its lowercased `type`, or `article` when
+// A publication's group key: its lowercased `type` (trimmed by
+// `_canonical_cv`), or `article` when
 // untyped or not a string, so `Talk` / `talk` and untyped / `article`
 // each share one subheading.
 #let _type_code(pub) = {
