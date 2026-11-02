@@ -311,6 +311,7 @@ All fields are optional — omitted fields drop their line.
 | `date` | string | Date the certificate was issued. Inside the pill after the name, with a calendar icon. |
 | `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
 | `url` | string | Wraps the pill in a link to the credential. |
+| `summary` | string or content | What the certificate covers. Paragraph under the pill, as in `awards[]`; the pill moves to its own line so the paragraph sits with it. |
 
 #### Interests
 

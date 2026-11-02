@@ -1,6 +1,7 @@
 // Certificates — pill-row rendering with optional issuer grouping.
 // Multi-issuer clusters get a labelled-divider header; singleton
-// issuers pool into a trailing unlabelled group.
+// issuers pool into a trailing unlabelled group. A cert with a
+// `summary` takes its own line, with the paragraph under its pill.
 
 #import "../internal/state.typ": _body_size_state
 #import "../internal/text.typ": _present
@@ -8,8 +9,8 @@
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date_span
 
-// Normalises a cert into the (name, date, expiryDate, url, issuer)
-// record the renderer consumes; `none` when there's no usable name.
+// Normalises a cert into the record the renderer consumes (every
+// field it reads, issuer included); `none` when there's no usable name.
 // Optional fields collapse to `none` when empty so downstream
 // nil-checks don't render orphans; "no issuer" (missing / `none` /
 // "") normalises to "" because Typst dict keys can't be `none`.
@@ -25,6 +26,7 @@
     name: name,
     date: optional("date"),
     expiryDate: optional("expiryDate"),
+    summary: optional("summary"),
     url: optional("url"),
     issuer: if issuer == none { "" } else { issuer },
   )
@@ -114,7 +116,15 @@
       divider()
     }
     block(breakable: false, {
-      for item in g.items { _cert_tag(item, prefs, labels) }
+      for item in g.items {
+        let pill = _cert_tag(item, prefs, labels)
+        // A summary is a paragraph, so its cert leaves the inline pill
+        // flow: the pill takes its own line with the paragraph under
+        // it, rather than sharing the line with pills it isn't about.
+        if item.summary == none { pill } else {
+          block(pill + par(item.summary))
+        }
+      }
     })
   }
 }
