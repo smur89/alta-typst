@@ -9,13 +9,15 @@
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section, name, term
 #import "../internal/dates.typ": _format_date_range
+#import "../internal/location.typ": _format_location
 
 // Shared renderer for the `work[]` / `volunteer[]` block lists.
-// `heading` is the resolved section label; `org-key` is the dict key
-// holding the organisation name (`"name"` for work, `"organization"`
-// for volunteer).
-#let _entry_section(entries, heading, org-key, labels, prefs) = _section(
-  heading,
+// `key` is the JSON Resume section key (`"work"` / `"volunteer"`),
+// which also names the section label and the field in panic messages;
+// `org-key` is the dict key holding the organisation name (`"name"`
+// for work, `"organization"` for volunteer).
+#let _entry_section(entries, key, org-key, labels, prefs) = _section(
+  labels.at(key),
   entries,
   entry => [
     // `position` is optional in JSON Resume — without it the org
@@ -31,9 +33,9 @@
     #let org = entry.at(org-key, default: "")
     #let url = entry.at("url", default: none)
     #name[#if _present(url) { link(url, org) } else { org }]
-    #term(_format_date_range(entry, prefs, labels), location: entry.at(
-      "location",
-      default: none,
+    #term(_format_date_range(entry, prefs, labels), location: _format_location(
+      entry.at("location", default: none),
+      key + "[].location",
     ))
 
     // `summary` wins over `description` only when present-and-non-
@@ -57,7 +59,7 @@
 // `work[]` — organisation held under `name`.
 #let _experience(work, labels, prefs) = _entry_section(
   work,
-  labels.work,
+  "work",
   "name",
   labels,
   prefs,
@@ -68,7 +70,7 @@
 // behaviour).
 #let _volunteer(entries, labels, prefs) = _entry_section(
   entries,
-  labels.volunteer,
+  "volunteer",
   "organization",
   labels,
   prefs,

@@ -2,8 +2,9 @@
 //
 // Empty-string normalisation: callers receive `none` for any field
 // that's effectively absent (none / "" / empty content). `_present`
-// is the canonical predicate; data-shape normalisers (location,
-// url-encode) live with the header that consumes them.
+// is the canonical predicate; data-shape normalisers live in their
+// own module when shared (`location.typ`) or with their one consumer
+// (the header's url-encode).
 
 #import "state.typ": _accent_state
 
