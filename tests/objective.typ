@@ -5,7 +5,11 @@
 
 #import "../lib.typ": alta
 
-#let basics = (name: "Jane Doe", label: "Software Engineer", email: "jane@example.com")
+#let basics = (
+  name: "Jane Doe",
+  label: "Software Engineer",
+  email: "jane@example.com",
+)
 #let work = (
   (name: "Acme Corp", position: "Engineer", startDate: "2022-01"),
 )
