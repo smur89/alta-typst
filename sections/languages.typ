@@ -1,21 +1,9 @@
 // Languages: rating dots when `_resolve_rating` gives a number, else
 // the `fluency` text alone (one not in `_fluency_rating`).
 
-#import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _section
-#import "../internal/ratings.typ": _resolve_rating, rating
-#import "../internal/state.typ": _body_colour, _body_size_state
-
-// Keep row shape in sync with `rating()` — mixed-mode rows must align.
-#let _label_only(label, fluency) = context {
-  let body-size = _body_size_state.get()
-  text(label)
-  h(1fr)
-  if type(fluency) == str and fluency.len() > 0 {
-    text(0.85 * body-size, fill: _body_colour, fluency)
-  }
-  [\ ]
-}
+#import "../internal/text.typ": _present, _present_str
+#import "../internal/primitives.typ": _section, _small
+#import "../internal/ratings.typ": _label_row, _resolve_rating, rating
 
 #let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,
@@ -26,7 +14,8 @@
     if value != none {
       rating(lang.language, value, max: prefs.maxRating)
     } else {
-      _label_only(lang.language, lang.at("fluency", default: none))
+      let fluency = lang.at("fluency", default: none)
+      _label_row(lang.language, if _present_str(fluency) { _small(fluency) })
     }
   },
 )

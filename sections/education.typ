@@ -1,7 +1,7 @@
 // Education. The heading falls back to `area` when `studyType` is
 // absent; `courses` render as pills like other string arrays.
 
-#import "../internal/text.typ": _entry_summary, _present
+#import "../internal/text.typ": _field, _present
 #import "../internal/primitives.typ": (
   _entry_term, _org_line, _preamble, _section, tag,
 )
@@ -23,7 +23,7 @@
     #_entry_term(edu, "education", prefs, labels)
 
     // Own paragraph, so the score below starts on a new line.
-    #_preamble(_entry_summary(edu))
+    #_preamble(_field(edu, "summary"))
 
     #let score = edu.at("score", default: none)
     #if _present(score) [#score]

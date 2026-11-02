@@ -2,11 +2,9 @@
 // subheadings only when at least one has a `type`; an all-untyped list
 // renders flat. Entries without a `name` are skipped.
 
-#import "../internal/text.typ": (
-  _entry_summary, _present, _present_str, styled-link,
-)
+#import "../internal/text.typ": _field, _present, _present_str, styled-link
 #import "../internal/primitives.typ": (
-  _group_by_type, _join_with_dividers, _preamble, _section, _subtitle, _tag_row,
+  _group_by_type, _grouped_section, _preamble, _section, _subtitle, _tag_row,
   term,
 )
 #import "../internal/dates.typ": _format_date_range
@@ -20,7 +18,7 @@
   _subtitle(project.at("entity", default: none))
   // A block, not `linebreak()`, so the gap below matches the
   // organisation-line → term spacing in experience / education.
-  let preamble = _preamble(_entry_summary(project))
+  let preamble = _preamble(_field(project, "summary"))
   if preamble != none { block(below: 0.6em, preamble) }
   // The person's `roles` as darker pills on their own line, set apart
   // from the keyword pills at the foot.
@@ -42,12 +40,11 @@
   if not valid.any(p => _present_str(p.at("type", default: none))) {
     _section(labels.projects, valid, render)
   } else {
-    [== #labels.projects]
-    let groups = _group_by_type(valid, labels.otherProjects)
-    for (group, items) in groups.pairs() [
-      ==== #group
-
-      #_join_with_dividers(items, p => block(breakable: false, render(p)))
-    ]
+    _grouped_section(
+      labels.projects,
+      _group_by_type(valid, labels.otherProjects),
+      (group, _) => group,
+      render,
+    )
   }
 }

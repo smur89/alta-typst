@@ -1,7 +1,7 @@
 // `work[]` and `volunteer[]` render identically, differing only in
 // section label and organisation key, so both use `_entry_section`.
 
-#import "../internal/text.typ": _entry_summary, _present
+#import "../internal/text.typ": _field, _present
 #import "../internal/primitives.typ": (
   _entry_term, _org_line, _preamble, _section,
 )
@@ -21,7 +21,7 @@
     )
     #_entry_term(entry, key, prefs, labels)
 
-    #_preamble(_entry_summary(entry))
+    #_preamble(_field(entry, "summary"))
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
   ],
 )

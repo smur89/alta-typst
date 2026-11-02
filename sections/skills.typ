@@ -2,20 +2,17 @@
 // shape and render identically, differing only in heading.
 
 #import "../internal/state.typ": _body_size_state
-#import "../internal/primitives.typ": _tag_row, tag
+#import "../internal/primitives.typ": _section_frame, _tag_gap, _tag_row, tag
 
 // `text("-")`, not `[-]`, which markup parses as a list bullet. The
-// `h(...)` after it mirrors the gap `tag()` leaves on its left, so the
-// dash sits centred between the pills.
+// `_tag_gap` after it mirrors the gap `tag()` leaves on its left, so
+// the dash sits centred between the pills.
 #let _name_keywords_section(groups, heading) = {
   // Drop groups with no keywords first, so a section with none left
   // skips its heading rather than rendering it bare.
   let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
-  if visible.len() == 0 { return }
-  context {
-    let body-size = _body_size_state.get()
-    let row-gap = 0.7 * body-size
-    [== #heading]
+  _section_frame(heading, visible, context {
+    let row-gap = 0.7 * _body_size_state.get()
     for group in visible {
       block(above: 0pt, below: row-gap, par(
         hanging-indent: 1em,
@@ -23,12 +20,12 @@
         {
           tag(group.name, label: true)
           text("-")
-          h(0.25 * body-size)
+          _tag_gap
           _tag_row(group.keywords)
         },
       ))
     }
-  }
+  })
 }
 
 #let _skills(groups, (labels, ..)) = _name_keywords_section(

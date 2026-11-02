@@ -7,10 +7,15 @@
 // The three ways a field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-#let _entry_summary(entry) = {
-  let summary = entry.at("summary", default: none)
-  if _present(summary) { summary }
+// A field's value, or `none` when it's absent in any of those forms.
+#let _field(obj, key) = {
+  let v = obj.at(key, default: none)
+  if _present(v) { v }
 }
+
+// The non-`none` parts joined by `sep`; `none` when no part is left,
+// so callers can skip the whole line.
+#let _join_present(parts, sep) = parts.filter(p => p != none).join(sep)
 
 #let _dict_or_empty(v) = if type(v) == dictionary { v } else { (:) }
 

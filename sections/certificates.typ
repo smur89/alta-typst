@@ -1,7 +1,7 @@
 // Certificates: an awards-style entry with date, issuer and credential
 // ID on one term row. Entries without a `name` are skipped.
 
-#import "../internal/text.typ": _entry_summary, _present, styled-link
+#import "../internal/text.typ": _field, _present, styled-link
 #import "../internal/primitives.typ": (
   _accent_strong, _section, _term_part, _term_row,
 )
@@ -37,7 +37,7 @@
         if details != none { box(details) }
       })
     }
-    let summary = _entry_summary(cert)
+    let summary = _field(cert, "summary")
     if summary != none { par(summary) }
   },
 )

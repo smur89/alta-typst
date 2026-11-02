@@ -7,7 +7,7 @@
 // ourselves while mirroring its bracketed token syntax, so a template
 // carries over to other Typst code.
 
-#import "text.typ": _present
+#import "text.typ": _join_present, _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
 // `(year, month, day)` dict, or `none` so callers render anything else
@@ -149,7 +149,7 @@
   let end-text = if _present(end) { _format_date(end, prefs, labels) } else {
     open-end
   }
-  (start-text, end-text).filter(s => s != none).join[ – ]
+  _join_present((start-text, end-text), [ – ])
 }
 
 // A `startDate` / `endDate` entry where a missing end reads

@@ -3,9 +3,11 @@
 // first written for unknown codes. The CV owner is bold among
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 
-#import "../internal/state.typ": _body_colour, _body_size_state
-#import "../internal/text.typ": _present, _present_str, _string_at, styled-link
-#import "../internal/primitives.typ": _group_by
+#import "../internal/state.typ": _body_size_state
+#import "../internal/text.typ": (
+  _join_present, _present, _present_str, _string_at, styled-link,
+)
+#import "../internal/primitives.typ": _group_by, _grouped_section, _meta, _small
 #import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
@@ -70,12 +72,13 @@
   let part(key) = _string_at(pub, key)
   let issue = part("issue")
   let pages = part("pages")
-  (
-    (part("volume"), if issue != none { "(" + issue + ")" }).join(),
-    if pages != none { pages.replace(regex("-+"), "–") },
+  _join_present(
+    (
+      (part("volume"), if issue != none { "(" + issue + ")" }).join(),
+      if pages != none { pages.replace(regex("-+"), "–") },
+    ),
+    ", ",
   )
-    .filter(p => p != none)
-    .join(", ")
 }
 
 // The entry matching `owner` (`basics.name`, ignoring case and
@@ -94,60 +97,63 @@
 
 #let _source(pub) = {
   let publisher = pub.at("publisher", default: none)
-  (if _present(publisher) { publisher }, _citation(pub))
-    .filter(p => p != none)
-    .join(" ")
+  _join_present((if _present(publisher) { publisher }, _citation(pub)), " ")
+}
+
+// One bibliography line per publication: the linked title, then
+// authors, source, date, identifiers and summary, each on its own
+// line. Absent lines drop out so none leaves an orphan `\` break.
+#let _render_publication(pub, (labels, prefs, owner, ..)) = {
+  let date = pub.at("releaseDate", default: none)
+  let ids = _identifiers(pub)
+  let url = pub.at("url", default: none)
+  let url = if _present(url) { url } else { _identifier_url(ids) }
+  let lines = (
+    (
+      _author_line(pub, owner),
+      _source(pub),
+    ).map(l => if l != none { _small(l) })
+      + (
+        if _present(date) { _meta(_format_date(date, prefs, labels)) },
+        if ids.len() > 0 { _meta(_identifier_line(ids)) },
+        if _present(pub.at("summary", default: none)) { par(pub.summary) },
+      )
+  )
+  [
+    - #styled-link(pub.name, dest: url). #for l in lines.filter(l => l != none) [\ #l]
+  ]
 }
 
 // Label tables arrive lowercase-keyed (`_canonical_labels`). Icons
 // resolve `labels.publicationIcons` → `_code_publication_icons` →
-// `file`.
-#let _publications(pubs, (labels, prefs, owner, ..)) = {
-  // Filter first so an empty section emits no orphan heading.
-  let valid = pubs.filter(p => _present(p.at("name", default: none)))
-  if valid.len() == 0 { return }
-  context {
-    let body-size = _body_size_state.get()
-    let groups = _group_by(valid, _type_code)
-    [== #labels.publications]
-    let headings = labels.publicationTypes
-    let meta = text.with(0.8 * body-size, fill: _body_colour.lighten(35%))
-    let sub = text.with(0.85 * body-size, fill: _body_colour)
-    for (code, items) in groups.pairs() [
-      #let group-icon = labels.publicationIcons.at(
+// `file`. A list, so no dividers between entries.
+#let _publications(pubs, ctx) = {
+  let (labels, ..) = ctx
+  let headings = labels.publicationTypes
+  context _grouped_section(
+    labels.publications,
+    _group_by(
+      pubs.filter(p => _present(p.at("name", default: none))),
+      _type_code,
+    ),
+    (code, items) => {
+      let group-icon = labels.publicationIcons.at(
         code,
         default: _code_publication_icons.at(code, default: "file"),
       )
       // An unknown code's entries all share a string `type`, so print
       // the first as written. Not `default:`, which is evaluated even
       // when the key exists.
-      #let heading = if code in headings { headings.at(code) } else {
+      let heading = if code in headings { headings.at(code) } else {
         items.first().type
       }
-      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #heading
-
-      #for pub in items [
-        #block(breakable: false)[
-          #let date = pub.at("releaseDate", default: none)
-          #let ids = _identifiers(pub)
-          #let url = pub.at("url", default: none)
-          #let url = if _present(url) { url } else { _identifier_url(ids) }
-          #let title = pub.at("name", default: "")
-          #let authors = _author_line(pub, owner)
-          #let source = _source(pub)
-          #let summary = pub.at("summary", default: none)
-          // Absent lines drop out so none leaves an orphan `\` break.
-          #let lines = (
-            if authors != none { sub(authors) },
-            if source != none { sub(source) },
-            if _present(date) { meta(_format_date(date, prefs, labels)) },
-            if ids.len() > 0 { meta(_identifier_line(ids)) },
-            if _present(summary) { par(summary) },
-          ).filter(l => l != none)
-          - #styled-link(title, dest: url).
-            #for l in lines [\ #l]
-        ]
-      ]
-    ]
-  }
+      [#icon(
+          group-icon,
+          size: 1.2 * _body_size_state.get(),
+          shift: 0pt,
+        ) #heading]
+    },
+    pub => _render_publication(pub, ctx),
+    dividers: false,
+  )
 }
