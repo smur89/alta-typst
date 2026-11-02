@@ -26,7 +26,7 @@ env:
   PACKAGE_NAME: altacv
   # Formatter output can shift between versions: bump deliberately and
   # reformat in the same commit (see CONTRIBUTING).
-  TYPSTYLE_VERSION: v0.15.0
+  TYPSTYLE_VERSION: v0.15.2
 
 # An explicit `bash` makes Actions run steps with `-eo pipefail`; the
 # implicit default is plain `bash -e`, under which a failing command on
