@@ -165,7 +165,7 @@ Three optional fields layered on top of JSON Resume:
 
 - **`focusAreas`** — top-level array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
 - **`languages[].rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits.
-- **`publications[].type`** — optional grouping key (e.g. `"Articles"`, `"Books"`, `"Talks"`). Entries sharing a `type` cluster under a subheading rendered verbatim from the string; entries without `type` fall under `labels.articles`. Localise via `labels.articles` or by supplying already-translated `type` values.
+- **`publications[].type`** — part of JSON Resume since 1.4.0 (`alta-from-json` still registers it until altacv moves to gairm-import 0.10.1). Entries sharing a `type` cluster under one subheading. The spec codes `article`, `book`, `patent`, `thesis` and `talk` take their heading from [`labels.publicationTypes`](#labels); entries without `type` fall under `labels.articles`. **Deprecated:** free-text types (`"Articles"`, `"Talks"`) still print as given, but use the codes instead; free-text headings are dropped in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 ### Top-level keys
 
@@ -292,7 +292,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 
 #### Publications
 
-`type` is an altacv extension on top of JSON Resume.
+`type` is part of JSON Resume (1.4.0).
 
 | Field | Type | Effect |
 |---|---|---|
@@ -301,7 +301,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Paragraph below the date. |
-| `type` | string | Optional grouping key (see [Extensions](#extensions)). |
+| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Free-text values print as given (deprecated). |
 
 All fields are optional — omitted fields drop their line.
 
@@ -484,6 +484,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `pageNumber` | `"Page {current} / {total}"` |
 | `documentTitle` | `"{name} — CV"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
+| `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")` |
 | `publicationIcons` | `(:)` |
 
 `labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
@@ -492,17 +493,19 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
+`labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively. Overriding replaces the whole table, so a translation lists every code it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge", …)`. A type with no entry prints as given.
+
 `labels.publicationIcons` maps `publications[].type` values to icon names. Built-in defaults (case-insensitive, singular and plural both accepted):
 
 | `type` value | Icon |
 |---|---|
 | `article` / `articles` / `blog post` / `blog posts` | `newspaper` |
-| `book` / `books` | `book` |
+| `book` / `books` / `thesis` / `theses` | `book` |
 | `talk` / `talks` / `presentation` / `presentations` | `microphone` |
 | `paper` / `papers` / `conference paper` / `conference papers` | `newspaper` |
 | anything else | `file` |
 
-The supplied dict layers over the defaults rather than replacing them — override only to add a custom type or remap a built-in.
+The supplied dict layers over the defaults rather than replacing them — override only to add a custom type or remap a built-in. The plural and free-text keys exist for the deprecated free-text `type` headings. `patent` has no dedicated icon, so it uses `file`.
 
 Example — German, plus renaming "Skills" to "Core Technologies":
 

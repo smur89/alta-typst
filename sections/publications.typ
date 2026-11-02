@@ -1,6 +1,8 @@
-// Publications — grouped by `type` (an altacv extension) with a
-// type-appropriate icon on each subheading. Untyped or invalid-type
-// entries fall under `labels.articles`.
+// Publications — grouped by JSON Resume's `type` with a
+// type-appropriate icon on each subheading. Known type codes take
+// their subheading from `labels.publicationTypes`; other types print
+// as given. Untyped or invalid-type entries fall under
+// `labels.articles`.
 
 #import "../internal/state.typ": _body_colour, _body_size_state
 #import "../internal/text.typ": _present, styled-link
@@ -22,6 +24,8 @@
   book: "book",
   talks: "microphone",
   talk: "microphone",
+  theses: "book",
+  thesis: "book",
   presentations: "microphone",
   presentation: "microphone",
   "conference papers": "newspaper",
@@ -30,11 +34,20 @@
   paper: "newspaper",
 )
 
-// `pub.type` is a local extension. The grouping key is rendered
-// verbatim as the subheading; groups appear in first-occurrence order
-// (Typst dicts preserve insertion order). Untyped entries fall under
-// `labels.articles`. Subheading icons resolve via
-// `labels.publicationIcons` → `_default_publication_icons` → `file`.
+// A label table keyed case-insensitively: user keys lowercased once,
+// so `(Talks: ...)` matches `type: "talks"` and vice versa.
+// Collisions after lowercasing are rejected up front by
+// `_validate_labels`.
+#let _lowercase_keys(table) = table
+.pairs()
+.fold((:), (acc, (k, v)) => acc + ((lower(k)): v))
+
+// Groups appear in first-occurrence order (Typst dicts preserve
+// insertion order). A JSON Resume type code (`article`, `talk`, …)
+// takes its subheading from `labels.publicationTypes`; any other type
+// is printed as given. Untyped entries fall under `labels.articles`.
+// Subheading icons resolve via `labels.publicationIcons` →
+// `_default_publication_icons` → `file`, keyed by the raw type.
 #let _publications(pubs, labels, prefs) = {
   // Drop entries with no usable `name` up front so the section
   // doesn't render an empty bullet, and so an empty section doesn't
@@ -49,25 +62,16 @@
     // `lower(group)` below.
     let groups = _group_by_type(valid, labels.articles)
     [== #labels.publications]
-    // Normalise user-supplied override keys to lowercase up front so
-    // the case-insensitive contract holds symmetrically: `(Talks: ...)`
-    // matches `type: "talks"` and vice versa. The built-in defaults
-    // dict already uses lowercase keys. Keys that would collide after
-    // lowercasing are rejected up front by `_validate_labels`.
-    let user-icons-lc = labels
-      .at("publicationIcons", default: (:))
-      .pairs()
-      .fold(
-        (:),
-        (acc, (k, v)) => acc + ((lower(k)): v),
-      )
+    let headings = _lowercase_keys(labels.publicationTypes)
+    let user-icons-lc = _lowercase_keys(labels.publicationIcons)
     for (group, items) in groups.pairs() [
       #let lookup-key = lower(group)
       #let group-icon = user-icons-lc.at(
         lookup-key,
         default: _default_publication_icons.at(lookup-key, default: "file"),
       )
-      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #group
+      #let heading = headings.at(lookup-key, default: group)
+      ==== #icon(group-icon, size: 1.2 * body-size, shift: 0pt) #heading
 
       #for pub in items [
         #block(breakable: false)[

@@ -68,6 +68,16 @@ months = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ]
 
+# Subheadings for JSON Resume's `publications[].type` codes. Keys match
+# the `type` string case-insensitively; a type with no entry here is
+# printed as given. Overriding replaces the whole table.
+[publicationTypes]
+article = "Articles"
+book    = "Books"
+patent  = "Patents"
+thesis  = "Theses"
+talk    = "Talks"
+
 # Per-`publications[].type` icon overrides. Keys match the `type`
 # string (case-insensitive); values are utility-icon names. The module
 # ships sensible defaults for Articles, Books, Talks, Conference Papers,
