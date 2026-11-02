@@ -231,7 +231,7 @@ Each per-section entry follows JSON Resume's schema. Tables show the practical s
 | `location` | string or dict | Rendered alongside the date range via the location-icon row. Accepts a plain string or JSON Resume's `{address, postalCode, city, countryCode, region}` dict, collapsed to `city, region, countryCode` like `basics.location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
-| `description` | string or content | Alternative spelling used by some exporters — rendered identically to `summary`; `summary` wins when both are supplied. |
+| `description` | string or content | **Deprecated** alias of `summary`, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)); rendered identically, and `summary` wins when both are supplied. JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"), so rename it to `summary` if it holds the role summary. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 #### Volunteer
@@ -246,6 +246,7 @@ Same shape as `work[]`, but with `organization` in place of `name`.
 | `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
 | `startDate` / `endDate` | string | Date range. |
 | `summary` | string or content | Italic preamble between the date row and the highlights list. |
+| `description` | string or content | **Deprecated**, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)). Not a JSON Resume field: it renders like `summary` (which wins when both are supplied) only because `volunteer[]` shares the `work[]` renderer. Rename it to `summary`. |
 | `highlights` | array of content | Bulleted list of accomplishments. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
@@ -272,7 +273,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Italic line beneath the title (below `entity` when both are present), body colour. |
-| `description` | string or content | Deprecated alias of `summary` (JSON Resume 1.6.0); rendered identically. `summary` wins when both are supplied. |
+| `description` | string or content | **Deprecated** alias of `summary`, removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)); rendered identically, and `summary` wins when both are supplied. JSON Resume deprecated it in 1.6.0. Rename it to `summary`. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 | `startDate` / `endDate` | string | Date range. |
 | `roles` | array of strings | Row of darker label-style pills above the keywords — your role(s) on the project, set apart from the tech keywords. |
