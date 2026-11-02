@@ -51,9 +51,10 @@
       #emph(preamble)
     ]
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
-    #if org-key == "name" [
-      // Render `keywords` only for `work[]`
-      #block(_tag_row(entry.at("keywords", default: ())))
+    // Render `keywords` only for `work[]`, and only when non-empty.
+    #let keywords = entry.at("keywords", default: ())
+    #if org-key == "name" and keywords.len() > 0 [
+      #block(_tag_row(keywords))
     ]
   ],
 )
