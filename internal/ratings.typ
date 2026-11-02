@@ -8,6 +8,7 @@
 #import "state.typ": (
   _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
 )
+#import "text.typ": _altacv
 
 // LinkedIn-style fluency strings. Numeric `rating` wins over `fluency`
 // when an entry supplies both, so callers can opt into fractional
@@ -28,12 +29,12 @@
 // typo'd key or wrong-typed value surfaces immediately. Numeric
 // type/bounds checks live in `rating()`.
 #let _resolve_rating(entry) = {
-  let value = entry.at("rating", default: none) // avoid shadowing `rating()`
+  let value = _altacv(entry, "rating") // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
   if fluency == none {
     panic(
-      "Language entry needs either a numeric `rating` or a `fluency` string. Got: "
+      "Language entry needs either a numeric `custom.altacv.rating` (or the deprecated `rating`) or a `fluency` string. Got: "
         + repr(entry),
     )
   }
