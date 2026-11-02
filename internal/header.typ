@@ -296,9 +296,9 @@
 // The CV's root `objective` (JSON Resume 1.4.0, a forward-looking
 // goal), then `basics.summary` (background), between the header and
 // the first section; either alone keeps the summary's spacing. The
-// objective is a step larger, italic and in the accent colour, with a
-// little extra space before the summary, so the goal reads apart from
-// the background prose.
+// objective is set off like a pull quote — italic, behind a thin
+// accent rule — so it reads apart from the summary without being
+// louder than it, in colour or in a black-and-white print.
 // Lives here, not in `sections/`: it isn't dispatched via `_sections`.
 #let _intro(cv) = {
   let objective = cv.at("objective", default: none)
@@ -316,12 +316,15 @@
       v(0.8 * body-size)
       (
         if goal != none {
-          text(1.15 * body-size, fill: _accent_state.get(), goal)
+          block(
+            stroke: (left: 1.5pt + _accent_state.get()),
+            inset: (left: 0.7 * body-size, y: 0.15 * body-size),
+            par(goal),
+          )
         },
-        summary,
+        if summary != none { par(summary) },
       )
         .filter(l => l != none)
-        .map(par)
         .join(v(0.3 * body-size))
       v(0.4 * body-size)
     }
