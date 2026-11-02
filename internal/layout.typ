@@ -8,7 +8,8 @@
 
 #import "presets.typ": maps-providers, palettes
 #import "text.typ": _altacv
-#import "validation.typ": _check_section_entries, _check_unknown_keys
+#import "validation.typ": _check_section_entries
+#import "canonical.typ": _legacy_root_fields
 #import "../sections/experience.typ": _experience, _volunteer
 #import "../sections/focus-areas.typ": _focus_areas
 #import "../sections/skills.typ": _interests, _skills
@@ -59,21 +60,15 @@
     .to-dict()
 )
 
-// The CV's recognised top-level keys: every section, plus the root
-// keys that aren't one. `custom` holds other tools' extensions and
-// `$schema` a JSON Resume file's schema URL; both are accepted but not
-// rendered. `focusAreas` is a section key, so its deprecated top-level
-// form is accepted until #239 drops it.
+// Every recognised top-level CV key: the sections that read their own
+// key, the root keys that aren't sections (`custom` and `$schema` are
+// accepted but not rendered), and the deprecated root forms
+// `_canonical_cv` still lifts, so dropping one there (#239) rejects it
+// here too.
 #let _cv_keys = (
-  ("$schema", "basics", "objective", "custom", "meta") + _sections.keys()
-)
-
-// A misspelt section (`publication:`) would otherwise drop the whole
-// section silently.
-#let _check_cv_keys(cv) = _check_unknown_keys(
-  cv.keys(),
-  _cv_keys,
-  "CV top-level",
+  ("$schema", "basics", "objective", "custom", "meta")
+    + _sections.keys().filter(k => "read" not in _sections.at(k))
+    + _legacy_root_fields
 )
 
 #let _keys_for_column(col) = (
