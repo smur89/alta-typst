@@ -298,7 +298,7 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |
 | `url` | string | Wraps the title in an accent-coloured link. |
 | `summary` | string or content | Paragraph below the date. |
-| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Free-text values (`"Articles"`, `"Talks"`) print as given; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
+| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Untyped entries count as `article`. Free-text values (`"Articles"`, `"Talks"`) still work, and the common plurals group with their code; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
 All fields are optional — omitted fields drop their line.
 
@@ -473,7 +473,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `interests` | `"Interests"` |
 | `references` | `"References"` |
 | `referencesAvailableOnRequest` | `"References available upon request."` |
-| `articles` | `"Articles"` |
+| `articles` | `"Articles"` (deprecated: use `publicationTypes.article`; still honoured when set, removed in [#239](https://github.com/smur89/alta-typst/issues/239)) |
 | `present` | `"Present"` |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
@@ -488,7 +488,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 
-`labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively. Overriding replaces the whole table, so a translation lists every code it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge", …)`. A type with no entry prints as given.
+`labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively; untyped entries use `article`. Overrides layer over the defaults, so a translation sets just the codes it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge")`. A type with no entry prints as given.
 
 `labels.publicationIcons` maps `publications[].type` values to icon names. Built-in defaults (case-insensitive, singular and plural both accepted):
 
