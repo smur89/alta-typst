@@ -10,10 +10,9 @@
 // by `alta()` and read inside every `context { }` block downstream.
 #let _body_size_state = state("alta-body-size", 10pt)
 #let _accent_state = state("alta-accent", palettes.teal)
+// Read only by the public `rating()` helper's default `max`; the
+// languages section passes `prefs.maxRating` explicitly.
 #let _max_rating_state = state("alta-max-rating", 5)
-// `basics.name`. The one cell holding CV data rather than a style
-// setting; prefer passing data as arguments where a renderer can.
-#let _owner_state = state("alta-owner", none)
 
 // Accent is configurable via `alta(preferences: (accent: ...))`; the
 // rest are opinionated visual constants.

@@ -33,14 +33,13 @@
     #name[#if _present(url) { link(url, org) } else { org }]
     #_entry_term(entry, key, prefs, labels)
 
-    // #239: drop the deprecated `description` fallback.
-    #_preamble(_entry_summary(entry, fallback: "description"))
+    #_preamble(_entry_summary(entry))
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
   ],
 )
 
 // `work[]` — organisation held under `name`.
-#let _experience(work, labels, prefs) = _entry_section(
+#let _experience(work, (labels, prefs, ..)) = _entry_section(
   work,
   "work",
   "name",
@@ -51,7 +50,7 @@
 // `volunteer[]` — organisation held under `organization`; otherwise
 // identical to `work[]` (same summary preamble and linked-org
 // behaviour).
-#let _volunteer(entries, labels, prefs) = _entry_section(
+#let _volunteer(entries, (labels, prefs, ..)) = _entry_section(
   entries,
   "volunteer",
   "organization",

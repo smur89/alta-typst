@@ -12,32 +12,24 @@
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-// An entry's JSON Resume `summary`, or `none` when absent. `fallback`
-// names an older field accepted in its place (only the deprecated
-// `description` aliases use it, so #239 can drop the parameter); an empty `summary` falls
-// through to it, so either spelling gives the same preamble.
-#let _entry_summary(entry, fallback: none) = {
+// An entry's JSON Resume `summary`, or `none` when absent.
+#let _entry_summary(entry) = {
   let summary = entry.at("summary", default: none)
-  if _present(summary) { summary } else if fallback != none {
-    entry.at(fallback, default: none)
-  }
+  if _present(summary) { summary }
 }
 
 // One of altacv's non-spec fields (`focusAreas`, `languages[].rating`,
-// `awards[].url`) from `obj` — the CV root or a section entry. Read
-// from JSON Resume's `custom` object under altacv's own namespace
-// first (#242); a missing or non-dictionary `custom` / `altacv` falls
-// through. Other tools' `custom` namespaces are never read.
+// `awards[].url`) from `obj` — the CV root or a section entry — read
+// from altacv's own namespace in JSON Resume's `custom` object (#242).
+// `_canonical_cv` has already lifted the deprecated top-level forms
+// there and made `custom` / `custom.altacv` dictionaries when it moved
+// anything. Other tools' `custom` namespaces are never read.
 #let _altacv(obj, key, default: none) = {
   let custom = obj.at("custom", default: none)
   let ns = if type(custom) == dictionary {
     custom.at("altacv", default: none)
   }
-  let value = if type(ns) == dictionary { ns.at(key, default: none) }
-  if value != none { value } else {
-    // #239: drop the deprecated top-level fallback.
-    obj.at(key, default: default)
-  }
+  if type(ns) == dictionary { ns.at(key, default: default) } else { default }
 }
 
 // Stricter than `_present` for fields that must be plain strings —

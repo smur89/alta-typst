@@ -9,7 +9,7 @@
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _section
 
-#let _references(entries, labels, prefs) = {
+#let _references(entries, (labels, prefs, ..)) = {
   // Only a real boolean counts, so a stray `"yes"` doesn't hide a quote.
   let on-request(r) = r.at("availableOnRequest", default: false) == true
   let valid = entries.filter(r => (

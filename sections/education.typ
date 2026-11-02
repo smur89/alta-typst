@@ -8,7 +8,7 @@
   _entry_term, _preamble, _section, name, tag,
 )
 
-#let _education(entries, labels, prefs) = _section(
+#let _education(entries, (labels, prefs, ..)) = _section(
   labels.education,
   entries,
   edu => [

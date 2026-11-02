@@ -1,7 +1,7 @@
 // Section dispatch catalogue + the default preferences that
 // reference it. Adding a section here places it in the default
 // layout — still need to write the renderer (under `sections/`, taking
-// `(entries, labels, prefs)`) and add a `labels` key in `defaults.typ`.
+// `(entries, ctx)`) and add a `labels` key in `labels-en.toml`.
 //
 // `_default_preferences` lives in this module rather than
 // `defaults.typ` because its `leftColumnSections` /
@@ -25,8 +25,9 @@
 #import "../sections/publications.typ": _publications
 #import "../sections/references.typ": _references
 
-// Plain data: every renderer shares the `(entries, labels, prefs)`
-// signature, and `_read_sections` feeds it `cv.at(key, default: ())`
+// Plain data: every renderer shares the `(entries, ctx)` signature —
+// `ctx` is `(labels, prefs, owner)`, which renderers destructure — and
+// `_read_sections` feeds it `cv.at(key, default: ())`
 // — so each dict key doubles as the CV field it renders. An optional
 // `read: cv => entries` overrides that lookup, for `focusAreas`, whose
 // data lives in `custom.altacv` (the key still names the section); an

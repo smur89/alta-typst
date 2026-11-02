@@ -27,13 +27,11 @@
   if _present(entity) {
     block(below: 0.5em, text(0.85em, fill: _body_colour, entity))
   }
-  // JSON Resume 1.6.0 prefers `summary`; `description` is its
-  // deprecated alias. Wrapped in a block so the gap to the roles /
+  // Wrapped in a block so the gap to the roles /
   // term row below matches the institution-line → term spacing in
   // `_experience` / `_education`; a bare `linebreak()` here leaves no
   // paragraph spacing.
-  // #239: drop the deprecated `description` fallback.
-  let preamble = _preamble(_entry_summary(project, fallback: "description"))
+  let preamble = _preamble(_entry_summary(project))
   if preamble != none { block(below: 0.6em, preamble) }
   // `roles` — the person's role(s) on the project — render as a row of
   // darker (label-variant) pills just below the summary and above
@@ -46,7 +44,7 @@
   _tag_row(project.at("keywords", default: ()))
 }
 
-#let _projects(entries, labels, prefs) = {
+#let _projects(entries, (labels, prefs, ..)) = {
   let valid = entries.filter(p => _present(p.at("name", default: none)))
   let render(p) = _render_project(p, labels, prefs)
 

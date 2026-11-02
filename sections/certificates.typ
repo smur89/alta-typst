@@ -10,7 +10,7 @@
 )
 #import "../internal/dates.typ": _format_date_span
 
-#let _certificates(certs, labels, prefs) = _section(
+#let _certificates(certs, (labels, prefs, ..)) = _section(
   labels.certificates,
   certs.filter(c => _present(c.at("name", default: none))),
   cert => {
