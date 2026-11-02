@@ -155,7 +155,7 @@
   show heading.where(level: 4): sub-heading(0.6, 0.6, "bold")
 
   _header(cv.basics, preferences)
-  _intro(cv.at("objective", default: none), cv.basics)
+  _intro(cv)
 
   // Renderers are width-agnostic, so any section fits either column.
   // `owner` bolds the CV owner among publication authors.

@@ -1,14 +1,16 @@
 // Header — every above-the-grid surface: name, pronouns, label,
 // contact bar and optional portrait and QR from `basics`, then the
-// `_intro` lines (`objective`, `basics.summary`). Preference shapes are validated up front in
-// `validation.typ`; nothing here re-checks them.
+// `_intro` lines (`objective`, `basics.summary`). Preference shapes
+// are validated up front in `validation.typ`; cv fields are checked
+// here, where they're consumed.
 
 #import "state.typ": (
   _accent_state, _body_colour, _body_size_state, _emphasis_colour,
 )
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
-#import "text.typ": _present
+#import "text.typ": _entry_summary, _present
+#import "primitives.typ": _preamble
 #import "validation.typ": _check_type, _contact_channels
 #import "location.typ": _format_location
 
@@ -295,16 +297,18 @@
 // goal) in italics, then `basics.summary` (background), between the
 // header and the first section; either alone keeps the same spacing.
 // Lives here, not in `sections/`: it isn't dispatched via `_sections`.
-#let _intro(objective, basics) = {
-  if objective != none {
-    _check_type("objective", objective, (str, content), "a string or content")
-  }
-  let summary = basics.at("summary", default: none)
-  let lines = (
-    if _present(objective) { par(emph(objective)) },
-    if _present(summary) { par(summary) },
-  ).filter(l => l != none)
-  if lines.len() > 0 {
+#let _intro(cv) = {
+  let objective = cv.at("objective", default: none)
+  _check_type(
+    "objective",
+    objective,
+    (str, content, type(none)),
+    "a string or content",
+  )
+  let lines = (_preamble(objective), _entry_summary(cv.basics))
+    .filter(l => l != none)
+    .map(par)
+  if lines != () {
     context {
       let body-size = _body_size_state.get()
       v(0.8 * body-size)
