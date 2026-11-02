@@ -22,7 +22,7 @@
   ),
   volunteer: (
     (
-      // No `position` — same guard via the shared `_entry_section`.
+      // No `position` — same guard via the shared `_entry_heading`.
       organization: "Community Library",
       startDate: "2019",
       highlights: ([Volunteer entry without a role.],),
