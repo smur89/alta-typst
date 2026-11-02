@@ -85,14 +85,14 @@
 // Resolves a single bracketed token from a Typst-style format template
 // (e.g. "year", "month repr:long", "day padding:none") against the
 // parsed parts. Missing components (month/day on a year-only or
-// year-month input) substitute `_DATE_TOKEN_DROP` so adjacent
+// year-month input) substitute `_date_token_drop` so adjacent
 // separators can be collapsed by the caller. Mirrors a
 // subset of Typst's own `datetime.display()` token syntax — the
 // supported tokens are `year`, `month`, and `day`, with
 // `repr:long`/`repr:short`/`repr:numerical` for `month` (the long/short
 // forms read from `labels.months` so they localise) and
 // `padding:none`/`padding:zero` for the numeric forms.
-#let _DATE_TOKEN_DROP = "\u{FFFD}"  // Private placeholder for missing parts.
+#let _date_token_drop = "\u{FFFD}" // Private placeholder for missing parts.
 #let _resolve_date_token(token, parts, labels) = {
   let parts-list = token.split(" ")
   let head = parts-list.first()
@@ -102,7 +102,7 @@
     // Year is always 4 digits from the regex, so `padding:` is a no-op.
     str(parts.year)
   } else if head == "month" {
-    if parts.month == none { return _DATE_TOKEN_DROP }
+    if parts.month == none { return _date_token_drop }
     if has("repr:long") {
       labels.months.at(parts.month - 1)
     } else if has("repr:short") {
@@ -117,7 +117,7 @@
       _pad2(parts.month)
     }
   } else if head == "day" {
-    if parts.day == none { return _DATE_TOKEN_DROP }
+    if parts.day == none { return _date_token_drop }
     if has("padding:none") {
       str(parts.day)
     } else {
@@ -150,7 +150,7 @@
   // (`·`, `—`, `–`, etc.) so callers can use exotic glyphs without
   // worrying about whether we know about them.
   body
-    .replace(regex("[^\p{L}\p{N}]*" + _DATE_TOKEN_DROP + "[^\p{L}\p{N}]*"), " ")
+    .replace(regex("[^\p{L}\p{N}]*" + _date_token_drop + "[^\p{L}\p{N}]*"), " ")
     .replace(regex("\s+"), " ")
     .trim()
 }

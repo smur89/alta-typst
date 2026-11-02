@@ -347,7 +347,7 @@
 // `basics` block.
 #let _summary(basics) = context {
   let summary = basics.at("summary", default: none)
-  if summary == none or summary == "" or summary == [] { return }
+  if not _present(summary) { return }
   let body-size = _body_size_state.get()
   v(0.8 * body-size)
   par(summary)
