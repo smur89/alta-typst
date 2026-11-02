@@ -157,9 +157,7 @@
 
 // JSON Resume 1.7.0 `authors`, in published order, joined with ", ";
 // the entry matching `owner` (`basics.name`, ignoring case and
-// surrounding spaces) is bold, the academic-CV convention. Names are
-// trimmed; empty or non-string entries are skipped; `none` when none
-// remain.
+// surrounding spaces) is bold, the academic-CV convention.
 #let _author_line(pub, owner) = {
   let authors = pub.at("authors", default: ())
   if type(authors) != array { return none }
@@ -167,7 +165,7 @@
   authors
     .filter(a => type(a) == str)
     .map(a => a.trim())
-    .filter(a => a != "")
+    .filter(_present_str)
     .map(a => if lower(a) == owner-key { strong(a) } else { a })
     .join(", ")
 }
@@ -200,6 +198,8 @@
     let owner = _owner_state.get()
     // Date and identifier lines share this quieter style.
     let meta = text.with(0.8 * body-size, fill: _body_colour.lighten(35%))
+    // Author and source lines share this one, a step stronger.
+    let sub = text.with(0.85 * body-size, fill: _body_colour)
     let user-icons-lc = _lowercase_keys(labels.publicationIcons)
     for (code, items) in groups.pairs() [
       #let group-icon = user-icons-lc.at(
@@ -227,12 +227,8 @@
           // The optional lines under the title; absent ones drop out, so
           // an empty field can't leave an orphan `\` break.
           #let lines = (
-            if authors != none {
-              text(0.85 * body-size, fill: _body_colour, authors)
-            },
-            if source != none {
-              text(0.85 * body-size, fill: _body_colour, source)
-            },
+            if authors != none { sub(authors) },
+            if source != none { sub(source) },
             if _present(date) { meta(_format_date(date, prefs, labels)) },
             if ids.len() > 0 { meta(_identifier_line(ids)) },
             if _present(summary) { par(summary) },

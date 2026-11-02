@@ -1,9 +1,7 @@
-// JSON Resume 1.7.0 `publications[].authors`: the author list in
-// published order, as a line under the title, joined with ", ". The
-// CV owner's own entry (matching `basics.name`, ignoring case and
-// surrounding spaces) is bold. Covers several authors with the owner
-// in the middle, a sole author, a list without the owner, a differently
-// cased owner, and empty / non-string entries, which are skipped.
+// `publications[].authors`, the CV owner in bold. Covers several
+// authors with the owner in the middle, a sole author, a list without
+// the owner, a differently cased and padded owner, and empty /
+// non-string entries, which are skipped.
 
 #import "../lib.typ": alta
 
