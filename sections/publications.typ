@@ -136,23 +136,31 @@
 
 // JSON Resume 1.7.0 `volume`, `issue` and `pages` as a journal-style
 // tail, `12(3), 45–67`: each part optional, taking its punctuation with
-// it, and a hyphen in `pages` set as an en dash. `none` when all are
-// absent.
+// it, and a hyphen or run of hyphens in `pages` set as one en dash.
+// `none` when all are absent (a separator-less `join` treats `none` as
+// empty).
 #let _citation(pub) = {
   let part(key) = {
     let value = pub.at(key, default: none)
     if _present_str(value) { value }
   }
-  let volume = part("volume")
   let issue = part("issue")
   let pages = part("pages")
-  let number = (
-    (if volume != none { volume } else { "" })
-      + if issue != none { "(" + issue + ")" } else { "" }
+  (
+    (part("volume"), if issue != none { "(" + issue + ")" }).join(),
+    if pages != none { pages.replace(regex("-+"), "–") },
   )
-  let pages = if pages != none { pages.replace(regex("-+"), "–") }
-  let tail = (if number != "" { number }, pages).filter(p => p != none)
-  if tail.len() > 0 { tail.join(", ") }
+    .filter(p => p != none)
+    .join(", ")
+}
+
+// The line under a publication's title: the publisher, then the
+// citation; either stands alone. `none` when both are absent.
+#let _source(pub) = {
+  let publisher = pub.at("publisher", default: none)
+  (if _present(publisher) { publisher }, _citation(pub))
+    .filter(p => p != none)
+    .join(" ")
 }
 
 // Groups appear in first-occurrence order (Typst dicts preserve
@@ -194,19 +202,13 @@
           #let url = pub.at("url", default: none)
           #let url = if _present(url) { url } else { _identifier_url(ids) }
           #let title = pub.at("name", default: "")
-          #let publisher = pub.at("publisher", default: none)
+          #let source = _source(pub)
           #let summary = pub.at("summary", default: none)
           // The optional lines under the title; absent ones drop out, so
           // an empty field can't leave an orphan `\` break.
           #let lines = (
-            {
-              let source = (
-                if _present(publisher) { publisher },
-                _citation(pub),
-              ).filter(p => p != none)
-              if source.len() > 0 {
-                text(0.85 * body-size, fill: _body_colour, source.join(" "))
-              }
+            if source != none {
+              text(0.85 * body-size, fill: _body_colour, source)
             },
             if _present(date) { meta(_format_date(date, prefs, labels)) },
             if ids.len() > 0 { meta(_identifier_line(ids)) },
