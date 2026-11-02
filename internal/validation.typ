@@ -1,9 +1,9 @@
 // Shared validators — every `preferences` / `labels` shape check
 // panics here, up front, so errors surface at the caller instead of as
 // cryptic render-time failures. Shape checks on `cv` data fields
-// (`basics.location`, `basics.image`, profile networks) stay with the
-// renderer that consumes them, since they only apply when that field
-// is present.
+// (`basics.image`, profile networks; `location` in `location.typ`)
+// stay with the code that consumes them, since they only apply when
+// that field is present.
 
 #import "dates.typ": _date_format_aliases
 #import "qr.typ": _check_qr_code
@@ -129,6 +129,7 @@
     )
   }
   _check_bool("uppercaseName", preferences.uppercaseName)
+  _check_bool("showPronouns", preferences.showPronouns)
   _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
   _check_bool("footerVersion", preferences.footerVersion)
   _check_bool(
@@ -194,11 +195,11 @@
 // override panics with a clear message rather than failing inside
 // `array.at()` or string slicing at render time.
 //
-// `labels.publicationIcons` matching is case-insensitive, so the
-// renderer lowercases the override keys. Two source keys collapsing
-// onto one (e.g. `Talks` + `talks`) would silently resolve
-// last-write-wins; panic so it surfaces as a configuration error —
-// whether or not the CV has publications to render.
+// `labels.publicationTypes` / `labels.publicationIcons` matching is
+// case-insensitive, so the renderer lowercases their keys. Two source
+// keys collapsing onto one (e.g. `Talks` + `talks`) would silently
+// resolve last-write-wins; panic so it surfaces as a configuration
+// error — whether or not the CV has publications to render.
 //
 // `labels.pageNumber` / `labels.documentTitle` are `{key}` templates.
 // A missing required placeholder or a misspelt one (`{totl}`) would
@@ -263,13 +264,17 @@
       "labels.months must be an array of 12 strings, got: " + repr(months),
     )
   }
-  let icon-keys = labels.publicationIcons.keys()
-  if icon-keys.map(lower).dedup().len() != icon-keys.len() {
-    panic(
-      "labels.publicationIcons has keys that collide after lowercasing — "
-        + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
-        + "Source keys: "
-        + repr(icon-keys),
-    )
+  for table in ("publicationTypes", "publicationIcons") {
+    let keys = labels.at(table).keys()
+    if keys.map(lower).dedup().len() != keys.len() {
+      panic(
+        "labels."
+          + table
+          + " has keys that collide after lowercasing — "
+          + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
+          + "Source keys: "
+          + repr(keys),
+      )
+    }
   }
 }

@@ -3,7 +3,7 @@
 // from `lib.typ`; the one-call `alta-from-json` lives there since it
 // composes `alta`.
 
-#import "@preview/gairm-import:0.8.1": (
+#import "@preview/gairm-import:0.9.0": (
   add-field, array-of, content-type, lens, number-type, parse as _parse,
   resume-schema-strict, str-type,
 )

@@ -7,7 +7,9 @@
   _accent_state, _body_colour, _body_size_state, _divider_colour,
 )
 #import "icons.typ": icon
-#import "text.typ": _present_str
+#import "text.typ": _present, _present_str
+#import "dates.typ": _format_date_range
+#import "location.typ": _format_location
 
 // Shared by `divider()` and `_labelled_divider()` so the plain and
 // labelled rules can't drift apart visually.
@@ -28,6 +30,11 @@
     text(weight: "bold", fill: accent, body),
   )
 }
+
+// An entry's italic prose preamble (`summary`). Softer than `name()`
+// (the bold accent line) so it doesn't compete with the headings or
+// the bullets around it. Absent values render nothing.
+#let _preamble(body) = if _present(body) { emph(body) }
 
 // Either side may be `none` — the box is skipped, so undated /
 // unlocated entries don't emit a stray icon.
@@ -54,6 +61,17 @@
     }),
   )
 }
+
+// The date + location term row of a dated entry. `location` is a
+// string or JSON Resume's structured dict; `key` names the section in
+// panic messages (e.g. "education" → "education[].location").
+#let _entry_term(entry, key, prefs, labels) = term(
+  _format_date_range(entry, prefs, labels),
+  location: _format_location(
+    entry.at("location", default: none),
+    key + "[].location",
+  ),
+)
 
 // `label: true` is the category-heading variant (darker fill, bold
 // text) — used to distinguish a group's leading pill from the item

@@ -2,14 +2,26 @@
 //
 // Empty-string normalisation: callers receive `none` for any field
 // that's effectively absent (none / "" / empty content). `_present`
-// is the canonical predicate; data-shape normalisers (location,
-// url-encode) live with the header that consumes them.
+// is the canonical predicate; data-shape normalisers live in their
+// own module when shared (`location.typ`) or with their one consumer
+// (the header's url-encode).
 
 #import "state.typ": _accent_state
 
 // Rejects `none`, the empty string, and the empty content block —
 // the three ways a section field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
+
+// An entry's JSON Resume `summary`, or `none` when absent. `fallback`
+// names an older field accepted in its place (only the deprecated
+// `description` aliases use it, so #239 can drop the parameter); an empty `summary` falls
+// through to it, so either spelling gives the same preamble.
+#let _entry_summary(entry, fallback: none) = {
+  let summary = entry.at("summary", default: none)
+  if _present(summary) { summary } else if fallback != none {
+    entry.at(fallback, default: none)
+  }
+}
 
 // Stricter than `_present` for fields that must be plain strings —
 // PDF metadata, grouping keys — where a content block or a number

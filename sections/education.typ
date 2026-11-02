@@ -1,10 +1,12 @@
 // Education entries — qualification heading, accent-coloured
-// institution (optionally linked), date range, score, and pill-tagged
-// courses. Falls back to `area` when `studyType` is missing.
+// institution (optionally linked), date range and location, italic
+// summary, score, and pill-tagged courses. Falls back to `area` when
+// `studyType` is missing.
 
-#import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _section, name, tag, term
-#import "../internal/dates.typ": _format_date_range
+#import "../internal/text.typ": _entry_summary, _present
+#import "../internal/primitives.typ": (
+  _entry_term, _preamble, _section, name, tag,
+)
 
 #let _education(entries, labels, prefs) = _section(
   labels.education,
@@ -23,7 +25,10 @@
     #if _present(url) and _present(institution) { link(url, body) } else {
       body
     }
-    #term(_format_date_range(edu, prefs, labels))
+    #_entry_term(edu, "education", prefs, labels)
+
+    // Own paragraph, so the score below starts on a new line.
+    #_preamble(_entry_summary(edu))
 
     #let score = edu.at("score", default: none)
     #if _present(score) [#score]

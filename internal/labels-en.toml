@@ -32,7 +32,9 @@ interests    = "Interests"
 references   = "References"
 referencesAvailableOnRequest = "References available upon request."
 
-# Cluster heading for publications without an explicit `type`.
+# Deprecated: untyped publications now head from
+# `publicationTypes.article`. Still honoured when overridden; removed
+# in the next major (#239).
 articles = "Articles"
 
 # Cluster heading for projects without an explicit `type`, when at
@@ -67,6 +69,17 @@ months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ]
+
+# Subheadings for JSON Resume's `publications[].type` codes (untyped
+# entries count as `article`). Keys match the `type` string
+# case-insensitively; a type with no entry here is printed as given.
+# Overrides layer over these defaults.
+[publicationTypes]
+article = "Articles"
+book    = "Books"
+patent  = "Patents"
+thesis  = "Theses"
+talk    = "Talks"
 
 # Per-`publications[].type` icon overrides. Keys match the `type`
 # string (case-insensitive); values are utility-icon names. The module
