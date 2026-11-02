@@ -45,6 +45,9 @@ otherProjects = "Other"
 # Rendered in date ranges when `endDate` is empty.
 present = "Present"
 
+# Prefix for `certificates[].credentialId` in the cert's pill.
+credentialId = "ID"
+
 # Footer label when `preferences.lastModifiedFooter` is true.
 lastModified = "Last updated"
 

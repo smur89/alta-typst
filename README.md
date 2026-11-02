@@ -311,6 +311,7 @@ All fields are optional — omitted fields drop their line.
 | `date` | string | Date the certificate was issued. Inside the pill after the name, with a calendar icon. |
 | `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
 | `url` | string | Wraps the pill in a link to the credential. |
+| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Inside the pill after the date, in body colour, prefixed by `labels.credentialId` (`ID ABC-123`). |
 | `summary` | string or content | What the certificate covers. Paragraph under the pill, as in `awards[]`; the pill moves to its own line so the paragraph sits with it. |
 
 #### Interests
@@ -477,6 +478,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `referencesAvailableOnRequest` | `"References available upon request."` |
 | `articles` | `"Articles"` (deprecated: use `publicationTypes.article`; still honoured when set, removed in [#239](https://github.com/smur89/alta-typst/issues/239)) |
 | `present` | `"Present"` |
+| `credentialId` | `"ID"` (prefix for `certificates[].credentialId`) |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
 | `documentTitle` | `"{name} — CV"` |
