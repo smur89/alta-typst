@@ -25,7 +25,7 @@
 // reads as an afterthought when stacked below the contact bar.
 
 #import "../lib.typ": alta, maps-providers, palettes
-#import "_cv.typ": cv, no-image
+#import "_cv.typ": cv, no-image, with-pronouns
 
 // Irish-language label overrides used by one of the frames to
 // demonstrate localisation. Loaded once at parse time — the same
@@ -92,12 +92,14 @@
   // Section arrangement matches frame 1, the portrait reappears
   // stacked above a centred header text block. Paired with frame 1
   // to isolate the photo-position change; charcoal accent contrasts
-  // the navy baseline so the palette swap is also visible.
+  // the navy baseline so the palette swap is also visible. Pronouns
+  // shown (`showPronouns`), centred with the name.
   (
-    cv,
+    with-pronouns(cv),
     base
       + (
         accent: palettes.charcoal,
+        showPronouns: true,
         imagePosition: "center",
         imageStackOrder: "above",
         headerTextAlign: "center",
@@ -169,12 +171,14 @@
   // Header text aligned right; certificates ungrouped (flat pill
   // strip). Volunteer + interests pulled up alongside work in the
   // left column. Drops publications + awards to fit on one page —
-  // the volunteer arrangement is the distinctive shape here.
+  // the volunteer arrangement is the distinctive shape here. Pronouns
+  // shown after the right-aligned name.
   (
-    no-image(cv),
+    with-pronouns(no-image(cv)),
     base
       + (
         accent: palettes.forest,
+        showPronouns: true,
         headerTextAlign: "right",
         groupCertificates: false,
         leftColumnSections: ("work", "volunteer", "interests"),
