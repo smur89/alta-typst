@@ -308,7 +308,8 @@ All fields are optional — omitted fields drop their line.
 |---|---|---|
 | `name` | string | Certificate name. Rendered as a pill tag; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
 | `issuer` | string | Granting organisation. When `preferences.groupCertificates` is `true`, certs from the same issuer cluster into a single pill row prefixed by a darker issuer-label pill; singletons pool into a trailing unlabelled group. |
-| `date` | string | Single date. Small body-coloured text inline to the right of the pill, sharing the same baseline. |
+| `date` | string | Date the certificate was issued. Inside the pill after the name, with a calendar icon. |
+| `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
 | `url` | string | Wraps the pill in a link to the credential. |
 
 #### Interests

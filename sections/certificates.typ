@@ -6,23 +6,26 @@
 #import "../internal/text.typ": _present
 #import "../internal/primitives.typ": _group_by, _labelled_divider, divider, tag
 #import "../internal/icons.typ": icon
-#import "../internal/dates.typ": _format_date
+#import "../internal/dates.typ": _format_date_span
 
-// Normalises a cert into the (name, date, url, issuer) record the
-// renderer consumes; `none` when there's no usable name. `date` /
-// `url` collapse to `none` when empty so downstream nil-checks don't
-// render orphans; "no issuer" (missing / `none` / "") normalises to
-// "" because Typst dict keys can't be `none`.
+// Normalises a cert into the (name, date, expiryDate, url, issuer)
+// record the renderer consumes; `none` when there's no usable name.
+// Optional fields collapse to `none` when empty so downstream
+// nil-checks don't render orphans; "no issuer" (missing / `none` /
+// "") normalises to "" because Typst dict keys can't be `none`.
 #let _normalise_cert(cert) = {
   let name = cert.at("name", default: "")
   if not _present(name) { return none }
-  let date = cert.at("date", default: none)
-  let url = cert.at("url", default: none)
+  let optional(key) = {
+    let value = cert.at(key, default: none)
+    if _present(value) { value }
+  }
   let issuer = cert.at("issuer", default: "")
   (
     name: name,
-    date: if _present(date) { date } else { none },
-    url: if _present(url) { url } else { none },
+    date: optional("date"),
+    expiryDate: optional("expiryDate"),
+    url: optional("url"),
     issuer: if issuer == none { "" } else { issuer },
   )
 }
@@ -32,8 +35,8 @@
 // a trailing heterogeneous group with no issuer label.
 //
 // Returns an array of `(issuer, items)` records. `items` carries full
-// `_normalise_cert` records (name + date + url) so the renderer can
-// emit inline dates and link wrapping without re-reading the source.
+// `_normalise_cert` records so the renderer can emit inline dates and
+// link wrapping without re-reading the source.
 // `issuer` is `none` for the trailing singleton group (its certs come
 // from different issuers, so no single label fits) or for clusters
 // whose `issuer` field is missing / empty.
@@ -58,20 +61,23 @@
   groups
 }
 
-// Builds a pill body containing the cert name and, when a date is
-// supplied, a middot separator + small calendar icon + date — all in
-// the pill's own text rendering. The icon and date are wrapped in a
-// box so they never break across lines; only the middot's surrounding
-// space is a valid break point if the pill has to wrap. The date is
-// routed through `_format_date` so it honours `preferences.dateFormat`
-// the same way the work / education / awards / publications dates do.
+// Builds a pill body containing the cert name and, when dated, a
+// middot separator + small calendar icon + period — all in the pill's
+// own text rendering. The icon and period are wrapped in a box so they
+// never break across lines; only the middot's surrounding space is a
+// valid break point if the pill has to wrap. The period is `date`, or
+// `date – expiryDate` for a cert that expires, routed through
+// `_format_date_span` so it honours `preferences.dateFormat` the same
+// way the work / education / awards / publications dates do. No
+// `open-end`: a cert without `expiryDate` doesn't expire, so the end
+// is left off rather than read as "Present".
 #let _cert_tag(item, prefs, labels) = context {
   let body-size = _body_size_state.get()
-  let body = if item.date != none {
-    let formatted = _format_date(item.date, prefs, labels)
+  let period = _format_date_span(item.date, item.expiryDate, prefs, labels)
+  let body = if period != none {
     let cal = icon("calendar", size: 0.75 * body-size, shift: 0.1 * body-size)
     let bullet = h(0.35 * body-size) + [·] + h(0.35 * body-size)
-    [#item.name#bullet#box[#cal#formatted]]
+    [#item.name#bullet#box[#cal#period]]
   } else {
     [#item.name]
   }
@@ -86,7 +92,7 @@
   // "Certifications" heading with nothing under it.
   //
   // Each group is `(issuer, items)` where `items` carries full
-  // `_normalise_cert` triples. In flat (non-grouped) mode each cert
+  // `_normalise_cert` records. In flat (non-grouped) mode each cert
   // becomes its own one-element "group" with no issuer label so the
   // row flows as a single uniformly-pilled strip.
   let groups = if prefs.groupCertificates {
