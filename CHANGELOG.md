@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.8.0](https://github.com/smur89/alta-typst/compare/v1.7.0...v1.8.0) (2026-11-02)
+
+
+### Features
+
+* honour references[].availableOnRequest and head publication type codes from labels ([#240](https://github.com/smur89/alta-typst/issues/240)) ([bd1ed73](https://github.com/smur89/alta-typst/commit/bd1ed73ce94c35e9724b10c7529b2fb05f2065c9))
+* lay every entry out through one shared component ([#262](https://github.com/smur89/alta-typst/issues/262)) ([9a3076f](https://github.com/smur89/alta-typst/commit/9a3076f1d4741a5d2f41703d437ac5ee860983c6))
+* read altacv's non-spec fields from custom.altacv ([#247](https://github.com/smur89/alta-typst/issues/247)) ([04a34ab](https://github.com/smur89/alta-typst/commit/04a34ab25c834e6b9de29884694e1692eaf78cf4))
+* render basics.pronouns and deprecate the description aliases ([#241](https://github.com/smur89/alta-typst/issues/241)) ([f10f818](https://github.com/smur89/alta-typst/commit/f10f81849c745c307fb56bf12a612856b5435d5e))
+* render certificates as entries with summary, credentialId and expiryDate ([#244](https://github.com/smur89/alta-typst/issues/244)) ([874cce9](https://github.com/smur89/alta-typst/commit/874cce9cb52510f84a1eabbebf5f6482424f322d))
+* render education summary and location, and projects[].summary ([#238](https://github.com/smur89/alta-typst/issues/238)) ([bdbe061](https://github.com/smur89/alta-typst/commit/bdbe061f8e7e3f684fd53954408cbb96b0859772))
+* render publications volume, issue and pages ([#250](https://github.com/smur89/alta-typst/issues/250)) ([e5525fc](https://github.com/smur89/alta-typst/commit/e5525fc8f40bed99c1dcd2e82d1f0da91d10f455))
+* render publications[].authors ([#251](https://github.com/smur89/alta-typst/issues/251)) ([d3a9b53](https://github.com/smur89/alta-typst/commit/d3a9b536eb07037624d327805db03ec422b0f2ab))
+* render publications[].identifiers ([#249](https://github.com/smur89/alta-typst/issues/249)) ([d4d684e](https://github.com/smur89/alta-typst/commit/d4d684ec5dfa1bfce33962c3094ad423c57a25b9))
+* render references[].relationship, organization and date ([#258](https://github.com/smur89/alta-typst/issues/258)) ([b3022e5](https://github.com/smur89/alta-typst/commit/b3022e54e819a66ccb651bb87eae0c68c0ed08ba))
+* render the top-level objective ([#259](https://github.com/smur89/alta-typst/issues/259)) ([824e0d5](https://github.com/smur89/alta-typst/commit/824e0d5d131bd5a5d2a16e298a883285edeeedc7))
+* set the objective off with an accent rule ([#260](https://github.com/smur89/alta-typst/issues/260)) ([d2ae538](https://github.com/smur89/alta-typst/commit/d2ae538a750392d32d924f3a5decedae4b5f3947))
+
+
+### Bug Fixes
+
+* accept JSON Resume's structured location on work and volunteer ([#237](https://github.com/smur89/alta-typst/issues/237)) ([db388f7](https://github.com/smur89/alta-typst/commit/db388f796a0ba72a07bf2734197ec7a7699b63b0))
+* **ci:** run build workflow steps with pipefail ([#257](https://github.com/smur89/alta-typst/issues/257)) ([440e9e7](https://github.com/smur89/alta-typst/commit/440e9e73f4c1d56ee5ab8d366c17ec62465e35bc))
+* **deps:** update dependency gairm-import to v0.9.0 ([#213](https://github.com/smur89/alta-typst/issues/213)) ([62ef5d3](https://github.com/smur89/alta-typst/commit/62ef5d321ad506030c8c9490683206a777672a5a))
+* reject unknown top-level CV keys in alta() ([#261](https://github.com/smur89/alta-typst/issues/261)) ([58a5db4](https://github.com/smur89/alta-typst/commit/58a5db440b895a99041a6456681b7e967dbfef79))
+* scale fluency values to preferences.maxRating ([#248](https://github.com/smur89/alta-typst/issues/248)) ([1d9e362](https://github.com/smur89/alta-typst/commit/1d9e3628a4d7ed11e4d15d7b02a14589b1858072))
+* small rendering consistencies ([#254](https://github.com/smur89/alta-typst/issues/254)) ([3bb767e](https://github.com/smur89/alta-typst/commit/3bb767ee1c90f44adf5788f8df0ea428f2fda2f3))
+* validate every preference and section shape up front ([#252](https://github.com/smur89/alta-typst/issues/252)) ([a741f32](https://github.com/smur89/alta-typst/commit/a741f32c8e6f92c3114d6d3595001b14e59603f7))
+
 ## [1.7.0](https://github.com/smur89/alta-typst/compare/v1.6.0...v1.7.0) (2026-10-27)
 
 
