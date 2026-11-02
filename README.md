@@ -335,9 +335,12 @@ interests: (
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Referee name, level-3 heading above the quote. Omitted entries render the quote anonymously. |
-| `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading). |
+| `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
+| `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
 
-When `references[]` is empty (or every entry lacks a `reference`) and `preferences.referencesAvailableOnRequest` is `true`, the section renders the conventional `References available upon request.` line under the heading instead of being suppressed. The line text is `labels.referencesAvailableOnRequest`, so it localises alongside the other display strings.
+The line text is `labels.referencesAvailableOnRequest`, so it localises alongside the other display strings.
+
+**Deprecated:** `preferences.referencesAvailableOnRequest` renders the same line when `references[]` is empty (or no entry has a `reference`). Prefer `availableOnRequest` on the entries; the preference is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 ### Profile networks
 
@@ -381,7 +384,7 @@ Override any subset of the keys below.
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |
-| `referencesAvailableOnRequest` | `false` | When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
+| `referencesAvailableOnRequest` | `false` | **Deprecated**, use `references[].availableOnRequest`. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
 | `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
