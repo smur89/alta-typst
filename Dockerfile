@@ -10,15 +10,17 @@ ARG FA_VERSION=7.0.0
 # SHA256 of the upstream desktop zip, so a replaced artifact fails
 # the build instead of silently changing glyphs.
 ARG FA_SHA256=4409b8438d3b8382a502e59facc1d4ab5353b788943efaffb566a5682936c3fe
-# Exact apk version so rebuilds fetch identical bytes.
+# Lato 2.015, the release Homebrew's `font-lato` cask ships, so local
+# and CI renders match. Exact apk version so rebuilds fetch identical
+# bytes.
 ARG LATO_APK_VERSION=2.015-r0
 
 # Upstream runs as `typst`; install as root. No USER is set back, so
 # callers choose (`make docker-pdfs` passes `-u`).
 USER root
 
-# `bash` and `git` let GHA `container:` jobs run steps and git
-# commands inside the image; the rest installs Lato and FA.
+# `bash` is `make docker-shell`'s shell; with `git` it also lets a GHA
+# `container:` job run inside the image. The rest installs Lato and FA.
 RUN apk add --no-cache \
       bash \
       ca-certificates \

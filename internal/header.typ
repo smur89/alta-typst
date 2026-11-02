@@ -208,8 +208,10 @@
   // Full-width `block` centres the photo against the page (a bare
   // `align(center, box)` centres against the inline position). The
   // `qr-size` spacer balances the QR so the content stays centred
-  // page-wise. The row gap is an explicit `v(...)` because block
-  // spacing inside a grid cell is consumed by the cell.
+  // page-wise. Only the top row gets the QR grid, so the QR stays at
+  // the header's top corner whichever way the stack runs. The row gap
+  // is an explicit `v(...)` because block spacing inside a grid cell
+  // is consumed by the cell.
   if preferences.imagePosition == "center" {
     let centred-photo = if photo != none {
       block(width: 100%, align(center, photo))

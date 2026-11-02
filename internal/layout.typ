@@ -24,7 +24,8 @@
 // owner)`. Each key doubles as the CV field read, unless `read`
 // overrides it (`focusAreas` lives in `custom.altacv`); `items` lists
 // the accepted entry types (default: dictionaries). Insertion order is
-// the default render order.
+// the default render order. Must follow the renderer imports: Typst
+// binds identifiers eagerly.
 #let _sections = (
   work: (column: "left", render: _experience),
   volunteer: (column: "left", render: _volunteer),
@@ -65,7 +66,8 @@
 // Documented in the README's preferences table; comments here note
 // only constraints the README doesn't need.
 #let _default_preferences = (
-  // Must be installed on the build host (the CI image ships Lato).
+  // Must be installed on the build host (CI installs it: apt in
+  // setup-typst, apk in the pinned image).
   font: "Lato",
   bodySize: 10pt,
   paper: "a4",

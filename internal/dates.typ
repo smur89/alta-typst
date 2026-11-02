@@ -4,7 +4,8 @@
 // `datetime` has no year-only or year-month form, so partials live in
 // a `(year, month, day)` dict. `datetime.display()` only emits English
 // names, which would defeat `labels.months`, so we render names
-// ourselves while mirroring its bracketed token syntax.
+// ourselves while mirroring its bracketed token syntax, so a template
+// carries over to other Typst code.
 
 #import "text.typ": _present
 
