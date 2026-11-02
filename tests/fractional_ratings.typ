@@ -18,9 +18,10 @@
 
 #pagebreak()
 
-// CEFR-style 6-level scale. Fluency strings are anchored to LinkedIn's
-// 0–5 scale, so this page uses numeric ratings exclusively — covering
-// the new maximum (6) and a fractional value above the default cap.
+// A 6-dot scale with numeric ratings, which are used as given —
+// covering the new maximum (6) and a fractional value above the
+// default cap. (Fluency strings scale to `maxRating`; see
+// language_fluency.typ.)
 #alta(
   (
     basics: (name: "Jean Dupont", email: "jean@example.com"),

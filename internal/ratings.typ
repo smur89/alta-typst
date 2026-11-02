@@ -9,25 +9,47 @@
   _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
 )
 
-// LinkedIn-style fluency strings. Numeric `rating` wins over `fluency`
-// when an entry supplies both, so callers can opt into fractional
-// precision without rewriting their data. The fluency map is fixed at
-// a 0–5 scale (LinkedIn's); callers using `preferences.maxRating` for a
-// non-5 scale (e.g. CEFR's 6) must pass numeric `rating` values.
+// `fluency` → dots, keyed lowercase without a trailing "proficiency"
+// (LinkedIn's labels carry one: "Professional working proficiency"),
+// as fractions of a 0–5 scale that `_resolve_rating` scales to
+// `preferences.maxRating`. CEFR's six levels are spread over five
+// dots, rounded to halves.
 #let _fluency_rating = (
-  "Native": 5,
-  "Bilingual": 5,
-  "Full Professional": 4,
-  "Professional Working": 3,
-  "Limited Working": 2,
-  "Elementary": 1,
+  // LinkedIn
+  "native": 5,
+  "bilingual": 5,
+  "native or bilingual": 5,
+  "full professional": 4,
+  "professional working": 3,
+  "limited working": 2,
+  "elementary": 1,
+  // Common words, including JSON Resume's examples ("Fluent", "Beginner")
+  "mother tongue": 5,
+  "fluent": 4.5,
+  "advanced": 4,
+  "proficient": 4,
+  "upper intermediate": 3.5,
+  "intermediate": 3,
+  "conversational": 2,
+  "basic": 1,
+  "beginner": 1,
+  // CEFR
+  "c2": 5,
+  "c1": 4,
+  "b2": 3.5,
+  "b1": 2.5,
+  "a2": 1.5,
+  "a1": 1,
 )
 
-// `none` = caller should render label-only (free-text fluency outside
-// the LinkedIn enum). Both-absent and non-string fluency panic so a
+// A numeric `rating` is used as given and wins over `fluency`. A
+// recognised `fluency` is scaled from 0–5 to `max` (the dot count) and
+// rounded to the nearest half, so it fits any scale. `none` = caller
+// should render label-only (free-text `fluency` outside
+// `_fluency_rating`). Both-absent and non-string fluency panic so a
 // typo'd key or wrong-typed value surfaces immediately. Numeric
 // type/bounds checks live in `rating()`.
-#let _resolve_rating(entry) = {
+#let _resolve_rating(entry, max) = {
   let value = entry.at("rating", default: none) // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
@@ -45,8 +67,9 @@
         + repr(entry),
     )
   }
-  if fluency in _fluency_rating { return _fluency_rating.at(fluency) }
-  none
+  let key = lower(fluency.trim()).trim(" proficiency", at: end).trim()
+  let value = _fluency_rating.at(key, default: none)
+  if value != none { calc.round(value / 5 * max * 2) / 2 }
 }
 
 #let _half_fill(accent) = gradient.linear(

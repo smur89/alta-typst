@@ -128,10 +128,7 @@
   // References heading when no entry has a `reference` quote, instead
   // of suppressing the section.
   referencesAvailableOnRequest: false,
-  // Number of dots on the language fluency scale. Default 5 matches
-  // LinkedIn's scale (and the built-in `fluency` string map). Override
-  // to suit other scales — CEFR (6: A1–C2), ILR (5), or custom.
-  // Fluency strings remain anchored to LinkedIn's 0–5 scale, so callers
-  // using a non-5 maxRating must supply numeric `rating` values.
+  // Number of dots on the language scale. Recognised `fluency` values
+  // scale to it; numeric `rating` values are used as given.
   maxRating: 5,
 )

@@ -164,7 +164,23 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or
 Two optional fields layered on top of JSON Resume:
 
 - **`focusAreas`** — top-level array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported).
-- **`languages[].rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Unknown `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits.
+- **`languages[].rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying `rating` enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Without a `rating`, recognised `fluency` values turn into dots (see [Fluency values](#fluency-values)); any other `fluency` string renders as a small annotation in place of the dots, so a canonical `resume.json` works without edits.
+
+### Fluency values
+
+`languages[].fluency` (JSON Resume's only language-level field) turns into dots when it's one of these values, matched case-insensitively, ignoring surrounding spaces and a trailing "proficiency" (as in LinkedIn's "Professional working proficiency"). The values are on a 0–5 scale and scale to `preferences.maxRating` (rounded to the nearest half), so `Native` fills every dot on any scale. A numeric `languages[].rating` is used as given and wins over `fluency`.
+
+| Dots (of 5) | `fluency` values |
+|---|---|
+| 5 | `Native`, `Bilingual`, `Native or bilingual`, `Mother tongue`, `C2` |
+| 4.5 | `Fluent` |
+| 4 | `Full Professional`, `Advanced`, `Proficient`, `C1` |
+| 3.5 | `Upper Intermediate`, `B2` |
+| 3 | `Professional Working`, `Intermediate` |
+| 2.5 | `B1` |
+| 2 | `Limited Working`, `Conversational` |
+| 1.5 | `A2` |
+| 1 | `Elementary`, `Basic`, `Beginner`, `A1` |
 
 ### Top-level keys
 
@@ -396,7 +412,7 @@ Override any subset of the keys below.
 | `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
-| `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Default matches LinkedIn's 0–5 scale (and the built-in `fluency` string map); set to `6` for CEFR (A1–C2), `4` for ILR-style 0–4, etc. Fluency *strings* stay anchored to the 0–5 LinkedIn scale, so non-5 `maxRating` requires numeric `languages[].rating` values. |
+| `maxRating` | `5` | Number of dots on the language fluency scale. Positive integer. Set to `6` for a CEFR-style scale, `4` for ILR-style 0–4, etc. Recognised `fluency` values scale to it (see [Fluency values](#fluency-values)); numeric `languages[].rating` values are used as given. |
 
 Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
 
