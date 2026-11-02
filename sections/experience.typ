@@ -6,8 +6,8 @@
 // `volunteer` uses `organization`), so both delegate to the shared
 // `_entry_section` renderer below.
 
-#import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _section, name, term
+#import "../internal/text.typ": _present, _summary
+#import "../internal/primitives.typ": _preamble, _section, name, term
 #import "../internal/dates.typ": _format_date_range
 #import "../internal/location.typ": _format_location
 
@@ -38,20 +38,7 @@
       key + "[].location",
     ))
 
-    // `summary` wins over `description` only when present-and-non-
-    // empty; an empty-string `summary` falls through to `description`
-    // so callers using either field name get the right preamble.
-    #let summary = entry.at("summary", default: none)
-    #let preamble = if _present(summary) { summary } else {
-      entry.at("description", default: none)
-    }
-    #if _present(preamble) [
-      // Softer than `name()` (the bold accent line above) — same
-      // treatment as `projects[].description` — so the prose preamble
-      // doesn't compete with the role headings or the highlight
-      // bullets that follow.
-      #emph(preamble)
-    ]
+    #_preamble(_summary(entry, fallback: "description"))
     #for bullet in entry.at("highlights", default: ()) [- #bullet]
   ],
 )

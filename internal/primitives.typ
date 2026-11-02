@@ -7,7 +7,7 @@
   _accent_state, _body_colour, _body_size_state, _divider_colour,
 )
 #import "icons.typ": icon
-#import "text.typ": _present_str
+#import "text.typ": _present, _present_str
 
 // Shared by `divider()` and `_labelled_divider()` so the plain and
 // labelled rules can't drift apart visually.
@@ -28,6 +28,11 @@
     text(weight: "bold", fill: accent, body),
   )
 }
+
+// An entry's italic prose preamble (`summary`). Softer than `name()`
+// (the bold accent line) so it doesn't compete with the headings or
+// the bullets around it. Absent values render nothing.
+#let _preamble(body) = if _present(body) { emph(body) }
 
 // Either side may be `none` — the box is skipped, so undated /
 // unlocated entries don't emit a stray icon.
