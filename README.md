@@ -258,7 +258,9 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 | `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"). Entry heading. Falls back to `area` if absent. |
 | `area` | string | Field of study. Used as the heading only when `studyType` is missing. |
 | `startDate` / `endDate` | string | Date range. |
-| `score` | string | Grade / classification, plain line below the date range. |
+| `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
+| `summary` | string or content | Italic preamble below the date row — thesis topic, honours or other context. |
+| `score` | string | Grade / classification, plain line below the summary (or the date range). |
 | `courses` | array of strings | Row of pill tags below the score (same treatment as `skills[].keywords` and `projects[].keywords`). |
 
 #### Projects
