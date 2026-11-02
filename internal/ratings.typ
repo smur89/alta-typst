@@ -13,14 +13,15 @@
 // Half-dot precision is the only fraction the renderer can draw.
 #let _round_half(x) = calc.round(x * 2) / 2
 
-// LinkedIn-style fluency strings, as fractions of full fluency.
+// LinkedIn-style fluency strings, as fractions of full fluency. Keys
+// are lowercase; `fluency` is matched case-insensitively.
 #let _fluency_rating = (
-  "Native": 1.0,
-  "Bilingual": 1.0,
-  "Full Professional": 0.8,
-  "Professional Working": 0.6,
-  "Limited Working": 0.4,
-  "Elementary": 0.2,
+  "native": 1.0,
+  "bilingual": 1.0,
+  "full professional": 0.8,
+  "professional working": 0.6,
+  "limited working": 0.4,
+  "elementary": 0.2,
 )
 
 // A numeric rating (`custom.altacv.rating`, or the deprecated
@@ -50,7 +51,7 @@
         + repr(entry),
     )
   }
-  let fraction = _fluency_rating.at(fluency, default: none)
+  let fraction = _fluency_rating.at(lower(fluency.trim()), default: none)
   if fraction != none { _round_half(fraction * max) }
 }
 

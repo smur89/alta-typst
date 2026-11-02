@@ -20,6 +20,7 @@ sections/         # one renderer per dispatched CV section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
+tests/panics/     # must-fail fixtures — each names the error it expects
 ```
 
 Each `internal/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ` for a quick directory.
@@ -47,6 +48,7 @@ make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
 make example-full # build examples/example_full.pdf + per-page gallery PNGs
 make thumbnail   # build thumbnail.png (Universe package-card image)
 make test        # compile every example + fixture + template/cv.typ (same shape as CI lint)
+make test-panics # check every tests/panics/*.typ fails with its `// expect:` message
 make test-template # compile-check just template/cv.typ (the `typst init` starter)
 make fmt         # format every tracked .typ in place (typstyle)
 make fmt-check   # check formatting without writing (the CI gate)
@@ -56,6 +58,10 @@ make help        # summarise the available targets
 ```
 
 `make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+
+### Error-path tests
+
+Every panic a user can hit has a fixture under `tests/panics/` whose first line is `// expect: <part of the message>`. `make test-panics` (part of `make test`) compiles each one and fails if it compiles, or fails without that text. Adding a validator? Add a fixture for it.
 
 ### Formatting
 

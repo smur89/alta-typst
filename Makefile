@@ -20,7 +20,9 @@
 #   make release-artifacts # build everything CI uploads / releases
 #                    # (cv + example-full + thumbnail)
 #   make test        # compile every example + fixture + the template
-#                    # starter (output discarded)
+#                    # starter (output discarded), then test-panics
+#   make test-panics # check every tests/panics/*.typ fails with the
+#                    # message its `// expect:` line names
 #   make test-template # compile-check template/cv.typ on its own
 #   make check-drift DRIFT_PATHS='<pathspec>' DRIFT_FIX='<cmd>'
 #                    # fail if tracked renders differ from HEAD
@@ -94,6 +96,7 @@ render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
 EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview-frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
+PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 PDFS          := $(EXAMPLES:.typ=.pdf)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
@@ -121,7 +124,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -300,8 +303,32 @@ endef
 # reads its CV from `$(TEMPLATE_SRC)` through examples/_cv.typ. This
 # is the CI lint job's compile step, so a green `make test` locally
 # means it will pass too.
-test: $(TEMPLATE_SRC)
+test: $(TEMPLATE_SRC) test-panics
 	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
+
+# Every tests/panics/*.typ must FAIL to compile, and its error output
+# must contain the text after the file's leading `// expect: ` line —
+# so each validator's message is pinned, and a check that stops firing
+# (or starts failing for a different reason) breaks the build.
+test-panics:
+	@status=0; \
+	for f in $(PANIC_TESTS); do \
+	  expect=$$(sed -n '1s|^// expect: ||p' "$$f"); \
+	  if [ -z "$$expect" ]; then \
+	    printf '%s: missing leading `// expect: <message>` line\n' "$$f" >&2; status=1; continue; \
+	  fi; \
+	  msg=; \
+	  if out=$$($(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null 2>&1); then \
+	    msg="compiled, expected a failure containing: $$expect"; \
+	  elif ! printf '%s' "$$out" | grep -qF -- "$$expect"; then \
+	    msg="failed without: $$expect"; \
+	  fi; \
+	  if [ -n "$$msg" ]; then \
+	    status=1; printf '%s: %s\n%s\n' "$$f" "$$msg" "$$out" >&2; \
+	    if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::%s\n' "$$f" "$$msg"; fi; \
+	  fi; \
+	done; \
+	exit $$status
 
 # Just the template starter — a quick check after editing
 # template/cv.typ. `make test` already covers it.
@@ -388,7 +415,7 @@ clean:
 help:
 	@printf '%s\n' 'Targets: all (default) | cv | example-full | thumbnail | preview-gif' \
 	  '         release-artifacts (cv + example-full + thumbnail)' \
-	  '         pdfs | previews | test-pdfs | test | test-template | clean' \
+	  '         pdfs | previews | test-pdfs | test | test-panics | test-template | clean' \
 	  '         fmt | fmt-check | check (test + fmt-check)' \
 	  '         check-drift DRIFT_PATHS=<pathspec> DRIFT_FIX=<cmd>' \
 	  '         docker-pdfs | docker-preview-images | docker-shell' \

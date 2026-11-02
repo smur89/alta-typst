@@ -34,7 +34,7 @@
 #import "internal/dates.typ": _iso_datetime
 #import "internal/header.typ": _header, _summary
 #import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": _default_preferences, _sections
+#import "internal/layout.typ": _default_preferences, _read_sections, _sections
 #import "internal/json-resume.typ": from-json-resume
 
 // Default portrait — a generic head-and-shoulders silhouette baked
@@ -92,6 +92,9 @@
   )
   _validate_preferences(preferences, _sections.keys())
   _validate_labels(labels)
+  // Shape-checked before anything reads it (the PDF keywords below
+  // walk `skills`).
+  let section-data = _read_sections(cv)
   let column-ratio = preferences.columnRatio
   let max-rating = preferences.maxRating
   let accent = preferences.accent
@@ -118,7 +121,7 @@
   // verbatim after the skill keywords. Guard on `str` so a malformed
   // dict passed to `alta()` directly can't smuggle a non-string into a
   // field `set document(...)` requires be strings.
-  let doc-keywords = _collect_keywords(cv.at("skills", default: ()))
+  let doc-keywords = _collect_keywords(section-data.skills)
   if _present_str(canonical) { doc-keywords.push(canonical) }
   if _present_str(version) { doc-keywords.push(version) }
   let doc-description = cv.basics.at("summary", default: none)
@@ -182,9 +185,7 @@
   // narrow column.
   let render-column(keys) = {
     for key in keys {
-      let entry = _sections.at(key)
-      let read = entry.at("read", default: cv => cv.at(key, default: ()))
-      (entry.render)(read(cv), labels, preferences)
+      (_sections.at(key).render)(section-data.at(key), labels, preferences)
     }
   }
 
