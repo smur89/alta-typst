@@ -2,7 +2,8 @@
 // case-insensitively) with a type-appropriate icon on each subheading.
 // Known codes take their subheading from `labels.publicationTypes`;
 // other types print as first written. Untyped or invalid-type entries
-// count as `article`.
+// count as `article`. Persistent `identifiers` print under the date
+// and give an unlinked title somewhere to point.
 
 #import "../internal/state.typ": _body_colour, _body_size_state
 #import "../internal/text.typ": _present, _present_str, styled-link
@@ -88,6 +89,56 @@
 // insertion order). Subheading icons resolve via
 // `labels.publicationIcons` → `_default_publication_icons` → `file`,
 // keyed by the type code.
+// JSON Resume 1.7.0 `publications[].identifiers`, keyed by scheme.
+// Known schemes print under their conventional name (a proper noun, so
+// not a label) and link to a resolver where one exists; others print
+// as given. Resolvable schemes are listed in the order an unlinked
+// title prefers them.
+#let _identifier_schemes = (
+  doi: (name: "DOI", resolve: id => "https://doi.org/" + id),
+  arxiv: (name: "arXiv", resolve: id => "https://arxiv.org/abs/" + id),
+  pmid: (name: "PMID", resolve: id => "https://pubmed.ncbi.nlm.nih.gov/" + id),
+  isbn: (name: "ISBN", resolve: none),
+)
+
+// A publication's usable identifiers as `(scheme, id)` pairs, schemes
+// lowercased; a non-dict `identifiers` or a non-string / empty id is
+// skipped.
+#let _identifiers(pub) = {
+  let ids = pub.at("identifiers", default: none)
+  if type(ids) != dictionary { return () }
+  ids
+    .pairs()
+    .filter(((_, id)) => _present_str(id))
+    .map(((scheme, id)) => (lower(scheme), id))
+}
+
+#let _resolver(scheme) = (
+  _identifier_schemes.at(scheme, default: (:)).at("resolve", default: none)
+)
+
+// Where an unlinked title points: the first identifier with a
+// resolver, in `_identifier_schemes` order.
+#let _identifier_url(ids) = {
+  let by-scheme = ids.to-dict()
+  let scheme = _identifier_schemes
+    .keys()
+    .find(s => s in by-scheme and _resolver(s) != none)
+  if scheme != none { _resolver(scheme)(by-scheme.at(scheme)) }
+}
+
+// "DOI 10.1000/182 · arXiv 2101.00001", each value linked when its
+// scheme has a resolver.
+#let _identifier_line(ids) = (
+  ids
+    .map(((scheme, id)) => {
+      let name = _identifier_schemes.at(scheme, default: (name: scheme)).name
+      let resolve = _resolver(scheme)
+      [#name #if resolve == none { id } else { link(resolve(id), id) }]
+    })
+    .join[ · ]
+)
+
 #let _publications(pubs, labels, prefs) = {
   // Drop entries with no usable `name` up front so the section
   // doesn't render an empty bullet, and so an empty section doesn't
@@ -117,7 +168,9 @@
       #for pub in items [
         #block(breakable: false)[
           #let date = pub.at("releaseDate", default: none)
+          #let ids = _identifiers(pub)
           #let url = pub.at("url", default: none)
+          #let url = if _present(url) { url } else { _identifier_url(ids) }
           #let title = pub.at("name", default: "")
           #let publisher = pub.at("publisher", default: none)
           #let summary = pub.at("summary", default: none)
@@ -132,6 +185,11 @@
               0.8 * body-size,
               fill: _body_colour.lighten(35%),
               _format_date(date, prefs, labels),
+            )]
+            #if ids.len() > 0 [\ #text(
+              0.8 * body-size,
+              fill: _body_colour.lighten(35%),
+              _identifier_line(ids),
             )]
             #if _present(summary) [\ #par(summary)]
         ]
