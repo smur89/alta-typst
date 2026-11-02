@@ -176,7 +176,7 @@ ISO 8601 strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume cano
 
 ### `basics`
 
-`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses, in smaller body-colour text — `JANE DOE (she/her)`. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
+`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses, in smaller body-colour text — `JANE DOE (she/her)` — when `preferences.showPronouns` is `true`. It's opt-in, so a shared `resume.json` that carries pronouns doesn't show them unless the CV asks. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
 
 `basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with a generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It is distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
 
@@ -379,6 +379,7 @@ Override any subset of the keys below.
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
+| `showPronouns` | `false` | When `true` and `basics.pronouns` is set, renders the pronouns after the name, e.g. `JANE DOE (she/her)`. |
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |

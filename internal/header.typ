@@ -172,11 +172,11 @@
             basics.name
           },
         )
-        // Pronouns sit on the name's baseline, outside `upper(...)`:
-        // they aren't part of the name, so `uppercaseName` leaves them
-        // as written. The `box` keeps "(they/them)" in one piece when
-        // a long name wraps.
-        if _present(pronouns) {
+        // Opt-in via `showPronouns`. Pronouns sit on the name's
+        // baseline, outside `upper(...)`: they aren't part of the name,
+        // so `uppercaseName` leaves them as written. The `box` keeps
+        // "(they/them)" in one piece when a long name wraps.
+        if preferences.showPronouns and _present(pronouns) {
           h(0.5 * body-size)
           box(text(body-size, fill: _body_colour, [(#pronouns)]))
         }
