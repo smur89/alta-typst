@@ -6,21 +6,13 @@
 // paths, so the matrix stays crisp and takes a `fill` like any shape.
 
 #import "@preview/zebra:0.1.0": qrcode
+#import "../icons.typ": _alt-figure
 
 // `quiet-zone: 0`: the header padding already supplies whitespace, and
 // zebra's default 4-module zone would shrink the matrix.
-//
-// Neither zebra's output nor `link` takes alt text, so the matrix goes
-// in `figure(alt: url)`, Typst's carrier for alt text on non-image
-// content in tagged PDF. Unnumbered, unoutlined and gap-free, it
-// leaves the layout unchanged.
+// Neither zebra's output nor `link` takes alt text, so the URL rides
+// an `_alt-figure`.
 #let _qr-render(url, size, fill) = link(
   url,
-  figure(
-    qrcode(url, width: size, quiet-zone: 0, fill: fill),
-    alt: url,
-    numbering: none,
-    outlined: false,
-    gap: 0pt,
-  ),
+  _alt-figure(qrcode(url, width: size, quiet-zone: 0, fill: fill), url),
 )

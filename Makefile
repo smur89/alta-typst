@@ -31,10 +31,10 @@ TEMPLATE_SRC  := .template-src.typ
 render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1 $(1) $(3)
 
 # `_`-prefixed examples are shared helpers, not documents. example_full
-# (gallery needs every page) and preview-frames (page 1 has no
+# (gallery needs every page) and preview_frames (page 1 has no
 # consumer) skip the page-1 PNG sweep.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
-EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview-frames.typ,$(EXAMPLES))
+EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview_frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 # `assert`-based checks of the side-effect-free helpers; underscore files are
@@ -127,11 +127,11 @@ $(TEST_PDFS): $(wildcard tests/fixtures/*)
 examples/%.pdf: examples/%.typ $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) $< $@
 
-# preview-frames.typ reads its CV via examples/_cv.typ from
+# preview_frames.typ reads its CV via examples/_cv.typ from
 # `$(TEMPLATE_SRC)`. Recipe-less: adds prereqs, the pattern rule
 # above still supplies the recipe.
 PREVIEW_FRAMES_DEPS := examples/_cv.typ $(TEMPLATE_SRC)
-examples/preview-frames.pdf: $(PREVIEW_FRAMES_DEPS)
+examples/preview_frames.pdf: $(PREVIEW_FRAMES_DEPS)
 
 # The per-page PNGs aren't listed as targets: pre-4.3 GNU Make parses
 # `A B C: deps` as N independent rules, which race under `make -j`.
@@ -150,11 +150,11 @@ examples/cv.pdf: $(TEMPLATE_SRC) $(LIB_SOURCES)
 examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 	$(call render-page1,$<,$(PPI),$@)
 
-# Animated README hero: one page per variation in preview-frames.typ,
+# Animated README hero: one page per variation in preview_frames.typ,
 # stitched with `palettegen` + `paletteuse` for better colour than a
 # default GIF. Local-only and committed; CI never regenerates it.
-# Prereqs must cover every file preview-frames.typ transitively reads.
-examples/preview.gif: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
+# Prereqs must cover every file preview_frames.typ transitively reads.
+examples/preview.gif: examples/preview_frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
 	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
 	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
@@ -191,7 +191,7 @@ test: test-compile test-fixtures test-panics test-unit ## compile examples, fixt
 # The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
 # template/cv.typ's `@preview/altacv` import won't resolve locally — a
 # broken starter trips here before release). The prerequisite also
-# covers preview-frames.typ, which reads its CV from `$(TEMPLATE_SRC)`
+# covers preview_frames.typ, which reads its CV from `$(TEMPLATE_SRC)`
 # through examples/_cv.typ.
 test-compile: $(TEMPLATE_SRC) ## compile every example and the template
 	$(call compile-check,$(EXAMPLES) $(TEMPLATE_SRC))

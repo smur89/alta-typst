@@ -6,8 +6,21 @@
 
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
+#import "util/checks.typ": _check, _enum-rule
 #import "design/theme.typ": _theme
 #import "context.typ": _body-size-state
+
+// `body` with `alt` as its alt text in tagged PDF. `figure` is Typst's
+// carrier for alt text on non-image content, as `box` and `link` take
+// none; unnumbered, unoutlined and gap-free, it leaves the layout
+// unchanged.
+#let _alt-figure(body, alt) = figure(
+  body,
+  alt: alt,
+  numbering: none,
+  outlined: false,
+  gap: 0pt,
+)
 
 // Emits a trailing `h(...)` so callers needn't space icons themselves.
 // The fixed-size box evens out FA's varied glyph widths, which would
@@ -16,13 +29,17 @@
 // By default the glyph is a `pdf.artifact`, so screen readers skip it
 // rather than read a private-use codepoint aloud. When the icon alone
 // carries meaning (a network beside a bare username), `alt` wraps it
-// in `figure(alt: ...)` instead, as `box` and `link` take no alt text;
-// the outer `box` keeps the figure inline.
+// in `_alt-figure` instead; the outer `box` keeps the figure inline.
 #let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
   let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }
   let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
 
+  // A public helper, so it checks its own argument; the prose list is
+  // built only on a miss.
+  if name not in _icon-glyphs {
+    _check("icon() name", name, _enum-rule(_icon-glyphs.keys()))
+  }
   let glyph = _icon-glyphs.at(name)
   let solid = name in _solid-names
   let mark = box(
@@ -40,13 +57,7 @@
     ),
   )
   if alt == none { pdf.artifact(mark) } else {
-    box(figure(
-      mark,
-      alt: alt,
-      numbering: none,
-      outlined: false,
-      gap: 0pt,
-    ))
+    box(_alt-figure(mark, alt))
   }
   h(_theme.icon.gap * body-size)
 }

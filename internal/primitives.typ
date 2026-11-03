@@ -1,6 +1,6 @@
 // Low-level rendering pieces shared across sections: the text styles,
 // the term row, pills and tag rows, the divider and icon headings.
-// `name`, `term`, `tag`, `divider` are re-exported from `lib.typ` for
+// `name`, `term`, `tag`, `divider`, `styled-link` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
 #import "design/styles.typ": _treat

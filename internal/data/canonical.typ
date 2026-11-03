@@ -6,7 +6,6 @@
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
 #import "cv.typ": _altacv-ns, _reference-usable
-#import "validation.typ": _check-icon-names
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
 // lifted into `custom.altacv` (which wins when both are set).
@@ -158,33 +157,33 @@
 #let _canonical-labels(overrides) = if type(overrides) != dictionary {
   overrides
 } else {
-  let table(name) = overrides.at(name, default: (:))
-  let tables = _label-tables
-    .filter(t => type(table(t)) == dictionary)
-    .map(t => (t, _lowercase-table(table(t), "labels." + t)))
-    .to-dict()
-  let types = tables.at("publicationTypes", default: table("publicationTypes"))
-  // #239: a set `labels.articles` heads `article`, unless
-  // `publicationTypes.article` is set too.
-  let articles = if "articles" in overrides and type(types) == dictionary {
-    (publicationTypes: (article: overrides.articles) + types)
-  } else { (:) }
-  overrides + tables + articles
+  let types = overrides.at("publicationTypes", default: (:))
+  if type(types) != dictionary { overrides } else {
+    let types = _lowercase-table(types, "labels.publicationTypes")
+    // #239: a set `labels.articles` heads `article`, unless
+    // `publicationTypes.article` is set too.
+    let articles = if "articles" in overrides {
+      (article: overrides.articles)
+    } else { (:) }
+    overrides + (publicationTypes: articles + types)
+  }
 }
 
 // Runs before the merge over the defaults. #239: the deprecated
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
-// one table. Only the caller's own icon names are checked: the
-// deprecated label's are left to fail where used, as they always
-// have. A non-dictionary (overall or as the table) passes through for
+// one table, and the string `pageFooter: "auto"` becomes `auto`. A
+// non-dictionary (overall or as the table) passes through for
 // `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
+  let overrides = if (
+    type(overrides) == dictionary
+      and overrides.at("pageFooter", default: none) == "auto"
+  ) { overrides + (pageFooter: auto) } else { overrides }
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }
   if type(icons) != dictionary { overrides } else {
-    _check-icon-names(icons, "preferences.publicationIcons")
     let label-icons = _dict-or-empty(labels).at(
       "publicationIcons",
       default: none,

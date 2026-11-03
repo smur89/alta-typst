@@ -16,8 +16,8 @@
   phone: "phone",
 )
 
-// Keys are lowercase to match `lower(profile.network)` in
-// `header.typ`. Brand marks, except `link` and `website` (see
+// Keys are lowercase to match `_profile-network` (`data/cv.typ`),
+// which lowercases the network. Brand marks, except `link` and `website` (see
 // `_solid-names`).
 #let _network-icons = (
   bluesky: "bluesky",
@@ -49,7 +49,7 @@
 )
 
 // Renamed networks → the key their icon still ships under. Keys are
-// lowercase, as the lookup follows `lower(profile.network)`.
+// lowercase, as `_profile-network` (`data/cv.typ`) lowercases the network.
 #let _network-aliases = (
   x: "twitter",
 )

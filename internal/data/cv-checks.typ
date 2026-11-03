@@ -5,7 +5,7 @@
 #import "../design/icon-set.typ": _profile-networks
 #import "../util/checks.typ": (
   _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
-  _prose-list, _require, _type-rule,
+  _prose-list, _require, _type-rule, _unknown,
 )
 #import "../util/values.typ": _present, _present-str
 #import "cv.typ": _altacv, _altacv-ns, _location-fields, _profile-network
@@ -118,12 +118,11 @@
       "set",
     )
     if _profile-network(profile) not in _profile-networks {
-      panic(
-        "Unknown profile network: "
-          + repr(profile.network)
-          + ". Supported: "
-          + _profile-networks.join(", ")
-          + ". To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
+      _unknown(
+        "profile network",
+        repr(profile.network),
+        _profile-networks.join(", "),
+        hint: " To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
       )
     }
   }

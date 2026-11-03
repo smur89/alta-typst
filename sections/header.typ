@@ -6,7 +6,7 @@
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _url-encode
 #import "../internal/data/cv.typ": _format-location, _profile-network
-#import "../internal/data/validation.typ": _contact-channels
+#import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
 
@@ -41,7 +41,7 @@
   let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
   // cannot drift.
-  let location = _format-location(basics.at("location", default: none))
+  let location = _format-location(basics)
   let url = _field(basics, "url")
   let fields = (
     if email != none {
@@ -63,6 +63,8 @@
         icon: "location",
         value: location,
         url: if maps-provider != none {
+          // A plain replace, not `_fill-template`: a provider's other
+          // `{…}` text isn't a placeholder.
           maps-provider.replace("{q}", _url-encode(location))
         },
       )
@@ -101,9 +103,7 @@
     pronouns: if prefs.showPronouns { _field(basics, "pronouns") },
     headline: _field(basics, "label"),
     contacts: _linked-contacts(basics, prefs),
-    text-align: (left: left, right: right, center: center).at(
-      prefs.headerTextAlign,
-    ),
+    text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none { _portrait(image, prefs.imageSize, basics.name) },

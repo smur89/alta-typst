@@ -34,5 +34,6 @@
   ),
 )
 
+// The deprecated string spelling (#239), still read as `auto`.
 #alta(cv, labels: labels, preferences: (pageFooter: "auto"))
 #alta(cv, labels: labels, preferences: (pageFooter: "auto"))

@@ -14,3 +14,9 @@
 // legacy list, not from the section table.
 #assert("focusAreas" in _cv-keys)
 #assert("objective" in _cv-keys)
+// And the reverse: the only CV keys the JSON import can't take are the
+// two it has no schema for (`custom`: gairm-import #217).
+#assert.eq(
+  _cv-keys.filter(k => k not in _altacv-schema.shape.keys()).sorted(),
+  ("custom", "objective"),
+)

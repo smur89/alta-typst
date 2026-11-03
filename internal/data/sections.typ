@@ -36,6 +36,7 @@
 // - `column`: its default column.
 // - `read`: how to find its entries, when not at its own key
 //   (`focusAreas` lives in `custom.altacv`).
+// - `root: false`: its key isn't a top-level CV key (`_cv-keys`).
 // - `items`: the accepted entry types (default: dictionaries).
 // - `fields`: a rule per field its renderer draws as given, checked on
 //   every entry (see `cv-checks.typ`). Fields read with `_string-at`
@@ -61,6 +62,7 @@
   focusAreas: (
     column: "right",
     read: cv => _altacv(cv, "focusAreas", default: ()),
+    root: false,
     items: (str, content),
   ),
   skills: (column: "right") + _keyword-group,
@@ -179,7 +181,9 @@
 // here too.
 #let _cv-keys = (
   ("$schema", "basics", "objective", "custom", "meta")
-    + _section-specs.keys().filter(k => "read" not in _section-specs.at(k))
+    + _section-specs
+      .keys()
+      .filter(k => _section-specs.at(k).at("root", default: true))
     + _legacy-root-fields
 )
 

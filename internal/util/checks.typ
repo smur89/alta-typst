@@ -17,16 +17,19 @@
   if not ok { panic(name + " must be " + expected + ", got: " + repr(value)) }
 }
 
+// The shared "Unknown …" panic: `found` and `supported` come
+// formatted; `hint` follows the list.
+#let _unknown(what, found, supported, hint: "") = panic(
+  "Unknown " + what + ": " + found + ". Supported: " + supported + "." + hint,
+)
+
 #let _check-unknown-keys(candidates, allowed, what) = {
   let unknown = candidates.filter(k => k not in allowed)
   if unknown.len() > 0 {
-    panic(
-      "Unknown "
-        + what
-        + " key(s): "
-        + unknown.map(_quote).join(", ")
-        + ". Supported: "
-        + allowed.map(_quote).join(", "),
+    _unknown(
+      what + " key(s)",
+      unknown.map(_quote).join(", "),
+      allowed.map(_quote).join(", "),
     )
   }
 }

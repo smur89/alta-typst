@@ -35,20 +35,22 @@
 
 // _format-location: strings pass through, dicts collapse in
 // city / region / countryCode order, absent values drop out.
-#assert.eq(_format-location("Cork, Ireland"), "Cork, Ireland")
+#assert.eq(_format-location((location: "Cork, Ireland")), "Cork, Ireland")
 #assert.eq(
   _format-location((
-    city: "Cork",
-    region: "Munster",
-    countryCode: "IE",
-    address: "1 Main St",
+    location: (
+      city: "Cork",
+      region: "Munster",
+      countryCode: "IE",
+      address: "1 Main St",
+    ),
   )),
   "Cork, Munster, IE",
 )
-#assert.eq(_format-location((city: "", countryCode: "IE")), "IE")
-#assert.eq(_format-location((postalCode: "T12")), none)
-#assert.eq(_format-location(""), none)
-#assert.eq(_format-location(none), none)
+#assert.eq(_format-location((location: (city: "", countryCode: "IE"))), "IE")
+#assert.eq(_format-location((location: (postalCode: "T12"))), none)
+#assert.eq(_format-location((location: "")), none)
+#assert.eq(_format-location((:)), none)
 
 // _treat: a named treatment applies its function; "none" is identity.
 #assert.eq(_treat("upper", "ab"), "AB")

@@ -1,5 +1,5 @@
 // Shared CV data for the animated multi-frame preview
-// (`preview-frames.typ` → `examples/preview.gif`). Every frame of
+// (`preview_frames.typ` → `examples/preview.gif`). Every frame of
 // the GIF renders the SAME fictional CV — only the preferences
 // differ — so accent / layout / column-arrangement changes read as
 // preference customisation rather than data differences.
@@ -13,7 +13,7 @@
 // binding evaluates the template but doesn't emit its `#alta(...)`
 // page into this document.
 //
-// Opening `preview-frames.typ` in an editor before any `make` run
+// Opening `preview_frames.typ` in an editor before any `make` run
 // fails on the missing file; `make .template-src.typ` generates it.
 //
 // `no-image` is a helper that returns the CV with `basics.image`
