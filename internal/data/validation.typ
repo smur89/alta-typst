@@ -111,9 +111,9 @@
 
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.
-#let _validate-preferences(preferences, section-keys) = {
-  _check-rules(preferences, _preference-rules)
-  let link-contact-info = preferences.linkContactInfo
+#let _validate-preferences(prefs, section-keys) = {
+  _check-rules(prefs, _preference-rules)
+  let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",
     link-contact-info,
@@ -130,11 +130,11 @@
       _check("linkContactInfo." + channel, v, _bool-rule)
     }
   }
-  if type(preferences.dateFormat) == str {
-    _check-date-template(preferences.dateFormat, "dateFormat")
+  if type(prefs.dateFormat) == str {
+    _check-date-template(prefs.dateFormat, "dateFormat")
   }
   for key in ("leftColumnSections", "rightColumnSections") {
-    _check-unknown-keys(preferences.at(key), section-keys, key)
+    _check-unknown-keys(prefs.at(key), section-keys, key)
   }
 }
 

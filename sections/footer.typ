@@ -7,20 +7,21 @@
 
 // `pageFooter` takes precedence; `lastModifiedFooter` is sugar that
 // applies only when `pageFooter` is `none`.
-#let _resolve-page-footer(preferences, labels, meta, name) = {
-  let page-footer = preferences.pageFooter
+#let _footer(cv, (labels, prefs, owner, ..)) = {
+  let meta = cv.meta
+  let page-footer = prefs.pageFooter
   let last-modified = _field(meta, "lastModified")
   if page-footer != none {
     if page-footer == "auto" {
-      _auto-page-footer(name, labels.pageNumber)
+      _auto-page-footer(owner, labels.pageNumber)
     } else {
       page-footer
     }
-  } else if preferences.lastModifiedFooter and last-modified != none {
+  } else if prefs.lastModifiedFooter and last-modified != none {
     // `meta.version` is verbatim: the schema's own example already
     // carries the "v".
     let version = _string-at(meta, "version")
-    let version-suffix = if preferences.footerVersion and version != none {
+    let version-suffix = if prefs.footerVersion and version != none {
       " (" + version + ")"
     } else { "" }
     _updated-footer({

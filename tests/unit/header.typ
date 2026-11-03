@@ -66,7 +66,7 @@
 // _linked-contacts: a `url` only where `linkContactInfo` links the
 // channel. _header-image: an empty string path is absent.
 #let basics = (name: "Jane", email: "j@x.io", url: "https://x.io")
-#let prefs = _merge-options((:), (linkContactInfo: (email: false))).preferences
+#let prefs = _merge-options((:), (linkContactInfo: (email: false))).prefs
 #assert.eq(
   _linked-contacts(basics, prefs).map(c => c.url),
   (none, "https://x.io"),

@@ -5,7 +5,7 @@
 #import "../internal/util/fields.typ": _field
 #import "../internal/components/intro.typ": _intro-block
 
-#let _intro(cv) = _intro-block(
+#let _intro(cv, _) = _intro-block(
   objective: _field(cv, "objective"),
   summary: _field(cv.basics, "summary"),
 )

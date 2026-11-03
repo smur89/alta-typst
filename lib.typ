@@ -14,75 +14,17 @@
 // Every colour, size and gap, and the sizing rule they follow, live
 // in `internal/design/theme.typ`.
 
-// Public API, re-exported: the presets and the helpers for custom
-// layouts (see the README's Helpers section).
+// The public API, and nothing else: Typst re-exports every name a
+// module imports, so internal helpers stay behind `internal/render.typ`
+// rather than being imported here (see the README's Helpers section).
+#import "internal/render.typ": alta, alta-from-json
 #import "internal/data/defaults.typ": maps-providers
+#import "internal/data/json-resume.typ": from-json-resume
 #import "internal/design/presets.typ": palettes
 #import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
-#import "internal/data/options.typ": _merge-options
-#import "internal/data/read.typ": _read-cv
-#import "internal/data/metadata.typ": _pdf-metadata
-#import "internal/data/json-resume.typ": from-json-resume
-#import "internal/util/dates.typ": _format-date
-#import "internal/document.typ": _document
-#import "internal/registry.typ": _renderers
-#import "internal/components/columns.typ": _columns
-#import "sections/header.typ": _header
-#import "sections/intro.typ": _intro
-#import "sections/footer.typ": _resolve-page-footer
 
 // Generic silhouette, exposed as bytes so the `typst init` template
 // (and any consumer) gets a working `basics.image` without its own SVG.
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
-
-// `cv` follows the JSON Resume schema; `labels` and `preferences` are
-// partial dicts merged over the defaults (unknown keys panic). Every
-// input is checked before anything renders.
-#let alta(
-  cv,
-  labels: (:),
-  preferences: (:),
-) = {
-  let (labels, preferences) = _merge-options(labels, preferences)
-  let (cv, sections) = _read-cv(cv, preferences)
-  let name = cv.basics.name
-  set document(.._pdf-metadata(cv, sections, labels))
-  show: _document.with(
-    preferences,
-    labels,
-    footer: _resolve-page-footer(preferences, labels, cv.meta, name),
-  )
-
-  _header(cv, preferences)
-  _intro(cv)
-  // Renderers are width-agnostic, so any section fits either column.
-  // `format-date` formats a date per the preferences and labels; `owner` bolds
-  // the CV owner among publication authors.
-  let ctx = (
-    labels: labels,
-    prefs: preferences,
-    format-date: v => _format-date(v, preferences.dateFormat, labels.months),
-    owner: name,
-  )
-  let render(key) = (_renderers.at(key))(sections.at(key), ctx)
-  _columns(
-    preferences.leftColumnSections.map(render),
-    preferences.rightColumnSections.map(render),
-    preferences.columnRatio,
-  )
-}
-
-// `..rest` forwards future `alta` kwargs without an edit here. Extra
-// positionals (`alta-from-json(p, my-prefs)`) panic with a
-// wrapper-aware message rather than an `alta`-level one.
-#let alta-from-json(data, ..rest) = {
-  if rest.pos().len() > 0 {
-    panic(
-      "alta-from-json takes one positional (`data`); pass labels/preferences as named arguments. Got extra positionals: "
-        + repr(rest.pos()),
-    )
-  }
-  alta(from-json-resume(data), ..rest)
-}

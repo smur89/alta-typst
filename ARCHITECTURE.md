@@ -4,7 +4,7 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 
 ## The render
 
-`alta()` (`lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders; only the public helpers (`rating`, …) still check their own arguments, as users call them directly.
+`alta()` (`render.typ`, re-exported from `lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders; only the public helpers (`rating`, …) still check their own arguments, as users call them directly.
 
 1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
 2. **CV:** `_read-cv` (`data/read.typ`) rejects unknown top-level keys, has `_canonical-cv` rewrite deprecated CV forms, checks `basics` and `objective`, and has `_read-sections` (`data/sections.typ`) shape-check every section and run its spec's `check` on each entry.
@@ -25,7 +25,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
 | components | `components/` | layout that takes slots: entry, bibliography, header, footer, … | util, design, context, primitives |
 | sections | `sections/` (root) | one renderer per CV part, mapping its data onto components | all of the above |
-| root | `registry.typ`, `lib.typ` (repository root) | renderers bound to section keys; the public API | everything |
+| root | `registry.typ`, `render.typ`; `lib.typ` (repository root) | renderers bound to section keys; the render pipeline; the public API, as re-exports only | everything |
 
 The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
 
@@ -48,7 +48,7 @@ A section reads fields and fills a component's slots:
 )
 ```
 
-Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`) and the CV `owner`. A section doesn't check its input: everything it reads was checked in step 2, so it only maps values onto slots. Column sections are registered twice: their spec (field, default column, accepted entries, field checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`) and the CV `owner`. A section doesn't check its input: everything it reads was checked in step 2, so it only maps values onto slots. Column sections are registered twice: their spec (field, default column, accepted entries, field checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly, with the same `(cv, ctx)`. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
 
 ## The look
 
