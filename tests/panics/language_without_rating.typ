@@ -1,4 +1,4 @@
-// expect: Language entry needs either a numeric
+// expect: languages[].fluency must be a string when there's no numeric
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

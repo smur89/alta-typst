@@ -7,9 +7,9 @@
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
-// `key` (`"work"` / `"volunteer"`) names the label and the field in
-// panic messages; `org-key` holds the organisation name. `position` is
-// optional; without it the org line leads.
+// `key` (`"work"` / `"volunteer"`) names the label; `org-key` holds
+// the organisation name. `position` is optional; without it the org
+// line leads.
 #let _entry-section(entries, key, org-key, (labels, prefs, ..)) = _section(
   labels.at(key),
   entries,
@@ -18,10 +18,7 @@
     org: _field(entry, org-key),
     org-url: _field(entry, "url"),
     period: _format-date-range(entry, prefs, labels),
-    location: _format-location(
-      entry.at("location", default: none),
-      key + "[].location",
-    ),
+    location: _format-location(entry.at("location", default: none)),
     summary: _field(entry, "summary"),
     highlights: entry.at("highlights", default: ()),
   ),

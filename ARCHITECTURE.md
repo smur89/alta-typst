@@ -4,12 +4,12 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 
 ## The render
 
-`alta()` (`lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders.
+`alta()` (`lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders; only the public helpers (`rating`, …) still check their own arguments, as users call them directly.
 
 1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
-2. **CV:** unknown top-level keys are rejected, `_canonical-cv` rewrites deprecated CV forms, and `_read-sections` (`data/sections.typ`) shape-checks every section.
-3. **Document:** the render-time context (`context.typ`), PDF metadata, `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
-4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`.
+2. **CV:** `_read-cv` (`data/read.typ`) rejects unknown top-level keys, has `_canonical-cv` rewrite deprecated CV forms, checks `basics` and `objective`, and has `_read-sections` (`data/sections.typ`) shape-check every section and run its spec's `check` on each entry.
+3. **Document:** `_pdf-metadata` (`data/metadata.typ`), then `_document` (`document.typ`): the render-time context (`context.typ`), `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
+4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`, laid out by `_columns` (`components/columns.typ`).
 
 ## Layers
 
@@ -47,7 +47,7 @@ A section reads fields and fills a component's slots:
 )
 ```
 
-Column sections are registered twice: their spec (field, default column, accepted entries) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+A section doesn't check its input: everything it reads was checked in step 2, so it only maps values onto slots. Column sections are registered twice: their spec (field, default column, accepted entries, field checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
 
 ## The look
 

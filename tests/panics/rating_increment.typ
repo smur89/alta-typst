@@ -1,4 +1,4 @@
-// expect: rating value must be a multiple of 0.5
+// expect: languages[].custom.altacv.rating must be a multiple of 0.5
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

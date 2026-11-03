@@ -67,11 +67,30 @@
 )
 #let _pad2(n) = if n < 10 { "0" + str(n) } else { str(n) }
 
-// Resolves one bracketed token (`year`, `month`, `day` with `repr:` /
-// `padding:` modifiers) — a subset of `datetime.display()`. Long and
-// short month names come from `labels.months` so they localise. A
-// component the input lacks yields `_date-token-drop` for the caller
-// to collapse.
+// A template's bracketed tokens: `year`, `month`, `day`, each with
+// optional `repr:` / `padding:` modifiers — a subset of
+// `datetime.display()`.
+#let _date-token-re = regex("\[([^\]]+)\]")
+#let _date-token-heads = ("year", "month", "day")
+
+// Run by preference validation, so an unknown token fails before
+// anything renders.
+#let _check-date-template(template) = for m in template.matches(
+  _date-token-re,
+) {
+  let token = m.captures.first()
+  if token.split(" ").first() not in _date-token-heads {
+    panic(
+      "Unknown dateFormat token: ["
+        + token
+        + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
+    )
+  }
+}
+
+// Resolves one checked token. Long and short month names come from
+// `labels.months` so they localise. A component the input lacks
+// yields `_date-token-drop` for the caller to collapse.
 #let _date-token-drop = "\u{FFFD}" // Private placeholder for missing parts.
 #let _resolve-date-token(token, parts, labels) = {
   let parts-list = token.split(" ")
@@ -95,19 +114,13 @@
     } else {
       _pad2(parts.month)
     }
-  } else if head == "day" {
+  } else {
     if parts.day == none { return _date-token-drop }
     if has("padding:none") {
       str(parts.day)
     } else {
       _pad2(parts.day)
     }
-  } else {
-    panic(
-      "Unknown dateFormat token: ["
-        + token
-        + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
-    )
   }
 }
 
@@ -116,7 +129,7 @@
 // `[day] · [month repr:short] [year]` renders `2024`, not `· · 2024`.
 #let _apply-date-template(template, parts, labels) = {
   let body = template.replace(
-    regex("\[([^\]]+)\]"),
+    _date-token-re,
     m => _resolve-date-token(m.captures.at(0), parts, labels),
   )
   // Any non-letter, non-digit counts as a separator, so exotic

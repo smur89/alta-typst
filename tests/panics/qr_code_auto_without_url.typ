@@ -1,4 +1,4 @@
-// expect: preferences.qrCode is `auto` but basics.url is missing
+// expect: basics.url must be a non-empty URL string when preferences.qrCode is `auto`
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

@@ -1,14 +1,13 @@
-// Up-front shape checks for `preferences`, `labels` and each CV
-// section's entry array, so errors name the caller's input rather than
-// surfacing mid-render. Checks on individual `cv` fields stay with the
-// code that consumes them, as they apply only when the field is set.
+// Up-front checks for `preferences` and `labels`, so errors name the
+// caller's input rather than surfacing mid-render. The CV's are in
+// `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _icon-glyphs
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _positive-int-rule, _prose-list, _require, _type-rule,
+  _enum-rule, _positive-int-rule, _type-rule,
 )
-#import "../util/dates.typ": _date-format-aliases
+#import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re
 
 // `linkContactInfo` channels. In `data/`, as `sections/header.typ`
@@ -111,7 +110,7 @@
 )
 
 // `section-keys` is passed in, not imported: `data/sections.typ`
-// imports this module.
+// imports this module, through `canonical.typ`.
 #let _validate-preferences(preferences, section-keys) = {
   _check-rules(preferences, _preference-rules)
   let link-contact-info = preferences.linkContactInfo
@@ -130,6 +129,9 @@
     for (channel, v) in link-contact-info {
       _check("linkContactInfo." + channel, v, _bool-rule)
     }
+  }
+  if type(preferences.dateFormat) == str {
+    _check-date-template(preferences.dateFormat)
   }
   for key in ("leftColumnSections", "rightColumnSections") {
     _check-unknown-keys(preferences.at(key), section-keys, key)
@@ -168,20 +170,6 @@
         + repr(template),
     )
   }
-}
-
-// A dict where a list belongs fails here, not deep in a renderer.
-// Returns `entries`.
-#let _check-section-entries(key, entries, item-types) = {
-  _check-type(key, entries, (array,), "an array")
-  let bad = entries.find(e => type(e) not in item-types)
-  _require(
-    key + " entries",
-    bad,
-    bad == none,
-    _prose-list(item-types.map(repr)),
-  )
-  entries
 }
 
 // Checked up front, as `icon()` would fail on a bare missing key.

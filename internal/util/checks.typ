@@ -2,6 +2,8 @@
 // the value got, the rules that drive it, unknown-key and enum checks,
 // and their prose lists.
 
+#import "values.typ": _round-half
+
 #let _quote(s) = "\"" + s + "\""
 
 // `"a" or "b"`, `"a", "b", or "c"`.
@@ -59,3 +61,17 @@
   value,
   _type-rule(allowed, expected),
 )
+
+// A rating on a `max`-dot scale: a number from 0 to `max`, in halves.
+// Half dots are the only fraction drawable; rejecting others stops
+// `3.1` and `3.9` silently rounding alike.
+#let _check-rating(name, value, max) = {
+  _check-type(name, value, (int, float), "a number")
+  _require(
+    name,
+    value,
+    value >= 0 and value <= max,
+    "between 0 and " + str(max),
+  )
+  _require(name, value, _round-half(value) == value, "a multiple of 0.5")
+}

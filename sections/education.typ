@@ -17,10 +17,7 @@
     org: _field(edu, "institution"),
     org-url: _field(edu, "url"),
     period: _format-date-range(edu, prefs, labels),
-    location: _format-location(
-      edu.at("location", default: none),
-      "education" + "[].location",
-    ),
+    location: _format-location(edu.at("location", default: none)),
     summary: _field(edu, "summary"),
     tags-lead: _field(edu, "score"),
     tags: edu.at("courses", default: ()),

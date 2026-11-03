@@ -1,12 +1,12 @@
 // The page header: `basics` and the header preferences mapped onto
 // `_page-header`. Not one of the column sections in
-// `data/sections.typ`: `alta()` renders it above the grid. CV fields
-// are checked here, where they're consumed.
+// `data/sections.typ`: `alta()` renders it above the grid. `_read-cv`
+// has checked the fields it reads.
 
-#import "../internal/design/icon-set.typ": _network-aliases, _profile-networks
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/location.typ": _format-location
 #import "../internal/util/values.typ": _url-encode
+#import "../internal/data/cv.typ": _profile-network
 #import "../internal/data/validation.typ": _contact-channels
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
@@ -20,30 +20,17 @@
   }
 }
 
-#let _profile-entry(profile) = {
-  let raw = lower(profile.network)
-  let network = _network-aliases.at(raw, default: raw)
-  if network not in _profile-networks {
-    panic(
-      "Unknown profile network: "
-        + repr(profile.network)
-        + ". Supported: "
-        + _profile-networks.join(", ")
-        + ". To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
-    )
-  }
-  (
-    channel: "profiles",
-    icon: network,
-    // The value is usually a bare username, so the icon is the only
-    // thing naming the network. The user's own string, not the
-    // lowercased key, keeps their capitalisation ("GitHub").
-    alt: profile.network,
-    // A profile without `url` renders unlinked rather than failing.
-    value: profile.at("username", default: profile.at("url", default: "")),
-    url: profile.at("url", default: none),
-  )
-}
+#let _profile-entry(profile) = (
+  channel: "profiles",
+  icon: _profile-network(profile),
+  // The value is usually a bare username, so the icon is the only
+  // thing naming the network. The user's own string, not the
+  // lowercased key, keeps their capitalisation ("GitHub").
+  alt: profile.network,
+  // A profile without `url` renders unlinked rather than failing.
+  value: profile.at("username", default: profile.at("url", default: "")),
+  url: profile.at("url", default: none),
+)
 
 // The contact bar's entries in display order, one
 // `(channel, icon, value, url)` dict per present field; `channel` keys
@@ -55,10 +42,7 @@
   let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
   // cannot drift.
-  let location = _format-location(
-    basics.at("location", default: none),
-    "basics.location",
-  )
+  let location = _format-location(basics.at("location", default: none))
   let url = _field(basics, "url")
   let fields = (
     if email != none {
@@ -90,41 +74,15 @@
 }
 
 // `basics.image`, or `none` when there's nothing to frame: a `path`
-// can't be empty, and an empty `str` / `bytes` counts as absent. Other
-// types panic here rather than as a cryptic `image()` failure.
-#let _header-image(image-src) = if image-src == none { none } else if (
-  type(image-src) == path
-) { image-src } else if type(image-src) in (str, bytes) {
-  if image-src.len() > 0 { image-src }
-} else {
-  panic(
-    "basics.image must be a path, a string path, or bytes, got: "
-      + repr(image-src),
-  )
-}
+// can't be empty, and an empty `str` / `bytes` counts as absent.
+#let _header-image(image-src) = if (
+  type(image-src) == path or (image-src != none and image-src.len() > 0)
+) { image-src }
 
-// `auto` resolves here, not in `data/validation.typ`, as it needs `basics`.
-#let _resolve-qr-url(qr-code, basics) = {
-  if qr-code == none { return none }
-  if qr-code != auto { return qr-code }
-  let url = basics.at("url", default: none)
-  if url == none {
-    panic(
-      "preferences.qrCode is `auto` but basics.url is missing. "
-        + "Set basics.url to the destination URL, or pass the URL "
-        + "directly via preferences.qrCode.",
-    )
-  }
-  if type(url) != str {
-    panic("basics.url must be a string, got: " + repr(url))
-  }
-  if url == "" {
-    panic(
-      "basics.url is empty; set it to the destination URL or remove preferences.qrCode.",
-    )
-  }
-  url
-}
+// `auto` reads `basics.url`, which `_read-cv` has checked is set.
+#let _resolve-qr-url(qr-code, basics) = if qr-code == auto {
+  basics.url
+} else { qr-code }
 
 // The contact bar's `(channel, icon, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
