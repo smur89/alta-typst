@@ -21,10 +21,11 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | design | `design/` | the theme, document styles, palettes, icon set | util |
 | data | `data/` | reading and checking the CV, labels and preferences; their defaults | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
+| document | `document.typ` | the document setup shared by `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
 | components | `components/` | layout that takes slots: entry, bibliography, header, footer, … | util, design, context, primitives |
 | sections | `sections/` (root) | one renderer per CV part, mapping its data onto components | all of the above |
-| root | `registry.typ`, `lib.typ` | renderers bound to section keys; the public API | everything |
+| root | `registry.typ`, `lib.typ` (repository root) | renderers bound to section keys; the public API | everything |
 
 The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
 

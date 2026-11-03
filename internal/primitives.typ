@@ -71,17 +71,17 @@
 }
 
 // The 50% default lines a period up with a location column.
-#let _term-part(icon-name, body, width: 50%) = if body != none {
+#let _term-part(icon-name, body, width: 50%) = if _present(body) {
   box(width: width, {
     icon(icon-name)
     body
   })
 }
 
-// A `none` side is skipped, so undated or unlocated entries don't
+// An absent side is skipped, so undated or unlocated entries don't
 // emit a stray icon.
 #let term(period, location: none) = {
-  if period == none and location == none { return }
+  if not (_present(period) or _present(location)) { return }
   _term-row({
     _term-part("calendar", period)
     _term-part("location", location)
@@ -180,8 +180,7 @@
   body
 }
 
-// Entry titles look the same linked or not. `_present` rather than
-// `!= none` so an empty `url` doesn't become a dead link.
+// Entry titles look the same linked or not.
 #let styled-link(content, dest: none) = context {
   let accent = _accent-state.get()
   let styled = _treat(_theme.treatment.link, text(fill: accent, content))
