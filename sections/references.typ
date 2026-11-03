@@ -6,26 +6,19 @@
 // intends.
 
 #import "../internal/text.typ": (
-  _field, _join_present, _on_request, _reference_usable, _string_at,
+  _field, _on_request, _reference_usable, _string_at,
 )
-#import "../internal/primitives.typ": _preamble
+#import "../internal/primitives.typ": _fact_line, _preamble
 #import "../internal/components/frame.typ": _section, _section_frame
 #import "../internal/components/entry.typ": _entry
 #import "../internal/dates.typ": _format_date
 
-// "Manager, Pied Piper · 2024": who, then when, each part optional.
-// `none` when all are absent.
+// Who, then when, each part optional: "Manager, Pied Piper · 2024".
 #let _attribution(entry, prefs, labels) = {
   let date = _string_at(entry, "date")
-  _join_present(
-    (
-      _join_present(
-        ("relationship", "organization").map(k => _string_at(entry, k)),
-        ", ",
-      ),
-      if date != none { _format_date(date, prefs, labels) },
-    ),
-    " · ",
+  _fact_line(
+    ("relationship", "organization").map(k => _string_at(entry, k)),
+    (if date != none { _format_date(date, prefs, labels) },),
   )
 }
 

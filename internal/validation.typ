@@ -8,8 +8,8 @@
 #import "qr.typ": _check_qr_code
 #import "text.typ": _placeholder_re
 
-// `linkContactInfo` channels. Here rather than in `header.typ`, which
-// renders them, to avoid a cycle: `header.typ` imports this module.
+// `linkContactInfo` channels. Here rather than in `sections/header.typ`,
+// which reads them, to avoid a cycle: it imports this module.
 #let _contact_channels = ("email", "phone", "location", "url", "profiles")
 
 #let _quote(s) = "\"" + s + "\""

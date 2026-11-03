@@ -4,8 +4,9 @@
 
 #import "state.typ": _accent_state, _body_size_state, _max_rating_state
 #import "theme.typ": _theme
-#import "text.typ": _altacv
+#import "text.typ": _altacv, _string_at
 #import "validation.typ": _require
+#import "primitives.typ": _small
 
 #let _round_half(x) = calc.round(x * 2) / 2
 
@@ -107,4 +108,14 @@
       ))
       .join(h(gap * body-size)),
   )
+}
+
+// A `languages[]` entry's row: its rating as dots on a scale of
+// `max` or, when `fluency` isn't one `_fluency_rating` knows, that
+// text in their place.
+#let _language_row(lang, max) = {
+  let value = _resolve_rating(lang, max)
+  if value != none { rating(lang.language, value, max: max) } else {
+    _label_row(lang.language, _small(_string_at(lang, "fluency")))
+  }
 }

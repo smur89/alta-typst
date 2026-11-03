@@ -3,6 +3,7 @@
 // set" check.
 
 #import "state.typ": _accent_state
+#import "theme.typ": _theme
 
 // The three ways a field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
@@ -49,6 +50,11 @@
   if _present_str(v) { v }
 }
 
+// Applies a named treatment from the theme (`_theme.treatment`,
+// `section.case`); `"none"` leaves the body as it is.
+#let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
+#let _treat(name, body) = _treatments.at(name)(body)
+
 // `body` linked to `dest` when it's present, so an empty `url` never
 // becomes a dead link.
 #let _link_if(dest, body) = if _present(dest) { link(dest, body) } else {
@@ -59,7 +65,7 @@
 // `!= none` so an empty `url` doesn't become a dead link.
 #let styled-link(content, dest: none) = context {
   let accent = _accent_state.get()
-  let styled = emph(text(fill: accent, content))
+  let styled = _treat(_theme.treatment.link, text(fill: accent, content))
   _link_if(dest, styled)
 }
 
@@ -71,3 +77,19 @@
   _placeholder_re,
   m => values.at(m.captures.first()),
 )
+
+// Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
+// locations like "Zürich" or "京都" round-trip through the maps URL.
+#let _url_encode(s) = {
+  let unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+  let hex = "0123456789ABCDEF"
+  let out = ""
+  for b in array(bytes(s)) {
+    if b < 128 and str.from-unicode(b) in unreserved {
+      out += str.from-unicode(b)
+    } else {
+      out += "%" + hex.at(int(b / 16)) + hex.at(int(calc.rem(b, 16)))
+    }
+  }
+  out
+}

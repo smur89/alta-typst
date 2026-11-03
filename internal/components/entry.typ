@@ -43,7 +43,7 @@
   let org = if _present(org) {
     _accent_strong(_link_if(org-url, org))
   }
-  let facts = _join_present((org, ..details), [ · ])
+  let facts = _join_present((org, ..details), _theme.separator.facts)
   let row = _join_present(
     (
       _term_part("calendar", period, width: auto),

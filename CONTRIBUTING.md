@@ -16,8 +16,8 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 ```text
 lib.typ           # public entry — re-exports + `alta()`
 internal/         # shared infrastructure, one concern per file
-internal/components/ # layout components the sections map onto (entry, bibliography, frame)
-sections/         # one renderer per dispatched CV section
+internal/components/ # layout components the sections map onto (entry, bibliography, keywords, header, frame)
+sections/         # one renderer per part of the CV: the header, then each dispatched section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
