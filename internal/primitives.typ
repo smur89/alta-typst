@@ -6,7 +6,7 @@
 #import "design/styles.typ": _treat
 #import "design/theme.typ": _theme
 #import "context.typ": _accent_state, _body_size_state
-#import "util/fields.typ": _join_present, _present
+#import "util/values.typ": _join_present, _present
 #import "icons.typ": icon
 
 // The bold accent text `name()` sets on its own line, for inline use

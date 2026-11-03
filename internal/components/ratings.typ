@@ -1,52 +1,14 @@
-// Language fluency as a label and a row of dots (the public `rating`).
+// A label and a row of dots on a scale (the public `rating`), or the
+// label with a text in their place (`_rating_row`).
+//
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent_state, _body_size_state, _max_rating_state
 #import "../util/checks.typ": _require
-#import "../util/fields.typ": _string_at
-#import "../data/cv.typ": _altacv
+#import "../util/values.typ": _round_half
 #import "../primitives.typ": _small
-
-#let _round_half(x) = calc.round(x * 2) / 2
-
-// LinkedIn fluency strings as fractions of full fluency; matched
-// case-insensitively.
-#let _fluency_rating = (
-  "native": 1.0,
-  "bilingual": 1.0,
-  "full professional": 0.8,
-  "professional working": 0.6,
-  "limited working": 0.4,
-  "elementary": 0.2,
-)
-
-// A `custom.altacv.rating` wins over `fluency`; a known `fluency`
-// scales to `max` dots, rounded to the half. `none` (an unknown
-// `fluency`) means render the label only. Numeric checks live in
-// `rating()`.
-#let _resolve_rating(entry, max) = {
-  let value = _altacv(entry, "rating") // avoid shadowing `rating()`
-  if value != none { return value }
-  let fluency = entry.at("fluency", default: none)
-  if fluency == none {
-    panic(
-      "Language entry needs either a numeric `custom.altacv.rating` or a `fluency` string. Got: "
-        + repr(entry),
-    )
-  }
-  if type(fluency) != str {
-    panic(
-      "Language `fluency` must be a string, got "
-        + repr(fluency)
-        + " in entry: "
-        + repr(entry),
-    )
-  }
-  let fraction = _fluency_rating.at(lower(fluency.trim()), default: none)
-  if fraction != none { _round_half(fraction * max) }
-}
 
 #let _half_fill(accent) = gradient.linear(
   (accent, 0%),
@@ -111,12 +73,10 @@
   )
 }
 
-// A `languages[]` entry's row: its rating as dots on a scale of
-// `max` or, when `fluency` isn't one `_fluency_rating` knows, that
-// text in their place.
-#let _language_row(lang, max) = {
-  let value = _resolve_rating(lang, max)
-  if value != none { rating(lang.language, value, max: max) } else {
-    _label_row(lang.language, _small(_string_at(lang, "fluency")))
-  }
+// The label's rating as dots on a scale of `max` or, with no `value`,
+// the `fallback` text in their place.
+#let _rating_row(label, value, max: auto, fallback: none) = if (
+  value != none
+) { rating(label, value, max: max) } else {
+  _label_row(label, _small(fallback))
 }

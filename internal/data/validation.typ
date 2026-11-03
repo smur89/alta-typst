@@ -3,13 +3,13 @@
 // surfacing mid-render. Checks on individual `cv` fields stay with the
 // code that consumes them, as they apply only when the field is set.
 
+#import "../design/icon-set.typ": _icon_glyphs
 #import "../util/checks.typ": (
   _check_bool, _check_enum, _check_type, _check_unknown_keys, _prose_list,
   _require,
 )
 #import "../util/dates.typ": _date_format_aliases
-#import "../util/fields.typ": _placeholder_re
-#import "icon-names.typ": _icon_glyphs
+#import "../util/values.typ": _placeholder_re
 
 // Called from `_validate_preferences`, so a typo (`qrCode: true`)
 // fails up front rather than inside `qrcode(...)` at render time.

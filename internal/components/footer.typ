@@ -1,11 +1,11 @@
-// Page footer — resolves `pageFooter` / `lastModifiedFooter` into the
-// value for `set page(...)`. The "auto" footer hides itself on
-// single-page documents via the reactive page counter, so it returns
-// on its own when content grows.
+// The page footers `sections/footer.typ` chooses between: the page
+// counter, which hides itself on single-page documents via the
+// reactive page counter (so it returns on its own when content grows),
+// and the right-aligned "last updated" line.
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _body_size_state
-#import "../util/fields.typ": _field, _fill_template, _string_at
+#import "../util/values.typ": _fill_template
 
 // Both footers' text: small, in the body colour. Called in `context`,
 // which supplies `body-size`.
@@ -29,31 +29,7 @@
   ))
 }
 
-// `pageFooter` takes precedence; `lastModifiedFooter` is sugar that
-// applies only when `pageFooter` is `none`.
-#let _resolve_page_footer(preferences, labels, meta, name) = {
-  let page-footer = preferences.pageFooter
-  let last-modified = _field(meta, "lastModified")
-  if page-footer != none {
-    if page-footer == "auto" {
-      _auto_page_footer(name, labels.pageNumber)
-    } else {
-      page-footer
-    }
-  } else if preferences.lastModifiedFooter and last-modified != none {
-    // `meta.version` is verbatim: the schema's own example already
-    // carries the "v".
-    let version = _string_at(meta, "version")
-    let version-suffix = if preferences.footerVersion and version != none {
-      " (" + version + ")"
-    } else { "" }
-    context align(right, _footer_text(_body_size_state.get(), {
-      labels.lastModified
-      ": "
-      last-modified
-      version-suffix
-    }))
-  } else {
-    none
-  }
-}
+#let _updated_footer(body) = context align(
+  right,
+  _footer_text(_body_size_state.get(), body),
+)

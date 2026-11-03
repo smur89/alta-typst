@@ -1,7 +1,8 @@
-// Unit checks for the grouping helpers in
-// internal/components/frame.typ.
+// Unit checks for grouping: `_group_by` (internal/util/values.typ) and
+// projects' `_group_by_type` (sections/projects.typ).
 
-#import "/internal/components/frame.typ": _group_by, _group_by_type
+#import "/internal/util/values.typ": _group_by
+#import "/sections/projects.typ": _group_by_type
 
 // _group_by: first-occurrence key order, items keep their order.
 #assert.eq(

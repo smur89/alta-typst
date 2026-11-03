@@ -1,8 +1,10 @@
 // `work[]` and `volunteer[]` render identically, differing only in
 // section label and organisation key, so both use `_entry_section`.
 
+#import "../internal/util/dates.typ": _format_date_range
 #import "../internal/util/fields.typ": _field
-#import "../internal/components/entry.typ": _entry, _entry_when
+#import "../internal/util/location.typ": _format_location
+#import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
 // `key` (`"work"` / `"volunteer"`) names the label and the field in
@@ -15,7 +17,11 @@
     title: _field(entry, "position"),
     org: _field(entry, org-key),
     org-url: _field(entry, "url"),
-    .._entry_when(entry, key, prefs, labels),
+    period: _format_date_range(entry, prefs, labels),
+    location: _format_location(
+      entry.at("location", default: none),
+      key + "[].location",
+    ),
     summary: _field(entry, "summary"),
     highlights: entry.at("highlights", default: ()),
   ),

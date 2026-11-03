@@ -1,23 +1,7 @@
 // Section scaffolding: the `==` heading and its entries, with dividers
 // between them, optionally clustered under `====` subheadings.
 
-#import "../util/fields.typ": _string_at
 #import "../primitives.typ": divider
-
-// First-occurrence order (Typst dicts keep insertion order). Keys
-// must be strings.
-#let _group_by(items, key-of) = items.fold((:), (acc, item) => {
-  let key = key-of(item)
-  acc + ((key): acc.at(key, default: ()) + (item,))
-})
-
-// Drives the `====` subheadings in projects. A
-// missing or non-string `type` pools under `fallback` rather than
-// crashing as a dict key.
-#let _group_by_type(items, fallback) = _group_by(items, item => {
-  let raw = _string_at(item, "type")
-  if raw != none { raw } else { fallback }
-})
 
 // Empty `entries` renders nothing, not even the heading, so callers
 // filter unusable entries first and no heading is orphaned.

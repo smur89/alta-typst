@@ -4,10 +4,11 @@
 // in `data/sections.typ`: `alta()` renders it above the grid. CV fields are
 // checked here, where they're consumed.
 
+#import "../internal/design/icon-set.typ": _network_aliases, _profile_networks
 #import "../internal/util/checks.typ": _check_type
-#import "../internal/util/fields.typ": _field, _present, _url_encode
+#import "../internal/util/fields.typ": _field
 #import "../internal/util/location.typ": _format_location
-#import "../internal/data/icon-names.typ": _network_aliases, _profile_networks
+#import "../internal/util/values.typ": _present, _url_encode
 #import "../internal/data/validation.typ": _contact_channels
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _intro_block, _page_header
@@ -30,7 +31,7 @@
         + repr(profile.network)
         + ". Supported: "
         + _profile_networks.join(", ")
-        + ". To add another, register its FontAwesome glyph in _network_icons (internal/data/icon-names.typ).",
+        + ". To add another, register its FontAwesome glyph in _network_icons (internal/design/icon-set.typ).",
     )
   }
   (

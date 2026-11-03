@@ -2,7 +2,8 @@
 // one way for every caller so a location reads the same everywhere.
 
 #import "checks.typ": _check_unknown_keys
-#import "fields.typ": _field, _join_present, _present
+#import "fields.typ": _field
+#import "values.typ": _join_present, _present
 
 // `address` / `postalCode` are accepted but not rendered — a CV isn't
 // a mailing label. Absent values become `none`, so callers' `!= none`

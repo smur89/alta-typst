@@ -5,7 +5,7 @@
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent_state, _body_size_state
-#import "../util/fields.typ": _join_present
+#import "../util/values.typ": _join_present
 #import "../icons.typ": icon
 #import "../primitives.typ": _link_if, _preamble
 #import "qr.typ": _qr_render
