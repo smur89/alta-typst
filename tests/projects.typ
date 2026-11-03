@@ -2,7 +2,7 @@
 // practical field set: linked title, `entity` subtitle, description,
 // date range, highlights, `roles` pills, keyword pills. Includes a
 // minimal entry (name only) and skipped entries (missing / null name).
-// Grouping by `type` is exercised separately in `projects_grouped.typ`.
+// Grouping by `type` is exercised separately in `projects-grouped.typ`.
 
 #import "../lib.typ": alta
 

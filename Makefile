@@ -30,17 +30,20 @@ TEMPLATE_SRC  := .template-src.typ
 #   $(call render-page1,<src>,<ppi>,<out>)
 render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1 $(1) $(3)
 
-# `_`-prefixed examples are shared helpers, not documents. example_full
+# `_`-prefixed examples are shared helpers, not documents. example-full
 # (gallery needs every page) and preview-frames (page 1 has no
 # consumer) skip the page-1 PNG sweep.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
-EXAMPLES_PNG  := $(filter-out examples/example_full.typ examples/preview-frames.typ,$(EXAMPLES))
+EXAMPLES_PNG  := $(filter-out examples/example-full.typ examples/preview-frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 # `assert`-based checks of the side-effect-free helpers; underscore files are
 # shared helpers, not tests.
 UNIT_TESTS    := $(filter-out tests/unit/_%.typ,$(wildcard tests/unit/*.typ))
-PDFS          := $(EXAMPLES:.typ=.pdf)
+# example-full.typ renders to the published name the README and the
+# release link to.
+EXAMPLE_FULL_PDF := examples/example_full.pdf
+PDFS          := $(filter-out examples/example-full.pdf,$(EXAMPLES:.typ=.pdf)) $(EXAMPLE_FULL_PDF)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # Everything `lib.typ` reads at compile time. Every render depends on
@@ -56,7 +59,7 @@ PACKAGE_FILES := \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
   examples/cv.png \
-  examples/example_full.pdf \
+  $(EXAMPLE_FULL_PDF) \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
@@ -86,7 +89,7 @@ cv: examples/cv.pdf examples/cv.png ## build examples/cv.pdf + cv.png from templ
 
 # The per-page PNGs are side-effects of the PDF recipe (see the
 # example_full.pdf rule for why they aren't targets).
-example-full: examples/example_full.pdf ## build examples/example_full.pdf + per-page gallery PNGs
+example-full: $(EXAMPLE_FULL_PDF) ## build examples/example_full.pdf + per-page gallery PNGs
 
 # Universe package-card thumbnail. typst/packages requires a page of
 # the *template* as initialised, long edge ≥ 1080 px, ≤ 3 MiB. 180 PPI
@@ -136,7 +139,7 @@ examples/preview-frames.pdf: $(PREVIEW_FRAMES_DEPS)
 # The per-page PNGs aren't listed as targets: pre-4.3 GNU Make parses
 # `A B C: deps` as N independent rules, which race under `make -j`.
 # The `rm` stops a page-count shrink leaving an orphan PNG behind.
-examples/example_full.pdf: examples/example_full.typ examples/_dates.typ $(LIB_SOURCES)
+$(EXAMPLE_FULL_PDF): examples/example-full.typ examples/_dates.typ $(LIB_SOURCES)
 	rm -f examples/example_full-*.png
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
