@@ -126,7 +126,7 @@
       // The contact bar's text and icons, a multiple of the body size:
       // a step below body, so the links don't compete with the name.
       contact-size: 0.9,
-      contact-gap: sp.small,
+      contact-gap: sp.large,
       ornament-gutter: sp.medium * 1em,
       photo-gap: sp.medium,
       // The QR code's side, a multiple of the body size.
