@@ -1,6 +1,8 @@
-// The template's look in one place: colours, the type scale, and each
-// component's gaps and line weights. Data only; `styles.typ` applies
-// the document-wide rules.
+// The template's look in one place: colours, the type scale,
+// separators, and each component's gaps, line weights and type
+// treatment. Data only, so it could come from a file: treatments are
+// named (`"emph"`, `"strong"`, `"upper"`) and `_treat` (`text.typ`)
+// applies them. `styles.typ` applies the document-wide rules.
 //
 // Sizes scale with the body size. Unitless numbers are multiples of
 // it: public helpers (`tag`, `term`, `divider`, `rating`, `icon`) read
@@ -38,11 +40,24 @@
     empty-dot: rgb("#c0c0c0"),
   ),
   size: _size,
+  // Between facts on one line (`Manager, Pied Piper · 2024`): `facts`
+  // between groups, `items` within one.
+  separator: (facts: " · ", items: ", "),
+  // Named treatments: a `summary` or other preamble, a `styled-link`
+  // title, and the CV owner among a publication's authors.
+  treatment: (preamble: "emph", link: "emph", owner: "strong"),
   par: (leading: 0.55em, spacing: 0.7em),
   list: (marker: 0.85, body-indent: 0.4, spacing: 0.55em),
   // `==` headings: the gap above, the pull up to the rule, the rule,
   // and the gap below it.
-  section: (above: 0.6, rule-gap: -0.7, rule: 2pt, below: 0.2),
+  section: (
+    above: 0.6,
+    rule-gap: -0.7,
+    rule: 2pt,
+    below: 0.2,
+    weight: "bold",
+    case: "upper",
+  ),
   // `===` (a role or qualification) and `====` (a sub-grouping), both
   // at `size.subheading`. `weight` tells the two apart.
   subheading: (
@@ -53,6 +68,8 @@
   // `name-below` multiplies the body size (`name()` is public); the
   // rest are `em` of the entry's text.
   entry: (
+    // The organisation line (`name()`) and a compact entry's issuer.
+    org-weight: "bold",
     name-below: 0.6,
     subtitle-below: 0.5em,
     roles-below: 0.4em,
@@ -71,14 +88,20 @@
     inset: (x: 0.4, y: 0.15),
     outset-y: 0.15,
     gap: 0.25,
+    weight: "regular",
+    label-weight: "bold",
   ),
   divider: (
     stroke: (paint: rgb("#D1D1D1"), thickness: 0.6pt, dash: "dashed"),
     gap: 0.3,
     clearance: 0.5cm,
   ),
-  keyword-row: (gap: 0.7, hanging-indent: 1em),
+  // Between a skill group's label pill and its keyword pills.
+  keyword-row: (gap: 0.7, hanging-indent: 1em, dash: "-"),
   header: (
+    name-weight: "bold",
+    headline-weight: "bold",
+    contact-weight: "bold",
     name-below: 1.2,
     pronouns-gap: 0.5,
     headline: 1.2,

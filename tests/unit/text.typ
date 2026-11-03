@@ -48,3 +48,8 @@
 #assert.eq(_link_if(none, "x"), "x")
 #assert.eq(_link_if("", "x"), "x")
 #assert.eq(_link_if("https://a.b", "x").func(), link)
+
+// _treat: a named treatment applies its function; "none" is identity.
+#assert.eq(_treat("upper", "ab"), "AB")
+#assert.eq(_treat("none", "ab"), "ab")
+#assert.eq(_treat("emph", "ab").func(), emph)
