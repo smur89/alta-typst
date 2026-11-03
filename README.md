@@ -159,6 +159,8 @@ Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons 
 
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or missing `endDate` renders as `Present` (localisable via `labels.present`). Sections with empty input are skipped — no orphan headings. Unknown top-level keys panic.
 
+Fields typed "string or content" also accept Typst markup (`[Led the *platform* team]`). JSON can't carry markup, so keep to plain strings if the data also lives in a `resume.json`.
+
 ### Extensions
 
 Three optional fields layered on top of JSON Resume. They have no spec field, so they live in JSON Resume's [`custom`](https://jsonresume.org/schema) object (root, `basics` and every section entry; added in 1.4.0) under altacv's own `altacv` namespace:
@@ -172,7 +174,7 @@ Three optional fields layered on top of JSON Resume. They have no spec field, so
 ```
 
 - **`custom.altacv.focusAreas`** (root) — array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported). The section key in `leftColumnSections` / `rightColumnSections` and `labels.focusAreas` stay `focusAreas`.
-- **`languages[].custom.altacv.rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying a rating enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Without a rating, LinkedIn's `fluency` terms (matched case-insensitively: `Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Native` fills every dot). Other `fluency` strings render as a small annotation in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits. An entry with neither a rating nor `fluency` panics.
+- **`languages[].custom.altacv.rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying a rating enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Without a rating, LinkedIn's `fluency` terms (matched case-insensitively: `Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Native` fills every dot). Other `fluency` strings render as text in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits. An entry with neither a rating nor `fluency` panics.
 - **`awards[].custom.altacv.url`** — links the award title (see [Awards](#awards)).
 
 JSON Resume says themes are "not expected to render" `custom`; altacv reads only its own `altacv` namespace and ignores every other key under `custom`.
@@ -185,7 +187,7 @@ Recognised: `basics`, `objective` (see below), `custom` (see [Extensions](#exten
 
 ### Objective
 
-`objective` (JSON Resume 1.4.0) is a short, forward-looking career goal, separate from `basics.summary`, which describes background. It renders between the header and the first section, above the summary when both are set: italic, set off by a thin accent rule on its left like a pull quote, so the goal reads apart from the background summary. A string or `[...]` content (empty or missing renders nothing); anything else panics. Like the other JSON Resume 1.4+ fields, it reaches `alta-from-json` once [#217](https://github.com/smur89/alta-typst/issues/217) upgrades the validator; `alta()` renders it now.
+`objective` (JSON Resume 1.4.0) is a short, forward-looking career goal, separate from `basics.summary`, which describes background. It renders between the header and the first section, above the summary when both are set, set off like a pull quote so the goal reads apart from the background summary. A string or `[...]` content (empty or missing renders nothing); anything else panics. Like the other JSON Resume 1.4+ fields, it reaches `alta-from-json` once [#217](https://github.com/smur89/alta-typst/issues/217) upgrades the validator; `alta()` renders it now.
 
 ```typst
 #alta((
@@ -200,7 +202,7 @@ ISO 8601 strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume cano
 
 ### `basics`
 
-`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses, in smaller body-colour text — `JANE DOE (she/her)` — when `preferences.showPronouns` is `true`. It's opt-in, so a shared `resume.json` that carries pronouns doesn't show them unless the CV asks. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
+`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses — `JANE DOE (she/her)` — when `preferences.showPronouns` is `true`. It's opt-in, so a shared `resume.json` that carries pronouns doesn't show them unless the CV asks. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
 
 `basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with a generic `link` icon, alongside `email`, `phone`, `location`, and `profiles`. It is distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
 
@@ -243,70 +245,71 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema. Tables show the practical subset rendered. Where dates appear, `startDate` / `endDate` follow the same conventions (omit `endDate` → "Present"); `summary` accepts a string or `[...]` content for markup.
-
-Every entry section lays its entries out in the same order: title, organisation or subtitle, date row, italic `summary`, highlights, then pills. Absent fields drop their line. Titles share one heading style, made clickable (without restyling) when the entry has a URL.
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: title, organisation or subtitle, date row, `summary`, highlights, then tags. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
+#### Shared fields
+
+These mean the same in every section that reads them:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `location` | string or dict | Where. A string, or a dict in the same forms as [`basics.location`](#basics). |
+| `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
+| `summary` | string or content | A short paragraph of context. |
+| `highlights` | array of content | Accomplishments, as a bulleted list. |
+| `keywords`, `courses`, `roles` | array of strings | Tags, one per item. |
+
 #### Work
+
+Also reads `location`, `startDate` / `endDate`, `summary` and `highlights` ([shared fields](#shared-fields)).
 
 | Field | Type | Effect |
 |---|---|---|
-| `position` | string | Job title. Entry heading. |
-| `name` | string | Company / employer, accent colour beneath the title; wrapped in a link when `url` is supplied. |
-| `url` | string | Wraps `name` in a link (visual treatment unchanged — bold accent, no italic / underline). |
-| `location` | string or dict | Rendered alongside the date range via the location-icon row. Accepts a plain string or JSON Resume's `{address, postalCode, city, countryCode, region}` dict, collapsed to `city, region, countryCode` like `basics.location`. |
-| `startDate` / `endDate` | string | Date range. |
-| `summary` | string or content | Italic preamble between the date row and the highlights list. |
+| `position` | string | Job title; the entry's title. |
+| `name` | string | Company / employer; the organisation. |
+| `url` | string | Links the organisation. |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"). |
-| `highlights` | array of content | Bulleted list of accomplishments. |
 
 #### Volunteer
 
-Same shape as `work[]`, but with `organization` in place of `name`.
+Also reads `location`, `startDate` / `endDate`, `summary` and `highlights` ([shared fields](#shared-fields)).
 
 | Field | Type | Effect |
 |---|---|---|
-| `position` | string | Role title. Entry heading. |
-| `organization` | string | Granting organisation, accent colour beneath the position; wrapped in a link when `url` is supplied. |
-| `url` | string | Wraps `organization` in a link (visual treatment unchanged — bold accent, no italic / underline). |
-| `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
-| `startDate` / `endDate` | string | Date range. |
-| `summary` | string or content | Italic preamble between the date row and the highlights list. |
-| `description` | string or content | **Deprecated** alias of `summary` (see above). Not a JSON Resume field; it renders only because `volunteer[]` shares the `work[]` renderer. |
-| `highlights` | array of content | Bulleted list of accomplishments. |
+| `position` | string | Role title; the entry's title. |
+| `organization` | string | The organisation. |
+| `url` | string | Links the organisation. |
+| `description` | string or content | **Deprecated** alias of `summary` (see above). Not a JSON Resume field. |
 
 By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
 
 #### Education
 
+Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#shared-fields)).
+
 | Field | Type | Effect |
 |---|---|---|
-| `institution` | string | School name. Accent-bold beneath the qualification title; wrapped in a link to `url` when supplied. |
-| `url` | string | Wraps the institution name in an accent-bold link (styling preserved, just clickable). |
-| `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"). Entry heading. Falls back to `area` if absent. |
-| `area` | string | Field of study. Used as the heading only when `studyType` is missing. |
-| `startDate` / `endDate` | string | Date range. |
-| `location` | string or dict | Rendered next to the date range. Same string-or-dict forms as `work[].location`. |
-| `summary` | string or content | Italic preamble below the date row — thesis topic, honours or other context. |
-| `score` | string | Grade / classification, plain text below the summary (or the date range). |
-| `courses` | array of strings | Row of pill tags after the score (same treatment as `skills[].keywords` and `projects[].keywords`). |
+| `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"); the entry's title. Falls back to `area` if absent. |
+| `area` | string | Field of study. The title only when `studyType` is missing. |
+| `institution` | string | School name; the organisation. |
+| `url` | string | Links the institution. |
+| `summary` | string or content | Thesis topic, honours or other context. |
+| `score` | string | Grade / classification, leading the `courses` tags. |
 
 #### Projects
 
+Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([shared fields](#shared-fields)).
+
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Project title. Heading; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
-| `entity` | string | Small body-colour subtitle directly under the title — the company / client the project belonged to, distinct from the project name. |
-| `url` | string | Wraps the title in a link (heading style unchanged). |
-| `summary` | string or content | Italic preamble between the date row and the highlights list. |
+| `name` | string | Project title. Missing / empty `name` → entry silently skipped. |
+| `entity` | string | The company or client the project belonged to; the subtitle. |
+| `url` | string | Links the title. |
+| `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
-| `startDate` / `endDate` | string | Date range. |
-| `roles` | array of strings | Row of darker label-style pills above the date row — your role(s) on the project, set apart from the tech keywords. |
-| `highlights` | array of content | Bulleted list of accomplishments. |
-| `keywords` | array of strings | Row of pill tags below the highlights. |
 
 #### Awards
 
@@ -314,48 +317,52 @@ By default `volunteer` renders in the left column directly below `work`, so it r
 
 | Field | Type | Effect |
 |---|---|---|
-| `title` | string | Award name. Entry heading; linked to `url` when supplied. Missing / empty `title` → entry silently skipped. |
-| `awarder` | string | Granting organisation, accent colour beneath the title. |
-| `date` | string | Single date (not a range). Calendar-icon row. |
-| `custom.altacv.url` | string | Wraps the title in a link (heading style unchanged) — for a paper, conference page, or write-up. |
+| `title` | string | Award name. Missing / empty `title` → entry silently skipped. |
+| `awarder` | string | The granting organisation. |
+| `date` | string | When it was awarded. |
+| `custom.altacv.url` | string | Links the title: a paper, conference page or write-up. |
 | `url` | string | **Deprecated** form of `custom.altacv.url` (which wins when both are set). |
-| `summary` | string or content | Italic paragraph below the date. |
+| `summary` | string or content | What the award was for. |
 
 #### Publications
 
+A bibliography list rather than entries: the title, then a line each for the authors, the source (publisher and citation), the date, the identifiers and the summary.
+
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Publication title. Bullet body; linked to `url` when supplied, italicised when not. |
-| `authors` | array of strings | JSON Resume 1.7.0 author list in published order, as a line under the title joined with `, `. The CV owner's own entry (matching `basics.name`, ignoring case and surrounding spaces) is bold. |
-| `publisher` | string | Subtitle below the title, body colour at 0.85× body size. |
-| `volume` / `issue` / `pages` | string | JSON Resume 1.7.0 journal citation, appended to the publisher line as `12(3), 45–67` (or on that line alone when there is no publisher). Each part is optional and takes its punctuation with it; a hyphen or run of hyphens in `pages` becomes one en dash. |
-| `releaseDate` | string | Single date (not a range). Below the publisher in a lighter shade. |
-| `url` | string | Wraps the title in an accent-coloured link. Without it, the title links to the first resolvable identifier (DOI, then arXiv, then PMID). |
-| `identifiers` | object | JSON Resume 1.7.0 persistent IDs keyed by scheme. Listed below the date as `DOI 10.1000/182 · arXiv 2101.00001`: `doi`, `arxiv` and `pmid` link to doi.org, arxiv.org and PubMed, `isbn` prints as is, and other schemes print as given. Empty or non-string values are skipped. |
-| `summary` | string or content | Italic paragraph below the date. |
+| `name` | string | Publication title. |
+| `url` | string | Links the title. Without it, the title links to the first resolvable identifier (DOI, then arXiv, then PMID). |
+| `authors` | array of strings | JSON Resume 1.7.0 author list in published order. The CV owner's own entry (matching `basics.name`, ignoring case and surrounding spaces) is set apart. |
+| `publisher` | string | Where it was published. |
+| `volume` / `issue` / `pages` | string | JSON Resume 1.7.0 journal citation, after the publisher as `12(3), 45–67`. Each part is optional and takes its punctuation with it; a hyphen or run of hyphens in `pages` becomes one en dash. |
+| `releaseDate` | string | Publication date. |
+| `identifiers` | object | JSON Resume 1.7.0 persistent IDs keyed by scheme, listed as `DOI 10.1000/182 · arXiv 2101.00001`: `doi`, `arxiv` and `pmid` link to doi.org, arxiv.org and PubMed, `isbn` prints as is, and other schemes print as given. Empty or non-string values are skipped. |
+| `summary` | string or content | What the publication is about. |
 | `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Untyped entries count as `article`. Free-text values (`"Articles"`, `"Talks"`) still work, and the common plurals group with their code; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
 All fields are optional — omitted fields drop their line.
 
 #### Certificates
 
+A compact entry: the date, issuer and credential ID share one row.
+
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Certificate name. Entry heading, like `awards[].title`; linked to `url` when supplied. Missing / empty `name` → entry silently skipped. |
-| `issuer` | string | Granting organisation. Bold accent text on the date row, after the date. |
-| `date` | string | Date the certificate was issued. Calendar-icon row under the name. |
-| `expiryDate` | string | Date the certificate expires. Shown as a range after `date` (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
-| `url` | string | Wraps the name in a link to the credential. |
-| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given on the date row, after the issuer. |
-| `summary` | string or content | What the certificate covers. Italic paragraph under the date row, as in `awards[]`. |
+| `name` | string | Certificate name; the entry's title. Missing / empty `name` → entry silently skipped. |
+| `issuer` | string | Granting organisation. |
+| `date` | string | Date the certificate was issued. |
+| `expiryDate` | string | Date the certificate expires, making the date a range (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
+| `url` | string | Links the name to the credential. |
+| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given. |
+| `summary` | string or content | What the certificate covers. |
 
 #### Interests
 
-Same `{name, keywords}` shape as `skills[]`, rendered with the same pill-tag layout (`name` as a label-tag, each `keywords` entry as a regular tag). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
+A `{name, keywords}` category per entry, shown as a row: the category as a label tag, then one tag per keyword. Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
 
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Category label, leading "label" pill on the row. |
+| `name` | string | The category. |
 | `keywords` | array of strings | Items in the category. Entries with an empty `keywords` array are silently skipped. |
 
 ```typst
@@ -369,14 +376,14 @@ interests: (
 
 | Field | Type | Effect |
 |---|---|---|
-| `name` | string | Referee name, entry heading above the quote. Omitted entries render the quote anonymously. |
-| `reference` | string or content | The referee's quote, italic, beneath the name. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
-| `relationship` | string | JSON Resume 1.7.0. How the referee knows you (`Manager`, `Thesis advisor`). Leads a small line under the name: `Manager, Pied Piper · Mar 2024`. |
+| `name` | string | Referee name; the entry's title. Omitted entries render the quote anonymously. |
+| `reference` | string or content | The referee's quote. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
+| `relationship` | string | JSON Resume 1.7.0. How the referee knows you (`Manager`, `Thesis advisor`). Leads a line under the name: `Manager, Pied Piper · Mar 2024`. |
 | `organization` | string | JSON Resume 1.7.0. Where you worked together, after `relationship` on the same line. |
-| `date` | string | JSON Resume 1.7.0. ISO 8601, formatted by `preferences.dateFormat`, closing the same line. Missing parts drop out with their separator; with none, there is no line. |
+| `date` | string | JSON Resume 1.7.0. Formatted as in [Dates](#dates), closing the same line. Missing parts drop out with their separator; with none, there is no line. |
 | `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` (localisable) in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
 
-The [`referencesAvailableOnRequest` preference](#preferences) is deprecated in favour of `availableOnRequest`.
+The [`referencesAvailableOnRequest` preference](#deprecated-preferences) is deprecated in favour of `availableOnRequest`.
 
 ### Profile networks
 
@@ -404,35 +411,64 @@ A verbatim `resume.json` round-trips without panicking — fields altacv doesn't
 
 Override any subset of the keys below.
 
+#### Look
+
 | Key | Default | Effect |
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
-| `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
-| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins: a length, `auto`, or a dict of them keyed by side, as `set page(margin: ...)` takes. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
-| `groupCertificates` | `true` | **Deprecated** and ignored: certificates render as entries, each showing its own issuer. Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
+| `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
+
+#### Header
+
+| Key | Default | Effect |
+|---|---|---|
+| `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
+| `showPronouns` | `false` | When `true`, renders `basics.pronouns` after the name — see [`basics`](#basics). |
+| `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
-| `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
-| `showPronouns` | `false` | When `true`, renders `basics.pronouns` after the name — see [`basics`](#basics). |
-| `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
+
+#### Page and layout
+
+| Key | Default | Effect |
+|---|---|---|
+| `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
+| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins: a length, `auto`, or a dict of them keyed by side, as `set page(margin: ...)` takes. |
+| `columnRatio` | `0.65` | Left column's share of the page width, in `(0, 1]`. The right column gets the rest; both columns give up a proportional share of a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
+| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
+
+Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
+
+#### Footer
+
+| Key | Default | Effect |
+|---|---|---|
+| `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |
-| `referencesAvailableOnRequest` | `false` | **Deprecated**, use `references[].availableOnRequest`. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
+
+#### Formatting and links
+
+| Key | Default | Effect |
+|---|---|---|
 | `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
-| `columnRatio` | `0.65` | Left column's share of the page width, in `(0, 1]`. The right column gets the rest; both columns give up a proportional share of a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
-| `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
-| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
 | `maxRating` | `5` | Number of dots on the language scale. Positive integer. Set `6` for a CEFR-style scale, `4` for ILR-style, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half. |
-| `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 
-Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
+#### Deprecated preferences
+
+Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
+| Key | Default | Effect |
+|---|---|---|
+| `groupCertificates` | `true` | Ignored: certificates render as entries, each showing its own issuer. |
+| `referencesAvailableOnRequest` | `false` | Use [`references[].availableOnRequest`](#references) instead. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
 
 #### Publication icons
 
