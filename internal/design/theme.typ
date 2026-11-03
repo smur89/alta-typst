@@ -38,7 +38,7 @@
     large: 1.2,
   ),
   // In pt.
-  stroke-width: (thin: 0.5, thick: 2),
+  stroke-width: (thin: 0.5, thick: 1),
   leading: 0.55,
 )
 
