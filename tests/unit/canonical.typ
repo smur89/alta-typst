@@ -1,20 +1,15 @@
-// Unit checks for `_canonical_preferences` in internal/canonical.typ,
-// through the merge `alta()` runs it ahead of.
+// Unit checks for how `publicationIcons` resolves, through
+// `_merge_options`, the sequence `alta()` runs.
 
-#import "/internal/canonical.typ": _canonical_labels, _canonical_preferences
-#import "/internal/layout.typ": _default_preferences
-#import "/internal/validation.typ": _strict_merge
+#import "/internal/layout.typ": _merge_options
 
 #let icons(prefs: (:), labels: (:)) = {
-  _strict_merge(
-    _default_preferences,
-    _canonical_preferences(
-      (publicationIcons: prefs),
-      _canonical_labels((publicationIcons: labels)),
-    ),
-    "preferences",
-    tables: ("publicationIcons",),
-  ).publicationIcons
+  _merge_options(
+    (publicationIcons: labels),
+    (publicationIcons: prefs),
+  )
+    .preferences
+    .publicationIcons
 }
 
 // Built-ins and the deprecated free-text icons with nothing set.
@@ -34,13 +29,6 @@
 #assert.eq(both.talk, "microphone")
 #assert("Book" not in both)
 
-// With no `publicationIcons` set, the free-text icons are still
-// seeded beneath the merge.
-#assert.eq(
-  _canonical_preferences((accent: red), (:)).publicationIcons,
-  _canonical_preferences((publicationIcons: (:)), (:)).publicationIcons,
-)
-#assert.eq(
-  _canonical_preferences((:), (:)).publicationIcons.presentations,
-  "microphone",
-)
+// The deprecated label's icon names aren't checked, so an unused bad
+// one doesn't stop a CV compiling, as before the preference existed.
+#assert.eq(icons(labels: (podcast: "podium")).podcast, "podium")

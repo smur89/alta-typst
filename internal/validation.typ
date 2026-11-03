@@ -197,10 +197,6 @@
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
   }
-  // Here, as `icon()` would fail on a bare missing key.
-  for (code, name) in preferences.publicationIcons {
-    _check_enum("publicationIcons." + code, name, _icon_glyphs.keys())
-  }
   let page-footer = preferences.pageFooter
   let footer-ok = (
     page-footer == none or page-footer == "auto" or type(page-footer) == content
@@ -295,7 +291,21 @@
   entries
 }
 
+// Checked up front, as `icon()` would fail on a bare missing key.
+// `name` is the table's full path, for the message.
+#let _check_icon_names(table, name) = for (code, icon-name) in table {
+  _check_enum(name + "." + code, icon-name, _icon_glyphs.keys())
+}
+
 #let _validate_labels(labels) = {
+  // Deprecated (#239), and merged into the preference's icons by
+  // `_canonical_preferences`, which needs a dictionary.
+  _check_type(
+    "labels.publicationIcons",
+    labels.publicationIcons,
+    (dictionary,),
+    "a dictionary",
+  )
   let lang = labels.lang
   if type(lang) != str or lang.match(_lang_re) == none {
     panic(

@@ -1,4 +1,4 @@
-// expect: publicationIcons.talk must be "book", "calendar"
+// expect: preferences.publicationIcons.talk must be "book", "calendar"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

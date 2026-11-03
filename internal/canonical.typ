@@ -3,6 +3,7 @@
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
+#import "validation.typ": _check_icon_names
 #import "text.typ": (
   _altacv_ns, _dict_or_empty, _field, _present, _reference_usable, _string_at,
 )
@@ -37,9 +38,10 @@
   paper: "newspaper",
 )
 
-// The label tables: matched case-insensitively, and merged entry by
-// entry over their defaults (`_strict_merge`'s `tables`).
-#let _case_insensitive_tables = ("publicationTypes", "publicationIcons")
+// Tables matched case-insensitively and merged entry by entry over
+// their defaults (`_strict_merge`'s `tables`).
+#let _label_tables = ("publicationTypes",)
+#let _preference_tables = ("publicationIcons",)
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -143,7 +145,7 @@
   overrides
 } else {
   let table(name) = overrides.at(name, default: (:))
-  let tables = _case_insensitive_tables
+  let tables = _label_tables
     .filter(t => type(table(t)) == dictionary)
     .map(t => (t, _lowercase_table(table(t), "labels." + t)))
     .to-dict()
@@ -156,23 +158,29 @@
   overrides + tables + articles
 }
 
-// Runs before the merge over the defaults, on `_canonical_labels`
-// output. #239: the deprecated free-text icons, then a set
-// `labels.publicationIcons`, sit beneath the caller's
-// `publicationIcons`, lowercased like the label tables, so the merge
-// and validation see one table. A non-dictionary (overall or as the
-// table) passes through for `_strict_merge` to reject.
-#let _canonical_preferences(overrides, label-overrides) = {
+// Runs before the merge over the defaults. #239: the deprecated
+// free-text icons, then a set `labels.publicationIcons`, sit beneath
+// the caller's `publicationIcons`, all lowercased, so the merge sees
+// one table. Only the caller's own icon names are checked: the
+// deprecated label's are left to fail where used, as they always
+// have. A non-dictionary (overall or as the table) passes through for
+// `_strict_merge` to reject.
+#let _canonical_preferences(overrides, labels) = {
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }
   if type(icons) != dictionary { overrides } else {
-    let label-icons = _dict_or_empty(
-      _dict_or_empty(label-overrides).at("publicationIcons", default: none),
+    _check_icon_names(icons, "preferences.publicationIcons")
+    let label-icons = _dict_or_empty(labels).at(
+      "publicationIcons",
+      default: none,
     )
+    let from-label = if type(label-icons) == dictionary {
+      _lowercase_table(label-icons, "labels.publicationIcons")
+    } else { (:) }
     let merged = (
       _legacy_publication_icons
-        + label-icons
+        + from-label
         + _lowercase_table(icons, "preferences.publicationIcons")
     )
     overrides + (publicationIcons: merged)

@@ -551,7 +551,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 `labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively; untyped entries use `article`. Overrides layer over the defaults, so a translation sets just the codes it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge")`. A type with no entry prints as given.
 
-`labels.publicationIcons` is deprecated: icons are styling, not text to translate, so they moved to [`preferences.publicationIcons`](#publication-icons). A set label table is still honoured, beneath the preference, which wins key by key, and its icon names are checked the same way; it is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+`labels.publicationIcons` is deprecated: icons are styling, not text to translate, so they moved to [`preferences.publicationIcons`](#publication-icons). A set label table is still honoured, beneath the preference, which wins key by key; it is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 Example — German, plus renaming "Skills" to "Core Technologies":
 
