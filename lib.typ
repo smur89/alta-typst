@@ -21,11 +21,7 @@
 #import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
-#import "internal/context.typ": (
-  _accent_state, _body_size_state, _max_rating_state,
-)
 #import "internal/design/theme.typ": _theme
-#import "internal/design/styles.typ": _content_styles
 #import "internal/data/canonical.typ": _canonical_cv
 #import "internal/util/checks.typ": _check_unknown_keys
 #import "internal/util/fields.typ": _field, _string_at
@@ -35,6 +31,7 @@
 #import "sections/intro.typ": _intro
 #import "sections/footer.typ": _resolve_page_footer
 #import "internal/data/sections.typ": _cv_keys, _read_sections
+#import "internal/document.typ": _document
 #import "internal/registry.typ": _renderers
 #import "internal/data/options.typ": _merge_options
 #import "internal/data/json-resume.typ": from-json-resume
@@ -81,13 +78,6 @@
   // Before the PDF keywords below walk `skills`.
   let section-data = _read_sections(cv)
   let column-ratio = preferences.columnRatio
-  let max-rating = preferences.maxRating
-  let accent = preferences.accent
-  let body-size = preferences.bodySize
-  _accent_state.update(accent)
-  _body_size_state.update(body-size)
-  _max_rating_state.update(max-rating)
-
   // Optional metadata is set only when non-empty: `set document(...)`
   // rejects a `none` date, and empty strings would still write an entry.
   let meta = cv.at("meta", default: (:))
@@ -111,18 +101,11 @@
     ..(if doc-description != none { (description: doc-description) }),
     ..(if doc-date != none { (date: doc-date) }),
   )
-  set text(
-    body-size,
-    font: preferences.font,
-    fill: _theme.colour.body,
-    lang: labels.lang,
-  )
-  set page(
-    paper: preferences.paper,
-    margin: preferences.margin,
+  show: _document.with(
+    preferences,
+    labels,
     footer: _resolve_page_footer(preferences, labels, meta, cv.basics.name),
   )
-  show: _content_styles.with(body-size, accent)
 
   _header(cv, preferences)
   _intro(cv)

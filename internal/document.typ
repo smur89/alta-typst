@@ -1,0 +1,27 @@
+// The document setup every page renders under: the render-time context
+// state, the body text, the page with its footer, and the paragraph,
+// list and heading rules. `alta()` applies it, and so does the
+// component gallery (`tests/components.typ`), so the gallery shows
+// components exactly as a CV does.
+
+#import "design/styles.typ": _content_styles
+#import "design/theme.typ": _theme
+#import "context.typ": _accent_state, _body_size_state, _max_rating_state
+
+// For `show: _document.with(preferences, labels, footer: ...)`, with
+// the merged, validated preferences and labels.
+#let _document(preferences, labels, footer: none, body) = {
+  let (accent, bodySize: body-size, maxRating: max-rating, ..) = preferences
+  _accent_state.update(accent)
+  _body_size_state.update(body-size)
+  _max_rating_state.update(max-rating)
+  set text(
+    body-size,
+    font: preferences.font,
+    fill: _theme.colour.body,
+    lang: labels.lang,
+  )
+  set page(paper: preferences.paper, margin: preferences.margin, footer: footer)
+  show: _content_styles.with(body-size, accent)
+  body
+}
