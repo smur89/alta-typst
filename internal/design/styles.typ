@@ -35,18 +35,14 @@
     #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
-  let sub-heading((above, below, weight)) = it => block(
+  let sub-heading((above, below, weight), fill) = it => block(
     above: above * body-size,
     below: below * body-size,
     sticky: true,
-    text(
-      ty.title.size * body-size,
-      fill: colour.emphasis,
-      weight: weight,
-      it.body,
-    ),
+    text(ty.title.size * body-size, fill: fill, weight: weight, it.body),
   )
-  show heading.where(level: 3): sub-heading(subheading.entry)
-  show heading.where(level: 4): sub-heading(subheading.group)
+  show heading.where(level: 3): sub-heading(subheading.entry, colour.emphasis)
+  // In the accent, so a group reads apart from the entries under it.
+  show heading.where(level: 4): sub-heading(subheading.group, accent)
   body
 }

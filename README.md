@@ -309,7 +309,7 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 | `url` | string | Links the title. |
 | `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
-| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
+| `type` | string | Optional grouping key. When any entry sets it, projects cluster under folder-icon `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 
 #### Awards
 

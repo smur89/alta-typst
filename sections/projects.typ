@@ -6,6 +6,7 @@
 #import "../internal/util/values.typ": _group-by
 #import "../internal/data/cv.typ": _entry-period
 #import "../internal/components/entry.typ": _entry
+#import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
@@ -40,7 +41,7 @@
     _grouped-section(
       labels.projects,
       _group-by-type(entries, labels.otherProjects),
-      (group, _) => group,
+      (group, _) => _icon-heading("folder", group),
       render,
     )
   }

@@ -10,6 +10,7 @@
   calendar: "calendar",
   email: "envelope",
   file: "file",
+  folder: "folder",
   location: "location-dot",
   microphone: "microphone",
   newspaper: "newspaper",

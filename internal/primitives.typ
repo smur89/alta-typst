@@ -153,6 +153,7 @@
 #let _icon-heading(icon-name, body) = [#context icon(
     icon-name,
     size: _theme.type.title.size * _body-size-state.get(),
+    fill: _accent-state.get(),
   ) #body]
 
 // The circular portrait. `image()` resolves a bare string path from
