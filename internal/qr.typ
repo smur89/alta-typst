@@ -1,6 +1,7 @@
 // Header QR code (opt-in via `preferences.qrCode`), restoring the
-// most-followed link on a printed CV. Validates, resolves and renders
-// the preference; only this file imports `@preview/zebra`, so swapping
+// most-followed link on a printed CV. Validates the preference and
+// renders the code (`sections/header.typ` resolves its target); only
+// this file imports `@preview/zebra`, so swapping
 // QR implementations stays a one-file change. Zebra emits vector
 // paths, so the matrix stays crisp and takes a `fill` like any shape.
 
@@ -18,29 +19,6 @@
   if value == "" {
     panic("qrCode must be a non-empty string when not `none` / `auto`.")
   }
-}
-
-// Separate from `_check_qr_code` because `auto` needs `basics`.
-#let _resolve_qr_url(qr-code, basics) = {
-  if qr-code == none { return none }
-  if qr-code != auto { return qr-code }
-  let url = basics.at("url", default: none)
-  if url == none {
-    panic(
-      "preferences.qrCode is `auto` but basics.url is missing. "
-        + "Set basics.url to the destination URL, or pass the URL "
-        + "directly via preferences.qrCode.",
-    )
-  }
-  if type(url) != str {
-    panic("basics.url must be a string, got: " + repr(url))
-  }
-  if url == "" {
-    panic(
-      "basics.url is empty; set it to the destination URL or remove preferences.qrCode.",
-    )
-  }
-  url
 }
 
 // `quiet-zone: 0`: the header padding already supplies whitespace, and

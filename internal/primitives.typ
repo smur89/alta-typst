@@ -159,3 +159,16 @@
     icon-name,
     size: _theme.size.subheading * _body_size_state.get(),
   ) #body]
+
+// The circular portrait. `image()` resolves a bare string path from
+// the file that calls it, so this stays in `internal/`, where a bare
+// `basics.image` has always resolved; `path` and `bytes` sources let
+// callers anchor resolution at their own .typ instead. `alt` becomes
+// the image's `/Alt` in tagged PDF output.
+#let _portrait(source, size, alt) = box(
+  width: size,
+  height: size,
+  clip: true,
+  radius: 50%,
+  image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
+)
