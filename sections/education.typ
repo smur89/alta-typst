@@ -19,7 +19,7 @@
     period: _format-date-range(edu, prefs, labels),
     location: _format-location(
       edu.at("location", default: none),
-      "education" + "[].location",
+      "education[].location",
     ),
     summary: _field(edu, "summary"),
     tags-lead: _field(edu, "score"),

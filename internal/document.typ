@@ -15,6 +15,7 @@
   _accent-state.update(accent)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
+  // Before `set page`, so the footer inherits the font and language.
   set text(
     body-size,
     font: preferences.font,
