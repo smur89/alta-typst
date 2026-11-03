@@ -55,16 +55,17 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Rendering the fixtures is also their compile check, so `make
-      # test` below skips them (`TESTS=`) rather than compile each twice.
-      # `-B`: tracked PDFs get checkout-order mtimes, so make could
-      # skip them and the gate would compare the committed files to
-      # themselves.
+      # Rendering the fixtures is also their compile check, standing in
+      # for `make test`'s `test-fixtures`. `-B`: tracked PDFs get
+      # checkout-order mtimes, so make could skip them and the gate
+      # would compare the committed files to themselves. `-k` and the
+      # next step's `!cancelled()` report every failure in one run.
       - name: Render test fixtures
-        run: make -B test-pdfs
+        run: make -k -B test-pdfs
 
       - name: Compile examples + template, run panic and unit checks
-        run: make test TESTS=
+        if: ${{ !cancelled() }}
+        run: make test-compile test-panics test-unit
 
       - name: Verify examples/tests/*.pdf are in sync
         run: make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'

@@ -1,19 +1,19 @@
 # altacv — local build helper; CI calls these same targets.
 #
-# `make help` lists the targets, from the `## ` note on each rule, and
-# the tool and resolution overrides.
+# `make help` lists the targets and the variables you can override,
+# from the `## ` note on each rule and `?=` default.
 
 # A failed `typst compile` can leave a partial target newer than its
 # source, which the next `make` would treat as fresh. Delete it instead.
 .DELETE_ON_ERROR:
 
-TYPST     ?= typst
-TYPSTYLE  ?= typstyle
-FFMPEG    ?= ffmpeg
+TYPST     ?= typst ## the typst binary
+TYPSTYLE  ?= typstyle ## the typstyle binary
+FFMPEG    ?= ffmpeg ## the ffmpeg binary
 ROOT      := .
-PPI       ?= 150
+PPI       ?= 150 ## preview PNG resolution
 # Animated-preview frame rate: 0.4 → 2.5 s per frame.
-PREVIEW_FPS ?= 0.4
+PREVIEW_FPS ?= 0.4 ## GIF frame rate
 
 # Swaps the template's `@preview/altacv:<version>` import for the
 # in-tree `/lib.typ`; `[^"]*` matches any version release-please writes.
@@ -60,12 +60,12 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
 # in the Dockerfile (image.yml derives the same tag and pushes it).
-DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0 ## the pinned CI image
 
 # `--platform linux/amd64` keeps output byte-identical to CI on any
 # host (Apple Silicon emulates: slow but reproducible).
@@ -92,9 +92,9 @@ example-full: examples/example_full.pdf ## build examples/example_full.pdf + per
 # the *template* as initialised, long edge ≥ 1080 px, ≤ 3 MiB. 180 PPI
 # gives a ~2105 px long edge, well under package-check's 1 MiB
 # "large file" hint; the card displays far fewer pixels anyway.
-THUMB_PPI  ?= 180
+THUMB_PPI  ?= 180 ## thumbnail resolution
 
-thumbnail: thumbnail.png ## build thumbnail.png, the Universe package card (THUMB_PPI=...)
+thumbnail: thumbnail.png ## build thumbnail.png, the Universe package card
 
 thumbnail.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 	$(call render-page1,$<,$(THUMB_PPI),$@)
@@ -183,18 +183,23 @@ done; \
 exit $$status
 endef
 
-# Compile every example, every fixture, and the `typst init` starter
-# (via `$(TEMPLATE_SRC)`, since template/cv.typ's `@preview/altacv`
-# import won't resolve locally — a broken starter trips here before
-# release). The prerequisite also covers preview-frames.typ, which
-# reads its CV from `$(TEMPLATE_SRC)` through examples/_cv.typ. This
-# is the CI lint job's compile step, so a green `make test` locally
-# means it will pass too.
-test: $(TEMPLATE_SRC) test-panics test-unit ## compile examples, fixtures and template; run panic and unit checks
-	$(call compile-check,$(EXAMPLES) $(TESTS) $(TEMPLATE_SRC))
+# Every check CI's lint job runs, so a green `make test` locally means
+# it will pass too. CI renders the fixtures with `test-pdfs` instead of
+# `test-fixtures`, which would compile them a second time.
+test: test-compile test-fixtures test-panics test-unit ## compile examples, fixtures and template; run panic and unit checks
 
-# Just the helper checks under tests/unit/ — a failed `assert` fails
-# the compile. `make test` already covers them.
+# The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
+# template/cv.typ's `@preview/altacv` import won't resolve locally — a
+# broken starter trips here before release). The prerequisite also
+# covers preview-frames.typ, which reads its CV from `$(TEMPLATE_SRC)`
+# through examples/_cv.typ.
+test-compile: $(TEMPLATE_SRC) ## compile every example and the template
+	$(call compile-check,$(EXAMPLES) $(TEMPLATE_SRC))
+
+test-fixtures: ## compile every tests/*.typ fixture, output discarded
+	$(call compile-check,$(TESTS))
+
+# A failed `assert` fails the compile.
 test-unit: ## run the helper checks under tests/unit/
 	$(call compile-check,$(UNIT_TESTS))
 
@@ -222,8 +227,7 @@ test-panics: ## check each tests/panics/*.typ fails with its `// expect:` text
 	done; \
 	exit $$status
 
-# Just the template starter — a quick check after editing
-# template/cv.typ. `make test` already covers it.
+# A quick check after editing template/cv.typ; `test-compile` covers it.
 test-template: $(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 	$(call compile-check,$(TEMPLATE_SRC))
 
@@ -257,7 +261,6 @@ fmt: ## format every tracked .typ in place (typstyle)
 fmt-check: ## check formatting without writing (the CI gate)
 	$(TYPSTYLE) --check $(shell git ls-files '*.typ')
 
-# Every CI lint gate (lint + typstyle jobs) in one local command.
 check: test fmt-check ## test + fmt-check: the local equivalent of CI's lint and typstyle
 
 # Stage the PACKAGE_FILES set into PKG_DIR for the PR-time
@@ -284,10 +287,10 @@ package-tarball: ## build the release tarball from the staged package
 clean: ## remove generated PDFs and PNGs
 	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
-help: ## list these targets
-	@awk -F':.*## ' '/^[a-z-]+:.*## /{printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@printf '%s\n' 'Overrides: TYPST=path/to/typst TYPSTYLE=path/to/typstyle FFMPEG=path/to/ffmpeg' \
-	  '           PPI=300 PREVIEW_FPS=1 DOCKER_IMAGE=ghcr.io/.../...:tag'
+help: ## list these targets and the variables you can override
+	@awk -F':[^=]*## ' '/^[a-zA-Z0-9_.-]+:[^=]*## /{printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo 'Overrides (make VAR=value):'
+	@awk -F' *[?]= *| *## ' '/^[A-Z_]+ *[?]=.*## /{printf "  %-22s %s (default %s)\n", $$1, $$3, $$2}' $(MAKEFILE_LIST)
 
 # Regenerate every committed PDF/PNG fixture inside the pinned CI
 # image. Use before committing any change that affects rendering

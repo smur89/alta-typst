@@ -56,7 +56,7 @@ make fmt          # format every tracked .typ in place (typstyle)
 make docker-pdfs  # regenerate the committed renders in the pinned image (see below)
 ```
 
-`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too.
 
 ### Helper unit tests
 
