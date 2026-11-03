@@ -12,21 +12,15 @@
 // The bold accent text `name()` sets on its own line, for inline use
 // (e.g. a certificate's issuer on its term row).
 #let _accent-strong(body) = context text(
-  weight: _theme.entry.org-weight,
+  weight: _theme.font-weight.bold,
   fill: _accent-state.get(),
   body,
 )
 
-// The type scale below body text: `_small` for secondary lines (a
-// subtitle, a fluency label, publication authors), `_meta` for the
-// quietest (publication dates and identifiers). In `em`, as they only
-// sit in body text; absent bodies render nothing.
-#let _small(body) = if _present(body) {
-  text(_theme.size.small * 1em, fill: _theme.colour.body, body)
-}
-
+// The quietest lines (publication dates and identifiers), set apart by
+// the `secondary` colour; an absent body renders nothing.
 #let _meta(body) = if _present(body) {
-  text(_theme.size.meta * 1em, fill: _theme.colour.meta, body)
+  text(fill: _theme.colour.secondary, body)
 }
 
 // The gap `tag()` leaves after a pill. Takes the CV's body size, not
@@ -58,7 +52,7 @@
   par(_treat(_theme.treatment.preamble, body))
 }
 
-// The term row's frame: indented small text under an entry's heading.
+// The term row's frame: indented text under an entry's heading.
 #let _term-row(body) = context {
   let body-size = _body-size-state.get()
   let (below, inset) = _theme.term
@@ -66,7 +60,7 @@
     above: 0pt,
     below: below * body-size,
     inset: (left: inset * body-size),
-    text(_theme.size.term * body-size, body),
+    text(body-size, body),
   )
 }
 
@@ -97,7 +91,6 @@
     fill,
     label-fill,
     text-darken,
-    stroke,
     radius,
     inset,
     outset-y,
@@ -108,12 +101,12 @@
   let text-weight = if label { label-weight } else { weight }
   box(
     fill: accent.lighten(if label { label-fill } else { fill }),
-    stroke: stroke + accent,
+    stroke: _theme.stroke-width.thin + accent,
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
     outset: (y: outset-y * body-size),
     text(
-      _theme.size.small * body-size,
+      body-size,
       fill: accent.darken(text-darken),
       weight: text-weight,
       body,
@@ -139,10 +132,14 @@
 // it tracks `preferences.margin`.
 #let divider() = context {
   let body-size = _body-size-state.get()
-  let (stroke, gap, clearance) = _theme.divider
+  let (gap, dash, clearance) = _theme.divider
   if here().position().y < _top-margin() + clearance { return }
   v(gap * body-size)
-  line(length: 100%, stroke: stroke)
+  line(length: 100%, stroke: (
+    paint: _theme.colour.border,
+    thickness: _theme.stroke-width.thin,
+    dash: dash,
+  ))
   v(gap * body-size)
 }
 
@@ -158,7 +155,7 @@
 // context: `em` inside the heading is already scaled.
 #let _icon-heading(icon-name, body) = [#context icon(
     icon-name,
-    size: _theme.size.subheading * _body-size-state.get(),
+    size: _theme.type.title.size * _body-size-state.get(),
   ) #body]
 
 // The circular portrait. `image()` resolves a bare string path from

@@ -52,10 +52,10 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 
 ## The look
 
-- **`design/theme.typ`**: plain data, keyed by component: colours, sizes, gaps, weights, separators, and treatments by name (`"emph"`), which `_treat` (`design/styles.typ`) applies. Unitless sizes multiply the body size.
+- **`design/theme.typ`**: plain data in two tiers. `_tokens` are the scales, named after industry conventions: Material Design 3's type roles (`display`, `headline`, `title`, `body`, each a size and weight), Bootstrap's colour roles (`body`, `secondary`, `emphasis`, `border`), and CSS's size keywords for `space` (`xx-small` … `large`); plus `font-weight`, `stroke-width` and `leading`. `_build-theme(tokens)` maps them onto the roles components read (`section.above`, `tag.inset`, …) and derives the muted colours. A role exists only where components differ by design; otherwise a component reads the token. Unitless sizes multiply the body size; treatments are named (`"emph"`), and `_treat` (`design/styles.typ`) applies them.
 - **`context.typ`**: the accent, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
 
-Users style through [preferences](README.md#preferences); the theme itself isn't configurable yet.
+Users style through [preferences](README.md#preferences); the theme itself isn't configurable yet. When it is, `alta()` would merge a caller's token overrides over `_tokens`, rebuild with `_build-theme`, then merge role overrides, so changing a token moves every role drawn from it.
 
 ## Deprecations
 

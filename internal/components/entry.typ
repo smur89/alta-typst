@@ -4,14 +4,14 @@
 #import "../design/theme.typ": _theme
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-strong, _link-if, _preamble, _small, _tag-row, _term-part, _term-row,
-  name, term,
+  _accent-strong, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
+  term,
 )
 
 // A small line under an entry's heading: a project's client, a
 // referee's attribution. Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
-  block(below: _theme.entry.subtitle-below, _small(body))
+  block(below: _theme.entry.subtitle-below, body)
 }
 
 // An organisation line via `name()`, linked when `url` is present
@@ -24,8 +24,7 @@
 // The compact term row: period and location at natural widths (no
 // column to align), then the organisation and `details` joined by
 // ` · `, so several short entries stay one line each. The
-// `entry.compact-gap` gaps are `em`, so scale with the row's smaller
-// text.
+// `entry.compact-gap` gaps are `em` of the row's text.
 #let _compact-term(period, location, org, org-url, details) = {
   let org = if _present(org) {
     _accent-strong(_link-if(org-url, org))

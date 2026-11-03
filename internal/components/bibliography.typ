@@ -4,7 +4,7 @@
 #import "../design/styles.typ": _treat
 #import "../design/theme.typ": _theme
 #import "../util/values.typ": _join-present
-#import "../primitives.typ": _link-if, _meta, _preamble, _small, styled-link
+#import "../primitives.typ": _link-if, _meta, _preamble, styled-link
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,
 // bold by default: the academic-CV convention); `none` when there are
@@ -37,8 +37,8 @@
 ) = {
   let lines = _join-present(
     (
-      _small(_author-line(authors)),
-      _small(source),
+      _author-line(authors),
+      source,
       _meta(date),
       _meta(_identifier-line(identifiers)),
       _preamble(summary),

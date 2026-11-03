@@ -7,13 +7,12 @@
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
-#import "../primitives.typ": _small
 
 #let _half-fill(accent) = gradient.linear(
   (accent, 0%),
   (accent, 50%),
-  (_theme.colour.empty-dot, 50%),
-  (_theme.colour.empty-dot, 100%),
+  (_theme.colour.border, 50%),
+  (_theme.colour.border, 100%),
 )
 
 // A label with `trailing` pushed to the right edge, then a line
@@ -45,7 +44,7 @@
       .map(i => dot(
         if value >= i { accent } else if value > i - 1 {
           _half-fill(accent)
-        } else { _theme.colour.empty-dot },
+        } else { _theme.colour.border },
       ))
       .join(h(gap * body-size)),
   )
@@ -56,5 +55,5 @@
 #let _rating-row(label, value, max: auto, fallback: none) = if (
   value != none
 ) { rating(label, value, max: max) } else {
-  _label-row(label, _small(fallback))
+  _label-row(label, fallback)
 }
