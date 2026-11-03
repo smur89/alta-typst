@@ -44,8 +44,9 @@
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
-// plain heading style whether or not it links. `tags-lead` is
-// inline text leading the `tags` pills (education's score).
+// plain heading style whether or not it links. `tags-lead` is a
+// line of its own above the `tags` pills (education's score), so it
+// doesn't read as one of them.
 //
 // `compact: true` folds the organisation and `details` (short facts
 // such as a credential ID) onto the date row instead of giving the
@@ -80,5 +81,5 @@
   }
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present((tags-lead, _tag-row(tags)), [ ])
+  _join-present((tags-lead, _tag-row(tags)), [\ ])
 }

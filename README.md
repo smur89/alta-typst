@@ -296,7 +296,7 @@ Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#s
 | `institution` | string | School name; the organisation. |
 | `url` | string | Links the institution. |
 | `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, leading the `courses` tags. |
+| `score` | string | Grade / classification, on its own line above the `courses` tags. |
 
 #### Projects
 
