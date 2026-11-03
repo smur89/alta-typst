@@ -121,6 +121,7 @@
 // imports this module, through `canonical.typ`.
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
+  _check-icon-names(prefs.projectIcons, "preferences.projectIcons")
   let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",

@@ -29,7 +29,7 @@
 })
 
 #let _projects(entries, ctx) = {
-  let (labels, ..) = ctx
+  let (labels, prefs, ..) = ctx
   let render(p) = _render-project(p, ctx)
 
   // Flat unless some entry has a usable `type`, so the common untyped
@@ -41,7 +41,12 @@
     _grouped-section(
       labels.projects,
       _group-by-type(entries, labels.otherProjects),
-      (group, _) => _icon-heading("folder", group),
+      // `projectIcons` is lowercase-keyed (`_canonical-preferences`); a
+      // group it doesn't map leads with no icon.
+      (group, _) => {
+        let icon-name = prefs.projectIcons.at(lower(group), default: none)
+        if icon-name == none { group } else { _icon-heading(icon-name, group) }
+      },
       render,
     )
   }

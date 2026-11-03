@@ -8,13 +8,17 @@
 #let _utility-icons = (
   book: "book",
   calendar: "calendar",
+  cubes: "cubes",
   email: "envelope",
   file: "file",
+  flask: "flask",
   folder: "folder",
+  laptop-code: "laptop-code",
   location: "location-dot",
   microphone: "microphone",
   newspaper: "newspaper",
   phone: "phone",
+  terminal: "terminal",
 )
 
 // Keys are lowercase to match `_profile-network` (`data/cv.typ`),
