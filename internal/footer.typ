@@ -4,7 +4,7 @@
 // on its own when content grows.
 
 #import "state.typ": _body_colour, _body_size_state
-#import "text.typ": _fill_template, _present, _present_str
+#import "text.typ": _field, _fill_template, _string_at
 
 #let _auto_page_footer(name, page-number) = context {
   let total = counter(page).final().first()
@@ -26,20 +26,18 @@
 // applies only when `pageFooter` is `none`.
 #let _resolve_page_footer(preferences, labels, meta, name) = {
   let page-footer = preferences.pageFooter
-  let last-modified = meta.at("lastModified", default: none)
+  let last-modified = _field(meta, "lastModified")
   if page-footer != none {
     if page-footer == "auto" {
       _auto_page_footer(name, labels.pageNumber)
     } else {
       page-footer
     }
-  } else if preferences.lastModifiedFooter and _present(last-modified) {
+  } else if preferences.lastModifiedFooter and last-modified != none {
     // `meta.version` is verbatim: the schema's own example already
     // carries the "v".
-    let version = meta.at("version", default: none)
-    let version-suffix = if (
-      preferences.footerVersion and _present_str(version)
-    ) {
+    let version = _string_at(meta, "version")
+    let version-suffix = if preferences.footerVersion and version != none {
       " (" + version + ")"
     } else { "" }
     context align(right, text(
