@@ -28,13 +28,14 @@
 #import "internal/design/styles.typ": _content_styles
 #import "internal/data/canonical.typ": _canonical_cv
 #import "internal/util/checks.typ": _check_unknown_keys
-#import "internal/util/fields.typ": _field, _fill_template, _string_at
+#import "internal/util/fields.typ": _field, _string_at
+#import "internal/util/values.typ": _fill_template
 #import "internal/util/dates.typ": _iso_datetime
 #import "sections/header.typ": _header, _intro
-#import "internal/components/footer.typ": _resolve_page_footer
+#import "sections/footer.typ": _resolve_page_footer
 #import "internal/data/sections.typ": _cv_keys, _read_sections
 #import "internal/registry.typ": _renderers
-#import "internal/options.typ": _merge_options
+#import "internal/data/options.typ": _merge_options
 #import "internal/data/json-resume.typ": from-json-resume
 
 // Generic silhouette, exposed as bytes so the `typst init` template

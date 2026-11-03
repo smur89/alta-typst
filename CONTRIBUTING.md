@@ -13,12 +13,14 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 
 ## Project layout
 
+[ARCHITECTURE.md](ARCHITECTURE.md) explains the layers, what each may import, and how a render flows; keep new code to it.
+
 ```text
 lib.typ           # public entry — re-exports + `alta()`
-internal/         # wiring (registry, options, render-time context) and the shared primitives and icons
+internal/         # wiring (the registry, render-time context) and the shared primitives and icons
 internal/util/    # generic helpers: field reads, joins, checks, date and location formatting
-internal/data/    # reading and checking the CV, labels and preferences
-internal/design/  # the theme, document-wide styles and palettes
+internal/data/    # reading and checking the CV, labels and preferences, and their defaults
+internal/design/  # the theme, document-wide styles, palettes and the icon set
 internal/components/ # the layout components sections map onto
 sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
@@ -116,14 +118,14 @@ PRs squash-merge with the PR title as the commit subject, so just make the **PR 
 
 This is the most common shape of contribution. Two changes:
 
-1. Add a row to `_network_icons` in `internal/data/icon-names.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
+1. Add a row to `_network_icons` in `internal/design/icon-set.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
-`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/data/icon-names.typ` so `fa-icon` is called with `solid: true`.
+`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/design/icon-set.typ` so `fa-icon` is called with `solid: true`.
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section_specs` in `internal/data/sections.typ` (column, and `read` / `items` when it isn't a plain entry array) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/options.typ`, validate it in `_validate_preferences` (`internal/data/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section_specs` in `internal/data/sections.typ` (column, and `read` / `items` when it isn't a plain entry array) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/data/defaults.typ`, validate it in `_validate_preferences` (`internal/data/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
 
 The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
 

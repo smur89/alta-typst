@@ -3,7 +3,7 @@
 
 #import "../design/styles.typ": _treat
 #import "../design/theme.typ": _theme
-#import "../util/fields.typ": _join_present
+#import "../util/values.typ": _join_present
 #import "../primitives.typ": _link_if, _meta, _preamble, _small, styled-link
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,

@@ -5,12 +5,11 @@
 // Helpers shape the fields into data; `_bib_entry` lays them out.
 
 #import "../internal/util/dates.typ": _format_date
-#import "../internal/util/fields.typ": (
-  _field, _join_present, _present_str, _string_at,
-)
+#import "../internal/util/fields.typ": _field, _string_at
+#import "../internal/util/values.typ": _group_by, _join_present, _present_str
 #import "../internal/primitives.typ": _icon_heading
 #import "../internal/components/bibliography.typ": _bib_entry
-#import "../internal/components/frame.typ": _group_by, _grouped_section
+#import "../internal/components/frame.typ": _grouped_section
 
 // `type` arrives trimmed (`_canonical_cv`); lowercasing makes `Talk`
 // and `talk` share a subheading, and untyped entries join `article`.

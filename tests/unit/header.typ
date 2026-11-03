@@ -1,12 +1,12 @@
 // Unit checks for the header's data stages in sections/header.typ,
 // including the QR URL resolution.
 
-#import "/internal/util/fields.typ": _url_encode
+#import "/internal/util/values.typ": _url_encode
+#import "/internal/data/options.typ": _merge_options
 #import "/sections/header.typ": (
   _contact_entries, _header_image, _linked_contacts, _profile_entry,
   _resolve_link_config, _resolve_qr_url,
 )
-#import "/internal/options.typ": _merge_options
 
 // _url_encode: RFC 3986 unreserved set kept, everything else
 // percent-encoded by UTF-8 byte.

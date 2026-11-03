@@ -2,9 +2,7 @@
 // with the date and location row beneath its heading.
 
 #import "../design/theme.typ": _theme
-#import "../util/dates.typ": _format_date_range
-#import "../util/fields.typ": _join_present, _present
-#import "../util/location.typ": _format_location
+#import "../util/values.typ": _join_present, _present
 #import "../primitives.typ": (
   _accent_strong, _link_if, _preamble, _small, _tag_row, _term_part, _term_row,
   name, term,
@@ -22,17 +20,6 @@
 #let _org_line(org, url: none) = if _present(org) {
   name(_link_if(url, org))
 }
-
-// A dated, located entry's `period` and `location`, for spreading into
-// `_entry`. `key` names the section in panic messages
-// ("education[].location").
-#let _entry_when(entry, key, prefs, labels) = (
-  period: _format_date_range(entry, prefs, labels),
-  location: _format_location(
-    entry.at("location", default: none),
-    key + "[].location",
-  ),
-)
 
 // The compact term row: period and location at natural widths (no
 // column to align), then the organisation and `details` joined by

@@ -4,10 +4,9 @@
 
 #import "../internal/util/dates.typ": _format_date_range
 #import "../internal/util/fields.typ": _field, _string_at
+#import "../internal/util/values.typ": _group_by
 #import "../internal/components/entry.typ": _entry
-#import "../internal/components/frame.typ": (
-  _group_by_type, _grouped_section, _section,
-)
+#import "../internal/components/frame.typ": _grouped_section, _section
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
 #let _render_project(project, (labels, prefs, ..)) = _entry(
@@ -20,6 +19,14 @@
   highlights: project.at("highlights", default: ()),
   tags: project.at("keywords", default: ()),
 )
+
+// Drives the `====` subheadings in projects. A
+// missing or non-string `type` pools under `fallback` rather than
+// crashing as a dict key.
+#let _group_by_type(items, fallback) = _group_by(items, item => {
+  let raw = _string_at(item, "type")
+  if raw != none { raw } else { fallback }
+})
 
 #let _projects(entries, ctx) = {
   let (labels, ..) = ctx

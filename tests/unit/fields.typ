@@ -1,11 +1,13 @@
-// Unit checks for internal/util/fields.typ, internal/util/location.typ
-// and the treatment resolver in internal/design/styles.typ.
+// Unit checks for the util helpers (internal/util/fields.typ,
+// values.typ, location.typ) and the treatment resolver in
+// internal/design/styles.typ.
 
 #import "/internal/design/styles.typ": _treat
-#import "/internal/util/fields.typ": (
-  _field, _fill_template, _join_present, _present, _present_str,
-)
+#import "/internal/util/fields.typ": _field
 #import "/internal/util/location.typ": _format_location
+#import "/internal/util/values.typ": (
+  _fill_template, _join_present, _present, _present_str,
+)
 
 // _present / _present_str: the three absent forms, and strings only.
 #for v in (none, "", []) { assert(not _present(v), message: repr(v)) }

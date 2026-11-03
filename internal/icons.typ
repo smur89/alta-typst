@@ -1,13 +1,13 @@
 // `icon()`: draws a logical icon name's FontAwesome glyph (the names
-// and glyphs are in `data/icon-names.typ`) at a fixed size.
+// and glyphs are in `design/icon-set.typ`) at a fixed size.
 // `@preview/fontawesome` resolves glyphs against the desktop FA fonts,
 // which are not vendored: users need them installed locally, or must
 // compile on typst.app, which preinstalls them.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
+#import "design/icon-set.typ": _icon_glyphs, _solid_names
 #import "design/theme.typ": _theme
 #import "context.typ": _body_size_state
-#import "data/icon-names.typ": _icon_glyphs, _solid_names
 
 // Emits a trailing `h(...)` so callers needn't space icons themselves.
 // The fixed-size box evens out FA's varied glyph widths, which would
