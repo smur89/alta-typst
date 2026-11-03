@@ -7,9 +7,17 @@
 // data with no imports.
 
 #import "presets.typ": maps-providers, palettes
+#import "icons.typ": _publication_icons
 #import "text.typ": _altacv
-#import "validation.typ": _check_section_entries
-#import "canonical.typ": _legacy_root_fields
+#import "defaults.typ": _default_labels
+#import "validation.typ": (
+  _check_section_entries, _strict_merge, _validate_labels,
+  _validate_preferences,
+)
+#import "canonical.typ": (
+  _canonical_labels, _canonical_preferences, _label_tables, _legacy_root_fields,
+  _preference_tables,
+)
 #import "../sections/experience.typ": _experience, _volunteer
 #import "../sections/focus-areas.typ": _focus_areas
 #import "../sections/skills.typ": _interests, _skills
@@ -109,4 +117,27 @@
   // `references[].availableOnRequest` entry.
   referencesAvailableOnRequest: false,
   maxRating: 5,
+  publicationIcons: _publication_icons,
 )
+
+// The caller's `labels` and `preferences`, each canonicalised before
+// its merge over the defaults and validated after it. The raw labels
+// go to `_canonical_preferences`, which folds in the deprecated
+// `labels.publicationIcons`.
+#let _merge_options(labels, preferences) = {
+  let merged-labels = _strict_merge(
+    _default_labels,
+    _canonical_labels(labels),
+    "labels",
+    tables: _label_tables,
+  )
+  _validate_labels(merged-labels)
+  let merged-preferences = _strict_merge(
+    _default_preferences,
+    _canonical_preferences(preferences, labels),
+    "preferences",
+    tables: _preference_tables,
+  )
+  _validate_preferences(merged-preferences, _sections.keys())
+  (labels: merged-labels, preferences: merged-preferences)
+}

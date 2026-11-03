@@ -347,7 +347,7 @@
   // Papers`, plus one untyped entry that falls into the default
   // `labels.articles` group. Each rendered subheading carries its
   // type-specific icon (newspaper / book / microphone / newspaper /
-  // newspaper) — see `_default_publication_icons` in lib.typ.
+  // newspaper) — see the README's "Publication icons".
   publications: (
     (
       name: "Event Sourcing in Practice",

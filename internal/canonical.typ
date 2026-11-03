@@ -3,6 +3,7 @@
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
+#import "validation.typ": _check_icon_names
 #import "text.typ": (
   _altacv_ns, _dict_or_empty, _field, _present, _reference_usable, _string_at,
 )
@@ -25,8 +26,7 @@
   talks: "talk",
 )
 
-// #239: icons for deprecated free-text publication types, seeded under
-// the caller's `publicationIcons`.
+// #239: icons for deprecated free-text publication types.
 #let _legacy_publication_icons = (
   "blog posts": "newspaper",
   "blog post": "newspaper",
@@ -38,7 +38,10 @@
   paper: "newspaper",
 )
 
-#let _case_insensitive_tables = ("publicationTypes", "publicationIcons")
+// Tables matched case-insensitively and merged entry by entry over
+// their defaults (`_strict_merge`'s `tables`).
+#let _label_tables = ("publicationTypes",)
+#let _preference_tables = ("publicationIcons",)
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -120,13 +123,13 @@
 ).fold(cv, (acc, step) => step(acc))
 
 // Panics when two keys collapse onto one (`Talks` + `talks`) rather
-// than letting the last silently win.
+// than letting the last silently win. `name` is the table's full path
+// (`labels.publicationTypes`), for the message.
 #let _lowercase_table(table, name) = {
   let keys = table.keys()
   if keys.map(lower).dedup().len() != keys.len() {
     panic(
-      "labels."
-        + name
+      name
         + " has keys that collide after lowercasing — "
         + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
         + "Source keys: "
@@ -142,19 +145,44 @@
   overrides
 } else {
   let table(name) = overrides.at(name, default: (:))
-  let tables = _case_insensitive_tables
+  let tables = _label_tables
     .filter(t => type(table(t)) == dictionary)
-    .map(t => (t, _lowercase_table(table(t), t)))
+    .map(t => (t, _lowercase_table(table(t), "labels." + t)))
     .to-dict()
   let types = tables.at("publicationTypes", default: table("publicationTypes"))
-  let icons = tables.at("publicationIcons", default: table("publicationIcons"))
   // #239: a set `labels.articles` heads `article`, unless
   // `publicationTypes.article` is set too.
   let articles = if "articles" in overrides and type(types) == dictionary {
     (publicationTypes: (article: overrides.articles) + types)
   } else { (:) }
-  let legacy-icons = if type(icons) == dictionary {
-    (publicationIcons: _legacy_publication_icons + icons)
-  } else { (:) }
-  overrides + tables + articles + legacy-icons
+  overrides + tables + articles
+}
+
+// Runs before the merge over the defaults. #239: the deprecated
+// free-text icons, then a set `labels.publicationIcons`, sit beneath
+// the caller's `publicationIcons`, all lowercased, so the merge sees
+// one table. Only the caller's own icon names are checked: the
+// deprecated label's are left to fail where used, as they always
+// have. A non-dictionary (overall or as the table) passes through for
+// `_strict_merge` to reject.
+#let _canonical_preferences(overrides, labels) = {
+  let icons = if type(overrides) == dictionary {
+    overrides.at("publicationIcons", default: (:))
+  }
+  if type(icons) != dictionary { overrides } else {
+    _check_icon_names(icons, "preferences.publicationIcons")
+    let label-icons = _dict_or_empty(labels).at(
+      "publicationIcons",
+      default: none,
+    )
+    let from-label = if type(label-icons) == dictionary {
+      _lowercase_table(label-icons, "labels.publicationIcons")
+    } else { (:) }
+    let merged = (
+      _legacy_publication_icons
+        + from-label
+        + _lowercase_table(icons, "preferences.publicationIcons")
+    )
+    overrides + (publicationIcons: merged)
+  }
 }

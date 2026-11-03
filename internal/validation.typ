@@ -4,6 +4,7 @@
 // code that consumes them, as they apply only when the field is set.
 
 #import "dates.typ": _date_format_aliases
+#import "icons.typ": _icon_glyphs
 #import "qr.typ": _check_qr_code
 #import "text.typ": _placeholder_re
 
@@ -38,18 +39,18 @@
   }
 }
 
-// Unknown keys panic rather than being silently absorbed. With
-// `nested: true`, a dictionary default (a label table such as
-// `publicationTypes`) merges key by key, so a partial override keeps
-// the rest.
-#let _strict_merge(defaults, overrides, name, nested: false) = {
+// Unknown keys panic rather than being silently absorbed. The keys
+// named in `tables` (`labels.publicationTypes`) hold dictionaries that
+// merge entry by entry, so a partial override keeps the rest; any
+// other key is replaced whole, dictionary or not (`margin`).
+#let _strict_merge(defaults, overrides, name, tables: ()) = {
   if type(overrides) != dictionary {
     panic(name + " must be a dictionary, got: " + repr(overrides))
   }
   _check_unknown_keys(overrides.keys(), defaults.keys(), name)
   let merge-key(key, value) = {
     let default = defaults.at(key)
-    if nested and type(default) == dictionary {
+    if key in tables {
       _require(
         name + "." + key,
         value,
@@ -290,7 +291,21 @@
   entries
 }
 
+// Checked up front, as `icon()` would fail on a bare missing key.
+// `name` is the table's full path, for the message.
+#let _check_icon_names(table, name) = for (code, icon-name) in table {
+  _check_enum(name + "." + code, icon-name, _icon_glyphs.keys())
+}
+
 #let _validate_labels(labels) = {
+  // Deprecated (#239), and merged into the preference's icons by
+  // `_canonical_preferences`, which needs a dictionary.
+  _check_type(
+    "labels.publicationIcons",
+    labels.publicationIcons,
+    (dictionary,),
+    "a dictionary",
+  )
   let lang = labels.lang
   if type(lang) != str or lang.match(_lang_re) == none {
     panic(

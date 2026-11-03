@@ -68,8 +68,7 @@ patent  = "Patents"
 thesis  = "Theses"
 talk    = "Talks"
 
-# Icon names per `publications[].type`, matched case-insensitively.
-# Built-ins live in `_code_publication_icons` (`sections/
-# publications.typ`) and `_legacy_publication_icons`
-# (`internal/canonical.typ`); unknown types fall back to `file`.
+# Deprecated for `preferences.publicationIcons`: icons are styling,
+# not text to translate. Still honoured beneath the preference, which
+# wins key by key; removed in the next major (#239).
 [publicationIcons]

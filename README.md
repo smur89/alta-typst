@@ -398,7 +398,7 @@ A verbatim `resume.json` round-trips without panicking — fields altacv doesn't
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-`cv` is the data dict; `labels` and `preferences` are partial dicts merged over the built-in defaults: a key you set replaces the default, except the label tables `publicationTypes` and `publicationIcons`, which merge entry by entry. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
+`cv` is the data dict; `labels` and `preferences` are partial dicts merged over the built-in defaults: a key you set replaces the default, except `labels.publicationTypes` and `preferences.publicationIcons`, which merge entry by entry. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
 
 ### Preferences
 
@@ -430,8 +430,27 @@ Override any subset of the keys below.
 | `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
 | `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
 | `maxRating` | `5` | Number of dots on the language scale. Positive integer. Set `6` for a CEFR-style scale, `4` for ILR-style, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half. |
+| `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 
 Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
+
+#### Publication icons
+
+`preferences.publicationIcons` maps `publications[].type` values to the icon leading their subheading, matched case-insensitively. Values are names from the built-in icon set (the keys `icon()` accepts, e.g. `"book"`, `"microphone"`, `"newspaper"`, `"file"`); an unknown name panics. The dict merges entry by entry over the built-ins, so set only a custom type or a remapped one:
+
+```typst
+#alta(cv, preferences: (publicationIcons: (patent: "book", podcast: "microphone")))
+```
+
+| `type` value | Built-in icon |
+|---|---|
+| `article` / `articles` / `blog post` / `blog posts` | `newspaper` |
+| `book` / `books` / `thesis` / `theses` | `book` |
+| `talk` / `talks` / `presentation` / `presentations` | `microphone` |
+| `paper` / `papers` / `conference paper` / `conference papers` | `newspaper` |
+| anything else | `file` |
+
+The plural and free-text keys exist for the deprecated free-text `type` headings.
 
 #### Examples
 
@@ -522,7 +541,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `documentTitle` | `"{name} — CV"` |
 | `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
 | `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")` |
-| `publicationIcons` | `(:)` |
+| `publicationIcons` | `(:)` (deprecated, see below) |
 
 `labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
 
@@ -532,17 +551,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 
 `labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively; untyped entries use `article`. Overrides layer over the defaults, so a translation sets just the codes it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge")`. A type with no entry prints as given.
 
-`labels.publicationIcons` maps `publications[].type` values to icon names. Built-in defaults (case-insensitive, singular and plural both accepted):
-
-| `type` value | Icon |
-|---|---|
-| `article` / `articles` / `blog post` / `blog posts` | `newspaper` |
-| `book` / `books` / `thesis` / `theses` | `book` |
-| `talk` / `talks` / `presentation` / `presentations` | `microphone` |
-| `paper` / `papers` / `conference paper` / `conference papers` | `newspaper` |
-| anything else | `file` |
-
-The supplied dict layers over the defaults rather than replacing them — override only to add a custom type or remap a built-in. The plural and free-text keys exist for the deprecated free-text `type` headings. `patent` has no dedicated icon, so it uses `file`.
+`labels.publicationIcons` is deprecated: icons are styling, not text to translate, so they moved to [`preferences.publicationIcons`](#publication-icons). A set label table is still honoured, beneath the preference, which wins key by key; it is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 Example — German, plus renaming "Skills" to "Core Technologies":
 
@@ -573,7 +582,7 @@ The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a 
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` and `publicationIcons` merge entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` merges entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ## Header QR code (`preferences.qrCode`)
 
