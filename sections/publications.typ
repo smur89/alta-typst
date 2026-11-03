@@ -2,16 +2,12 @@
 // icon-led subheadings named from `labels.publicationTypes`, or as
 // first written for unknown codes. The CV owner is bold among
 // `authors`; `identifiers` give an unlinked title somewhere to point.
+// Helpers shape the fields into data; `_bib_entry` lays them out.
 
-#import "../internal/state.typ": _body_size_state
-#import "../internal/theme.typ": _theme
-#import "../internal/text.typ": (
-  _field, _join_present, _present_str, _string_at, styled-link,
-)
+#import "../internal/text.typ": _field, _join_present, _present_str, _string_at
 #import "../internal/primitives.typ": (
-  _group_by, _grouped_section, _meta, _preamble, _small,
+  _bib_entry, _group_by, _grouped_section, _icon_heading,
 )
-#import "../internal/icons.typ": icon
 #import "../internal/dates.typ": _format_date
 
 // Extended via `labels.publicationIcons`; anything unmatched,
@@ -52,22 +48,24 @@
     .map(((scheme, id)) => (lower(scheme), id))
 }
 
-#let _identifier_url(ids) = {
-  let by-scheme = ids.to-dict()
-  let hit = _identifier_schemes
-    .pairs()
-    .find(((scheme, s)) => s.url != none and scheme in by-scheme)
-  if hit != none { hit.at(1).url + by-scheme.at(hit.at(0)) }
-}
+// One `(scheme, name, id, url)` per identifier, `url` being `none`
+// for a scheme that doesn't link.
+#let _identifier_refs(ids) = ids.map(((scheme, id)) => {
+  let s = _identifier_scheme(scheme)
+  (scheme: scheme, name: s.name, id: id, url: if s.url != none { s.url + id })
+})
 
-#let _identifier_line(ids) = (
-  ids
-    .map(((scheme, id)) => {
-      let s = _identifier_scheme(scheme)
-      [#s.name #if s.url == none { id } else { link(s.url + id, id) }]
-    })
-    .join[ · ]
-)
+// An unlinked title's destination: the first linkable ref in
+// `_identifier_schemes` order, whatever order the data lists them in.
+// Of two refs sharing a scheme (`DOI` and `doi`), the last wins.
+#let _identifier_url(refs) = {
+  let linkable = refs.rev().filter(r => r.url != none)
+  let hit = _identifier_schemes
+    .keys()
+    .map(k => linkable.find(r => r.scheme == k))
+    .find(r => r != none)
+  if hit != none { hit.url }
+}
 
 // Journal-style `12(3), 45–67`; each part takes its punctuation with
 // it, and hyphens in `pages` become one en dash.
@@ -84,18 +82,18 @@
   )
 }
 
-// The entry matching `owner` (`basics.name`, ignoring case and
-// surrounding spaces) is bold, the academic-CV convention.
-#let _author_line(pub, owner) = {
+// `authors` in published order, trimmed, unusable entries dropped,
+// each flagged when it's `owner` (`basics.name`, ignoring case and
+// surrounding spaces). Empty when `authors` isn't an array.
+#let _authors(pub, owner) = {
   let authors = pub.at("authors", default: ())
-  if type(authors) != array { return none }
+  if type(authors) != array { return () }
   let owner-key = if _present_str(owner) { lower(owner.trim()) }
   authors
     .filter(a => type(a) == str)
     .map(a => a.trim())
     .filter(_present_str)
-    .map(a => if lower(a) == owner-key { strong(a) } else { a })
-    .join(", ")
+    .map(a => (name: a, owner: lower(a) == owner-key))
 }
 
 #let _source(pub) = _join_present(
@@ -103,24 +101,18 @@
   " ",
 )
 
-// One bibliography line per publication: the linked title, then
-// authors, source, date, identifiers and summary, each on its own
-// line. Absent lines drop out so none leaves an orphan `\` break.
 #let _render_publication(pub, (labels, prefs, owner, ..)) = {
-  let ids = _identifiers(pub)
+  let refs = _identifier_refs(_identifiers(pub))
   let url = _field(pub, "url")
-  let dest = if url != none { url } else { _identifier_url(ids) }
-  let lines = _join_present(
-    (
-      _small(_author_line(pub, owner)),
-      _small(_source(pub)),
-      _meta(_format_date(_field(pub, "releaseDate"), prefs, labels)),
-      _meta(_identifier_line(ids)),
-      _preamble(_field(pub, "summary")),
-    ),
-    [\ ],
+  _bib_entry(
+    pub.name,
+    url: if url != none { url } else { _identifier_url(refs) },
+    authors: _authors(pub, owner),
+    source: _source(pub),
+    date: _format_date(_field(pub, "releaseDate"), prefs, labels),
+    identifiers: refs,
+    summary: _field(pub, "summary"),
   )
-  [- #styled-link(pub.name, dest: dest). #if lines != none [\ #lines]]
 }
 
 // Label tables arrive lowercase-keyed (`_canonical_labels`). Icons
@@ -143,11 +135,7 @@
       let heading = if code in headings { headings.at(code) } else {
         items.first().type
       }
-      // Read in context: `em` inside the heading is already scaled.
-      [#context icon(
-          group-icon,
-          size: _theme.size.subheading * _body_size_state.get(),
-        ) #heading]
+      _icon_heading(group-icon, heading)
     },
     pub => _render_publication(pub, ctx),
     dividers: false,
