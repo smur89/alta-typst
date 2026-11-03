@@ -87,13 +87,22 @@
   org: "Acme",
   org-url: "https://acme.example.com",
   subtitle: "Platform team",
-  roles: ("Lead", "Architect"),
+  // The empty role and keyword drop out rather than leave a separator.
+  roles: ("", "Lead", "Architect"),
   period: "Jan 2022 – Present",
   location: "Dublin, IE",
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
   keywords-lead: "First class",
-  keywords: ("Scala", "Kafka"),
+  keywords: ("Scala", "", "Kafka"),
+))
+
+= Entry: in a narrow column, the date and location on lines of their own
+#block(width: 30%, _entry(
+  title: "Staff Engineer",
+  org: "Acme",
+  period: "Jan 2022 – Present",
+  location: "Dublin, IE",
 ))
 
 = Entry: issuer and details
@@ -128,12 +137,16 @@
   summary: [What the paper is about.],
 )
 
-= Keyword rows, the second wrapping under its first keyword
+= Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing
 #block(width: 60%, _keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
   (
     name: "Infra",
     keywords: ("Kafka", "Kubernetes", "Terraform", "AWS", "Docker", "Helm"),
+  ),
+  (
+    name: "Infrastructure and Platform Engineering Tooling",
+    keywords: ("Kafka", "Kubernetes", "Terraform"),
   ),
 )))
 

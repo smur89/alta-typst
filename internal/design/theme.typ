@@ -84,14 +84,15 @@
       group: (above: sp.small, below: sp.small, weight: fw.bold),
     ),
     column-gutter: 12pt,
-    // `name-below` scales with body size (`name()` is public); the rest
-    // are `em`.
+    // `name-below` (`name()` is public), `row-gap` and `facts-below`
+    // scale with body size; the rest are `em`.
     entry: (
       name-below: sp.small,
       subtitle-below: sp.small * 1em,
-      // Under the facts line (organisation · location), before the
-      // summary.
-      facts-below: sp.medium * 1em,
+      // Between the title row and the facts row (organisation ·
+      // roles), and under the facts row, before the summary.
+      row-gap: sp.small,
+      facts-below: sp.medium,
       // Between a title and the date at its right edge; the date takes
       // a line of its own past `date-max` of the column.
       date-gap: sp.medium * 1em,
@@ -111,8 +112,10 @@
       label-weight: fw.bold,
     ),
     divider: (gap: sp.x-small, dash: "dashed", clearance: 0.5cm),
-    // A skill group's label pill and its keywords.
-    keyword-row: (gap: sp.medium, dash: "–"),
+    // A skill group's label pill and its keywords; wrapped keywords
+    // hang under the first unless the label is past `indent-max` of
+    // the column.
+    keyword-row: (gap: sp.medium, dash: "–", indent-max: 50%),
     header: (
       name-below: sp.large,
       pronouns-gap: sp.small,

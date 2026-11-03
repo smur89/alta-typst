@@ -61,12 +61,18 @@
   )
 }
 
-// Half the row each, so a period lines up with a location column.
-#let _term-part(icon-name, body) = if _present(body) {
-  box(width: 50%, {
+// `body` led by its icon, kept on one line; absent bodies render
+// nothing, so no stray icon.
+#let _icon-fact(icon-name, body) = if _present(body) {
+  box({
     icon(icon-name)
     body
   })
+}
+
+// Half the row each, so a period lines up with a location column.
+#let _term-part(icon-name, body) = if _present(body) {
+  box(width: 50%, _icon-fact(icon-name, body))
 }
 
 // An absent side is skipped, so undated or unlocated entries don't
