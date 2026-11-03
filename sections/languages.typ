@@ -38,4 +38,5 @@
     max: prefs.maxRating,
     fallback: _string-at(lang, "fluency"),
   ),
+  dividers: false,
 )

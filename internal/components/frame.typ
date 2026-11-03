@@ -18,10 +18,14 @@
     .join(if dividers { divider() })
 )
 
-#let _section(heading, entries, render-entry) = _section-frame(
-  heading,
-  entries,
-  _entry-blocks(entries, render-entry),
+// `dividers: false` for short, uniform entries, where rules would
+// outweigh the content.
+#let _section(heading, entries, render-entry, dividers: true) = (
+  _section-frame(
+    heading,
+    entries,
+    _entry-blocks(entries, render-entry, dividers: dividers),
+  )
 )
 
 // `_section` with entries clustered under `====` subheadings, one per

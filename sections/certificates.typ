@@ -24,4 +24,5 @@
     ),
     summary: _field(cert, "summary"),
   ),
+  dividers: false,
 )
