@@ -25,7 +25,7 @@
     body: (size: 1, weight: "regular"),
   ),
   // To embolden within a role.
-  font-weight: (regular: "regular", semibold: "semibold", bold: "bold"),
+  font-weight: (regular: "regular", bold: "bold"),
   // Bootstrap's colour roles; `secondary` and `border` derive from
   // `body` unless set.
   colour: (body: "#666666", emphasis: "#2E2E2E"),
