@@ -5,29 +5,37 @@
 // Honeywood) and rewritten around a JSON Resume-style data dict.
 //
 // Public entry: `alta(cv, ...)` plus the helpers in the README.
-// `internal/` holds shared infrastructure; `sections/` one renderer per
-// CV section, dispatched from `internal/layout.typ`'s `_sections`.
+// `sections/` has one renderer per CV part, mapping it onto
+// `internal/components/`; the column sections are bound in
+// `internal/registry.typ`. `internal/data/` reads and checks the CV,
+// labels and preferences, `internal/design/` holds the theme, and
+// `internal/util/` the generic helpers.
 //
 // Every colour, size and gap, and the sizing rule they follow, live
-// in `internal/theme.typ`.
+// in `internal/design/theme.typ`.
 
-#import "internal/presets.typ": maps-providers, palettes
-#import "internal/state.typ": _accent_state, _body_size_state, _max_rating_state
-#import "internal/theme.typ": _theme
-#import "internal/styles.typ": _content_styles
-#import "internal/canonical.typ": _canonical_cv
-#import "internal/validation.typ": _check_unknown_keys
-#import "internal/text.typ": _field, _fill_template, _string_at, styled-link
+// Public API, re-exported: the presets and the helpers for custom
+// layouts (see the README's Helpers section).
+#import "internal/data/defaults.typ": maps-providers
+#import "internal/design/presets.typ": palettes
+#import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
-#import "internal/primitives.typ": divider, name, tag, term
-#import "internal/ratings.typ": rating
-#import "internal/dates.typ": _iso_datetime
-#import "sections/header.typ": _header, _intro
-#import "internal/footer.typ": _resolve_page_footer
-#import "internal/layout.typ": (
-  _cv_keys, _merge_options, _read_sections, _sections,
+#import "internal/components/ratings.typ": rating
+#import "internal/design/state.typ": (
+  _accent_state, _body_size_state, _max_rating_state,
 )
-#import "internal/json-resume.typ": from-json-resume
+#import "internal/design/theme.typ": _theme
+#import "internal/design/styles.typ": _content_styles
+#import "internal/data/canonical.typ": _canonical_cv
+#import "internal/util/checks.typ": _check_unknown_keys
+#import "internal/util/fields.typ": _field, _fill_template, _string_at
+#import "internal/util/dates.typ": _iso_datetime
+#import "sections/header.typ": _header, _intro
+#import "internal/components/footer.typ": _resolve_page_footer
+#import "internal/data/sections.typ": _cv_keys, _read_sections
+#import "internal/registry.typ": _renderers
+#import "internal/options.typ": _merge_options
+#import "internal/data/json-resume.typ": from-json-resume
 
 // Generic silhouette, exposed as bytes so the `typst init` template
 // (and any consumer) gets a working `basics.image` without its own SVG.
@@ -122,7 +130,7 @@
   let ctx = (labels: labels, prefs: preferences, owner: cv.basics.name)
   let render-column(keys) = {
     for key in keys {
-      (_sections.at(key).render)(section-data.at(key), ctx)
+      (_renderers.at(key))(section-data.at(key), ctx)
     }
   }
 

@@ -5,13 +5,12 @@
 // render anonymously. Contact details stay out, as JSON Resume
 // intends.
 
-#import "../internal/text.typ": (
-  _field, _on_request, _reference_usable, _string_at,
-)
+#import "../internal/util/dates.typ": _format_date
+#import "../internal/util/fields.typ": _field, _string_at
+#import "../internal/data/cv.typ": _on_request, _reference_usable
 #import "../internal/primitives.typ": _fact_line, _preamble
-#import "../internal/components/frame.typ": _section, _section_frame
 #import "../internal/components/entry.typ": _entry
-#import "../internal/dates.typ": _format_date
+#import "../internal/components/frame.typ": _section, _section_frame
 
 // Who, then when, each part optional: "Manager, Pied Piper · 2024".
 #let _attribution(entry, prefs, labels) = {

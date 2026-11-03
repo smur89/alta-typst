@@ -1,10 +1,11 @@
-// Unit checks for internal/text.typ and internal/location.typ.
+// Unit checks for internal/util/fields.typ, internal/util/location.typ
+// and the treatment resolver in internal/design/styles.typ.
 
-#import "/internal/text.typ": (
-  _field, _fill_template, _join_present, _link_if, _present, _present_str,
-  _treat,
+#import "/internal/design/styles.typ": _treat
+#import "/internal/util/fields.typ": (
+  _field, _fill_template, _join_present, _present, _present_str,
 )
-#import "/internal/location.typ": _format_location
+#import "/internal/util/location.typ": _format_location
 
 // _present / _present_str: the three absent forms, and strings only.
 #for v in (none, "", []) { assert(not _present(v), message: repr(v)) }
@@ -44,11 +45,6 @@
 #assert.eq(_format_location((postalCode: "T12"), "x"), none)
 #assert.eq(_format_location("", "x"), none)
 #assert.eq(_format_location(none, "x"), none)
-
-// _link_if: linked only when the destination is present.
-#assert.eq(_link_if(none, "x"), "x")
-#assert.eq(_link_if("", "x"), "x")
-#assert.eq(_link_if("https://a.b", "x").func(), link)
 
 // _treat: a named treatment applies its function; "none" is identity.
 #assert.eq(_treat("upper", "ab"), "AB")

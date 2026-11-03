@@ -1,7 +1,7 @@
 // The template's look in one place: colours, the type scale,
 // separators, and each component's gaps, line weights and type
 // treatment. Data only, so it could come from a file: treatments are
-// named (`"emph"`, `"strong"`, `"upper"`) and `_treat` (`text.typ`)
+// named (`"emph"`, `"strong"`, `"upper"`) and `_treat` (`styles.typ`)
 // applies them. `styles.typ` applies the document-wide rules.
 //
 // Sizes scale with the body size. Unitless numbers are multiples of

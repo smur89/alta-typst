@@ -1,5 +1,5 @@
 # Default labels — every display string the template emits, loaded by
-# `internal/defaults.typ`. Override any subset via `alta(labels: ...)`;
+# `internal/data/defaults.typ`. Override any subset via `alta(labels: ...)`;
 # unknown keys panic.
 #
 # Keys mirror JSON Resume's section keys; values are editorial

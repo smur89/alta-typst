@@ -6,7 +6,8 @@
 // soft row break) renders without a trailing gutter. Default behaviour
 // (trailing: true) is unchanged.
 
-#import "../lib.typ": alta, tag
+#import "../internal/primitives.typ": tag
+#import "../lib.typ": alta
 
 #alta((
   basics: (name: "Jane Doe", email: "jane@example.com"),

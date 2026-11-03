@@ -1,9 +1,10 @@
 // The bibliography list item publications map onto, and the line
 // builders for its author and identifier records.
 
-#import "../theme.typ": _theme
-#import "../text.typ": _join_present, _treat, styled-link
-#import "../primitives.typ": _meta, _preamble, _small
+#import "../design/styles.typ": _treat
+#import "../design/theme.typ": _theme
+#import "../util/fields.typ": _join_present
+#import "../primitives.typ": _link_if, _meta, _preamble, _small, styled-link
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,
 // bold by default: the academic-CV convention); `none` when there are
@@ -19,9 +20,7 @@
 // `(name, id, url)` records as `name id`, the id linked when `url` is
 // set; `none` when there are none.
 #let _identifier_line(refs) = (
-  refs
-    .map(r => [#r.name #if r.url == none { r.id } else { link(r.url, r.id) }])
-    .join(_theme.separator.facts)
+  refs.map(r => [#r.name #_link_if(r.url, r.id)]).join(_theme.separator.facts)
 )
 
 // One bibliography list item: the title (linked to `url`), then

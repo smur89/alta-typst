@@ -12,7 +12,8 @@
 //        demonstrates that the template doesn't have to come from
 //        `maps-providers`.
 
-#import "../lib.typ": alta, maps-providers
+#import "../internal/data/defaults.typ": maps-providers
+#import "../lib.typ": alta
 
 #alta(
   (

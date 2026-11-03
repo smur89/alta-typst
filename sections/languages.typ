@@ -1,9 +1,9 @@
 // Languages: rating dots when `_resolve_rating` gives a number, else
 // the `fluency` text alone (one not in `_fluency_rating`).
 
-#import "../internal/text.typ": _field
+#import "../internal/util/fields.typ": _field
 #import "../internal/components/frame.typ": _section
-#import "../internal/ratings.typ": _language_row
+#import "../internal/components/ratings.typ": _language_row
 
 #let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,

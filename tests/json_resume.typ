@@ -2,7 +2,8 @@
 // strict-coerced output and what altacv's sections consume fails the
 // build instead of slipping past one half of the contract.
 
-#import "../lib.typ": alta, from-json-resume
+#import "../internal/data/json-resume.typ": from-json-resume
+#import "../lib.typ": alta
 
 #let resume = from-json-resume((
   basics: (

@@ -1,8 +1,8 @@
 // JSON Resume's `location` (a string or the shared dict), collapsed
 // one way for every caller so a location reads the same everywhere.
 
-#import "text.typ": _present
-#import "validation.typ": _check_unknown_keys
+#import "checks.typ": _check_unknown_keys
+#import "fields.typ": _field, _join_present, _present
 
 // `address` / `postalCode` are accepted but not rendered — a CV isn't
 // a mailing label. Absent values become `none`, so callers' `!= none`
@@ -28,9 +28,8 @@
     )
   }
   _check_unknown_keys(value.keys(), _location_fields, what)
-  let parts = _location_display_order
-    .map(k => value.at(k, default: none))
-    .filter(_present)
-  if parts.len() == 0 { return none }
-  parts.join(", ")
+  _join_present(
+    _location_display_order.map(k => _field(value, k)),
+    ", ",
+  )
 }

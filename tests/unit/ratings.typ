@@ -1,6 +1,6 @@
-// Unit checks for fluency resolution in internal/ratings.typ.
+// Unit checks for fluency resolution in internal/components/ratings.typ.
 
-#import "/internal/ratings.typ": _resolve_rating
+#import "/internal/components/ratings.typ": _resolve_rating
 
 // LinkedIn fluency scales to the dot count, rounded to the half
 // (Full Professional is 0.8: 3.2 of 4 rounds to 3, 4.8 of 6 to 5).

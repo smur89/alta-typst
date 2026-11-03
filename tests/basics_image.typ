@@ -21,7 +21,7 @@
     name: "Path User",
     label: "path() form",
     email: "path@example.com",
-    // Resolved against THIS file, not the package's internal/header.typ where image() runs.
+    // Resolved against THIS file, not the package's internal/primitives.typ where image() runs.
     image: path("../assets/avatar-placeholder.svg"),
   ),
 ))

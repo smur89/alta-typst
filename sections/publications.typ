@@ -4,11 +4,13 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib_entry` lays them out.
 
-#import "../internal/text.typ": _field, _join_present, _present_str, _string_at
+#import "../internal/util/dates.typ": _format_date
+#import "../internal/util/fields.typ": (
+  _field, _join_present, _present_str, _string_at,
+)
 #import "../internal/primitives.typ": _icon_heading
-#import "../internal/components/frame.typ": _group_by, _grouped_section
 #import "../internal/components/bibliography.typ": _bib_entry
-#import "../internal/dates.typ": _format_date
+#import "../internal/components/frame.typ": _group_by, _grouped_section
 
 // `type` arrives trimmed (`_canonical_cv`); lowercasing makes `Talk`
 // and `talk` share a subheading, and untyped entries join `article`.

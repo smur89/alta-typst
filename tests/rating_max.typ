@@ -4,7 +4,8 @@
 // row uses the default, the enclosing `alta()`'s five. The rows ride
 // `focusAreas`, which takes content, so they render inside the CV.
 
-#import "../lib.typ": alta, rating
+#import "../internal/components/ratings.typ": rating
+#import "../lib.typ": alta
 
 #alta(
   (

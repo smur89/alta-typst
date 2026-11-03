@@ -2,9 +2,9 @@
 // absent; `courses` render as pills like other string arrays, inline
 // after the score.
 
-#import "../internal/text.typ": _field
-#import "../internal/components/frame.typ": _section
+#import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry, _entry_when
+#import "../internal/components/frame.typ": _section
 
 #let _education(entries, (labels, prefs, ..)) = _section(
   labels.education,

@@ -3,9 +3,9 @@
 // single-page documents via the reactive page counter, so it returns
 // on its own when content grows.
 
-#import "state.typ": _body_size_state
-#import "theme.typ": _theme
-#import "text.typ": _field, _fill_template, _string_at
+#import "../design/state.typ": _body_size_state
+#import "../design/theme.typ": _theme
+#import "../util/fields.typ": _field, _fill_template, _string_at
 
 // Both footers' text: small, in the body colour. Called in `context`,
 // which supplies `body-size`.
