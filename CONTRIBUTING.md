@@ -33,7 +33,7 @@ tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fiel
 
 Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ` for a quick directory.
 
-Names are kebab-case throughout, as in Typst's own library (`styled-link`, `_page-header`), and modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
+Identifiers are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); JSON Resume and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Development loop
 
