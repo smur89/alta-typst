@@ -8,7 +8,7 @@
 // abbreviated Irish month names.
 //
 // Build locally with:
-//   typst compile --root .. example_ga.typ example_ga.pdf
+//   typst compile --root .. example-ga.typ example-ga.pdf
 
 #import "../lib.typ": alta
 

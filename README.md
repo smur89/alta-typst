@@ -41,7 +41,7 @@
 
 ## Gallery
 
-Every documented section rendered in a single multi-page CV. Source: [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example_full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
+Every documented section rendered in a single multi-page CV. Source: [`examples/example-full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
 
 | Page 1 | Page 2 |
 | :---: | :---: |
@@ -133,7 +133,7 @@ Best when you want the CV data in Typst alongside the call. Import into an exist
 ```
 <!-- x-release-please-end -->
 
-For a multi-page demo exercising every section and input form, see [`examples/example_full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example_full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
+For a multi-page demo exercising every section and input form, see [`examples/example-full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
 
 ## Fonts
 
@@ -618,7 +618,7 @@ The defaults live in [`internal/data/labels-en.toml`](internal/data/labels-en.to
 #alta(cv, labels: toml("labels-ga.toml"))
 ```
 
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` merges entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example_ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example_ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
+`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` merges entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example-ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
 
 ## Header QR code (`preferences.qrCode`)
 
@@ -694,7 +694,7 @@ The contact bar is rendered from `basics.email`, `basics.phone`, `basics.locatio
 ## Building the examples
 
 ```sh
-typst compile --root . examples/example_full.typ examples/example_full.pdf
+typst compile --root . examples/example-full.typ examples/example_full.pdf
 ```
 
 To regenerate the preview artefacts (the canonical CV render, the animated GIF that cycles through preference variations, the multi-page gallery PNGs, and the Universe package-card thumbnail):
