@@ -1,6 +1,6 @@
 // JSON Resume import: the strict schema plus altacv's extensions,
 // added as optional fields so a canonical `resume.json` still
-// validates. `alta-from-json` lives in `lib.typ` as it composes `alta`.
+// validates. `alta-from-json` lives in `render.typ`, as it composes `alta`.
 
 #import "@preview/gairm-import:0.9.0": (
   add-field, array-of, content-type, lens, number-type, parse as _parse,

@@ -8,7 +8,7 @@
     (publicationIcons: labels),
     (publicationIcons: prefs),
   )
-    .preferences
+    .prefs
     .publicationIcons
 }
 

@@ -27,5 +27,5 @@
     tables: _preference-tables,
   )
   _validate-preferences(merged-preferences, _section-specs.keys())
-  (labels: merged-labels, preferences: merged-preferences)
+  (labels: merged-labels, prefs: merged-preferences)
 }

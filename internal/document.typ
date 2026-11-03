@@ -8,21 +8,21 @@
 #import "design/theme.typ": _theme
 #import "context.typ": _accent-state, _body-size-state, _max-rating-state
 
-// For `show: _document.with(preferences, labels, footer: ...)`, with
-// the merged, validated preferences and labels.
-#let _document(preferences, labels, footer: none, body) = {
-  let (accent, bodySize: body-size, maxRating: max-rating, ..) = preferences
+// For `show: _document.with(prefs, labels, footer: ...)`, with the
+// merged, validated preferences and labels.
+#let _document(prefs, labels, footer: none, body) = {
+  let (accent, bodySize: body-size, maxRating: max-rating, ..) = prefs
   _accent-state.update(accent)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
   // Before `set page`, so the footer inherits the font and language.
   set text(
     body-size,
-    font: preferences.font,
+    font: prefs.font,
     fill: _theme.colour.body,
     lang: labels.lang,
   )
-  set page(paper: preferences.paper, margin: preferences.margin, footer: footer)
+  set page(paper: prefs.paper, margin: prefs.margin, footer: footer)
   show: _content-styles.with(body-size, accent)
   body
 }

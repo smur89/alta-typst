@@ -93,7 +93,7 @@
   ))
 }
 
-#let _header(cv, prefs) = {
+#let _header(cv, (prefs, ..)) = {
   let basics = cv.basics
   let image = _header-image(basics.at("image", default: none))
   _page-header(

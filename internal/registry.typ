@@ -5,7 +5,7 @@
 #import "../sections/awards.typ": _awards
 #import "../sections/certificates.typ": _certificates
 #import "../sections/education.typ": _education
-#import "../sections/experience.typ": _experience, _volunteer
+#import "../sections/experience.typ": _volunteer, _work
 #import "../sections/focus-areas.typ": _focus-areas
 #import "../sections/languages.typ": _languages
 #import "../sections/projects.typ": _projects
@@ -18,7 +18,7 @@
 // format-date, owner)`. Must follow the renderer imports: Typst binds identifiers
 // eagerly.
 #let _renderers = (
-  work: _experience,
+  work: _work,
   volunteer: _volunteer,
   focusAreas: _focus-areas,
   skills: _skills,

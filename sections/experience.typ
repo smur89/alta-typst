@@ -28,7 +28,7 @@
   ),
 )
 
-#let _experience(work, ctx) = _entry-section(work, "work", "name", ctx)
+#let _work(entries, ctx) = _entry-section(entries, "work", "name", ctx)
 
 #let _volunteer(entries, ctx) = _entry-section(
   entries,
