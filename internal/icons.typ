@@ -4,7 +4,8 @@
 // compile on typst.app, which preinstalls them.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "state.typ": _body_colour, _body_size_state
+#import "state.typ": _body_size_state
+#import "theme.typ": _theme
 
 // Free Solid glyphs (https://fontawesome.com/search). Keys are part of
 // the public `icon(...)` API: renaming one is a breaking change.
@@ -59,7 +60,7 @@
 #let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
   let body-size = _body_size_state.get()
   let resolved-size = if size == auto { body-size } else { size }
-  let resolved-fill = if fill == auto { _body_colour } else { fill }
+  let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
 
   let glyph = _icon_glyphs.at(name)
   let solid = name in _solid_names
@@ -72,7 +73,7 @@
       fa-icon(
         glyph,
         solid: solid,
-        size: 0.9 * resolved-size,
+        size: _theme.icon.glyph * resolved-size,
         fill: resolved-fill,
       ),
     ),
@@ -86,5 +87,5 @@
       gap: 0pt,
     ))
   }
-  h(0.3 * body-size)
+  h(_theme.icon.gap * body-size)
 }

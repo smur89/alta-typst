@@ -2,20 +2,12 @@
 // `name`, `term`, `tag`, `divider` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
-#import "state.typ": (
-  _accent_state, _body_colour, _body_size_state, _divider_colour,
-)
+#import "state.typ": _accent_state, _body_size_state
+#import "theme.typ": _theme
 #import "icons.typ": icon
 #import "text.typ": _join_present, _present, _string_at
 #import "dates.typ": _format_date_range
 #import "location.typ": _format_location
-
-// The dashed rule `divider()` draws between entries.
-#let _divider_stroke = (
-  paint: _divider_colour,
-  thickness: 0.6pt,
-  dash: "dashed",
-)
 
 // The bold accent text `name()` sets on its own line, for inline use
 // (e.g. a certificate's issuer on its term row).
@@ -30,25 +22,29 @@
 // quietest (publication dates and identifiers). In `em`, as they only
 // sit in body text; absent bodies render nothing.
 #let _small(body) = if _present(body) {
-  text(0.85em, fill: _body_colour, body)
+  text(_theme.size.small * 1em, fill: _theme.colour.body, body)
 }
 #let _meta(body) = if _present(body) {
-  text(0.8em, fill: _body_colour.lighten(35%), body)
+  text(_theme.size.meta * 1em, fill: _theme.colour.meta, body)
 }
 
 // The gap `tag()` leaves after a pill. Takes the CV's body size, not
 // `em`, since `tag()` is public and may sit outside `alta()`'s text.
-#let _tag_gap(body-size) = h(0.25 * body-size)
+#let _tag_gap(body-size) = h(_theme.tag.gap * body-size)
 
 #let name(body) = context {
   let body-size = _body_size_state.get()
-  block(above: 0pt, below: 0.6 * body-size, _accent_strong(body))
+  block(
+    above: 0pt,
+    below: _theme.entry.name-below * body-size,
+    _accent_strong(body),
+  )
 }
 
 // A small line under an entry's heading: a project's client, a
 // referee's attribution. Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
-  block(below: 0.5em, _small(body))
+  block(below: _theme.entry.subtitle-below, _small(body))
 }
 
 // An organisation line via `name()`, linked when `url` is present
@@ -65,11 +61,12 @@
 // The term row's frame: indented small text under an entry's heading.
 #let _term_row(body) = context {
   let body-size = _body_size_state.get()
+  let (below, inset) = _theme.term
   block(
     above: 0pt,
-    below: 0.8 * body-size,
-    inset: (left: 0.3 * body-size),
-    text(0.9 * body-size, body),
+    below: below * body-size,
+    inset: (left: inset * body-size),
+    text(_theme.size.term * body-size, body),
   )
 }
 
@@ -117,7 +114,7 @@
       _term_part("location", location, width: auto),
       if facts != none { box(facts) },
     ),
-    h(1em),
+    h(_theme.entry.compact-gap),
   )
   if row != none { _term_row(row) }
 }
@@ -127,17 +124,20 @@
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  let fill-colour = if label { accent.lighten(70%) } else {
-    accent.lighten(85%)
-  }
+  let (fill, label-fill, text-darken, stroke, radius, inset, ..) = _theme.tag
   let text-weight = if label { "bold" } else { "regular" }
   box(
-    fill: fill-colour,
-    stroke: 0.5pt + accent,
-    radius: 2.5pt,
-    inset: (x: 0.4 * body-size, y: 0.15 * body-size),
-    outset: (y: 0.15 * body-size),
-    text(0.85 * body-size, fill: accent.darken(15%), weight: text-weight, body),
+    fill: accent.lighten(if label { label-fill } else { fill }),
+    stroke: stroke + accent,
+    radius: radius,
+    inset: (x: inset.x * body-size, y: inset.y * body-size),
+    outset: (y: inset.y * body-size),
+    text(
+      _theme.size.small * body-size,
+      fill: accent.darken(text-darken),
+      weight: text-weight,
+      body,
+    ),
   )
   if trailing { _tag_gap(body-size) }
 }
@@ -155,14 +155,15 @@
 
 // Typst has no keep-with-previous, so a divider before an entry that
 // moved to a new page would orphan at its top. Suppress it within
-// 0.5cm of the top margin (headroom for a following heading), so it
-// tracks `preferences.margin`.
+// `clearance` of the top margin (headroom for a following heading), so
+// it tracks `preferences.margin`.
 #let divider() = context {
   let body-size = _body_size_state.get()
-  if here().position().y < _top_margin() + 0.5cm { return }
-  v(0.3 * body-size)
-  line(length: 100%, stroke: _divider_stroke)
-  v(0.3 * body-size)
+  let (stroke, gap, clearance) = _theme.divider
+  if here().position().y < _top_margin() + clearance { return }
+  v(gap * body-size)
+  line(length: 100%, stroke: stroke)
+  v(gap * body-size)
 }
 
 // First-occurrence order (Typst dicts keep insertion order). Keys
@@ -255,7 +256,7 @@
   _subtitle(subtitle)
   // The person's roles as darker pills, set apart from the `tags`.
   if roles.len() > 0 {
-    block(below: 0.4em, _tag_row(roles, label: true))
+    block(below: _theme.entry.roles-below, _tag_row(roles, label: true))
   }
   if compact {
     _compact_term(period, location, org, org-url, details)

@@ -4,9 +4,8 @@
 // are validated up front in `validation.typ`; cv fields are checked
 // here, where they're consumed.
 
-#import "state.typ": (
-  _accent_state, _body_colour, _body_size_state, _emphasis_colour,
-)
+#import "state.typ": _accent_state, _body_size_state
+#import "theme.typ": _theme
 #import "icons.typ": _network_aliases, _profile_networks, icon
 #import "qr.typ": _qr_render, _resolve_qr_url
 #import "text.typ": _field, _join_present, _present
@@ -126,8 +125,17 @@
   let link-config = _resolve_link_config(preferences.linkContactInfo)
   let headline = _field(basics, "label")
   let pronouns = _field(basics, "pronouns")
+  let (size, colour, ..) = _theme
+  let (
+    name-below,
+    pronouns-gap,
+    headline-below,
+    contact-icon,
+    contact-gap,
+    ..,
+  ) = _theme.header
   let bar-icon = icon.with(
-    size: 0.9 * body-size,
+    size: contact-icon * body-size,
     fill: accent,
   )
   let text-align = (left: left, right: right, center: center).at(
@@ -136,10 +144,10 @@
   align(text-align, {
     block(
       spacing: 0pt,
-      below: 1.2 * body-size,
+      below: name-below * body-size,
       {
         text(
-          2.5 * body-size,
+          size.name * body-size,
           fill: accent,
           weight: "bold",
           if preferences.uppercaseName { upper(basics.name) } else {
@@ -149,8 +157,8 @@
         // Outside `upper(...)`: pronouns aren't part of the name. The
         // `box` keeps "(they/them)" whole when a long name wraps.
         if preferences.showPronouns and pronouns != none {
-          h(0.5 * body-size)
-          box(text(body-size, fill: _body_colour, [(#pronouns)]))
+          h(pronouns-gap * body-size)
+          box(text(body-size, fill: colour.body, [(#pronouns)]))
         }
       },
     )
@@ -158,17 +166,17 @@
     if headline != none {
       block(
         spacing: 0pt,
-        below: 0.8 * body-size,
+        below: headline-below * body-size,
         text(
-          1.2 * body-size,
-          fill: _emphasis_colour,
+          size.subheading * body-size,
+          fill: colour.emphasis,
           weight: "bold",
           headline,
         ),
       )
     }
 
-    set text(0.8 * body-size, weight: "bold")
+    set text(size.meta * body-size, weight: "bold")
     // `box` per entry so the bar wraps between entries, never between
     // an icon and its text.
     _contact_entries(basics, preferences.mapsProvider)
@@ -179,7 +187,7 @@
           link(entry.url, value)
         } else { value }
       }))
-      .join(h(1.2 * body-size))
+      .join(h(contact-gap * body-size))
     // Inherits `par.spacing`, so the gap tracks the rest of the document.
     parbreak()
   })
@@ -206,6 +214,7 @@
 
 // `photo` and `qr` are `none` when absent.
 #let _header_layout(header-text, photo, qr, qr-size, body-size, preferences) = {
+  let (ornament-gutter, photo-gap, ..) = _theme.header
   // Full-width `block` centres the photo against the page (a bare
   // `align(center, box)` centres against the inline position). The
   // `qr-size` spacer balances the QR so the content stays centred
@@ -223,7 +232,7 @@
       grid(
         columns: (auto, 1fr, auto),
         align: top,
-        column-gutter: 1em,
+        column-gutter: ornament-gutter,
         qr, content, box(width: qr-size),
       )
     }
@@ -236,7 +245,7 @@
     }
     with-qr(top)
     if bottom != none {
-      v(0.8 * body-size)
+      v(photo-gap * body-size)
       bottom
     }
   } else {
@@ -261,7 +270,7 @@
       grid(
         columns: cells.map(((_, col)) => col),
         align: top,
-        column-gutter: 1em,
+        column-gutter: ornament-gutter,
         ..cells.map(((cell, _)) => cell),
       )
     }
@@ -276,7 +285,7 @@
     let accent = _accent_state.get()
     // Small enough to stay clear of the contact bar, large enough to
     // scan in print. Filled with `accent` to match the other ornaments.
-    let qr-size = 3.5 * body-size
+    let qr-size = _theme.header.qr * body-size
     _header_layout(
       _header_text(basics, preferences, body-size, accent),
       _header_photo(
@@ -312,21 +321,22 @@
     context {
       let body-size = _body_size_state.get()
       let goal = _preamble(objective)
-      v(0.8 * body-size)
+      let (above, rule, inset, gap, below) = _theme.intro
+      v(above * body-size)
       _join_present(
         (
           if goal != none {
             block(
-              stroke: (left: 1.5pt + _accent_state.get()),
-              inset: (left: 0.7 * body-size, y: 0.15 * body-size),
+              stroke: (left: rule + _accent_state.get()),
+              inset: (left: inset.x * body-size, y: inset.y * body-size),
               goal,
             )
           },
           if summary != none { par(summary) },
         ),
-        v(0.3 * body-size),
+        v(gap * body-size),
       )
-      v(0.4 * body-size)
+      v(below * body-size)
     }
   }
 }

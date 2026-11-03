@@ -8,17 +8,13 @@
 // `internal/` holds shared infrastructure; `sections/` one renderer per
 // CV section, dispatched from `internal/layout.typ`'s `_sections`.
 //
-// Sizes scale with `body-size`. Anything exported here reads it from
-// state, since it may sit outside `alta()`'s text; internal helpers
-// may use `em`, which is relative to the enclosing text, where that's
-// the intent. The few absolute values (margins, gutter, rule
-// thicknesses) deliberately don't scale.
+// Every colour, size and gap, and the sizing rule they follow, live
+// in `internal/theme.typ`.
 
 #import "internal/presets.typ": maps-providers, palettes
-#import "internal/state.typ": (
-  _accent_state, _body_colour, _body_size_state, _emphasis_colour,
-  _max_rating_state,
-)
+#import "internal/state.typ": _accent_state, _body_size_state, _max_rating_state
+#import "internal/theme.typ": _theme
+#import "internal/styles.typ": _content_styles
 #import "internal/defaults.typ": _default_labels
 #import "internal/canonical.typ": _canonical_cv, _canonical_labels
 #import "internal/validation.typ": (
@@ -123,7 +119,7 @@
   set text(
     body-size,
     font: preferences.font,
-    fill: _body_colour,
+    fill: _theme.colour.body,
     lang: labels.lang,
   )
   set page(
@@ -131,31 +127,7 @@
     margin: preferences.margin,
     footer: _resolve_page_footer(preferences, labels, meta, cv.basics.name),
   )
-  set par(leading: 0.55em, spacing: 0.7em)
-  set list(
-    marker: text(0.85em, "•"),
-    indent: 0pt,
-    body-indent: 0.4 * body-size,
-    spacing: 0.55em,
-  )
-
-  // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
-  // (e.g. publication type).
-  show heading.where(level: 2): it => block(sticky: true)[
-    #v(0.6 * body-size)
-    #text(1.7 * body-size, fill: accent, weight: "bold", upper(it.body))
-    #v(-0.7 * body-size)
-    #line(length: 100%, stroke: 2pt + accent)
-    #v(0.2 * body-size)
-  ]
-  let sub-heading(above, below, weight) = it => block(
-    above: above * body-size,
-    below: below * body-size,
-    sticky: true,
-    text(1.2 * body-size, fill: _emphasis_colour, weight: weight, it.body),
-  )
-  show heading.where(level: 3): sub-heading(1.0, 0.8, "regular")
-  show heading.where(level: 4): sub-heading(0.6, 0.6, "bold")
+  show: _content_styles.with(body-size, accent)
 
   _header(cv.basics, preferences)
   _intro(cv)
@@ -180,7 +152,7 @@
   } else {
     grid(
       columns: (column-ratio * 1fr, (1 - column-ratio) * 1fr),
-      column-gutter: 12pt,
+      column-gutter: _theme.column-gutter,
       render-column(preferences.leftColumnSections),
       render-column(preferences.rightColumnSections),
     )

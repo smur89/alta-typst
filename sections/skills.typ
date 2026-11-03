@@ -2,6 +2,7 @@
 // shape and render identically, differing only in heading.
 
 #import "../internal/state.typ": _body_size_state
+#import "../internal/theme.typ": _theme
 #import "../internal/primitives.typ": _section_frame, _tag_gap, _tag_row, tag
 
 // `text("-")`, not `[-]`, which markup parses as a list bullet. The
@@ -13,10 +14,11 @@
   let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
   _section_frame(labels.at(key), visible, context {
     let body-size = _body_size_state.get()
-    let row-gap = 0.7 * body-size
+    let (gap, hanging-indent) = _theme.keyword-row
+    let row-gap = gap * body-size
     for group in visible {
       block(above: 0pt, below: row-gap, par(
-        hanging-indent: 1em,
+        hanging-indent: hanging-indent,
         leading: row-gap,
         {
           tag(group.name, label: true)
