@@ -2,13 +2,12 @@
 // absent; `courses` render as pills like other string arrays, inline
 // after the score.
 
-#import "../internal/util/dates.typ": _format-date-range
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/location.typ": _format-location
+#import "../internal/data/cv.typ": _entry-period, _format-location
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
-#let _education(entries, (labels, prefs, ..)) = _section(
+#let _education(entries, (labels, format-date, ..)) = _section(
   labels.education,
   entries,
   edu => _entry(
@@ -16,7 +15,7 @@
     title: (_field(edu, "studyType"), _field(edu, "area")).find(t => t != none),
     org: _field(edu, "institution"),
     org-url: _field(edu, "url"),
-    period: _format-date-range(edu, prefs, labels),
+    period: _entry-period(edu, format-date, labels.present),
     location: _format-location(edu.at("location", default: none)),
     summary: _field(edu, "summary"),
     tags-lead: _field(edu, "score"),

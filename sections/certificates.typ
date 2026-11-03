@@ -9,7 +9,7 @@
 
 // No `open-end`: a cert without `expiryDate` doesn't expire, so it
 // never reads "Present".
-#let _certificates(certs, (labels, prefs, ..)) = _section(
+#let _certificates(certs, (labels, format-date, ..)) = _section(
   labels.certificates,
   certs.filter(c => _field(c, "name") != none),
   cert => _entry(
@@ -21,8 +21,7 @@
     period: _format-date-span(
       _field(cert, "date"),
       _field(cert, "expiryDate"),
-      prefs,
-      labels,
+      format-date,
     ),
     summary: _field(cert, "summary"),
   ),

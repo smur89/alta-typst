@@ -4,7 +4,6 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib-entry` lays them out.
 
-#import "../internal/util/dates.typ": _format-date
 #import "../internal/util/fields.typ": _field, _string-at
 #import "../internal/util/values.typ": _group-by, _join-present, _present-str
 #import "../internal/primitives.typ": _icon-heading
@@ -93,7 +92,7 @@
   " ",
 )
 
-#let _render-publication(pub, (labels, prefs, owner, ..)) = {
+#let _render-publication(pub, (format-date, owner, ..)) = {
   let refs = _identifier-refs(_identifiers(pub))
   let url = _field(pub, "url")
   _bib-entry(
@@ -101,7 +100,7 @@
     url: if url != none { url } else { _identifier-url(refs) },
     authors: _authors(pub, owner),
     source: _source(pub),
-    date: _format-date(_field(pub, "releaseDate"), prefs, labels),
+    date: format-date(_field(pub, "releaseDate")),
     identifiers: refs,
     summary: _field(pub, "summary"),
   )

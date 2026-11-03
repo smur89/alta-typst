@@ -1,10 +1,10 @@
 // Unit checks for the util helpers (internal/util/fields.typ,
-// values.typ, location.typ) and the treatment resolver in
-// internal/design/styles.typ.
+// values.typ), the location formatter in internal/data/cv.typ and the
+// treatment resolver in internal/design/styles.typ.
 
 #import "/internal/design/styles.typ": _treat
 #import "/internal/util/fields.typ": _field
-#import "/internal/util/location.typ": _format-location
+#import "/internal/data/cv.typ": _format-location
 #import "/internal/util/values.typ": (
   _fill-template, _join-present, _present, _present-str,
 )

@@ -3,11 +3,10 @@
 // JSON Resume dates may be `YYYY`, `YYYY-MM` or `YYYY-MM-DD`. Typst's
 // `datetime` has no year-only or year-month form, so partials live in
 // a `(year, month, day)` dict. `datetime.display()` only emits English
-// names, which would defeat `labels.months`, so we render names
+// names, which would defeat localised month names, so we render names
 // ourselves while mirroring its bracketed token syntax, so a template
 // carries over to other Typst code.
 
-#import "fields.typ": _field
 #import "values.typ": _join-present, _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
@@ -73,15 +72,18 @@
 #let _date-token-re = regex("\[([^\]]+)\]")
 #let _date-token-heads = ("year", "month", "day")
 
-// Run by preference validation, so an unknown token fails before
-// anything renders.
-#let _check-date-template(template) = for m in template.matches(
+// Panics on a token `_resolve-date-token` can't resolve; `name` is the
+// template's source, for the message. Callers run it up front, so an
+// unknown token fails before anything renders.
+#let _check-date-template(template, name) = for m in template.matches(
   _date-token-re,
 ) {
   let token = m.captures.first()
   if token.split(" ").first() not in _date-token-heads {
     panic(
-      "Unknown dateFormat token: ["
+      "Unknown "
+        + name
+        + " token: ["
         + token
         + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
     )
@@ -89,10 +91,10 @@
 }
 
 // Resolves one checked token. Long and short month names come from
-// `labels.months` so they localise. A component the input lacks
+// `months`, the twelve names in order, so they localise. A component the input lacks
 // yields `_date-token-drop` for the caller to collapse.
 #let _date-token-drop = "\u{FFFD}" // Private placeholder for missing parts.
-#let _resolve-date-token(token, parts, labels) = {
+#let _resolve-date-token(token, parts, months) = {
   let parts-list = token.split(" ")
   let head = parts-list.first()
   let modifiers = parts-list.slice(1)
@@ -103,11 +105,11 @@
   } else if head == "month" {
     if parts.month == none { return _date-token-drop }
     if has("repr:long") {
-      labels.months.at(parts.month - 1)
+      months.at(parts.month - 1)
     } else if has("repr:short") {
       // Slice by cluster, not byte: "März" or "août" would otherwise
       // panic on a non-char boundary at byte 3.
-      let clusters = labels.months.at(parts.month - 1).clusters()
+      let clusters = months.at(parts.month - 1).clusters()
       clusters.slice(0, calc.min(3, clusters.len())).join("")
     } else if has("padding:none") {
       str(parts.month)
@@ -127,10 +129,10 @@
 // Missing components leave a sentinel; it is stripped together with
 // its bordering separators, so a year-only input under
 // `[day] · [month repr:short] [year]` renders `2024`, not `· · 2024`.
-#let _apply-date-template(template, parts, labels) = {
+#let _apply-date-template(template, parts, months) = {
   let body = template.replace(
     _date-token-re,
-    m => _resolve-date-token(m.captures.at(0), parts, labels),
+    m => _resolve-date-token(m.captures.at(0), parts, months),
   )
   // Any non-letter, non-digit counts as a separator, so exotic
   // glyphs (`·`, `—`) collapse without being listed.
@@ -140,39 +142,29 @@
     .trim()
 }
 
-// Single entry point for every rendered date. Non-ISO strings pass
-// through verbatim, as does everything under `"iso"`. A function
-// formatter receives the parsed dict and must return a string.
-#let _format-date(value, prefs, labels) = {
+// Single entry point for every rendered date. `format` is a named
+// format (`_date-format-aliases` or `"iso"`), a checked template, or a
+// function; `months` names the months. Non-ISO strings pass through
+// verbatim, as does everything under `"iso"`. A function formatter
+// receives the parsed dict and must return a string.
+#let _format-date(value, format, months) = {
   if not _present(value) { return value }
-  let format = prefs.dateFormat
   if format == "iso" { return value }
   let parts = _parse-iso-date(value)
   if parts == none { return value }
   if type(format) == function { return format(parts) }
   // `alta()` has already validated non-alias strings as templates.
   let template = _date-format-aliases.at(format, default: format)
-  _apply-date-template(template, parts, labels)
+  _apply-date-template(template, parts, months)
 }
 
-// `start – end`; a missing side drops out with its dash. `open-end`
+// `start – end`, each side through `format-date` (a bound
+// `_format-date`); a missing side drops out with its dash. `open-end`
 // stands in for a missing end — `none` suits ranges with no end, such
 // as a certificate that doesn't expire. Callers read the sides with
 // `_field`, so `none` is the only absent form here.
-#let _format-date-span(start, end, prefs, labels, open-end: none) = {
-  let start-text = if start != none { _format-date(start, prefs, labels) }
-  let end-text = if end != none { _format-date(end, prefs, labels) } else {
-    open-end
-  }
+#let _format-date-span(start, end, format-date, open-end: none) = {
+  let start-text = if start != none { format-date(start) }
+  let end-text = if end != none { format-date(end) } else { open-end }
   _join-present((start-text, end-text), [ – ])
-}
-
-// A `startDate` / `endDate` entry where a missing end reads
-// `labels.present`; a fully undated entry stays `none`, not a bare
-// "Present". Argument order matches `_format-date`.
-#let _format-date-range(entry, prefs, labels) = {
-  let start = _field(entry, "startDate")
-  let end = _field(entry, "endDate")
-  if start == none and end == none { return none }
-  _format-date-span(start, end, prefs, labels, open-end: labels.present)
 }

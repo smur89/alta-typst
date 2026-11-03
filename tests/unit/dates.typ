@@ -1,15 +1,18 @@
 // Unit checks for internal/util/dates.typ: ISO parsing, the bracketed
-// template engine and its missing-part elision, and date ranges.
+// template engine and its missing-part elision, and date ranges,
+// with the entry period reader in internal/data/cv.typ.
 
 #import "/internal/util/dates.typ": (
-  _apply-date-template, _format-date, _format-date-range, _format-date-span,
-  _iso-datetime, _parse-iso-date,
+  _apply-date-template, _format-date, _format-date-span, _iso-datetime,
+  _parse-iso-date,
 )
+#import "/internal/data/cv.typ": _entry-period
 #import "/internal/data/defaults.typ": _default-labels
 #import "/tests/unit/_plain.typ": plain
 
 #let labels = _default-labels
-#let prefs(format) = (dateFormat: format)
+#let months = labels.months
+#let long(v) = _format-date(v, "long", months)
 
 // _parse-iso-date: strict shape, calendar-range months and days.
 #assert.eq(_parse-iso-date("2024"), (year: 2024, month: none, day: none))
@@ -40,31 +43,31 @@
 // a part is missing.
 #let parts(s) = _parse-iso-date(s)
 #assert.eq(
-  _apply-date-template("[day]/[month]/[year]", parts("2024-06-05"), labels),
+  _apply-date-template("[day]/[month]/[year]", parts("2024-06-05"), months),
   "05/06/2024",
 )
 #assert.eq(
   _apply-date-template(
     "[day padding:none] [month repr:long] [year]",
     parts("2024-06-05"),
-    labels,
+    months,
   ),
   "5 Jun 2024",
 )
 #assert.eq(
-  _apply-date-template("[day]/[month]/[year]", parts("2024-06"), labels),
+  _apply-date-template("[day]/[month]/[year]", parts("2024-06"), months),
   "06/2024",
 )
 #assert.eq(
   _apply-date-template(
     "[day] · [month repr:short] [year]",
     parts("2024"),
-    labels,
+    months,
   ),
   "2024",
 )
 #assert.eq(
-  _apply-date-template("[month repr:numerical]", parts("2024-06"), labels),
+  _apply-date-template("[month repr:numerical]", parts("2024-06"), months),
   "06",
 )
 // Short month names slice by grapheme, so a localised name starting
@@ -74,36 +77,36 @@
   _apply-date-template(
     "[month repr:short]",
     parts("2024-03"),
-    labels + (months: german),
+    german,
   ),
   "Mär",
 )
 
 // _format-date: named formats, `iso` passthrough, closures, and
 // verbatim passthrough of non-ISO strings.
-#assert.eq(_format-date("2024-06", prefs("long"), labels), "Jun 2024")
-#assert.eq(_format-date("2024-06-15", prefs("short"), labels), "15/06/2024")
-#assert.eq(_format-date("2024-06", prefs("iso"), labels), "2024-06")
+#assert.eq(_format-date("2024-06", "long", months), "Jun 2024")
+#assert.eq(_format-date("2024-06-15", "short", months), "15/06/2024")
+#assert.eq(_format-date("2024-06", "iso", months), "2024-06")
 #assert.eq(
-  _format-date("2024-06", prefs(p => str(p.year) + "Q2"), labels),
+  _format-date("2024-06", p => str(p.year) + "Q2", months),
   "2024Q2",
 )
-#assert.eq(_format-date("Jan 2022", prefs("long"), labels), "Jan 2022")
-#assert.eq(_format-date("", prefs("long"), labels), "")
+#assert.eq(_format-date("Jan 2022", "long", months), "Jan 2022")
+#assert.eq(_format-date("", "long", months), "")
 
-// _format-date-span / _format-date-range: a missing side drops out
-// with its dash; a missing end of a range reads `labels.present`.
+// _format-date-span / _entry-period: a missing side drops out with its
+// dash; a missing end of an entry's period reads `labels.present`.
 #assert.eq(
-  plain(_format-date-span("2020", "2022", prefs("long"), labels)),
+  plain(_format-date-span("2020", "2022", long)),
   "2020 – 2022",
 )
 #assert.eq(
-  plain(_format-date-span("2020", none, prefs("long"), labels)),
+  plain(_format-date-span("2020", none, long)),
   "2020",
 )
-#assert.eq(_format-date-span(none, none, prefs("long"), labels), none)
+#assert.eq(_format-date-span(none, none, long), none)
 #assert.eq(
-  plain(_format-date-range((startDate: "2020"), prefs("long"), labels)),
+  plain(_entry-period((startDate: "2020"), long, labels.present)),
   "2020 – " + labels.present,
 )
-#assert.eq(_format-date-range((:), prefs("long"), labels), none)
+#assert.eq(_entry-period((:), long, labels.present), none)

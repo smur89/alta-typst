@@ -7,9 +7,8 @@
   _check-rating, _check-type, _check-unknown-keys, _prose-list, _require,
 )
 #import "../util/fields.typ": _field
-#import "../util/location.typ": _location-fields
 #import "../util/values.typ": _present, _present-str
-#import "cv.typ": _altacv, _profile-network
+#import "cv.typ": _altacv, _location-fields, _profile-network
 
 // A dict where a list belongs fails here, not deep in a renderer.
 // Returns `entries`.
