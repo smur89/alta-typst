@@ -47,8 +47,12 @@
     ),
   ),
 
-  focusAreas: (
-    [Distributed systems and functional programming.],
+  custom: (
+    altacv: (
+      focusAreas: (
+        [Distributed systems and functional programming.],
+      ),
+    ),
   ),
 
   work: (
@@ -127,7 +131,7 @@
       title: "Best Paper — Distributed Systems Track",
       awarder: "EuroSys",
       date: "2024-09",
-      url: "https://example.com/eurosys",
+      custom: (altacv: (url: "https://example.com/eurosys")),
     ),
   ),
 
@@ -144,7 +148,7 @@
     (
       name: "open-source: kafka-idempotent",
       url: "https://example.com/projects/kafka-idempotent",
-      description: "Small Scala library for idempotent consumers.",
+      summary: "Small Scala library for idempotent consumers.",
       startDate: "2023-04",
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (

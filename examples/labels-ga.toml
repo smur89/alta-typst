@@ -22,8 +22,6 @@ interests    = "Caitheamh Aimsire"
 references   = "Teistiméireachtaí"
 referencesAvailableOnRequest = "Teistiméireachtaí ar fáil ar iarratas."
 
-articles = "Ailt"
-
 present = "I láthair"
 
 lastModified = "Nuashonraithe go deireanach"
@@ -35,3 +33,6 @@ months = [
   "Ean", "Fea", "Már", "Aib", "Bea", "Mei",
   "Iúil", "Lún", "MFó", "DFó", "Sam", "Nol",
 ]
+
+[publicationTypes]
+article = "Ailt"
