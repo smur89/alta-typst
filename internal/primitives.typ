@@ -9,13 +9,10 @@
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": icon
 
-// The bold accent text `name()` sets on its own line, for inline use
-// (e.g. a certificate's issuer on its term row).
-#let _accent-strong(body) = context text(
-  weight: _theme.font-weight.bold,
-  fill: _accent-state.get(),
-  body,
-)
+// The accent text `name()` sets on its own line, for inline use (e.g.
+// a certificate's issuer on its term row). Regular weight, so the
+// role above it leads.
+#let _accent-text(body) = context text(fill: _accent-state.get(), body)
 
 // The quietest lines (publication dates, identifiers); absent bodies
 // render nothing.
@@ -32,7 +29,7 @@
   block(
     above: 0pt,
     below: _theme.entry.name-below * body-size,
-    _accent-strong(body),
+    _accent-text(body),
   )
 }
 

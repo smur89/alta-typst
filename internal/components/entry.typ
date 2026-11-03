@@ -4,7 +4,7 @@
 #import "../design/theme.typ": _theme
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-strong, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
+  _accent-text, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
   term,
 )
 
@@ -27,7 +27,7 @@
 // `entry.compact-gap` gaps are `em` of the row's text.
 #let _compact-term(period, location, org, org-url, details) = {
   let org = if _present(org) {
-    _accent-strong(_link-if(org-url, org))
+    _accent-text(_link-if(org-url, org))
   }
   let facts = _join-present((org, ..details), _theme.separator.facts)
   let row = _join-present(
