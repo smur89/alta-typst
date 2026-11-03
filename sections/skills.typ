@@ -4,12 +4,11 @@
 #import "../internal/components/frame.typ": _section-frame
 #import "../internal/components/keywords.typ": _keyword-rows
 
-#let _name-keywords-section(groups, key, (labels, ..)) = {
-  // Drop groups with no keywords first, so a section with none left
-  // skips its heading rather than rendering it bare.
-  let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
-  _section-frame(labels.at(key), visible, _keyword-rows(visible))
-}
+#let _name-keywords-section(groups, key, (labels, ..)) = _section-frame(
+  labels.at(key),
+  groups,
+  _keyword-rows(groups),
+)
 
 #let _skills(groups, ctx) = _name-keywords-section(groups, "skills", ctx)
 

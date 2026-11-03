@@ -20,9 +20,8 @@
   tags: project.at("keywords", default: ()),
 )
 
-// Drives the `====` subheadings in projects. A
-// missing or non-string `type` pools under `fallback` rather than
-// crashing as a dict key.
+// Drives the `====` subheadings in projects. An untyped entry, or one
+// whose `type` isn't a string, pools under `fallback`.
 #let _group-by-type(items, fallback) = _group-by(items, item => {
   let raw = _string-at(item, "type")
   if raw != none { raw } else { fallback }
@@ -30,18 +29,17 @@
 
 #let _projects(entries, ctx) = {
   let (labels, ..) = ctx
-  let valid = entries.filter(p => _field(p, "name") != none)
   let render(p) = _render-project(p, ctx)
 
   // Flat unless some entry has a usable `type`, so the common untyped
   // case gets no redundant subheadings. Untyped entries in a mixed list
   // pool under `labels.otherProjects`.
-  if not valid.any(p => _string-at(p, "type") != none) {
-    _section(labels.projects, valid, render)
+  if not entries.any(p => _string-at(p, "type") != none) {
+    _section(labels.projects, entries, render)
   } else {
     _grouped-section(
       labels.projects,
-      _group-by-type(valid, labels.otherProjects),
+      _group-by-type(entries, labels.otherProjects),
       (group, _) => group,
       render,
     )

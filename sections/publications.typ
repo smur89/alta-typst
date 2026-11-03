@@ -4,7 +4,9 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib-entry` lays them out.
 
-#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/fields.typ": (
+  _array-or-empty, _dict-or-empty, _field, _string-at,
+)
 #import "../internal/util/values.typ": _group-by, _join-present, _present-str
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
@@ -30,14 +32,14 @@
   default: (name: scheme, url: none),
 )
 
-#let _identifiers(pub) = {
-  let ids = pub.at("identifiers", default: none)
-  if type(ids) != dictionary { return () }
-  ids
+// Read leniently, as the README documents: anything but a dictionary
+// reads as none, and a non-string or empty ID is skipped.
+#let _identifiers(pub) = (
+  _dict-or-empty(pub.at("identifiers", default: none))
     .pairs()
     .filter(((_, id)) => _present-str(id))
     .map(((scheme, id)) => (lower(scheme), id))
-}
+)
 
 // One `(scheme, name, id, url)` per identifier, `url` being `none`
 // for a scheme that doesn't link.
@@ -73,14 +75,13 @@
   )
 }
 
-// `authors` in published order, trimmed, unusable entries dropped,
-// each flagged when it's `owner` (`basics.name`, ignoring case and
-// surrounding spaces). Empty when `authors` isn't an array.
+// `authors` in published order, trimmed, each flagged when it's
+// `owner` (`basics.name`, ignoring case and surrounding spaces). Read
+// leniently: anything but an array reads as none, and a non-string or
+// empty author is dropped.
 #let _authors(pub, owner) = {
-  let authors = pub.at("authors", default: ())
-  if type(authors) != array { return () }
   let owner-key = if _present-str(owner) { lower(owner.trim()) }
-  authors
+  _array-or-empty(pub.at("authors", default: none))
     .filter(a => type(a) == str)
     .map(a => a.trim())
     .filter(_present-str)
@@ -114,7 +115,7 @@
   let headings = labels.publicationTypes
   _grouped-section(
     labels.publications,
-    _group-by(pubs.filter(p => _field(p, "name") != none), _type-code),
+    _group-by(pubs, _type-code),
     (code, items) => {
       let group-icon = prefs.publicationIcons.at(code, default: "file")
       // An unknown code's entries all share a string `type`, so print

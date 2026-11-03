@@ -4,47 +4,170 @@
 // to these keys in `registry.typ`, so reading and checking the CV
 // doesn't depend on them.
 
+#import "../util/checks.typ": _check-rules
+#import "../util/fields.typ": _field
 #import "canonical.typ": _legacy-root-fields
-#import "cv.typ": _altacv
+#import "cv.typ": _altacv, _reference-usable
 #import "cv-checks.typ": (
-  _check-entry-location, _check-language, _check-section-entries,
+  _check-award, _check-entry-location, _check-language, _check-section-entries,
+  _string-rule, _text-rule, _texts-rule,
 )
 
-// `focusAreas` lives in `custom.altacv`; `items` lists the accepted
-// entry types (default: dictionaries); `check(key, entry, prefs)`
-// checks the fields its renderer reads. Insertion order is the default render
-// order.
+// What a renderer needs to draw an entry (its title, name, a keyword).
+#let _has(field) = entry => _field(entry, field) != none
+
+#let _period = (startDate: _text-rule, endDate: _text-rule)
+#let _role = (
+  _period
+    + (
+      position: _text-rule,
+      url: _string-rule,
+      summary: _text-rule,
+      highlights: _texts-rule,
+    )
+)
+#let _keyword-group = (
+  fields: (name: _text-rule, keywords: _texts-rule),
+  // A group without keywords would leave a bare label pill.
+  keep: g => g.at("keywords", default: ()).len() > 0,
+)
+
+// Each section's spec, in default render order:
+// - `column`: its default column.
+// - `read`: how to find its entries, when not at its own key
+//   (`focusAreas` lives in `custom.altacv`).
+// - `items`: the accepted entry types (default: dictionaries).
+// - `fields`: a rule per field its renderer draws as given, checked on
+//   every entry (see `cv-checks.typ`). Fields read with `_string-at`
+//   (a project's `type`, a reference's attribution, a publication's
+//   citation parts) or by a lenient reader (`authors`, `identifiers`)
+//   treat a value of the wrong type as absent, as the README documents,
+//   so they have no rule.
+// - `keep`: which entries render; the rest are dropped before
+//   `check` and the renderer, so neither sees them.
+// - `check(key, entry, prefs)`: checks that need more than a field's
+//   type, on the kept entries.
 #let _section-specs = (
-  work: (column: "left", check: _check-entry-location),
-  volunteer: (column: "left", check: _check-entry-location),
+  work: (
+    column: "left",
+    fields: _role + (name: _text-rule),
+    check: _check-entry-location,
+  ),
+  volunteer: (
+    column: "left",
+    fields: _role + (organization: _text-rule),
+    check: _check-entry-location,
+  ),
   focusAreas: (
     column: "right",
     read: cv => _altacv(cv, "focusAreas", default: ()),
     items: (str, content),
   ),
-  skills: (column: "right"),
-  languages: (column: "right", check: _check-language),
-  education: (column: "right", check: _check-entry-location),
-  certificates: (column: "right"),
-  awards: (column: "right"),
-  projects: (column: "left"),
-  publications: (column: "left"),
-  interests: (column: "right"),
-  references: (column: "right"),
+  skills: (column: "right") + _keyword-group,
+  languages: (
+    column: "right",
+    fields: (language: _text-rule),
+    keep: _has("language"),
+    check: _check-language,
+  ),
+  education: (
+    column: "right",
+    fields: _period
+      + (
+        institution: _text-rule,
+        url: _string-rule,
+        area: _text-rule,
+        studyType: _text-rule,
+        score: _text-rule,
+        summary: _text-rule,
+        courses: _texts-rule,
+      ),
+    check: _check-entry-location,
+  ),
+  certificates: (
+    column: "right",
+    fields: (
+      name: _text-rule,
+      date: _text-rule,
+      expiryDate: _text-rule,
+      url: _string-rule,
+      issuer: _text-rule,
+      credentialId: _text-rule,
+      summary: _text-rule,
+    ),
+    keep: _has("name"),
+  ),
+  awards: (
+    column: "right",
+    fields: (
+      title: _text-rule,
+      date: _text-rule,
+      awarder: _text-rule,
+      summary: _text-rule,
+    ),
+    keep: _has("title"),
+    check: _check-award,
+  ),
+  projects: (
+    column: "left",
+    fields: _period
+      + (
+        name: _text-rule,
+        url: _string-rule,
+        entity: _text-rule,
+        roles: _texts-rule,
+        summary: _text-rule,
+        highlights: _texts-rule,
+        keywords: _texts-rule,
+      ),
+    keep: _has("name"),
+  ),
+  publications: (
+    column: "left",
+    fields: (
+      name: _text-rule,
+      url: _string-rule,
+      publisher: _text-rule,
+      releaseDate: _text-rule,
+      summary: _text-rule,
+    ),
+    keep: _has("name"),
+  ),
+  interests: (column: "right") + _keyword-group,
+  references: (
+    column: "right",
+    fields: (
+      name: _text-rule,
+      reference: _text-rule,
+    ),
+    // A quote, or the on-request flag.
+    keep: _reference-usable,
+  ),
 )
 
-// Every section's entries, checked before any renderer (or the
-// PDF-keyword pass) reads them.
+// Every section's entries, checked and filtered to the ones that
+// render, before any renderer (or the PDF-keyword pass) reads them.
 #let _read-sections(cv, prefs) = (
   _section-specs
     .pairs()
     .map(((key, spec)) => {
-      let read = spec.at("read", default: cv => cv.at(key, default: ()))
-      let items = spec.at("items", default: (dictionary,))
+      let (read, items, fields, keep, check, ..) = (
+        (
+          read: cv => cv.at(key, default: ()),
+          items: (dictionary,),
+          fields: (:),
+          keep: _ => true,
+          check: (..) => none,
+        )
+          + spec
+      )
       let entries = _check-section-entries(key, read(cv), items)
-      let check = spec.at("check", default: none)
-      if check != none { for entry in entries { check(key, entry, prefs) } }
-      (key, entries)
+      for entry in entries {
+        _check-rules(entry, fields, prefix: key + "[].", optional: true)
+      }
+      let kept = entries.filter(keep)
+      for entry in kept { check(key, entry, prefs) }
+      (key, kept)
     })
     .to-dict()
 )

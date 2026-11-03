@@ -1,5 +1,6 @@
-// Rewrites caller input into the one shape renderers read: deprecated
-// CV, preference and label forms (#239) become their current spelling,
+// Rewrites caller input into the one shape renderers read: `none`
+// fields drop out, deprecated CV, preference and label forms (#239)
+// become their current spelling,
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
@@ -101,8 +102,20 @@
   ) { cv } else { cv + (references: refs + ((availableOnRequest: true),)) }
 }
 
+// `none` (JSON's `null`) means absent: a key set to it is dropped, at
+// any depth, so checks and renderers meet one absent form, a missing
+// key, and a reader's default applies.
+#let _drop-nones(v) = if type(v) == dictionary {
+  v
+    .pairs()
+    .filter(((_, x)) => x != none)
+    .map(((k, x)) => (k, _drop-nones(x)))
+    .to-dict()
+} else if type(v) == array { v.map(_drop-nones) } else { v }
+
 // `prefs` is the merged, validated preferences dict.
 #let _canonical-cv(cv, prefs) = (
+  _drop-nones,
   cv => _lift-into-custom(cv, _legacy-root-fields),
   cv => _legacy-entry-fields
     .pairs()

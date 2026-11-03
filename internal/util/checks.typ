@@ -39,6 +39,10 @@
   v => type(v) == int and v >= 1,
   "a positive integer",
 )
+#let _list-rule(types, expected) = (
+  v => type(v) == array and v.all(x => type(x) in types),
+  expected,
+)
 #let _enum-rule(allowed) = (
   v => v in allowed,
   _prose-list(allowed.map(_quote)),
@@ -52,8 +56,14 @@
 )
 
 // Each `key: rule` against `values.at(key)`, named `prefix + key`.
-#let _check-rules(values, rules, prefix: "") = for (key, rule) in rules {
-  _check(prefix + key, values.at(key), rule)
+// `optional` skips a key `values` doesn't have.
+#let _check-rules(values, rules, prefix: "", optional: false) = for (
+  key,
+  rule,
+) in rules {
+  if not optional or key in values {
+    _check(prefix + key, values.at(key), rule)
+  }
 }
 
 #let _check-type(name, value, allowed, expected) = _check(

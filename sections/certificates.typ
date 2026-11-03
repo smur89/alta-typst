@@ -1,6 +1,5 @@
 // Certificates: a compact entry, with date, issuer and credential ID
-// on one term row so several certs stay short. Entries without a
-// `name` are skipped.
+// on one term row so several certs stay short.
 
 #import "../internal/util/dates.typ": _format-date-span
 #import "../internal/util/fields.typ": _field
@@ -11,7 +10,7 @@
 // never reads "Present".
 #let _certificates(certs, (labels, format-date, ..)) = _section(
   labels.certificates,
-  certs.filter(c => _field(c, "name") != none),
+  certs,
   cert => _entry(
     title: cert.name,
     url: _field(cert, "url"),

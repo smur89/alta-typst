@@ -1,7 +1,7 @@
 // Languages: rating dots when `_resolve-rating` gives a number, else
 // the `fluency` text alone (one not in `_fluency-rating`).
 
-#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/fields.typ": _string-at
 #import "../internal/util/values.typ": _round-half
 #import "../internal/data/cv.typ": _altacv
 #import "../internal/components/frame.typ": _section
@@ -31,8 +31,7 @@
 
 #let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,
-  // Nameless entries are dropped, not a panic.
-  items.filter(l => _field(l, "language") != none),
+  items,
   lang => _rating-row(
     lang.language,
     _resolve-rating(lang, prefs.maxRating),
