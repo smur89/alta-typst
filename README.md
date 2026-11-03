@@ -245,7 +245,7 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (location, roles, a credential ID) on one line, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (roles, a credential ID) with the location at the right edge, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
@@ -259,7 +259,7 @@ These mean the same in every section that reads them:
 | `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
 | `summary` | string or content | A short paragraph of context. |
 | `highlights` | array of content | Accomplishments, as a bulleted list. |
-| `keywords`, `courses` | array of strings | One line at the end of the entry, joined with ` · `. Skills' `keywords` are the exception: tags, one per item. |
+| `keywords`, `courses` | array of strings | In entry sections (projects, education), one line at the end of the entry, joined with ` · `. Skills and interests show their `keywords` their own way (see below). |
 
 #### Work
 

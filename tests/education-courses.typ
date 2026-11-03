@@ -1,8 +1,9 @@
 // `education[].courses` (JSON Resume) renders as one line joined with
-// ` · ` at the end of the entry, as `projects[].keywords` does. Covers an entry with courses + score, an
-// entry with courses but no score, and an entry with no courses
-// (should render unchanged from the pre-courses baseline). An
-// explicitly empty `courses: ()` is also silently skipped.
+// ` · ` at the end of the entry, as `projects[].keywords` does.
+// Covers an entry with courses + score, an entry with courses but no
+// score, and an entry with no courses (should render unchanged from
+// the pre-courses baseline). An explicitly empty `courses: ()` is
+// also silently skipped.
 
 #import "../lib.typ": alta
 

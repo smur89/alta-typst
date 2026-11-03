@@ -9,21 +9,33 @@
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
 // bullet. The `_tag-gap` after it mirrors the gap `tag()` leaves on
-// its left, so the dash sits centred between the pills.
+// its left, so the dash sits centred between the pills. The hanging
+// indent is the label's measured width, so wrapped keywords line up
+// under the first; a label wider than `keyword-row.indent-max` of the
+// column hangs nothing, so its keywords keep room to wrap.
 #let _keyword-rows(groups) = context {
   let body-size = _body-size-state.get()
-  let (gap, dash) = _theme.keyword-row
+  let (gap, dash, indent-max) = _theme.keyword-row
   let row-gap = gap * body-size
   for (name, keywords, ..) in groups {
-    block(above: 0pt, below: row-gap, grid(
-      columns: (auto, 1fr),
-      {
-        tag(name, label: true)
-        text(dash)
-        _tag-gap(body-size)
-      },
-      par(leading: row-gap, _tag-row(keywords)),
-    ))
+    let label = {
+      tag(name, label: true)
+      text(dash)
+      _tag-gap(body-size)
+    }
+    block(above: 0pt, below: row-gap, layout(size => {
+      let indent = measure(label).width
+      par(
+        hanging-indent: if indent > indent-max * size.width { 0pt } else {
+          indent
+        },
+        leading: row-gap,
+        {
+          label
+          _tag-row(keywords)
+        },
+      )
+    }))
   }
 }
 
