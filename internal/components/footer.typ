@@ -1,8 +1,7 @@
 // The page footers `sections/footer.typ` chooses between: the page
 // counter, which hides itself on single-page documents via the
 // reactive page counter (so it returns on its own when content grows),
-// and the right-aligned "last updated" line. Both inherit the body
-// text `_document` sets before the page.
+// and the right-aligned "last updated" line, both in body text.
 
 #import "../util/values.typ": _fill-template
 

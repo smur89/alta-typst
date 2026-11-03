@@ -26,8 +26,7 @@
   // thing naming the network. The user's own string, not the
   // lowercased key, keeps their capitalisation ("GitHub").
   alt: profile.network,
-  // A profile without `url` renders unlinked rather than failing; one
-  // without `username` shows its URL as it reads, with no scheme.
+  // No `url`: unlinked. No `username`: its URL, scheme dropped.
   value: profile.at(
     "username",
     default: _display-url(profile.at("url", default: "")),

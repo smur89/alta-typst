@@ -17,8 +17,8 @@
   body,
 )
 
-// The quietest lines (publication dates and identifiers), set apart by
-// the `secondary` colour; an absent body renders nothing.
+// The quietest lines (publication dates, identifiers); absent bodies
+// render nothing.
 #let _meta(body) = if _present(body) {
   text(fill: _theme.colour.secondary, body)
 }

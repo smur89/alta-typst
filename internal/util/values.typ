@@ -49,8 +49,7 @@
 
 #let _round-half(x) = calc.round(x * 2) / 2
 
-// A URL as it reads on a page: no scheme (`https://`) and no trailing
-// slash, so `https://jane.dev/` shows as `jane.dev`.
+// `https://jane.dev/` → `jane.dev`.
 #let _display-url(url) = (
   url.replace(regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "").trim("/", at: end)
 )
