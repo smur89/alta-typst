@@ -77,3 +77,19 @@
   _placeholder_re,
   m => values.at(m.captures.first()),
 )
+
+// Per RFC 3986. Iterates UTF-8 bytes (not codepoints), so non-Latin
+// locations like "Zürich" or "京都" round-trip through the maps URL.
+#let _url_encode(s) = {
+  let unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+  let hex = "0123456789ABCDEF"
+  let out = ""
+  for b in array(bytes(s)) {
+    if b < 128 and str.from-unicode(b) in unreserved {
+      out += str.from-unicode(b)
+    } else {
+      out += "%" + hex.at(int(b / 16)) + hex.at(int(calc.rem(b, 16)))
+    }
+  }
+  out
+}

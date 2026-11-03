@@ -11,3 +11,8 @@
 #assert.eq(_fact_line((none, "Pied Piper"), (none,)), "Pied Piper")
 #assert.eq(_fact_line((none,), ("2024",)), "2024")
 #assert.eq(_fact_line((none, none), (none,)), none)
+
+// _portrait: a bare string path resolves from `internal/`, where
+// `image()` is called, so this asset path breaks if `_portrait` moves.
+#import "/internal/primitives.typ": _portrait
+#_portrait("../assets/avatar-placeholder.svg", 1cm, "Jane")

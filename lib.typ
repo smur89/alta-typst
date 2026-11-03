@@ -22,7 +22,7 @@
 #import "internal/primitives.typ": divider, name, tag, term
 #import "internal/ratings.typ": rating
 #import "internal/dates.typ": _iso_datetime
-#import "internal/header.typ": _header, _intro
+#import "sections/header.typ": _header, _intro
 #import "internal/footer.typ": _resolve_page_footer
 #import "internal/layout.typ": (
   _cv_keys, _merge_options, _read_sections, _sections,
@@ -114,7 +114,7 @@
   )
   show: _content_styles.with(body-size, accent)
 
-  _header(cv.basics, preferences)
+  _header(cv, preferences)
   _intro(cv)
 
   // Renderers are width-agnostic, so any section fits either column.
