@@ -5,10 +5,6 @@
 # block. The versions come from the Dockerfile (`make toolchain`), so
 # the runner matches the pinned image. Needs the repo checked out.
 # apt's `fonts-font-awesome` is v6, so FA 7 comes from upstream.
-#
-# The FA zip is restored from cache when available — keyed on the
-# version, so bumping `FA_VERSION` in the Dockerfile invalidates the
-# cache automatically.
 name: Setup Typst environment
 description: Install Typst, Lato, and FontAwesome desktop OTFs on the runner.
 

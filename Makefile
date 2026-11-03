@@ -28,6 +28,7 @@
 #                    # fail if tracked renders differ from HEAD
 #   make fmt         # format every tracked .typ in place (typstyle)
 #   make fmt-check   # check formatting without writing (CI gate)
+#   make toolchain   # print the pinned Typst/FA/Lato versions + image
 #   make clean       # remove generated PDFs and PNGs
 #
 # Tool overrides:
@@ -96,8 +97,8 @@ PACKAGE_FILES := \
 
 .PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell toolchain stage-package-dir package-tarball
 
-# The pinned toolchain, read from the Dockerfile: its one source.
-# `make toolchain` prints it for CI (setup-typst, image.yml).
+# The pinned toolchain (versions: see Dockerfile). `make toolchain`
+# prints it for CI and for setting up a matching local install.
 dockerfile-value = $(shell sed -nE 's|^$(1)||p' Dockerfile)
 TYPST_VERSION    := $(call dockerfile-value,FROM ghcr\.io/typst/typst:)
 FA_VERSION       := $(call dockerfile-value,ARG FA_VERSION=)
@@ -331,7 +332,7 @@ help:
 	  '         pdfs | previews | test-pdfs | test | test-panics | test-unit | test-template | clean' \
 	  '         fmt | fmt-check | check (test + fmt-check)' \
 	  '         check-drift DRIFT_PATHS=<pathspec> DRIFT_FIX=<cmd>' \
-	  '         docker-pdfs | docker-preview-images | docker-shell' \
+	  '         docker-pdfs | docker-preview-images | docker-shell | toolchain' \
 	  'Per-target detail: see the header comment in this Makefile.' \
 	  'Overrides: TYPST=path/to/typst TYPSTYLE=path/to/typstyle FFMPEG=path/to/ffmpeg' \
 	  '           PPI=300 PREVIEW_FPS=1 DOCKER_IMAGE=ghcr.io/.../...:tag'

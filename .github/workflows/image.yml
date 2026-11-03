@@ -1,7 +1,6 @@
 # Builds `ghcr.io/smur89/alta-typst-ci` (Typst + Lato + FontAwesome).
-# Pushes on main; PRs build only. The tag is the Makefile's
-# DOCKER_IMAGE, which encodes every render-critical version, so a bump
-# yields a new immutable tag.
+# Pushes on main; PRs build only. Tagged with the Makefile's
+# DOCKER_IMAGE (versions: see Dockerfile).
 name: Image
 
 on:
@@ -36,13 +35,9 @@ jobs:
         with:
           persist-credentials: false
 
-      # Derived from the Dockerfile so a bump to any of Typst, FA or
-      # Lato can't reuse a tag with different bytes. An explicit `bash`
-      # adds `pipefail`, so a failed read isn't masked by `tee`.
-      - name: Derive image tag from Dockerfile
-        id: tag
-        shell: bash
-        run: make -s toolchain | tee -a "$GITHUB_OUTPUT"
+      - name: Read toolchain versions
+        id: toolchain
+        run: make -s toolchain >> "$GITHUB_OUTPUT"
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -65,7 +60,7 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.tag.outputs.image }}
+          tags: ${{ steps.toolchain.outputs.image }}
           # PR runs read the cache but don't write: branch-scoped
           # entries can't be reused by main and would only crowd the
           # 10 GiB quota.

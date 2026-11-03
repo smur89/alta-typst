@@ -89,7 +89,7 @@ make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and run
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); its tag (`DOCKER_IMAGE` in the `Makefile`) is derived from the versions in the [`Dockerfile`](Dockerfile), the toolchain's one source.
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); its tag (`DOCKER_IMAGE` in the `Makefile`) is derived from the versions in the [`Dockerfile`](Dockerfile), the toolchain's one source. Running the PDF-building CI jobs inside the image (`container:`), which would retire `setup-typst` and its residual drift, is a planned follow-up.
 
 If you'd rather drive Typst directly, the manual incantations are:
 

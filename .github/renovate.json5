@@ -11,10 +11,9 @@
     'helpers:pinGitHubActionDigests',
   ],
 
-  // Only these three. The Typst, FontAwesome and Lato versions live in the
-  // Dockerfile, which the Makefile and CI read; they stay manual because a
-  // bump needs the new image published and the fixtures regenerated in it
-  // (`make docker-pdfs`). The typstyle and package-check pins have no such
+  // Only these three. The Typst, FontAwesome and Lato versions (see the
+  // Dockerfile) stay manual: a bump needs the new image published and the
+  // fixtures regenerated in it (`make docker-pdfs`). The typstyle and package-check pins have no such
   // coupling, so `custom.regex` tracks them below.
   enabledManagers: ['github-actions', 'typst', 'custom.regex'],
 
