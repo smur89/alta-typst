@@ -38,7 +38,7 @@
     large: 1.2,
   ),
   // In pt.
-  stroke-width: (thin: 0.5, thick: 2),
+  stroke-width: (thin: 0.5, thick: 1),
   leading: 0.55,
 )
 
@@ -56,11 +56,17 @@
       + colour,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
     // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-    // between groups.
-    separator: (facts: " · ", items: ", "),
-    // For a summary, a `styled-link` title, and the CV owner among
-    // publication authors.
-    treatment: (preamble: "emph", link: "emph", owner: "strong"),
+    // between groups; `label` after an interest group's name
+    // (`Music: Trad, Jazz`).
+    separator: (facts: " · ", items: ", ", label: ": "),
+    // For a summary, a `styled-link` title, the CV owner among
+    // publication authors, and an interest group's name.
+    treatment: (
+      preamble: "emph",
+      link: "emph",
+      owner: "strong",
+      label: "strong",
+    ),
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
     // `==` headings. `rule-gap` pulls the rule up (geometry).
@@ -78,14 +84,20 @@
       group: (above: sp.small, below: sp.small, weight: fw.bold),
     ),
     column-gutter: 12pt,
-    // `name-below` scales with body size (`name()` is public); the rest
-    // are `em`.
+    // `name-below` (`name()` is public), `row-gap` and `facts-below`
+    // scale with body size; the rest are `em`.
     entry: (
       name-below: sp.small,
       subtitle-below: sp.small * 1em,
-      roles-below: sp.x-small * 1em,
-      // Between a compact term row's parts.
-      compact-gap: sp.medium * 1em,
+      // Between the title row and the facts row (organisation ·
+      // roles), and under the facts row, before the summary.
+      row-gap: sp.small,
+      facts-below: sp.medium,
+      // Between the left side and the date or location at the right
+      // edge; each takes a line of its own past `side-max` of the
+      // column.
+      side-gap: sp.medium * 1em,
+      side-max: 50%,
     ),
     term: (below: sp.medium, inset: sp.x-small),
     // Fills lighten the accent, the text darkens it.
@@ -101,8 +113,10 @@
       label-weight: fw.bold,
     ),
     divider: (gap: sp.x-small, dash: "dashed", clearance: 0.5cm),
-    // A skill group's label pill and its keywords.
-    keyword-row: (gap: sp.medium, hanging-indent: sp.medium * 1em, dash: "–"),
+    // A skill group's label pill and its keywords; wrapped keywords
+    // hang under the first unless the label is past `indent-max` of
+    // the column.
+    keyword-row: (gap: sp.medium, dash: "–", indent-max: 50%),
     header: (
       name-below: sp.large,
       pronouns-gap: sp.small,

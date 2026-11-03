@@ -1,56 +1,105 @@
-// The CV entry component every entry section maps its fields onto,
-// with the date and location row beneath its heading.
+// The CV entry component every entry section maps its fields onto:
+// the heading with its date at the right edge, then the organisation
+// and the entry's other facts with its location at the right edge.
 
+#import "../design/styles.typ": _subheading-block
 #import "../design/theme.typ": _theme
+#import "../context.typ": _body-size-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-text, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
-  term,
+  _accent-text, _fact-line, _icon-fact, _link-if, _preamble,
 )
 
-// A small line under an entry's heading: a project's client, a
-// referee's attribution. Absent bodies render nothing.
+// A small line under an entry's heading: a referee's attribution.
+// Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
   block(below: _theme.entry.subtitle-below, body)
 }
 
-// An organisation line via `name()`, linked when `url` is present
-// (`link()` inherits the bold accent). An absent organisation renders
-// nothing rather than an empty block that leaves a blank line.
-#let _org-line(org, url: none) = if _present(org) {
-  name(_link-if(url, org))
-}
-
-// The compact term row: period and location at natural widths (no
-// column to align), then the organisation and `details` joined by
-// ` · `, so several short entries stay one line each. The
-// `entry.compact-gap` gaps are `em` of the row's text.
-#let _compact-term(period, location, org, org-url, details) = {
-  let org = if _present(org) {
-    _accent-text(_link-if(org-url, org))
-  }
-  let facts = _join-present((org, ..details), _theme.separator.facts)
-  let row = _join-present(
-    (
-      _term-part("calendar", period, width: auto),
-      _term-part("location", location, width: auto),
-      if facts != none { box(facts) },
-    ),
-    h(_theme.entry.compact-gap),
+// An entry's first lines as one grid: the title (or, without one,
+// the facts line) over the `facts` on the left; the date and the
+// location on the right, each led by its icon and flush with the
+// column's right edge. A long title wraps beside the date, unless the
+// date or location would take more than `entry.side-max` of the
+// column; then each takes a line of its own under its row. A row
+// with nothing on the right spans the grid. The grid sits in the
+// entry heading's block, so it keeps that spacing and stays with its
+// entry; after a facts line, `entry.facts-below`.
+#let _entry-head(title, facts, date, location) = context {
+  let body-size = _body-size-state.get()
+  let (side-gap, side-max, facts-below, row-gap) = _theme.entry
+  let (lead, lead-size, under) = if title != none {
+    ([=== #title], _theme.type.title.size * body-size, facts)
+  } else { (facts, body-size, none) }
+  // A line's height runs from its top edge (the cap height, or an
+  // icon's top when taller) to its baseline. Every row sets its
+  // baseline that far down from the taller of its text's capitals and
+  // an icon, so both sides share it and rows space alike with or
+  // without an icon on the right.
+  let top(body) = measure(body).height
+  let icon-top = top(_icon-fact("calendar", "X"))
+  let drop(body, baseline) = block(
+    inset: (top: baseline - top(body)),
+    body,
   )
-  if row != none { _term-row(row) }
+  let rows = (
+    (lead, lead-size, _icon-fact("calendar", date)),
+    (under, body-size, _icon-fact("location", location)),
+  )
+    .filter(((left, _, side)) => left != none or side != none)
+    .map(((left, size, side)) => {
+      let baseline = calc.max(top(text(size, "X")), icon-top)
+      (
+        left: drop(left, baseline),
+        side: side,
+        dropped: if side != none { drop(side, baseline) },
+        width: if side != none {
+          measure(side).width + side-gap.to-absolute()
+        } else {
+          0pt
+        },
+      )
+    })
+  if rows.len() == 0 { return }
+  let below = if title == none or rows.len() > 1 { facts-below } else {
+    _theme.subheading.entry.below
+  }
+  _subheading-block(
+    _theme.subheading.entry + (below: below),
+    body-size,
+    layout(size => {
+      // Stacked, each side takes its own line, undropped.
+      let own-line = rows.any(row => row.width > side-max * size.width)
+      let cells = rows.map(row => if row.side == none {
+        (grid.cell(colspan: if own-line { 1 } else { 2 }, row.left),)
+      } else {
+        (row.left, align(right, if own-line { row.side } else { row.dropped }))
+      })
+      grid(
+        columns: if own-line { 1fr } else { (1fr, auto) },
+        column-gutter: side-gap,
+        row-gutter: row-gap * body-size,
+        ..cells.flatten(),
+      )
+    }),
+  )
 }
 
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
-// plain heading style whether or not it links. `tags-lead` is a
-// line of its own above the `tags` pills (education's score), so it
-// doesn't read as one of them.
+// plain heading style whether or not it links.
 //
-// `compact: true` folds the organisation and `details` (short facts
-// such as a credential ID) onto the date row instead of giving the
-// organisation a line of its own.
+// The facts line under the title joins the organisation (in the
+// accent), the person's `roles` and short `details` (a credential ID)
+// with ` · `; the date and `location` sit at the right edge beside
+// the title and the facts line. Without a title, the facts line
+// leads.
+//
+// The `keywords` (a project's stack, education's courses) end the
+// entry as one line joined with ` · `; `keywords-lead` is a line of
+// its own above them (education's score), so it doesn't read as one
+// of them.
 #let _entry(
   title: none,
   url: none,
@@ -60,26 +109,27 @@
   roles: (),
   period: none,
   location: none,
-  compact: false,
   details: (),
   summary: none,
   highlights: (),
-  tags-lead: none,
-  tags: (),
+  keywords-lead: none,
+  keywords: (),
 ) = {
-  if _present(title) [=== #_link-if(url, title)]
-  if not compact { _org-line(org, url: org-url) }
+  let org = if _present(org) { _accent-text(_link-if(org-url, org)) }
+  _entry-head(
+    if _present(title) { _link-if(url, title) },
+    _fact-line((org,), roles, details),
+    period,
+    location,
+  )
   _subtitle(subtitle)
-  // The person's roles as darker pills, set apart from the `tags`.
-  if roles.len() > 0 {
-    block(below: _theme.entry.roles-below, _tag-row(roles, label: true))
-  }
-  if compact {
-    _compact-term(period, location, org, org-url, details)
-  } else {
-    term(period, location: location)
-  }
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present((tags-lead, _tag-row(tags)), [\ ])
+  _join-present(
+    (
+      keywords-lead,
+      _join-present(keywords, _theme.separator.facts),
+    ),
+    [\ ],
+  )
 }

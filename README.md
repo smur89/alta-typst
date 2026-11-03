@@ -245,7 +245,7 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: title, organisation or subtitle, date row, `summary`, highlights, then tags. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (roles, a credential ID) with the location at the right edge, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
@@ -259,7 +259,7 @@ These mean the same in every section that reads them:
 | `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
 | `summary` | string or content | A short paragraph of context. |
 | `highlights` | array of content | Accomplishments, as a bulleted list. |
-| `keywords`, `courses`, `roles` | array of strings | Tags, one per item. |
+| `keywords`, `courses` | array of strings | In entry sections (projects, education), one line at the end of the entry, joined with ` · `. Skills and interests show their `keywords` their own way (see below). |
 
 #### Work
 
@@ -296,7 +296,7 @@ Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#s
 | `institution` | string | School name; the organisation. |
 | `url` | string | Links the institution. |
 | `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, on its own line above the `courses` tags. |
+| `score` | string | Grade / classification, on its own line above the `courses`. |
 
 #### Projects
 
@@ -305,9 +305,9 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Project title. Missing / empty `name` → entry silently skipped. |
-| `entity` | string | The company or client the project belonged to; the subtitle. |
+| `entity` | string | The company or client the project belonged to; leads the line under the title, as an organisation does. |
 | `url` | string | Links the title. |
-| `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
+| `roles` | array of strings | Your role(s) on the project, after `entity` on the line under the title (`Acme Corp · Lead, Architect`). |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 
@@ -344,7 +344,7 @@ All fields are optional — omitted fields drop their line.
 
 #### Certificates
 
-A compact entry: the date, issuer and credential ID share one row.
+The date sits at the title's right edge; the issuer and credential ID share the line under it.
 
 | Field | Type | Effect |
 |---|---|---|
@@ -358,7 +358,7 @@ A compact entry: the date, issuer and credential ID share one row.
 
 #### Interests
 
-A `{name, keywords}` category per entry, shown as a row: the category as a label tag, then one tag per keyword. Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
+A `{name, keywords}` category per entry, shown as a line of text: the category in bold, then its keywords (`Music: Trad, Jazz`). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
 
 | Field | Type | Effect |
 |---|---|---|
@@ -684,7 +684,7 @@ meta: (
 | Helper | Purpose |
 |---|---|
 | `icon(name, size: auto, shift: 0pt, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
-| `name(body)` | Accent-coloured line — the company / institution row under a role. |
+| `name(body)` | Accent-coloured line, for an organisation on a line of its own in a custom layout. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value, max: auto)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`max`, which defaults to `preferences.maxRating` (5 unless set); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |

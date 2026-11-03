@@ -9,9 +9,9 @@
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": icon
 
-// The accent text `name()` sets on its own line, for inline use (e.g.
-// a certificate's issuer on its term row). Regular weight, so the
-// role above it leads.
+// The accent text `name()` sets on its own line, for inline use (an
+// entry's organisation on its facts line). Regular weight, so the
+// title above it leads.
 #let _accent-text(body) = context text(fill: _accent-state.get(), body)
 
 // The quietest lines (publication dates, identifiers); absent bodies
@@ -43,7 +43,7 @@
 )
 
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
-// doesn't compete with the `name()` line. Its own paragraph, so
+// doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
 #let _preamble(body) = if _present(body) {
   par(_treat(_theme.treatment.preamble, body))
@@ -61,12 +61,18 @@
   )
 }
 
-// The 50% default lines a period up with a location column.
-#let _term-part(icon-name, body, width: 50%) = if _present(body) {
-  box(width: width, {
+// `body` led by its icon, kept on one line; absent bodies render
+// nothing, so no stray icon.
+#let _icon-fact(icon-name, body) = if _present(body) {
+  box({
     icon(icon-name)
     body
   })
+}
+
+// Half the row each, so a period lines up with a location column.
+#let _term-part(icon-name, body) = if _present(body) {
+  box(width: 50%, _icon-fact(icon-name, body))
 }
 
 // An absent side is skipped, so undated or unlocated entries don't
@@ -146,11 +152,10 @@
 #let divider() = _divider(true)
 #let _divider-space() = _divider(false)
 
-// `label` renders the whole row in the darker variant (e.g. project
-// roles, set apart from keyword pills).
-#let _tag-row(items, label: false) = {
+// A row of `tag()` pills, with no gap after the last.
+#let _tag-row(items) = {
   for (i, item) in items.enumerate() {
-    tag(item, label: label, trailing: i < items.len() - 1)
+    tag(item, trailing: i < items.len() - 1)
   }
 }
 

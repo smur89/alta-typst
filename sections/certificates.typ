@@ -1,5 +1,5 @@
-// Certificates: a compact entry, with date, issuer and credential ID
-// on one term row so several certs stay short.
+// Certificates: the date at the title's right edge, then the issuer
+// and credential ID on one line, so several certs stay short.
 
 #import "../internal/util/dates.typ": _format-date-span
 #import "../internal/util/fields.typ": _field
@@ -15,7 +15,6 @@
   cert => _entry(
     title: cert.name,
     url: _field(cert, "url"),
-    compact: true,
     org: _field(cert, "issuer"),
     details: (_field(cert, "credentialId"),),
     period: _format-date-span(

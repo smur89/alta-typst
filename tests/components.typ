@@ -18,7 +18,7 @@
 #import "../internal/components/frame.typ": _grouped-section, _section
 #import "../internal/components/header.typ": _page-header
 #import "../internal/components/intro.typ": _intro-block
-#import "../internal/components/keywords.typ": _keyword-rows
+#import "../internal/components/keywords.typ": _keyword-rows, _label-rows
 #import "../internal/components/ratings.typ": _rating-row, rating
 
 #show: _document.with(
@@ -80,27 +80,35 @@
 
 #pagebreak()
 
-= Section of entries: full, with roles and tags
+= Section of entries: full, with roles and keywords
 #_section("Entries", (1, 2), _ => _entry(
   title: "Staff Engineer",
   url: "https://example.com",
   org: "Acme",
   org-url: "https://acme.example.com",
   subtitle: "Platform team",
-  roles: ("Lead", "Architect"),
+  // The empty role and keyword drop out rather than leave a separator.
+  roles: ("", "Lead", "Architect"),
   period: "Jan 2022 – Present",
   location: "Dublin, IE",
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
-  tags-lead: "First class",
-  tags: ("Scala", "Kafka"),
+  keywords-lead: "First class",
+  keywords: ("Scala", "", "Kafka"),
 ))
 
-= Entry: compact
+= Entry: in a narrow column, the date and location on lines of their own
+#block(width: 30%, _entry(
+  title: "Staff Engineer",
+  org: "Acme",
+  period: "Jan 2022 – Present",
+  location: "Dublin, IE",
+))
+
+= Entry: issuer and details
 #_section("Compact", (1,), _ => _entry(
   title: "Certified Kubernetes Administrator",
   url: "https://example.com",
-  compact: true,
   org: "CNCF",
   details: ("CKA-123",),
   period: "Mar 2024 – Mar 2027",
@@ -129,10 +137,23 @@
   summary: [What the paper is about.],
 )
 
-= Keyword rows
-#_keyword-rows((
+= Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing
+#block(width: 60%, _keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
-  (name: "Infra", keywords: ("Kafka", "Kubernetes")),
+  (
+    name: "Infra",
+    keywords: ("Kafka", "Kubernetes", "Terraform", "AWS", "Docker", "Helm"),
+  ),
+  (
+    name: "Infrastructure and Platform Engineering Tooling",
+    keywords: ("Kafka", "Kubernetes", "Terraform"),
+  ),
+)))
+
+= Label rows
+#_label-rows((
+  (name: "Music", keywords: ("Trad", "Jazz")),
+  (name: "Sport", keywords: ("Hurling", "Climbing")),
 ))
 
 = Rating rows: dots, a half dot, and the text fallback
