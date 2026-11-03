@@ -116,8 +116,9 @@
 // between entries, never between an icon and its text.
 #let _contact-bar(contacts, body-size, accent) = {
   let contact-gap = _theme.header.contact-gap
-  let bar-icon = icon.with(fill: accent)
-  set text(weight: _theme.font-weight.bold)
+  let size = _theme.header.contact-size * body-size
+  let bar-icon = icon.with(size: size, fill: accent)
+  set text(size, weight: _theme.font-weight.bold)
   contacts
     .map(entry => box({
       bar-icon(entry.icon, alt: entry.at("alt", default: none))

@@ -123,6 +123,9 @@
       name-below: sp.large,
       pronouns-gap: sp.small,
       headline-below: sp.medium,
+      // The contact bar's text and icons, a multiple of the body size:
+      // a step below body, so the links don't compete with the name.
+      contact-size: 0.9,
       contact-gap: sp.small,
       ornament-gutter: sp.medium * 1em,
       photo-gap: sp.medium,
