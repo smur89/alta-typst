@@ -127,6 +127,9 @@
   let pronouns = _field(basics, "pronouns")
   let (size, colour, ..) = _theme
   let (
+    name-weight,
+    headline-weight,
+    contact-weight,
     name-below,
     pronouns-gap,
     headline: headline-size,
@@ -150,7 +153,7 @@
         text(
           size.name * body-size,
           fill: accent,
-          weight: "bold",
+          weight: name-weight,
           if preferences.uppercaseName { upper(basics.name) } else {
             basics.name
           },
@@ -171,13 +174,13 @@
         text(
           headline-size * body-size,
           fill: colour.emphasis,
-          weight: "bold",
+          weight: headline-weight,
           headline,
         ),
       )
     }
 
-    set text(size.meta * body-size, weight: "bold")
+    set text(size.meta * body-size, weight: contact-weight)
     // `box` per entry so the bar wraps between entries, never between
     // an icon and its text.
     _contact_entries(basics, preferences.mapsProvider)

@@ -3,6 +3,7 @@
 // precede `set page` so the footer inherits the font and language.
 
 #import "theme.typ": _theme
+#import "text.typ": _treat
 
 // For `show: _content_styles.with(body-size, accent)`. Levels: 2
 // section title, 3 role / qualification, 4 sub-grouping (e.g.
@@ -16,14 +17,18 @@
     body-indent: l.body-indent * body-size,
     spacing: l.spacing,
   )
+  let (above, rule-gap, rule, below, weight, case) = section
   show heading.where(level: 2): it => block(sticky: true)[
-    #v(section.above * body-size)
-    #text(size.section * body-size, fill: accent, weight: "bold", upper(
-      it.body,
-    ))
-    #v(section.rule-gap * body-size)
-    #line(length: 100%, stroke: section.rule + accent)
-    #v(section.below * body-size)
+    #v(above * body-size)
+    #text(
+      size.section * body-size,
+      fill: accent,
+      weight: weight,
+      _treat(case, it.body),
+    )
+    #v(rule-gap * body-size)
+    #line(length: 100%, stroke: rule + accent)
+    #v(below * body-size)
   ]
   let sub-heading((above, below, weight)) = it => block(
     above: above * body-size,
