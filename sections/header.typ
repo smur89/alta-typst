@@ -1,17 +1,15 @@
 // The page header: `basics` and the header preferences mapped onto
-// `_page_header`, then the root `objective` (JSON Resume 1.4.0) and
-// `basics.summary` onto `_intro_block`. Not one of the column sections
-// in `data/sections.typ`: `alta()` renders it above the grid. CV fields are
-// checked here, where they're consumed.
+// `_page_header`. Not one of the column sections in
+// `data/sections.typ`: `alta()` renders it above the grid. CV fields
+// are checked here, where they're consumed.
 
 #import "../internal/design/icon-set.typ": _network_aliases, _profile_networks
-#import "../internal/util/checks.typ": _check_type
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/location.typ": _format_location
-#import "../internal/util/values.typ": _present, _url_encode
+#import "../internal/util/values.typ": _url_encode
 #import "../internal/data/validation.typ": _contact_channels
 #import "../internal/primitives.typ": _portrait
-#import "../internal/components/header.typ": _intro_block, _page_header
+#import "../internal/components/header.typ": _page_header
 
 // Fully populated per channel, so callers can `link-config.at(channel)`
 // without missing-key guards.
@@ -156,19 +154,5 @@
       prefs.imageStackOrder
     } else { prefs.imagePosition },
     qr-url: _resolve_qr_url(prefs.qrCode, basics),
-  )
-}
-
-#let _intro(cv) = {
-  let objective = cv.at("objective", default: none)
-  _check_type(
-    "objective",
-    objective,
-    (str, content, type(none)),
-    "a string or content",
-  )
-  _intro_block(
-    objective: if _present(objective) { objective },
-    summary: _field(cv.basics, "summary"),
   )
 }

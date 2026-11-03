@@ -9,7 +9,7 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 1. **Options:** `_merge_options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
 2. **CV:** unknown top-level keys are rejected, `_canonical_cv` rewrites deprecated CV forms, and `_read_sections` (`data/sections.typ`) shape-checks every section.
 3. **Document:** the render-time context (`context.typ`), PDF metadata, `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
-4. **Content:** the header (`sections/header.typ`), then each column section's renderer from `registry.typ`.
+4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`.
 
 ## Layers
 
@@ -47,7 +47,7 @@ A section reads fields and fills a component's slots:
 )
 ```
 
-Column sections are registered twice: their spec (field, default column, accepted entries) in `data/sections.typ`, their renderer in `registry.typ`. The header and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+Column sections are registered twice: their spec (field, default column, accepted entries) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
 
 ## The look
 
