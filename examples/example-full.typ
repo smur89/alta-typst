@@ -11,19 +11,20 @@
 //   • Work: open-ended + closed roles, `summary` preamble, highlights.
 //   • Volunteer: distinct organisation/position shape.
 //   • Skills: two pill-tag groups, exercises tag overflow.
-//   • Languages: every input form — `fluency` strings, integer
-//     `rating`, fractional half-dot `rating`.
+//   • Languages: every input form — `fluency` strings, integer and
+//     fractional half-dot `custom.altacv.rating`.
 //   • Education: `studyType` + `score` + `courses` pills, plus the
 //     `area` fallback for entries missing `studyType`.
 //   • Certificates: multi-issuer grouping with inline date + linked
 //     pill (per-cert `date` and `url`), plus an issuer-less cert that
 //     pools into the trailing unlabelled group.
-//   • Awards: full entry with `url`, plus a title-only minimal entry.
-//   • Projects: complete + ongoing + minimal + description-only.
-//   • Publications: grouped by `type` (Articles, Books, Talks,
-//     Conference Papers) — each subheading carries its own
-//     type-specific icon — plus an untyped entry that falls under
-//     `labels.articles`.
+//   • Awards: full entry with a `custom.altacv.url` link, plus a
+//     title-only minimal entry.
+//   • Projects: complete + ongoing + minimal + summary-only.
+//   • Publications: grouped by `type` code (`article`, `paper`,
+//     `talk`, `book`) — each subheading carries its own icon; `paper`
+//     gets its heading and icon at the `alta()` call — plus an untyped
+//     entry that joins `article`.
 //   • Interests: structured `{name, keywords}` form.
 //   • References: a populated entry plus an anonymous (no `name`)
 //     quote — exercises the divider rule and the level-3 heading
@@ -121,11 +122,15 @@
     lastModified: today.display("[year]-[month]-[day]"),
   ),
 
-  focusAreas: (
-    [Distributed systems: Kafka, CDC, idempotent consumers, event sourcing.],
-    [Functional programming and type-driven design in Scala and Haskell.],
-    [Developer experience: tooling, CI/CD, observability.],
-    [Engineering culture: ADRs, RFCs, mentoring.],
+  custom: (
+    altacv: (
+      focusAreas: (
+        [Distributed systems: Kafka, CDC, idempotent consumers, event sourcing.],
+        [Functional programming and type-driven design in Scala and Haskell.],
+        [Developer experience: tooling, CI/CD, observability.],
+        [Engineering culture: ADRs, RFCs, mentoring.],
+      ),
+    ),
   ),
 
   work: (
@@ -184,12 +189,13 @@
   ),
 
   // Languages exercise every supported input: named `fluency` strings
-  // and numeric `rating` (with fractional half-dot precision).
+  // and numeric `custom.altacv.rating` (with fractional half-dot
+  // precision).
   languages: (
     (language: "English", fluency: "Native"),
     (language: "Irish", fluency: "Professional Working"),
-    (language: "French", rating: 4),
-    (language: "Portuguese", rating: 2.5),
+    (language: "French", custom: (altacv: (rating: 4))),
+    (language: "Portuguese", custom: (altacv: (rating: 2.5))),
   ),
 
   education: (
@@ -261,14 +267,14 @@
     ),
   ),
 
-  // Full entry with `url`, plus a title-only minimal entry to
+  // Full entry with a `custom.altacv.url` link, plus a title-only minimal entry to
   // demonstrate the all-optional surface.
   awards: (
     (
       title: "Best Paper Award",
       date: ago(months: 21),
       awarder: "ScalaConf",
-      url: "https://example.com/awards/scalaconf",
+      custom: (altacv: (url: "https://example.com/awards/scalaconf")),
       summary: [For _Idempotent Kafka Consumers_.],
     ),
     (
@@ -277,13 +283,13 @@
   ),
 
   // Every documented field combination: complete + ongoing + minimal
-  // + description-only.
+  // + summary-only.
   projects: (
     (
       name: "Hyperion",
       type: "Application",
       entity: "Acme Corp",
-      description: "Distributed task scheduler in Rust",
+      summary: "Distributed task scheduler in Rust",
       startDate: ago(months: 29),
       endDate: ago(months: 22),
       url: "https://github.com/seanomurchu/hyperion",
@@ -299,7 +305,7 @@
       // "Application" `type` with Hyperion, so the two cluster together.
       name: "Crucible",
       type: "Application",
-      description: "Migration tool for legacy databases",
+      summary: "Migration tool for legacy databases",
       startDate: ago(months: 21),
       roles: ("Maintainer",),
       highlights: ([Schema diffing across PostgreSQL and MySQL.],),
@@ -308,7 +314,7 @@
       // Distinct `type` → its own "Library" subheading.
       name: "Tinkerbell",
       type: "Library",
-      description: "Tiny IRC bot",
+      summary: "Tiny IRC bot",
       keywords: ("Lua",),
     ),
     (
@@ -343,15 +349,16 @@
     ),
   ),
 
-  // Four groups: explicit `Articles`, `Books`, `Talks`, `Conference
-  // Papers`, plus one untyped entry that falls into the default
-  // `labels.articles` group. Each rendered subheading carries its
-  // type-specific icon (newspaper / book / microphone / newspaper /
-  // newspaper) — see the README's "Publication icons".
+  // Four groups by `type` code: `article`, `paper`, `talk`, `book`,
+  // plus one untyped entry that joins `article`. `paper` isn't a
+  // built-in code, so the `alta()` call below names its heading
+  // (`labels.publicationTypes`) and icon (`preferences.publicationIcons`).
+  // Each subheading carries its type's icon (newspaper / newspaper /
+  // microphone / book) — see the README's "Publication icons".
   publications: (
     (
       name: "Event Sourcing in Practice",
-      type: "Articles",
+      type: "article",
       publisher: "Personal Blog",
       releaseDate: ago(years: 2, precision: "day"),
       url: "https://example.com/posts/event-sourcing",
@@ -360,26 +367,26 @@
     ),
     (
       name: "Idempotent Kafka Consumers at Scale",
-      type: "Conference Papers",
+      type: "paper",
       publisher: "EuroSys",
       releaseDate: ago(months: 26),
       url: "https://example.com/eurosys",
     ),
     (
       name: "Designing for Failure",
-      type: "Talks",
+      type: "talk",
       publisher: "ScalaIO",
       releaseDate: ago(months: 33),
       url: "https://example.com/talks/failure",
     ),
     (
       name: "Functional Domain Modelling",
-      type: "Books",
+      type: "book",
       publisher: "Self-published",
       releaseDate: ago(years: 4, precision: "year"),
     ),
     (
-      // No `type` → falls into the default `labels.articles` group.
+      // No `type` → joins the `article` group.
       name: "Untyped Note",
       releaseDate: ago(months: 29),
       url: "https://example.com/untyped",
@@ -394,26 +401,31 @@
 //
 // `interests` is moved into the left column to fill space below the
 // long-form blocks; the rest of the layout takes the shipped defaults.
-#alta(cv, preferences: (
-  accent: palettes.navy,
-  dateFormat: "[day padding:none] [month repr:short] [year]",
-  mapsProvider: maps-providers.osm,
-  pageFooter: auto,
-  maxRating: 6,
-  leftColumnSections: (
-    "work",
-    "volunteer",
-    "projects",
-    "publications",
-    "interests",
+#alta(
+  cv,
+  labels: (publicationTypes: (paper: "Conference Papers")),
+  preferences: (
+    accent: palettes.navy,
+    publicationIcons: (paper: "newspaper"),
+    dateFormat: "[day padding:none] [month repr:short] [year]",
+    mapsProvider: maps-providers.osm,
+    pageFooter: auto,
+    maxRating: 6,
+    leftColumnSections: (
+      "work",
+      "volunteer",
+      "projects",
+      "publications",
+      "interests",
+    ),
+    rightColumnSections: (
+      "focusAreas",
+      "skills",
+      "languages",
+      "education",
+      "certificates",
+      "awards",
+      "references",
+    ),
   ),
-  rightColumnSections: (
-    "focusAreas",
-    "skills",
-    "languages",
-    "education",
-    "certificates",
-    "awards",
-    "references",
-  ),
-))
+)

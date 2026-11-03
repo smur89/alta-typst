@@ -180,7 +180,6 @@
         accent: palettes.forest,
         showPronouns: true,
         headerTextAlign: "right",
-        groupCertificates: false,
         leftColumnSections: ("work", "volunteer", "interests"),
         rightColumnSections: (
           "focusAreas",

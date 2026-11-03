@@ -499,7 +499,6 @@ Reorder the right-column sections, switch to navy, and use US Letter:
 #alta(cv, preferences: (
   paper: "us-letter",
   accent: palettes.navy,
-  groupCertificates: false,
   imageSize: 7em,
   linkContactInfo: false,           // contact bar as plain text
   mapsProvider: maps-providers.osm, // OpenStreetMap for `basics.location`

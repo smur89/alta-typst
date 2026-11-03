@@ -37,8 +37,12 @@
     ),
   ),
 
-  focusAreas: (
-    [Córais dáilte agus ríomhaireacht neamh-fheidhmeach.],
+  custom: (
+    altacv: (
+      focusAreas: (
+        [Córais dáilte agus ríomhaireacht neamh-fheidhmeach.],
+      ),
+    ),
   ),
 
   work: (
@@ -73,7 +77,7 @@
   languages: (
     (language: "Gaeilge", fluency: "Native"),
     (language: "Béarla", fluency: "Native"),
-    (language: "Français", rating: 3),
+    (language: "Français", custom: (altacv: (rating: 3))),
   ),
 
   education: (
