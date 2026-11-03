@@ -1,6 +1,7 @@
-// Accessors that know the CV's shape: the references flag and
-// altacv's own `custom.altacv` namespace.
+// Accessors that know the CV's shape: the references flag, a profile's
+// network and altacv's own `custom.altacv` namespace.
 
+#import "../design/icon-set.typ": _network-aliases
 #import "../util/fields.typ": _dict-or-empty, _field
 
 // A `references[]` entry's flag: only a real boolean counts, so a
@@ -23,3 +24,10 @@
   key,
   default: default,
 )
+
+// A `basics.profiles[]` entry's network as its icon key: lowercased,
+// with renamed networks mapped to the key their icon still ships under.
+#let _profile-network(profile) = {
+  let raw = lower(profile.network)
+  _network-aliases.at(raw, default: raw)
+}

@@ -6,22 +6,25 @@
 
 #import "canonical.typ": _legacy-root-fields
 #import "cv.typ": _altacv
-#import "validation.typ": _check-section-entries
+#import "cv-checks.typ": (
+  _check-entry-location, _check-language, _check-section-entries,
+)
 
 // `focusAreas` lives in `custom.altacv`; `items` lists the accepted
-// entry types (default: dictionaries). Insertion order is the default
-// render order.
+// entry types (default: dictionaries); `check(key, entry, prefs)`
+// checks the fields its renderer reads. Insertion order is the default render
+// order.
 #let _section-specs = (
-  work: (column: "left"),
-  volunteer: (column: "left"),
+  work: (column: "left", check: _check-entry-location),
+  volunteer: (column: "left", check: _check-entry-location),
   focusAreas: (
     column: "right",
     read: cv => _altacv(cv, "focusAreas", default: ()),
     items: (str, content),
   ),
   skills: (column: "right"),
-  languages: (column: "right"),
-  education: (column: "right"),
+  languages: (column: "right", check: _check-language),
+  education: (column: "right", check: _check-entry-location),
   certificates: (column: "right"),
   awards: (column: "right"),
   projects: (column: "left"),
@@ -30,15 +33,18 @@
   references: (column: "right"),
 )
 
-// Every section's entries, shape-checked before any renderer (or the
+// Every section's entries, checked before any renderer (or the
 // PDF-keyword pass) reads them.
-#let _read-sections(cv) = (
+#let _read-sections(cv, prefs) = (
   _section-specs
     .pairs()
-    .map(((key, entry)) => {
-      let read = entry.at("read", default: cv => cv.at(key, default: ()))
-      let items = entry.at("items", default: (dictionary,))
-      (key, _check-section-entries(key, read(cv), items))
+    .map(((key, spec)) => {
+      let read = spec.at("read", default: cv => cv.at(key, default: ()))
+      let items = spec.at("items", default: (dictionary,))
+      let entries = _check-section-entries(key, read(cv), items)
+      let check = spec.at("check", default: none)
+      if check != none { for entry in entries { check(key, entry, prefs) } }
+      (key, entries)
     })
     .to-dict()
 )

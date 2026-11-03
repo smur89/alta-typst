@@ -5,7 +5,7 @@
 #import "../internal/util/values.typ": _round-half
 #import "../internal/data/cv.typ": _altacv
 #import "../internal/components/frame.typ": _section
-#import "../internal/components/ratings.typ": _rating-row, rating
+#import "../internal/components/ratings.typ": _rating-row
 
 // LinkedIn fluency strings as fractions of full fluency; matched
 // case-insensitively.
@@ -20,27 +20,12 @@
 
 // A `custom.altacv.rating` wins over `fluency`; a known `fluency`
 // scales to `max` dots, rounded to the half. `none` (an unknown
-// `fluency`) means render the label only. Numeric checks live in
-// `rating()`.
+// `fluency`) means render the label only. `_read-cv` has checked that
+// one of them is set.
 #let _resolve-rating(entry, max) = {
-  let value = _altacv(entry, "rating") // avoid shadowing `rating()`
+  let value = _altacv(entry, "rating")
   if value != none { return value }
-  let fluency = entry.at("fluency", default: none)
-  if fluency == none {
-    panic(
-      "Language entry needs either a numeric `custom.altacv.rating` or a `fluency` string. Got: "
-        + repr(entry),
-    )
-  }
-  if type(fluency) != str {
-    panic(
-      "Language `fluency` must be a string, got "
-        + repr(fluency)
-        + " in entry: "
-        + repr(entry),
-    )
-  }
-  let fraction = _fluency-rating.at(lower(fluency.trim()), default: none)
+  let fraction = _fluency-rating.at(lower(entry.fluency.trim()), default: none)
   if fraction != none { _round-half(fraction * max) }
 }
 

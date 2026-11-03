@@ -119,6 +119,8 @@
   cv => _map-entries(cv, "publications", _canonical-type),
   cv => _map-entries(cv, "projects", _trim-type),
   cv => _references-on-request(cv, prefs),
+  // Absent `meta` reads as empty, so its readers needn't default it.
+  cv => (meta: (:)) + cv,
 ).fold(cv, (acc, step) => step(acc))
 
 // Panics when two keys collapse onto one (`Talks` + `talks`) rather
