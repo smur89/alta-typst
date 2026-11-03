@@ -48,8 +48,10 @@
   "region",
 )
 #let _location-display-order = ("city", "region", "countryCode")
-// `value` has passed `_check-location` (`cv-checks.typ`).
-#let _format-location(value) = {
+// `obj`'s `location` (an entry's or `basics`'), which has passed
+// `_check-location` (`cv-checks.typ`).
+#let _format-location(obj) = {
+  let value = obj.at("location", default: none)
   if not _present(value) { return none }
   if type(value) == str { return value }
   _join-present(

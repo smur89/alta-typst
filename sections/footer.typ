@@ -12,7 +12,7 @@
   let page-footer = prefs.pageFooter
   let last-modified = _field(meta, "lastModified")
   if page-footer != none {
-    if page-footer == "auto" {
+    if page-footer == auto {
       _auto-page-footer(owner, labels.pageNumber)
     } else {
       page-footer

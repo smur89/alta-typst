@@ -22,7 +22,7 @@
     org: _field(entry, org-key),
     org-url: _field(entry, "url"),
     period: _entry-period(entry, format-date, labels.present),
-    location: _format-location(entry.at("location", default: none)),
+    location: _format-location(entry),
     summary: _field(entry, "summary"),
     highlights: entry.at("highlights", default: ()),
   ),

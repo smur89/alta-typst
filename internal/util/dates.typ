@@ -7,6 +7,7 @@
 // ourselves while mirroring its bracketed token syntax, so a template
 // carries over to other Typst code.
 
+#import "checks.typ": _unknown
 #import "values.typ": _join-present, _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
@@ -80,12 +81,10 @@
 ) {
   let token = m.captures.first()
   if token.split(" ").first() not in _date-token-heads {
-    panic(
-      "Unknown "
-        + name
-        + " token: ["
-        + token
-        + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
+    _unknown(
+      name + " token",
+      "[" + token + "]",
+      "year, month, day (each with optional `padding:` / `repr:` modifiers)",
     )
   }
 }

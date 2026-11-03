@@ -32,7 +32,7 @@
 
 ## Features
 
-- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (focus areas, a numeric language rating and an award link), read from JSON Resume's `custom.altacv` namespace.
+- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (focus areas, a numeric language rating and an award link), read from JSON Resume's `custom.altacv` namespace (or, through `alta-from-json`, their deprecated top-level forms; see [From an existing `resume.json`](#from-an-existing-resumejson)).
 - **Single-column ATS mode** (`columnRatio: 1`) alongside the default two-column layout, plus inverted variants with the side panel on either side.
 - **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value.
 - **Full label localisation** via inline dict or TOML file. Every display string is overridable; see [`examples/labels-ga.toml`](examples/labels-ga.toml) for a worked Irish translation.
@@ -73,7 +73,7 @@ Best when your CV already lives in a canonical `resume.json` ([JSON Resume schem
 ```
 <!-- x-release-please-end -->
 
-Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [extensions](#extensions) are optional, so a vanilla `resume.json` validates without edits. The `custom.altacv` forms don't validate on this route yet: gairm-import 0.9.0 rejects `custom` ([#217](https://github.com/smur89/alta-typst/issues/217)), so a `resume.json` still uses the deprecated top-level `focusAreas` and `languages[].rating` here.
+Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [extensions](#extensions) are optional, so a vanilla `resume.json` validates without edits. The `custom.altacv` forms don't validate on this route yet: gairm-import 0.9.0 rejects `custom` ([#217](https://github.com/smur89/alta-typst/issues/217)), so a `resume.json` still uses the deprecated top-level `focusAreas`, `languages[].rating` and `awards[].url` here.
 
 To inspect or transform the parsed dict before rendering, use `from-json-resume` directly:
 
@@ -448,7 +448,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 
 | Key | Default | Effect |
 |---|---|---|
-| `pageFooter` | `none` | Optional page footer. `none` — no footer. `"auto"` — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
+| `pageFooter` | `none` | Optional page footer. `none` — no footer. `auto` (or the deprecated string `"auto"`) — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
 | `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
 | `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |
 
@@ -579,7 +579,7 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")` |
 | `publicationIcons` | `(:)` (deprecated, see below) |
 
-`labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: "auto"` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
+`labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: auto` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
 
 `labels.lang` is the document language, an ISO 639 code (two or three lowercase letters: `"de"`, `"ga"`). It drives hyphenation and smart quotes, and is written to the PDF as its language tag, which screen readers use to pick a voice. Set it alongside any full translation; anything other than a lowercase 2–3 letter code panics.
 

@@ -109,7 +109,7 @@ PRs squash-merge with the PR title as the commit subject, so just make the **PR 
 
 This is the most common shape of contribution. Two changes:
 
-1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
+1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (`_profile-network` in `internal/data/cv.typ` lowercases the network before the lookup) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
 `feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid-names` in `internal/design/icon-set.typ` so `fa-icon` is called with `solid: true`.

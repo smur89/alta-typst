@@ -44,7 +44,7 @@ lastModified = "Last updated"
 # Templates rather than prefixes, so a translation can reorder the
 # parts; unknown placeholders panic.
 #
-# `pageFooter: "auto"` counter. `{current}` required, `{total}` optional.
+# `pageFooter: auto` counter. `{current}` required, `{total}` optional.
 pageNumber = "Page {current} / {total}"
 
 # PDF Title; `{name}` required. A plain string, not markup, so write a

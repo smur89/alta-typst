@@ -8,11 +8,13 @@
   _enum-rule, _positive-int-rule, _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
-#import "../util/values.typ": _placeholder-re
+#import "../util/values.typ": _placeholder-re, _present-str
 
-// `linkContactInfo` channels. In `data/`, as `sections/header.typ`
-// reads them too and `data/` may not import sections.
+// `linkContactInfo` channels and `headerTextAlign` values. In `data/`,
+// as `sections/header.typ` reads them too and `data/` may not import
+// sections.
 #let _contact-channels = ("email", "phone", "location", "url", "profiles")
+#let _text-aligns = (left: left, right: right, center: center)
 
 // Unknown keys panic rather than being silently absorbed. The keys
 // named in `tables` (`labels.publicationTypes`) hold dictionaries that
@@ -56,9 +58,15 @@
     )
 )
 
+// `name` is the table's full path, for the message.
+#let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
+#let _check-icon-names(table, name) = for (code, icon-name) in table {
+  _check(name + "." + code, icon-name, _icon-name-rule)
+}
+
 // The single-value preferences, in `_default-preferences`' order. The
-// rest are checked in `_validate-preferences` or, for
-// `publicationIcons`, `_canonical-preferences`; `groupCertificates` is
+// rest are checked in `_validate-preferences`, or for
+// `publicationIcons` in `_merge-options`; `groupCertificates` is
 // ignored, so it isn't checked.
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),
@@ -71,14 +79,14 @@
   ),
   uppercaseName: _bool-rule,
   showPronouns: _bool-rule,
-  headerTextAlign: _enum-rule(("left", "right", "center")),
+  headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
   imagePosition: _enum-rule(("left", "right", "center")),
   // Checked even when unused, so a typo surfaces before it matters.
   imageStackOrder: _enum-rule(("above", "below")),
   // A typo (`qrCode: true`) fails here, not inside `qrcode(...)`.
   qrCode: (
-    v => v == none or v == auto or (type(v) == str and v != ""),
+    v => v == none or v == auto or _present-str(v),
     "`none`, `auto`, or a non-empty URL string",
   ),
   paper: _type-rule((str,), "a paper name (e.g. \"a4\")"),
@@ -91,8 +99,8 @@
     "a number in (0, 1]",
   ),
   pageFooter: (
-    v => v == none or v == "auto" or type(v) == content,
-    "`none`, the string \"auto\", or a content value",
+    v => v == none or v == auto or type(v) == content,
+    "`none`, `auto`, or a content value",
   ),
   lastModifiedFooter: _bool-rule,
   footerVersion: _bool-rule,
@@ -170,12 +178,6 @@
         + repr(template),
     )
   }
-}
-
-// Checked up front, as `icon()` would fail on a bare missing key.
-// `name` is the table's full path, for the message.
-#let _check-icon-names(table, name) = for (code, icon-name) in table {
-  _check(name + "." + code, icon-name, _enum-rule(_icon-glyphs.keys()))
 }
 
 #let _lang-re = regex("^[a-z]{2,3}$")

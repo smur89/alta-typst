@@ -398,7 +398,7 @@
   accent: palettes.navy,
   dateFormat: "[day padding:none] [month repr:short] [year]",
   mapsProvider: maps-providers.osm,
-  pageFooter: "auto",
+  pageFooter: auto,
   maxRating: 6,
   leftColumnSections: (
     "work",
