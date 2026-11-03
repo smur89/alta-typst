@@ -1,23 +1,21 @@
-// The page header and the intro beneath it, laid out from the slots
-// `sections/header.typ` maps the CV and preferences onto: name,
-// pronouns, headline and contact bar, an optional portrait and QR,
-// then the objective and summary.
+// The page header, laid out from the slots `sections/header.typ` maps
+// the CV and preferences onto: the name line, headline and contact bar,
+// with an optional portrait and QR around them.
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent_state, _body_size_state
-#import "../util/values.typ": _join_present
 #import "../icons.typ": icon
-#import "../primitives.typ": _link_if, _preamble
+#import "../primitives.typ": _link_if
 #import "qr.typ": _qr_render
 
 // `photo` and `qr` are `none` when absent.
 #let _header_layout(
   header-text,
-  photo,
-  qr,
   qr-size,
   body-size,
-  photo-at,
+  photo: none,
+  qr: none,
+  photo-at: none,
 ) = {
   let (ornament-gutter, photo-gap, ..) = _theme.header
   // Full-width `block` centres the photo against the page (a bare
@@ -82,11 +80,63 @@
   }
 }
 
+// The name, then any pronouns. The `box` keeps "(they/them)" whole
+// when a long name wraps.
+#let _name_line(name, pronouns, body-size, accent) = {
+  let (name-weight, name-below, pronouns-gap, ..) = _theme.header
+  block(spacing: 0pt, below: name-below * body-size, {
+    text(
+      _theme.size.name * body-size,
+      fill: accent,
+      weight: name-weight,
+      name,
+    )
+    if pronouns != none {
+      h(pronouns-gap * body-size)
+      box(text(body-size, fill: _theme.colour.body, [(#pronouns)]))
+    }
+  })
+}
+
+#let _headline(headline, body-size) = if headline != none {
+  let (
+    headline: headline-size,
+    headline-weight,
+    headline-below,
+    ..,
+  ) = _theme.header
+  block(
+    spacing: 0pt,
+    below: headline-below * body-size,
+    text(
+      headline-size * body-size,
+      fill: _theme.colour.emphasis,
+      weight: headline-weight,
+      headline,
+    ),
+  )
+}
+
 // `contacts` are `(icon, value, url)` records with an optional `alt`,
-// linked where `url` is set. `photo` (a built portrait) and `qr-url`
-// are `none` when absent; `photo-at` places the photo `"left"` or
-// `"right"` of the text, or centred `"above"` / `"below"` it.
-// `pronouns` sit outside the uppercasing: they aren't part of the name.
+// linked where `url` is set. A `box` per entry, so the bar wraps
+// between entries, never between an icon and its text.
+#let _contact_bar(contacts, body-size, accent) = {
+  let (contact-weight, contact-icon, contact-gap, ..) = _theme.header
+  let bar-icon = icon.with(size: contact-icon * body-size, fill: accent)
+  set text(_theme.size.meta * body-size, weight: contact-weight)
+  contacts
+    .map(entry => box({
+      bar-icon(entry.icon, alt: entry.at("alt", default: none))
+      _link_if(entry.url, [#entry.value])
+    }))
+    .join(h(contact-gap * body-size))
+  // Inherits `par.spacing`, so the gap tracks the rest of the document.
+  parbreak()
+}
+
+// `photo` (a built portrait) and `qr-url` are `none` when absent;
+// `photo-at` places the photo `"left"` or `"right"` of the text, or
+// centred `"above"` / `"below"` it.
 #let _page_header(
   name: none,
   pronouns: none,
@@ -98,106 +148,28 @@
   photo-at: none,
   qr-url: none,
 ) = context {
+  // Read once here and passed to the subcomponents.
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  let (size, colour, ..) = _theme
-  let (
-    name-weight,
-    headline-weight,
-    contact-weight,
-    name-below,
-    pronouns-gap,
-    headline: headline-size,
-    headline-below,
-    contact-icon,
-    contact-gap,
-    qr: qr-scale,
-    ..,
-  ) = _theme.header
-  let bar-icon = icon.with(size: contact-icon * body-size, fill: accent)
-  let header-text = align(text-align, {
-    block(
-      spacing: 0pt,
-      below: name-below * body-size,
-      {
-        text(
-          size.name * body-size,
-          fill: accent,
-          weight: name-weight,
-          if uppercase { upper(name) } else { name },
-        )
-        // The `box` keeps "(they/them)" whole when a long name wraps.
-        if pronouns != none {
-          h(pronouns-gap * body-size)
-          box(text(body-size, fill: colour.body, [(#pronouns)]))
-        }
-      },
-    )
-
-    if headline != none {
-      block(
-        spacing: 0pt,
-        below: headline-below * body-size,
-        text(
-          headline-size * body-size,
-          fill: colour.emphasis,
-          weight: headline-weight,
-          headline,
-        ),
-      )
-    }
-
-    set text(size.meta * body-size, weight: contact-weight)
-    // `box` per entry so the bar wraps between entries, never between
-    // an icon and its text.
-    contacts
-      .map(entry => box({
-        bar-icon(entry.icon, alt: entry.at("alt", default: none))
-        let value = [#entry.value]
-        _link_if(entry.url, value)
-      }))
-      .join(h(contact-gap * body-size))
-    // Inherits `par.spacing`, so the gap tracks the rest of the document.
-    parbreak()
-  })
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
-  let qr-size = qr-scale * body-size
+  let qr-size = _theme.header.qr * body-size
   _header_layout(
-    header-text,
-    photo,
-    if qr-url != none { _qr_render(qr-url, qr-size, accent) },
+    align(text-align, {
+      // Pronouns stay outside the uppercasing: they aren't the name.
+      _name_line(
+        if uppercase { upper(name) } else { name },
+        pronouns,
+        body-size,
+        accent,
+      )
+      _headline(headline, body-size)
+      _contact_bar(contacts, body-size, accent)
+    }),
     qr-size,
     body-size,
-    photo-at,
+    photo: photo,
+    qr: if qr-url != none { _qr_render(qr-url, qr-size, accent) },
+    photo-at: photo-at,
   )
-}
-
-// The objective (a forward-looking goal), then the summary
-// (background); either alone keeps the summary's spacing. The
-// objective is set off like a pull quote so it reads apart from the
-// summary without being louder than it, in colour or in a
-// black-and-white print.
-#let _intro_block(objective: none, summary: none) = {
-  if objective != none or summary != none {
-    context {
-      let body-size = _body_size_state.get()
-      let (above, rule, inset, gap, below) = _theme.intro
-      v(above * body-size)
-      _join_present(
-        (
-          if objective != none {
-            block(
-              stroke: (left: rule + _accent_state.get()),
-              inset: (left: inset.left * body-size, y: inset.y * body-size),
-              _preamble(objective),
-            )
-          },
-          if summary != none { par(summary) },
-        ),
-        v(gap * body-size),
-      )
-      v(below * body-size)
-    }
-  }
 }

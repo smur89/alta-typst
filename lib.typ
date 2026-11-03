@@ -31,7 +31,8 @@
 #import "internal/util/fields.typ": _field, _string_at
 #import "internal/util/values.typ": _fill_template
 #import "internal/util/dates.typ": _iso_datetime
-#import "sections/header.typ": _header, _intro
+#import "sections/header.typ": _header
+#import "sections/intro.typ": _intro
 #import "sections/footer.typ": _resolve_page_footer
 #import "internal/data/sections.typ": _cv_keys, _read_sections
 #import "internal/registry.typ": _renderers
