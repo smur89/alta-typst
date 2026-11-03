@@ -1,7 +1,6 @@
 // The paragraph, list and heading rules for everything `alta()`
 // renders, from `theme.typ`, and `_treat`, which applies the theme's
-// named treatments. `set text` stays in `alta()`: it must
-// precede `set page` so the footer inherits the font and language.
+// named treatments. `set text` is `_document`'s (`document.typ`).
 
 #import "theme.typ": _theme
 

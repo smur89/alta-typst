@@ -1,5 +1,5 @@
 // Unit checks for the recognised top-level CV keys in
-// internal/registry.typ.
+// internal/data/sections.typ.
 
 #import "/internal/data/json-resume.typ": _altacv-schema
 #import "/internal/data/sections.typ": _cv-keys

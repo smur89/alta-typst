@@ -12,6 +12,7 @@
 #import "../sections/publications.typ": _publications
 #import "../sections/references.typ": _references
 #import "../sections/skills.typ": _interests, _skills
+#import "data/sections.typ": _section-specs
 
 // Renderers take `(entries, ctx)`, `ctx` being `(labels, prefs,
 // owner)`. Must follow the renderer imports: Typst binds identifiers
@@ -29,4 +30,12 @@
   publications: _publications,
   interests: _interests,
   references: _references,
+)
+
+// Checked at load, as `data/` can't hold its renderers: a spec without
+// one would otherwise surface as a bare missing-key error in `alta()`.
+#assert.eq(
+  _renderers.keys().sorted(),
+  _section-specs.keys().sorted(),
+  message: "every section in data/sections.typ needs a renderer here, and vice versa",
 )
