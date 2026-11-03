@@ -1,8 +1,8 @@
 // Unit checks for the recognised top-level CV keys in
-// internal/layout.typ.
+// internal/registry.typ.
 
-#import "/internal/layout.typ": _cv_keys
-#import "/internal/json-resume.typ": altacv-schema
+#import "/internal/data/json-resume.typ": altacv-schema
+#import "/internal/data/sections.typ": _cv_keys
 
 // Every root key the JSON import accepts is accepted by `alta()` too,
 // so a gairm-import bump that adds one fails here instead of being

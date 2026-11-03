@@ -1,13 +1,13 @@
 // The CV entry component every entry section maps its fields onto,
 // with the date and location row beneath its heading.
 
-#import "../theme.typ": _theme
-#import "../text.typ": _join_present, _link_if, _present
-#import "../dates.typ": _format_date_range
-#import "../location.typ": _format_location
+#import "../design/theme.typ": _theme
+#import "../util/dates.typ": _format_date_range
+#import "../util/fields.typ": _join_present, _present
+#import "../util/location.typ": _format_location
 #import "../primitives.typ": (
-  _accent_strong, _preamble, _small, _tag_row, _term_part, _term_row, name,
-  term,
+  _accent_strong, _link_if, _preamble, _small, _tag_row, _term_part, _term_row,
+  name, term,
 )
 
 // A small line under an entry's heading: a project's client, a

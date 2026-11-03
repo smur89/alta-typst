@@ -3,41 +3,31 @@
 // surfacing mid-render. Checks on individual `cv` fields stay with the
 // code that consumes them, as they apply only when the field is set.
 
-#import "dates.typ": _date_format_aliases
-#import "icons.typ": _icon_glyphs
-#import "qr.typ": _check_qr_code
-#import "text.typ": _placeholder_re
+#import "../util/checks.typ": (
+  _check_bool, _check_enum, _check_type, _check_unknown_keys, _prose_list,
+  _require,
+)
+#import "../util/dates.typ": _date_format_aliases
+#import "../util/fields.typ": _placeholder_re
+#import "icon-names.typ": _icon_glyphs
+
+// Called from `_validate_preferences`, so a typo (`qrCode: true`)
+// fails up front rather than inside `qrcode(...)` at render time.
+#let _check_qr_code(value) = {
+  if value == none or value == auto { return }
+  if type(value) != str {
+    panic(
+      "qrCode must be `none`, `auto`, or a URL string, got: " + repr(value),
+    )
+  }
+  if value == "" {
+    panic("qrCode must be a non-empty string when not `none` / `auto`.")
+  }
+}
 
 // `linkContactInfo` channels. Here rather than in `sections/header.typ`,
 // which reads them, to avoid a cycle: it imports this module.
 #let _contact_channels = ("email", "phone", "location", "url", "profiles")
-
-#let _quote(s) = "\"" + s + "\""
-
-// `"a" or "b"`, `"a", "b", or "c"`.
-#let _prose_list(items) = items.join(
-  ", ",
-  last: if items.len() == 2 { " or " } else { ", or " },
-)
-
-// The shared "must be …" panic.
-#let _require(name, value, ok, expected) = {
-  if not ok { panic(name + " must be " + expected + ", got: " + repr(value)) }
-}
-
-#let _check_unknown_keys(candidates, allowed, what) = {
-  let unknown = candidates.filter(k => k not in allowed)
-  if unknown.len() > 0 {
-    panic(
-      "Unknown "
-        + what
-        + " key(s): "
-        + unknown.map(_quote).join(", ")
-        + ". Supported: "
-        + allowed.map(_quote).join(", "),
-    )
-  }
-}
 
 // Unknown keys panic rather than being silently absorbed. The keys
 // named in `tables` (`labels.publicationTypes`) hold dictionaries that
@@ -63,22 +53,6 @@
   defaults + overrides.pairs().map(((k, v)) => (k, merge-key(k, v))).to-dict()
 }
 
-#let _check_type(name, value, allowed, expected) = _require(
-  name,
-  value,
-  type(value) in allowed,
-  expected,
-)
-
-#let _check_bool(name, value) = _check_type(name, value, (bool,), "a bool")
-
-#let _check_enum(name, value, allowed) = _require(
-  name,
-  value,
-  value in allowed,
-  _prose_list(allowed.map(_quote)),
-)
-
 // Every spacing token multiplies `bodySize`, so it must be an absolute
 // length: `1em` would resolve against itself, and a bare number reaches
 // `set text(...)` as a stray positional.
@@ -95,7 +69,7 @@
 )
 #let _is_font(v) = type(v) == str or _is_font_list(v)
 
-// `section-keys` is passed in, not imported: `layout.typ` imports this
+// `section-keys` is passed in, not imported: `registry.typ` imports this
 // module. `groupCertificates` is ignored, so it isn't checked.
 #let _validate_preferences(preferences, section-keys) = {
   // Only a colour supports `lighten` / `darken`; a palette name string

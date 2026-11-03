@@ -3,12 +3,12 @@
 // pronouns, headline and contact bar, an optional portrait and QR,
 // then the objective and summary.
 
-#import "../state.typ": _accent_state, _body_size_state
-#import "../theme.typ": _theme
+#import "../design/theme.typ": _theme
+#import "../context.typ": _accent_state, _body_size_state
+#import "../util/fields.typ": _join_present
 #import "../icons.typ": icon
-#import "../qr.typ": _qr_render
-#import "../text.typ": _join_present, _link_if
-#import "../primitives.typ": _preamble
+#import "../primitives.typ": _link_if, _preamble
+#import "qr.typ": _qr_render
 
 // `photo` and `qr` are `none` when absent.
 #let _header_layout(

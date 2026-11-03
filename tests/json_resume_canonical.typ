@@ -1,7 +1,8 @@
 // Pins the contract that an unmodified resume.json (no altacv
 // extensions, free-text fluency) parses + renders without edits.
 
-#import "../lib.typ": alta, from-json-resume
+#import "../internal/data/json-resume.typ": from-json-resume
+#import "../lib.typ": alta
 
 #let resume = from-json-resume(path("fixtures/canonical_resume.json"))
 

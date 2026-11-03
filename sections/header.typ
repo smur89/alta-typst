@@ -1,13 +1,14 @@
 // The page header: `basics` and the header preferences mapped onto
 // `_page_header`, then the root `objective` (JSON Resume 1.4.0) and
 // `basics.summary` onto `_intro_block`. Not one of the column sections
-// in `_sections`: `alta()` renders it above the grid. CV fields are
+// in `data/sections.typ`: `alta()` renders it above the grid. CV fields are
 // checked here, where they're consumed.
 
-#import "../internal/icons.typ": _network_aliases, _profile_networks
-#import "../internal/text.typ": _field, _present, _url_encode
-#import "../internal/validation.typ": _check_type, _contact_channels
-#import "../internal/location.typ": _format_location
+#import "../internal/util/checks.typ": _check_type
+#import "../internal/util/fields.typ": _field, _present, _url_encode
+#import "../internal/util/location.typ": _format_location
+#import "../internal/data/icon-names.typ": _network_aliases, _profile_networks
+#import "../internal/data/validation.typ": _contact_channels
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _intro_block, _page_header
 
@@ -29,7 +30,7 @@
         + repr(profile.network)
         + ". Supported: "
         + _profile_networks.join(", ")
-        + ". To add another, register its FontAwesome glyph in _network_icons (internal/icons.typ).",
+        + ". To add another, register its FontAwesome glyph in _network_icons (internal/data/icon-names.typ).",
     )
   }
   (

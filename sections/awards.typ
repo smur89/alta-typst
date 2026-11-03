@@ -1,10 +1,11 @@
 // Awards. The title links via the altacv `custom.altacv.url`
 // extension; entries without a `title` are skipped.
 
-#import "../internal/text.typ": _altacv, _field
-#import "../internal/components/frame.typ": _section
+#import "../internal/util/dates.typ": _format_date
+#import "../internal/util/fields.typ": _field
+#import "../internal/data/cv.typ": _altacv
 #import "../internal/components/entry.typ": _entry
-#import "../internal/dates.typ": _format_date
+#import "../internal/components/frame.typ": _section
 
 #let _awards(entries, (labels, prefs, ..)) = _section(
   labels.awards,

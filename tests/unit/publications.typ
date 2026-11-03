@@ -2,11 +2,11 @@
 // sections/publications.typ and the `_bib_entry` line builders in
 // internal/components/bibliography.typ.
 
+#import "/internal/components/bibliography.typ": _author_line, _identifier_line
 #import "/sections/publications.typ": (
   _authors, _citation, _identifier_refs, _identifier_url, _identifiers, _source,
 )
-#import "/internal/components/bibliography.typ": _author_line, _identifier_line
-#import "_plain.typ": plain
+#import "/tests/unit/_plain.typ": plain
 
 // _identifiers: schemes lowercased; non-dict or unusable ids skipped.
 #assert.eq(

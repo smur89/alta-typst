@@ -2,8 +2,8 @@
 // name as a label pill and the keywords as pills after it, wrapping
 // under a hanging indent.
 
-#import "../state.typ": _body_size_state
-#import "../theme.typ": _theme
+#import "../design/theme.typ": _theme
+#import "../context.typ": _body_size_state
 #import "../primitives.typ": _tag_gap, _tag_row, tag
 
 // The dash is `text(...)`, not markup, where `-` parses as a list

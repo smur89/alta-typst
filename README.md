@@ -389,7 +389,7 @@ The [`referencesAvailableOnRequest` preference](#deprecated-preferences) is depr
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set.
 
-To add another, map the new key to its FontAwesome glyph name in `_network_icons` (`internal/icons.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
+To add another, map the new key to its FontAwesome glyph name in `_network_icons` (`internal/data/icon-names.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
 
 Icons are resolved via [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome), which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for local installation; on typst.app they are preinstalled.
 
@@ -608,7 +608,7 @@ Example — German, plus renaming "Skills" to "Core Technologies":
 
 #### Translation workflow
 
-The defaults live in [`internal/labels-en.toml`](internal/labels-en.toml) — a plain resource file a translator can be handed without learning Typst syntax. For full translations, copy that file, translate the values, and load it at the call site with the built-in `toml(...)`:
+The defaults live in [`internal/data/labels-en.toml`](internal/data/labels-en.toml) — a plain resource file a translator can be handed without learning Typst syntax. For full translations, copy that file, translate the values, and load it at the call site with the built-in `toml(...)`:
 
 ```typst
 // Inline partial overrides — best for one-off renames or a few keys.

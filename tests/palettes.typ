@@ -5,7 +5,8 @@
 // confirm the `palettes` dict is purely additive — callers retain
 // full freedom to pass any colour they like.
 
-#import "../lib.typ": alta, palettes
+#import "../internal/design/presets.typ": palettes
+#import "../lib.typ": alta
 
 #let sample(name, accent-key) = (
   basics: (

@@ -1,9 +1,9 @@
 // `work[]` and `volunteer[]` render identically, differing only in
 // section label and organisation key, so both use `_entry_section`.
 
-#import "../internal/text.typ": _field
-#import "../internal/components/frame.typ": _section
+#import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry, _entry_when
+#import "../internal/components/frame.typ": _section
 
 // `key` (`"work"` / `"volunteer"`) names the label and the field in
 // panic messages; `org-key` holds the organisation name. `position` is

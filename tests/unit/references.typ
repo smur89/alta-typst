@@ -1,8 +1,8 @@
 // Unit checks for the referee attribution line in
 // sections/references.typ.
 
+#import "/internal/data/defaults.typ": _default_labels
 #import "/sections/references.typ": _attribution
-#import "/internal/defaults.typ": _default_labels
 
 #let attribution(entry, format: "long") = _attribution(
   entry,

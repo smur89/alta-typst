@@ -3,10 +3,9 @@
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
+#import "../util/fields.typ": _dict_or_empty, _field, _string_at
+#import "cv.typ": _altacv_ns, _reference_usable
 #import "validation.typ": _check_icon_names
-#import "text.typ": (
-  _altacv_ns, _dict_or_empty, _field, _present, _reference_usable, _string_at,
-)
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
 // lifted into `custom.altacv` (which wins when both are set).

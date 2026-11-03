@@ -1,12 +1,12 @@
-// Unit checks for internal/dates.typ: ISO parsing, the bracketed
+// Unit checks for internal/util/dates.typ: ISO parsing, the bracketed
 // template engine and its missing-part elision, and date ranges.
 
-#import "/internal/dates.typ": (
+#import "/internal/util/dates.typ": (
   _apply_date_template, _format_date, _format_date_range, _format_date_span,
   _iso_datetime, _parse_iso_date,
 )
-#import "/internal/defaults.typ": _default_labels
-#import "_plain.typ": plain
+#import "/internal/data/defaults.typ": _default_labels
+#import "/tests/unit/_plain.typ": plain
 
 #let labels = _default_labels
 #let prefs(format) = (dateFormat: format)

@@ -1,61 +1,13 @@
-// Logical icon names → FontAwesome glyphs, plus the sizing wrapper.
+// `icon()`: draws a logical icon name's FontAwesome glyph (the names
+// and glyphs are in `data/icon-names.typ`) at a fixed size.
 // `@preview/fontawesome` resolves glyphs against the desktop FA fonts,
 // which are not vendored: users need them installed locally, or must
 // compile on typst.app, which preinstalls them.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "state.typ": _body_size_state
-#import "theme.typ": _theme
-
-// Free Solid glyphs (https://fontawesome.com/search). Keys are part of
-// the public `icon(...)` API: renaming one is a breaking change.
-#let _utility_icons = (
-  book: "book",
-  calendar: "calendar",
-  email: "envelope",
-  file: "file",
-  location: "location-dot",
-  microphone: "microphone",
-  newspaper: "newspaper",
-  phone: "phone",
-)
-
-// Keys are lowercase to match `lower(profile.network)` in
-// `header.typ`. Brand marks, except `link` and `website` (see
-// `_solid_names`).
-#let _network_icons = (
-  bluesky: "bluesky",
-  github: "github",
-  gitlab: "gitlab",
-  link: "link",
-  linkedin: "linkedin",
-  mastodon: "mastodon",
-  medium: "medium",
-  stackoverflow: "stack-overflow",
-  twitter: "twitter",
-  website: "globe",
-)
-
-// `link` and `website` are profile networks but not brand marks.
-#let _solid_names = _utility_icons.keys() + ("link", "website")
-
-#let _icon_glyphs = _utility_icons + _network_icons
-#let _profile_networks = _network_icons.keys()
-
-// `publications[].type` codes → the icon leading their subheading:
-// the `preferences.publicationIcons` default.
-#let _publication_icons = (
-  article: "newspaper",
-  book: "book",
-  thesis: "book",
-  talk: "microphone",
-)
-
-// Renamed networks → the key their icon still ships under. Keys are
-// lowercase, as the lookup follows `lower(profile.network)`.
-#let _network_aliases = (
-  x: "twitter",
-)
+#import "design/theme.typ": _theme
+#import "context.typ": _body_size_state
+#import "data/icon-names.typ": _icon_glyphs, _solid_names
 
 // Emits a trailing `h(...)` so callers needn't space icons themselves.
 // The fixed-size box evens out FA's varied glyph widths, which would

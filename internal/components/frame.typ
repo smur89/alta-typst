@@ -1,7 +1,7 @@
 // Section scaffolding: the `==` heading and its entries, with dividers
 // between them, optionally clustered under `====` subheadings.
 
-#import "../text.typ": _string_at
+#import "../util/fields.typ": _string_at
 #import "../primitives.typ": divider
 
 // First-occurrence order (Typst dicts keep insertion order). Keys

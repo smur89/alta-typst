@@ -1,9 +1,14 @@
 // The paragraph, list and heading rules for everything `alta()`
-// renders, from `theme.typ`. `set text` stays in `alta()`: it must
+// renders, from `theme.typ`, and `_treat`, which applies the theme's
+// named treatments. `set text` stays in `alta()`: it must
 // precede `set page` so the footer inherits the font and language.
 
 #import "theme.typ": _theme
-#import "text.typ": _treat
+
+// Applies a named treatment from the theme (`_theme.treatment`,
+// `section.case`); `"none"` leaves the body as it is.
+#let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
+#let _treat(name, body) = _treatments.at(name)(body)
 
 // For `show: _content_styles.with(body-size, accent)`. Levels: 2
 // section title, 3 role / qualification, 4 sub-grouping (e.g.

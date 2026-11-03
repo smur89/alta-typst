@@ -1,25 +1,11 @@
 // Header QR code (opt-in via `preferences.qrCode`), restoring the
-// most-followed link on a printed CV. Validates the preference and
-// renders the code (`sections/header.typ` resolves its target); only
-// this file imports `@preview/zebra`, so swapping
-// QR implementations stays a one-file change. Zebra emits vector
+// most-followed link on a printed CV. Renders the code;
+// `data/validation.typ` checks the preference and `sections/header.typ`
+// resolves its target. Only this file imports `@preview/zebra`, so
+// swapping QR implementations stays a one-file change. Zebra emits vector
 // paths, so the matrix stays crisp and takes a `fill` like any shape.
 
 #import "@preview/zebra:0.1.0": qrcode
-
-// Called from `_validate_preferences`, so a typo (`qrCode: true`)
-// fails up front rather than inside `qrcode(...)` at render time.
-#let _check_qr_code(value) = {
-  if value == none or value == auto { return }
-  if type(value) != str {
-    panic(
-      "qrCode must be `none`, `auto`, or a URL string, got: " + repr(value),
-    )
-  }
-  if value == "" {
-    panic("qrCode must be a non-empty string when not `none` / `auto`.")
-  }
-}
 
 // `quiet-zone: 0`: the header padding already supplies whitespace, and
 // zebra's default 4-module zone would shrink the matrix.

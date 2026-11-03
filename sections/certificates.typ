@@ -2,10 +2,10 @@
 // on one term row so several certs stay short. Entries without a
 // `name` are skipped.
 
-#import "../internal/text.typ": _field
-#import "../internal/components/frame.typ": _section
+#import "../internal/util/dates.typ": _format_date_span
+#import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry
-#import "../internal/dates.typ": _format_date_span
+#import "../internal/components/frame.typ": _section
 
 // No `open-end`: a cert without `expiryDate` doesn't expire, so it
 // never reads "Present".

@@ -7,7 +7,7 @@
 // ourselves while mirroring its bracketed token syntax, so a template
 // carries over to other Typst code.
 
-#import "text.typ": _field, _join_present, _present
+#import "fields.typ": _field, _join_present, _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
 // `(year, month, day)` dict, or `none` so callers render anything else

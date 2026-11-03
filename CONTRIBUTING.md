@@ -15,19 +15,22 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 
 ```text
 lib.typ           # public entry — re-exports + `alta()`
-internal/         # shared infrastructure, one concern per file
-internal/components/ # layout components the sections map onto (entry, bibliography, keywords, header, frame)
-sections/         # one renderer per part of the CV: the header, then each dispatched section
+internal/         # wiring (registry, options, render-time context) and the shared primitives and icons
+internal/util/    # generic helpers: field reads, joins, checks, date and location formatting
+internal/data/    # reading and checking the CV, labels and preferences
+internal/design/  # the theme, document-wide styles and palettes
+internal/components/ # the layout components sections map onto
+sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
 tests/panics/     # must-fail fixtures — each names the error it expects
-tests/unit/       # `assert` checks of the side-effect-free helpers (dates, text, header, …)
+tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fields, header, …)
 ```
 
-Each `internal/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ` for a quick directory.
+Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ` for a quick directory.
 
-Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
+Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Development loop
 
@@ -113,14 +116,14 @@ PRs squash-merge with the PR title as the commit subject, so just make the **PR 
 
 This is the most common shape of contribution. Two changes:
 
-1. Add a row to `_network_icons` in `internal/icons.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
+1. Add a row to `_network_icons` in `internal/data/icon-names.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
-`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/icons.typ` so `fa-icon` is called with `solid: true`.
+`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/data/icon-names.typ` so `fa-icon` is called with `solid: true`.
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, register it in `_sections` in `internal/layout.typ` (column + renderer; every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/layout.typ`, validate it in `_validate_preferences` (`internal/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/canonical.typ` rather than in a renderer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section_specs` in `internal/data/sections.typ` (column, and `read` / `items` when it isn't a plain entry array) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/options.typ`, validate it in `_validate_preferences` (`internal/data/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
 
 The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
 

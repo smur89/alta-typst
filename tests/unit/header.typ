@@ -1,10 +1,12 @@
-// Unit checks for the header's data stages in sections/header.typ and
-// the QR URL resolution in internal/qr.typ.
+// Unit checks for the header's data stages in sections/header.typ,
+// including the QR URL resolution.
 
+#import "/internal/util/fields.typ": _url_encode
 #import "/sections/header.typ": (
-  _contact_entries, _profile_entry, _resolve_link_config, _resolve_qr_url,
+  _contact_entries, _header_image, _linked_contacts, _profile_entry,
+  _resolve_link_config, _resolve_qr_url,
 )
-#import "/internal/text.typ": _url_encode
+#import "/internal/options.typ": _merge_options
 
 // _url_encode: RFC 3986 unreserved set kept, everything else
 // percent-encoded by UTF-8 byte.
@@ -63,8 +65,6 @@
 
 // _linked_contacts: a `url` only where `linkContactInfo` links the
 // channel. _header_image: an empty string path is absent.
-#import "/sections/header.typ": _header_image, _linked_contacts
-#import "/internal/layout.typ": _merge_options
 #let basics = (name: "Jane", email: "j@x.io", url: "https://x.io")
 #let prefs = _merge_options((:), (linkContactInfo: (email: false))).preferences
 #assert.eq(

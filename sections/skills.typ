@@ -1,8 +1,8 @@
 // `_skills` and `_interests` share the JSON Resume `{name, keywords}`
 // shape and render identically, differing only in heading.
 
-#import "../internal/components/keywords.typ": _keyword_rows
 #import "../internal/components/frame.typ": _section_frame
+#import "../internal/components/keywords.typ": _keyword_rows
 
 #let _name_keywords_section(groups, key, (labels, ..)) = {
   // Drop groups with no keywords first, so a section with none left

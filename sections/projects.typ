@@ -2,12 +2,12 @@
 // subheadings only when at least one has a `type`; an all-untyped list
 // renders flat. Entries without a `name` are skipped.
 
-#import "../internal/text.typ": _field, _string_at
+#import "../internal/util/dates.typ": _format_date_range
+#import "../internal/util/fields.typ": _field, _string_at
+#import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": (
   _group_by_type, _grouped_section, _section,
 )
-#import "../internal/components/entry.typ": _entry
-#import "../internal/dates.typ": _format_date_range
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
 #let _render_project(project, (labels, prefs, ..)) = _entry(
