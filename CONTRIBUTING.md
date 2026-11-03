@@ -37,7 +37,7 @@ Identifiers are kebab-case, matching Typst's standard library (`from-unicode`, `
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
+Install Typst at the version CI uses — the `FROM ghcr.io/typst/typst:` tag in the [`Dockerfile`](Dockerfile), or `make toolchain`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
 
 On macOS, one block sets up everything Homebrew can provide:
 
@@ -89,7 +89,7 @@ make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and run
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`) and — once the follow-up PR adds `container:` to `build.yml` — must also be kept in sync there.
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); its tag (`DOCKER_IMAGE` in the `Makefile`) is derived from the versions in the [`Dockerfile`](Dockerfile), the toolchain's one source.
 
 If you'd rather drive Typst directly, the manual incantations are:
 

@@ -12,15 +12,6 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  # Typst version for every job that installs it via setup-typst. Keep
-  # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
-  # and the Makefile's DOCKER_IMAGE tag — the fixtures are rendered in
-  # that image, so a mismatch shows up as drift between the two paths.
-  TYPST_VERSION: v0.15.1
-  # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
-  # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
-  # every CI job that compiles the package downloads v7 from upstream.
-  FA_VERSION: 7.0.0
   # Must match typst.toml's `package.name`; tarball, branch and PR
   # names all derive from it.
   PACKAGE_NAME: altacv
@@ -50,9 +41,6 @@ jobs:
 
       - name: Setup Typst environment
         uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
 
       - name: Compile examples, test fixtures + template
         run: make test
@@ -102,9 +90,6 @@ jobs:
 
       - name: Setup Typst environment
         uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
 
       # Not byte-compared: raster output varies under setup-typst; the
       # `preview-images-in-sync` job checks drift in the pinned image.
@@ -157,9 +142,6 @@ jobs:
 
       - name: Setup Typst environment
         uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
 
       # Also fills ~/.cache/typst with @preview deps, which the
       # validate step mounts into the check container.
@@ -247,9 +229,6 @@ jobs:
 
       - name: Setup Typst environment
         uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
 
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
         run: make release-artifacts

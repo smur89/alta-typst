@@ -1,9 +1,10 @@
 # The pinned render environment: official Typst image + Lato +
 # FontAwesome 7, so `make docker-pdfs` output is byte-identical to CI.
 #
-# Bumping a version (FROM tag, FA_VERSION + FA_SHA256, LATO_APK_VERSION):
-# also update the Makefile's DOCKER_IMAGE (image.yml derives the tag
-# from these lines) and TYPST_VERSION / FA_VERSION in build.yml.
+# The one source of the toolchain versions: the Makefile reads the
+# FROM tag, FA_VERSION and LATO_APK_VERSION lines below (`make
+# toolchain`) for the image tag and CI's setup-typst. Bump FA_SHA256
+# with FA_VERSION.
 FROM ghcr.io/typst/typst:0.15.1
 
 ARG FA_VERSION=7.0.0

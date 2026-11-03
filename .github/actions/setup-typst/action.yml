@@ -1,27 +1,25 @@
 # Installs the toolchain every CI job that compiles the package needs:
 # the Typst binary, the Lato body font, and the FontAwesome desktop
 # OTFs that resolve glyphs for `@preview/fontawesome`. Extracted into
-# a composite action so the three jobs that build PDFs (lint, build,
-# attach-release-artifacts) share a single source of truth instead of
-# duplicating the install block.
+# a composite action so every job that builds PDFs shares one install
+# block. The versions come from the Dockerfile (`make toolchain`), so
+# the runner matches the pinned image. Needs the repo checked out.
+# apt's `fonts-font-awesome` is v6, so FA 7 comes from upstream.
 #
 # The FA zip is restored from cache when available — keyed on the
-# version input, so bumping `FA_VERSION` in the workflow invalidates
-# the cache automatically.
+# version, so bumping `FA_VERSION` in the Dockerfile invalidates the
+# cache automatically.
 name: Setup Typst environment
 description: Install Typst, Lato, and FontAwesome desktop OTFs on the runner.
-
-inputs:
-  typst-version:
-    description: Typst release tag (e.g. v0.14.2).
-    required: true
-  fa-version:
-    description: FontAwesome desktop release version (e.g. 7.0.0).
-    required: true
 
 runs:
   using: composite
   steps:
+    - name: Read toolchain versions
+      id: versions
+      shell: bash
+      run: make -s toolchain >> "$GITHUB_OUTPUT"
+
     - name: Install Lato
       shell: bash
       run: |
@@ -37,13 +35,13 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /tmp/fa.zip
-        key: fontawesome-desktop-${{ inputs.fa-version }}
+        key: fontawesome-desktop-${{ steps.versions.outputs.fa }}
 
     - name: Download FontAwesome zip
       if: steps.fa-cache.outputs.cache-hit != 'true'
       shell: bash
       env:
-        FA_VERSION: ${{ inputs.fa-version }}
+        FA_VERSION: ${{ steps.versions.outputs.fa }}
       run: |
         curl -sSfL -o /tmp/fa.zip \
           "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip"
@@ -51,7 +49,7 @@ runs:
     - name: Install FontAwesome OTFs
       shell: bash
       env:
-        FA_VERSION: ${{ inputs.fa-version }}
+        FA_VERSION: ${{ steps.versions.outputs.fa }}
       run: |
         sudo unzip -q -o /tmp/fa.zip -d /tmp/fa
         sudo mkdir -p /usr/share/fonts/fontawesome
@@ -61,7 +59,7 @@ runs:
     - name: Install Typst
       shell: bash
       env:
-        TYPST_VERSION: ${{ inputs.typst-version }}
+        TYPST_VERSION: v${{ steps.versions.outputs.typst }}
       run: |
         TARBALL=typst-x86_64-unknown-linux-musl.tar.xz
         URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/$TARBALL

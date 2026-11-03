@@ -1,7 +1,7 @@
 # Builds `ghcr.io/smur89/alta-typst-ci` (Typst + Lato + FontAwesome).
-# Pushes on main; PRs build only. The tag encodes every render-critical
-# version, so a bump yields a new immutable tag — update the Makefile's
-# DOCKER_IMAGE to match.
+# Pushes on main; PRs build only. The tag is the Makefile's
+# DOCKER_IMAGE, which encodes every render-critical version, so a bump
+# yields a new immutable tag.
 name: Image
 
 on:
@@ -26,9 +26,6 @@ permissions:
   contents: read
   packages: write
 
-env:
-  IMAGE_NAME: ghcr.io/smur89/alta-typst-ci
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,22 +37,12 @@ jobs:
           persist-credentials: false
 
       # Derived from the Dockerfile so a bump to any of Typst, FA or
-      # Lato can't reuse a tag with different bytes.
+      # Lato can't reuse a tag with different bytes. An explicit `bash`
+      # adds `pipefail`, so a failed read isn't masked by `tee`.
       - name: Derive image tag from Dockerfile
         id: tag
-        run: |
-          typst_version=$(grep -oE '^FROM ghcr\.io/typst/typst:[0-9.]+' Dockerfile | cut -d: -f2)
-          fa_version=$(grep -oE '^ARG FA_VERSION=[0-9.]+' Dockerfile | cut -d= -f2)
-          # apk versions look like `2.015-r0`.
-          lato_version=$(grep -oE '^ARG LATO_APK_VERSION=[0-9A-Za-z._-]+' Dockerfile | cut -d= -f2)
-          if [ -z "$typst_version" ] || [ -z "$fa_version" ] || [ -z "$lato_version" ]; then
-            echo "::error::Could not extract Typst, FA, or Lato version from Dockerfile"
-            exit 1
-          fi
-          tag="typst-${typst_version}-fa-${fa_version}-lato-${lato_version}"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "full=${IMAGE_NAME}:${tag}" >> "$GITHUB_OUTPUT"
-          echo "Image will be tagged as ${IMAGE_NAME}:${tag}"
+        shell: bash
+        run: make -s toolchain | tee -a "$GITHUB_OUTPUT"
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -78,7 +65,7 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.tag.outputs.full }}
+          tags: ${{ steps.tag.outputs.image }}
           # PR runs read the cache but don't write: branch-scoped
           # entries can't be reused by main and would only crowd the
           # 10 GiB quota.

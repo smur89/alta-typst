@@ -94,12 +94,19 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell toolchain stage-package-dir package-tarball
 
-# Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome / Lato versions
-# in the Dockerfile (image.yml derives the same tag and pushes it).
-DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0
+# The pinned toolchain, read from the Dockerfile: its one source.
+# `make toolchain` prints it for CI (setup-typst, image.yml).
+dockerfile-value = $(shell sed -nE 's|^$(1)||p' Dockerfile)
+TYPST_VERSION    := $(call dockerfile-value,FROM ghcr\.io/typst/typst:)
+FA_VERSION       := $(call dockerfile-value,ARG FA_VERSION=)
+LATO_APK_VERSION := $(call dockerfile-value,ARG LATO_APK_VERSION=)
+
+# Pinned CI image, tagged with every render-critical version so a bump
+# yields a new immutable tag. Built and published by
+# .github/workflows/image.yml.
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-$(TYPST_VERSION)-fa-$(FA_VERSION)-lato-$(LATO_APK_VERSION)
 
 # `--platform linux/amd64` keeps output byte-identical to CI on any
 # host (Apple Silicon emulates: slow but reproducible).
@@ -350,3 +357,10 @@ docker-preview-images:
 # `apk add` debugging tools.
 docker-shell:
 	$(DOCKER_RUN) -it --entrypoint bash $(DOCKER_IMAGE)
+
+# `key=value` lines for `$GITHUB_OUTPUT`. Fails if the Dockerfile no
+# longer matches the patterns above, rather than tagging `typst--fa-…`.
+toolchain:
+	@test -n "$(TYPST_VERSION)" -a -n "$(FA_VERSION)" -a -n "$(LATO_APK_VERSION)" \
+	  || { echo 'Could not read the Typst, FA or Lato version from the Dockerfile' >&2; exit 1; }
+	@printf '%s\n' typst=$(TYPST_VERSION) fa=$(FA_VERSION) lato=$(LATO_APK_VERSION) image=$(DOCKER_IMAGE)

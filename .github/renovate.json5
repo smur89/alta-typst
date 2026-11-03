@@ -11,12 +11,11 @@
     'helpers:pinGitHubActionDigests',
   ],
 
-  // Only these three. The typst toolchain version is held in lockstep by hand
-  // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
-  // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
-  // just one of them and break the pinned-image PDF drift gate. The
-  // typstyle and package-check pins have no such coupling, so
-  // `custom.regex` tracks them below.
+  // Only these three. The Typst, FontAwesome and Lato versions live in the
+  // Dockerfile, which the Makefile and CI read; they stay manual because a
+  // bump needs the new image published and the fixtures regenerated in it
+  // (`make docker-pdfs`). The typstyle and package-check pins have no such
+  // coupling, so `custom.regex` tracks them below.
   enabledManagers: ['github-actions', 'typst', 'custom.regex'],
 
   customManagers: [
