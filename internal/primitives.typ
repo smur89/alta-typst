@@ -5,7 +5,7 @@
 #import "state.typ": _accent_state, _body_size_state
 #import "theme.typ": _theme
 #import "icons.typ": icon
-#import "text.typ": _join_present, _present, _string_at
+#import "text.typ": _join_present, _present, _string_at, styled-link
 #import "dates.typ": _format_date_range
 #import "location.typ": _format_location
 
@@ -236,9 +236,30 @@
   }
 }
 
+// A label pill, a dash, then `items` as pills, wrapping under a
+// hanging indent. `text("-")`, not
+// `[-]`, which markup parses as a list bullet. The `_tag_gap` after it
+// mirrors the gap `tag()` leaves on its left, so the dash sits centred
+// between the pills.
+#let _keyword_row(label, items) = context {
+  let body-size = _body_size_state.get()
+  let (gap, hanging-indent) = _theme.keyword-row
+  let row-gap = gap * body-size
+  block(above: 0pt, below: row-gap, par(
+    hanging-indent: hanging-indent,
+    leading: row-gap,
+    {
+      tag(label, label: true)
+      text("-")
+      _tag_gap(body-size)
+      _tag_row(items)
+    },
+  ))
+}
+
 // One CV entry in a fixed slot order, so the entry sections lay
-// their entries out alike (publications, a bibliography list, is the
-// exception); an absent slot renders nothing. The title keeps the
+// their entries out alike (publications, a bibliography list, use
+// `_bib_entry`); an absent slot renders nothing. The title keeps the
 // plain heading style whether or not it links. `tags-lead` is
 // inline text leading the `tags` pills (education's score).
 //
@@ -277,3 +298,49 @@
   for bullet in highlights [- #bullet]
   _join_present((tags-lead, _tag_row(tags)), [ ])
 }
+
+// `(name, owner)` records, the owner bold (the academic-CV
+// convention); `none` when there are none.
+#let _author_line(authors) = (
+  authors.map(a => if a.owner { strong(a.name) } else { a.name }).join(", ")
+)
+
+// `(name, id, url)` records as `name id`, the id linked when `url` is
+// set; `none` when there are none.
+#let _identifier_line(refs) = (
+  refs
+    .map(r => [#r.name #if r.url == none { r.id } else { link(r.url, r.id) }])
+    .join[ · ]
+)
+
+// One bibliography list item: the title (linked to `url`), then
+// authors, source, date, identifiers and summary, each on its own
+// line. Absent lines drop out so none leaves an orphan `\` break.
+#let _bib_entry(
+  title: none,
+  url: none,
+  authors: (),
+  source: none,
+  date: none,
+  identifiers: (),
+  summary: none,
+) = {
+  let lines = _join_present(
+    (
+      _small(_author_line(authors)),
+      _small(source),
+      _meta(date),
+      _meta(_identifier_line(identifiers)),
+      _preamble(summary),
+    ),
+    [\ ],
+  )
+  [- #styled-link(title, dest: url). #if lines != none [\ #lines]]
+}
+
+// A `====` subheading led by an icon at the subheading's size. Read in
+// context: `em` inside the heading is already scaled.
+#let _icon_heading(icon-name, body) = [#context icon(
+    icon-name,
+    size: _theme.size.subheading * _body_size_state.get(),
+  ) #body]
