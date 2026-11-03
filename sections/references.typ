@@ -8,9 +8,9 @@
 #import "../internal/text.typ": (
   _field, _join_present, _on_request, _reference_usable, _string_at,
 )
-#import "../internal/primitives.typ": (
-  _entry, _preamble, _section, _section_frame,
-)
+#import "../internal/primitives.typ": _preamble
+#import "../internal/components/frame.typ": _section, _section_frame
+#import "../internal/components/entry.typ": _entry
 #import "../internal/dates.typ": _format_date
 
 // "Manager, Pied Piper · 2024": who, then when, each part optional.

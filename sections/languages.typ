@@ -2,7 +2,8 @@
 // the `fluency` text alone (one not in `_fluency_rating`).
 
 #import "../internal/text.typ": _field, _string_at
-#import "../internal/primitives.typ": _section, _small
+#import "../internal/primitives.typ": _small
+#import "../internal/components/frame.typ": _section
 #import "../internal/ratings.typ": _label_row, _resolve_rating, rating
 
 #let _languages(items, (labels, prefs, ..)) = _section(

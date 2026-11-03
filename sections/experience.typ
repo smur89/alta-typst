@@ -2,7 +2,8 @@
 // section label and organisation key, so both use `_entry_section`.
 
 #import "../internal/text.typ": _field
-#import "../internal/primitives.typ": _entry, _entry_when, _section
+#import "../internal/components/frame.typ": _section
+#import "../internal/components/entry.typ": _entry, _entry_when
 
 // `key` (`"work"` / `"volunteer"`) names the label and the field in
 // panic messages; `org-key` holds the organisation name. `position` is

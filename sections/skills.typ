@@ -2,7 +2,8 @@
 // shape and render identically, differing only in heading.
 
 #import "../internal/state.typ": _body_size_state
-#import "../internal/primitives.typ": _keyword_row, _section_frame
+#import "../internal/primitives.typ": _keyword_row
+#import "../internal/components/frame.typ": _section_frame
 
 #let _name_keywords_section(groups, key, (labels, ..)) = {
   // Drop groups with no keywords first, so a section with none left

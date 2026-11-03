@@ -1,11 +1,9 @@
-// Unit checks for internal/text.typ, internal/location.typ and the
-// grouping helpers in internal/primitives.typ.
+// Unit checks for internal/text.typ and internal/location.typ.
 
 #import "/internal/text.typ": (
-  _field, _fill_template, _join_present, _present, _present_str,
+  _field, _fill_template, _join_present, _link_if, _present, _present_str,
 )
 #import "/internal/location.typ": _format_location
-#import "/internal/primitives.typ": _group_by, _group_by_type
 
 // _present / _present_str: the three absent forms, and strings only.
 #for v in (none, "", []) { assert(not _present(v), message: repr(v)) }
@@ -46,19 +44,7 @@
 #assert.eq(_format_location("", "x"), none)
 #assert.eq(_format_location(none, "x"), none)
 
-// _group_by: first-occurrence key order, items keep their order.
-#assert.eq(
-  _group_by((1, 2, 3, 4, 5), n => if calc.odd(n) { "odd" } else { "even" }),
-  (odd: (1, 3, 5), even: (2, 4)),
-)
-// _group_by_type: a missing, empty or non-string `type` pools under
-// the fallback.
-#assert.eq(
-  _group_by_type(
-    ((type: "OSS"), (:), (type: ""), (type: 3), (type: "OSS")),
-    "Other",
-  )
-    .pairs()
-    .map(((k, v)) => (k, v.len())),
-  (("OSS", 2), ("Other", 3)),
-)
+// _link_if: linked only when the destination is present.
+#assert.eq(_link_if(none, "x"), "x")
+#assert.eq(_link_if("", "x"), "x")
+#assert.eq(_link_if("https://a.b", "x").func(), link)

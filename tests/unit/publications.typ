@@ -1,11 +1,11 @@
 // Unit checks for the publication field helpers in
 // sections/publications.typ and the `_bib_entry` line builders in
-// internal/primitives.typ.
+// internal/components/bibliography.typ.
 
 #import "/sections/publications.typ": (
   _authors, _citation, _identifier_refs, _identifier_url, _identifiers, _source,
 )
-#import "/internal/primitives.typ": _author_line, _identifier_line
+#import "/internal/components/bibliography.typ": _author_line, _identifier_line
 #import "_plain.typ": plain
 
 // _identifiers: schemes lowercased; non-dict or unusable ids skipped.
