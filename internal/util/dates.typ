@@ -72,15 +72,18 @@
 #let _date-token-re = regex("\[([^\]]+)\]")
 #let _date-token-heads = ("year", "month", "day")
 
-// Run by preference validation, so an unknown token fails before
-// anything renders.
-#let _check-date-template(template) = for m in template.matches(
+// Panics on a token `_resolve-date-token` can't resolve; `name` is the
+// template's source, for the message. Callers run it up front, so an
+// unknown token fails before anything renders.
+#let _check-date-template(template, name) = for m in template.matches(
   _date-token-re,
 ) {
   let token = m.captures.first()
   if token.split(" ").first() not in _date-token-heads {
     panic(
-      "Unknown dateFormat token: ["
+      "Unknown "
+        + name
+        + " token: ["
         + token
         + "]. Supported: year, month, day (each with optional `padding:` / `repr:` modifiers).",
     )
@@ -88,7 +91,7 @@
 }
 
 // Resolves one checked token. Long and short month names come from
-// `months` (`labels.months`) so they localise. A component the input lacks
+// `months`, the twelve names in order, so they localise. A component the input lacks
 // yields `_date-token-drop` for the caller to collapse.
 #let _date-token-drop = "\u{FFFD}" // Private placeholder for missing parts.
 #let _resolve-date-token(token, parts, months) = {
@@ -139,10 +142,11 @@
     .trim()
 }
 
-// Single entry point for every rendered date: `format` is
-// `preferences.dateFormat`, `months` is `labels.months`. Non-ISO strings
-// pass through verbatim, as does everything under `"iso"`. A function
-// formatter receives the parsed dict and must return a string.
+// Single entry point for every rendered date. `format` is a named
+// format (`_date-format-aliases` or `"iso"`), a checked template, or a
+// function; `months` names the months. Non-ISO strings pass through
+// verbatim, as does everything under `"iso"`. A function formatter
+// receives the parsed dict and must return a string.
 #let _format-date(value, format, months) = {
   if not _present(value) { return value }
   if format == "iso" { return value }

@@ -131,7 +131,7 @@
     }
   }
   if type(preferences.dateFormat) == str {
-    _check-date-template(preferences.dateFormat)
+    _check-date-template(preferences.dateFormat, "dateFormat")
   }
   for key in ("leftColumnSections", "rightColumnSections") {
     _check-unknown-keys(preferences.at(key), section-keys, key)
