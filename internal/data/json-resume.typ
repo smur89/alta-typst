@@ -7,7 +7,7 @@
   resume-schema-strict, str-type,
 )
 
-#let altacv-schema = {
+#let _altacv-schema = {
   let s = resume-schema-strict
   s = add-field(s, lens(()), "focusAreas", array-of(content-type))
   s = add-field(s, lens(("languages", "items")), "rating", number-type)
@@ -15,4 +15,4 @@
   s
 }
 
-#let from-json-resume(data) = _parse(data, schema: altacv-schema)
+#let from-json-resume(data) = _parse(data, schema: _altacv-schema)

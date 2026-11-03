@@ -10,10 +10,10 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
-// For `show: _content_styles.with(body-size, accent)`. Levels: 2
+// For `show: _content-styles.with(body-size, accent)`. Levels: 2
 // section title, 3 role / qualification, 4 sub-grouping (e.g.
 // publication type).
-#let _content_styles(body-size, accent, body) = {
+#let _content-styles(body-size, accent, body) = {
   let (par: p, list: l, section, subheading, size, colour, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   set list(

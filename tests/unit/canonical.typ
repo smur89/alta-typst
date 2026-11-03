@@ -1,10 +1,10 @@
 // Unit checks for how `publicationIcons` resolves, through
-// `_merge_options`, the sequence `alta()` runs.
+// `_merge-options`, the sequence `alta()` runs.
 
-#import "/internal/data/options.typ": _merge_options
+#import "/internal/data/options.typ": _merge-options
 
 #let icons(prefs: (:), labels: (:)) = {
-  _merge_options(
+  _merge-options(
     (publicationIcons: labels),
     (publicationIcons: prefs),
   )

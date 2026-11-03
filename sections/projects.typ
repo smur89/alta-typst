@@ -2,19 +2,19 @@
 // subheadings only when at least one has a `type`; an all-untyped list
 // renders flat. Entries without a `name` are skipped.
 
-#import "../internal/util/dates.typ": _format_date_range
-#import "../internal/util/fields.typ": _field, _string_at
-#import "../internal/util/values.typ": _group_by
+#import "../internal/util/dates.typ": _format-date-range
+#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/values.typ": _group-by
 #import "../internal/components/entry.typ": _entry
-#import "../internal/components/frame.typ": _grouped_section, _section
+#import "../internal/components/frame.typ": _grouped-section, _section
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
-#let _render_project(project, (labels, prefs, ..)) = _entry(
+#let _render-project(project, (labels, prefs, ..)) = _entry(
   title: project.name,
   url: _field(project, "url"),
   subtitle: _field(project, "entity"),
   roles: project.at("roles", default: ()),
-  period: _format_date_range(project, prefs, labels),
+  period: _format-date-range(project, prefs, labels),
   summary: _field(project, "summary"),
   highlights: project.at("highlights", default: ()),
   tags: project.at("keywords", default: ()),
@@ -23,25 +23,25 @@
 // Drives the `====` subheadings in projects. A
 // missing or non-string `type` pools under `fallback` rather than
 // crashing as a dict key.
-#let _group_by_type(items, fallback) = _group_by(items, item => {
-  let raw = _string_at(item, "type")
+#let _group-by-type(items, fallback) = _group-by(items, item => {
+  let raw = _string-at(item, "type")
   if raw != none { raw } else { fallback }
 })
 
 #let _projects(entries, ctx) = {
   let (labels, ..) = ctx
   let valid = entries.filter(p => _field(p, "name") != none)
-  let render(p) = _render_project(p, ctx)
+  let render(p) = _render-project(p, ctx)
 
   // Flat unless some entry has a usable `type`, so the common untyped
   // case gets no redundant subheadings. Untyped entries in a mixed list
   // pool under `labels.otherProjects`.
-  if not valid.any(p => _string_at(p, "type") != none) {
+  if not valid.any(p => _string-at(p, "type") != none) {
     _section(labels.projects, valid, render)
   } else {
-    _grouped_section(
+    _grouped-section(
       labels.projects,
-      _group_by_type(valid, labels.otherProjects),
+      _group-by-type(valid, labels.otherProjects),
       (group, _) => group,
       render,
     )

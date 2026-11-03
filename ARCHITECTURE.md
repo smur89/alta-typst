@@ -6,8 +6,8 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 
 `alta()` (`lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders.
 
-1. **Options:** `_merge_options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
-2. **CV:** unknown top-level keys are rejected, `_canonical_cv` rewrites deprecated CV forms, and `_read_sections` (`data/sections.typ`) shape-checks every section.
+1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
+2. **CV:** unknown top-level keys are rejected, `_canonical-cv` rewrites deprecated CV forms, and `_read-sections` (`data/sections.typ`) shape-checks every section.
 3. **Document:** the render-time context (`context.typ`), PDF metadata, `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
 4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`.
 
@@ -17,7 +17,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 | Layer | Path | Holds | May import |
 |---|---|---|---|
-| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date and location formatting; the dict readers (`_field`, `_string_at`) in `fields.typ` | — |
+| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date and location formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme, document styles, palettes, icon set | util |
 | data | `data/` | reading and checking the CV, labels and preferences; their defaults | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
@@ -41,7 +41,7 @@ A section reads fields and fills a component's slots:
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: _format_date(_field(award, "date"), prefs, labels),
+    period: _format-date(_field(award, "date"), prefs, labels),
     summary: _field(award, "summary"),
   ),
 )

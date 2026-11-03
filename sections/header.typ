@@ -1,35 +1,35 @@
 // The page header: `basics` and the header preferences mapped onto
-// `_page_header`. Not one of the column sections in
+// `_page-header`. Not one of the column sections in
 // `data/sections.typ`: `alta()` renders it above the grid. CV fields
 // are checked here, where they're consumed.
 
-#import "../internal/design/icon-set.typ": _network_aliases, _profile_networks
+#import "../internal/design/icon-set.typ": _network-aliases, _profile-networks
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/location.typ": _format_location
-#import "../internal/util/values.typ": _url_encode
-#import "../internal/data/validation.typ": _contact_channels
+#import "../internal/util/location.typ": _format-location
+#import "../internal/util/values.typ": _url-encode
+#import "../internal/data/validation.typ": _contact-channels
 #import "../internal/primitives.typ": _portrait
-#import "../internal/components/header.typ": _page_header
+#import "../internal/components/header.typ": _page-header
 
 // Fully populated per channel, so callers can `link-config.at(channel)`
 // without missing-key guards.
-#let _resolve_link_config(value) = {
-  let all-channels(v) = _contact_channels.fold((:), (acc, c) => acc + ((c): v))
+#let _resolve-link-config(value) = {
+  let all-channels(v) = _contact-channels.fold((:), (acc, c) => acc + ((c): v))
   if type(value) == bool { all-channels(value) } else {
     all-channels(true) + value
   }
 }
 
-#let _profile_entry(profile) = {
+#let _profile-entry(profile) = {
   let raw = lower(profile.network)
-  let network = _network_aliases.at(raw, default: raw)
-  if network not in _profile_networks {
+  let network = _network-aliases.at(raw, default: raw)
+  if network not in _profile-networks {
     panic(
       "Unknown profile network: "
         + repr(profile.network)
         + ". Supported: "
-        + _profile_networks.join(", ")
-        + ". To add another, register its FontAwesome glyph in _network_icons (internal/design/icon-set.typ).",
+        + _profile-networks.join(", ")
+        + ". To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
     )
   }
   (
@@ -50,12 +50,12 @@
 // into the resolved `linkContactInfo` config. Pure data, no `context`.
 // An empty string counts as absent, so it never renders a bare icon
 // behind a dead `mailto:` / `tel:` link.
-#let _contact_entries(basics, maps-provider) = {
+#let _contact-entries(basics, maps-provider) = {
   let email = _field(basics, "email")
   let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
   // cannot drift.
-  let location = _format_location(
+  let location = _format-location(
     basics.at("location", default: none),
     "basics.location",
   )
@@ -80,19 +80,19 @@
         icon: "location",
         value: location,
         url: if maps-provider != none {
-          maps-provider.replace("{q}", _url_encode(location))
+          maps-provider.replace("{q}", _url-encode(location))
         },
       )
     },
     if url != none { (channel: "url", icon: "link", value: url, url: url) },
   ).filter(e => e != none)
-  fields + basics.at("profiles", default: ()).map(_profile_entry)
+  fields + basics.at("profiles", default: ()).map(_profile-entry)
 }
 
 // `basics.image`, or `none` when there's nothing to frame: a `path`
 // can't be empty, and an empty `str` / `bytes` counts as absent. Other
 // types panic here rather than as a cryptic `image()` failure.
-#let _header_image(image-src) = if image-src == none { none } else if (
+#let _header-image(image-src) = if image-src == none { none } else if (
   type(image-src) == path
 ) { image-src } else if type(image-src) in (str, bytes) {
   if image-src.len() > 0 { image-src }
@@ -103,8 +103,8 @@
   )
 }
 
-// Separate from `_check_qr_code` because `auto` needs `basics`.
-#let _resolve_qr_url(qr-code, basics) = {
+// Separate from `_check-qr-code` because `auto` needs `basics`.
+#let _resolve-qr-url(qr-code, basics) = {
   if qr-code == none { return none }
   if qr-code != auto { return qr-code }
   let url = basics.at("url", default: none)
@@ -129,21 +129,21 @@
 // The contact bar's `(channel, icon, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
 // its channel.
-#let _linked_contacts(basics, prefs) = {
-  let link-config = _resolve_link_config(prefs.linkContactInfo)
-  _contact_entries(basics, prefs.mapsProvider).map(e => (
+#let _linked-contacts(basics, prefs) = {
+  let link-config = _resolve-link-config(prefs.linkContactInfo)
+  _contact-entries(basics, prefs.mapsProvider).map(e => (
     e + (url: if link-config.at(e.channel) { e.url })
   ))
 }
 
 #let _header(cv, prefs) = {
   let basics = cv.basics
-  let image = _header_image(basics.at("image", default: none))
-  _page_header(
+  let image = _header-image(basics.at("image", default: none))
+  _page-header(
     name: basics.name,
     pronouns: if prefs.showPronouns { _field(basics, "pronouns") },
     headline: _field(basics, "label"),
-    contacts: _linked_contacts(basics, prefs),
+    contacts: _linked-contacts(basics, prefs),
     text-align: (left: left, right: right, center: center).at(
       prefs.headerTextAlign,
     ),
@@ -153,6 +153,6 @@
     photo-at: if prefs.imagePosition == "center" {
       prefs.imageStackOrder
     } else { prefs.imagePosition },
-    qr-url: _resolve_qr_url(prefs.qrCode, basics),
+    qr-url: _resolve-qr-url(prefs.qrCode, basics),
   )
 }

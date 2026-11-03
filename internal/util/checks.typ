@@ -4,7 +4,7 @@
 #let _quote(s) = "\"" + s + "\""
 
 // `"a" or "b"`, `"a", "b", or "c"`.
-#let _prose_list(items) = items.join(
+#let _prose-list(items) = items.join(
   ", ",
   last: if items.len() == 2 { " or " } else { ", or " },
 )
@@ -14,7 +14,7 @@
   if not ok { panic(name + " must be " + expected + ", got: " + repr(value)) }
 }
 
-#let _check_unknown_keys(candidates, allowed, what) = {
+#let _check-unknown-keys(candidates, allowed, what) = {
   let unknown = candidates.filter(k => k not in allowed)
   if unknown.len() > 0 {
     panic(
@@ -28,18 +28,18 @@
   }
 }
 
-#let _check_type(name, value, allowed, expected) = _require(
+#let _check-type(name, value, allowed, expected) = _require(
   name,
   value,
   type(value) in allowed,
   expected,
 )
 
-#let _check_bool(name, value) = _check_type(name, value, (bool,), "a bool")
+#let _check-bool(name, value) = _check-type(name, value, (bool,), "a bool")
 
-#let _check_enum(name, value, allowed) = _require(
+#let _check-enum(name, value, allowed) = _require(
   name,
   value,
   value in allowed,
-  _prose_list(allowed.map(_quote)),
+  _prose-list(allowed.map(_quote)),
 )

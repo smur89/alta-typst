@@ -2,9 +2,9 @@
 // with the date and location row beneath its heading.
 
 #import "../design/theme.typ": _theme
-#import "../util/values.typ": _join_present, _present
+#import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent_strong, _link_if, _preamble, _small, _tag_row, _term_part, _term_row,
+  _accent-strong, _link-if, _preamble, _small, _tag-row, _term-part, _term-row,
   name, term,
 )
 
@@ -17,8 +17,8 @@
 // An organisation line via `name()`, linked when `url` is present
 // (`link()` inherits the bold accent). An absent organisation renders
 // nothing rather than an empty block that leaves a blank line.
-#let _org_line(org, url: none) = if _present(org) {
-  name(_link_if(url, org))
+#let _org-line(org, url: none) = if _present(org) {
+  name(_link-if(url, org))
 }
 
 // The compact term row: period and location at natural widths (no
@@ -26,25 +26,25 @@
 // ` · `, so several short entries stay one line each. The
 // `entry.compact-gap` gaps are `em`, so scale with the row's smaller
 // text.
-#let _compact_term(period, location, org, org-url, details) = {
+#let _compact-term(period, location, org, org-url, details) = {
   let org = if _present(org) {
-    _accent_strong(_link_if(org-url, org))
+    _accent-strong(_link-if(org-url, org))
   }
-  let facts = _join_present((org, ..details), _theme.separator.facts)
-  let row = _join_present(
+  let facts = _join-present((org, ..details), _theme.separator.facts)
+  let row = _join-present(
     (
-      _term_part("calendar", period, width: auto),
-      _term_part("location", location, width: auto),
+      _term-part("calendar", period, width: auto),
+      _term-part("location", location, width: auto),
       if facts != none { box(facts) },
     ),
     h(_theme.entry.compact-gap),
   )
-  if row != none { _term_row(row) }
+  if row != none { _term-row(row) }
 }
 
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
-// `_bib_entry`); an absent slot renders nothing. The title keeps the
+// `_bib-entry`); an absent slot renders nothing. The title keeps the
 // plain heading style whether or not it links. `tags-lead` is
 // inline text leading the `tags` pills (education's score).
 //
@@ -67,19 +67,19 @@
   tags-lead: none,
   tags: (),
 ) = {
-  if _present(title) [=== #_link_if(url, title)]
-  if not compact { _org_line(org, url: org-url) }
+  if _present(title) [=== #_link-if(url, title)]
+  if not compact { _org-line(org, url: org-url) }
   _subtitle(subtitle)
   // The person's roles as darker pills, set apart from the `tags`.
   if roles.len() > 0 {
-    block(below: _theme.entry.roles-below, _tag_row(roles, label: true))
+    block(below: _theme.entry.roles-below, _tag-row(roles, label: true))
   }
   if compact {
-    _compact_term(period, location, org, org-url, details)
+    _compact-term(period, location, org, org-url, details)
   } else {
     term(period, location: location)
   }
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join_present((tags-lead, _tag_row(tags)), [ ])
+  _join-present((tags-lead, _tag-row(tags)), [ ])
 }

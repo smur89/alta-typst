@@ -7,8 +7,8 @@
 
 #import "design/presets.typ": palettes
 
-#let _body_size_state = state("alta-body-size", 10pt)
-#let _accent_state = state("alta-accent", palettes.teal)
+#let _body-size-state = state("alta-body-size", 10pt)
+#let _accent-state = state("alta-accent", palettes.teal)
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.maxRating` explicitly.
-#let _max_rating_state = state("alta-max-rating", 5)
+#let _max-rating-state = state("alta-max-rating", 5)

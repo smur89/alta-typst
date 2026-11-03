@@ -14,7 +14,7 @@
 // in `figure(alt: url)`, Typst's carrier for alt text on non-image
 // content in tagged PDF. Unnumbered, unoutlined and gap-free, it
 // leaves the layout unchanged.
-#let _qr_render(url, size, fill) = link(
+#let _qr-render(url, size, fill) = link(
   url,
   figure(
     qrcode(url, width: size, quiet-zone: 0, fill: fill),

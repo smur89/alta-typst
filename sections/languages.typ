@@ -1,15 +1,15 @@
-// Languages: rating dots when `_resolve_rating` gives a number, else
-// the `fluency` text alone (one not in `_fluency_rating`).
+// Languages: rating dots when `_resolve-rating` gives a number, else
+// the `fluency` text alone (one not in `_fluency-rating`).
 
-#import "../internal/util/fields.typ": _field, _string_at
-#import "../internal/util/values.typ": _round_half
+#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/values.typ": _round-half
 #import "../internal/data/cv.typ": _altacv
 #import "../internal/components/frame.typ": _section
-#import "../internal/components/ratings.typ": _rating_row, rating
+#import "../internal/components/ratings.typ": _rating-row, rating
 
 // LinkedIn fluency strings as fractions of full fluency; matched
 // case-insensitively.
-#let _fluency_rating = (
+#let _fluency-rating = (
   "native": 1.0,
   "bilingual": 1.0,
   "full professional": 0.8,
@@ -22,7 +22,7 @@
 // scales to `max` dots, rounded to the half. `none` (an unknown
 // `fluency`) means render the label only. Numeric checks live in
 // `rating()`.
-#let _resolve_rating(entry, max) = {
+#let _resolve-rating(entry, max) = {
   let value = _altacv(entry, "rating") // avoid shadowing `rating()`
   if value != none { return value }
   let fluency = entry.at("fluency", default: none)
@@ -40,18 +40,18 @@
         + repr(entry),
     )
   }
-  let fraction = _fluency_rating.at(lower(fluency.trim()), default: none)
-  if fraction != none { _round_half(fraction * max) }
+  let fraction = _fluency-rating.at(lower(fluency.trim()), default: none)
+  if fraction != none { _round-half(fraction * max) }
 }
 
 #let _languages(items, (labels, prefs, ..)) = _section(
   labels.languages,
   // Nameless entries are dropped, not a panic.
   items.filter(l => _field(l, "language") != none),
-  lang => _rating_row(
+  lang => _rating-row(
     lang.language,
-    _resolve_rating(lang, prefs.maxRating),
+    _resolve-rating(lang, prefs.maxRating),
     max: prefs.maxRating,
-    fallback: _string_at(lang, "fluency"),
+    fallback: _string-at(lang, "fluency"),
   ),
 )

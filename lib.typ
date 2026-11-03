@@ -22,18 +22,18 @@
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
 #import "internal/design/theme.typ": _theme
-#import "internal/data/canonical.typ": _canonical_cv
-#import "internal/util/checks.typ": _check_unknown_keys
-#import "internal/util/fields.typ": _field, _string_at
-#import "internal/util/values.typ": _fill_template
-#import "internal/util/dates.typ": _iso_datetime
+#import "internal/data/canonical.typ": _canonical-cv
+#import "internal/util/checks.typ": _check-unknown-keys
+#import "internal/util/fields.typ": _field, _string-at
+#import "internal/util/values.typ": _fill-template
+#import "internal/util/dates.typ": _iso-datetime
 #import "sections/header.typ": _header
 #import "sections/intro.typ": _intro
-#import "sections/footer.typ": _resolve_page_footer
-#import "internal/data/sections.typ": _cv_keys, _read_sections
+#import "sections/footer.typ": _resolve-page-footer
+#import "internal/data/sections.typ": _cv-keys, _read-sections
 #import "internal/document.typ": _document
 #import "internal/registry.typ": _renderers
-#import "internal/data/options.typ": _merge_options
+#import "internal/data/options.typ": _merge-options
 #import "internal/data/json-resume.typ": from-json-resume
 
 // Generic silhouette, exposed as bytes so the `typst init` template
@@ -41,7 +41,7 @@
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
 
 // Skill keywords for the PDF `Keywords` field, first occurrence first.
-#let _collect_keywords(skills) = (
+#let _collect-keywords(skills) = (
   skills
     .map(group => group.at("keywords", default: ()))
     .sum(default: ())
@@ -72,30 +72,30 @@
     )
   }
   // A misspelt section (`publication:`) would otherwise vanish silently.
-  _check_unknown_keys(cv.keys(), _cv_keys, "CV top-level")
-  let (labels, preferences) = _merge_options(labels, preferences)
-  let cv = _canonical_cv(cv, preferences)
+  _check-unknown-keys(cv.keys(), _cv-keys, "CV top-level")
+  let (labels, preferences) = _merge-options(labels, preferences)
+  let cv = _canonical-cv(cv, preferences)
   // Before the PDF keywords below walk `skills`.
-  let section-data = _read_sections(cv)
+  let section-data = _read-sections(cv)
   let column-ratio = preferences.columnRatio
   // Optional metadata is set only when non-empty: `set document(...)`
   // rejects a `none` date, and empty strings would still write an entry.
   let meta = cv.at("meta", default: (:))
   let last-modified-raw = meta.at("lastModified", default: none)
-  let canonical = _string_at(meta, "canonical")
-  let version = _string_at(meta, "version")
-  let doc-date = _iso_datetime(last-modified-raw)
+  let canonical = _string-at(meta, "canonical")
+  let version = _string-at(meta, "version")
+  let doc-date = _iso-datetime(last-modified-raw)
   // `set document(...)` has no URL or version field, so
   // `meta.canonical` / `meta.version` ride the Keywords — the only
-  // machine-readable home. `_string_at` because Keywords must be
+  // machine-readable home. `_string-at` because Keywords must be
   // strings and a dict passed to `alta()` directly is unvalidated.
-  let doc-keywords = _collect_keywords(section-data.skills)
+  let doc-keywords = _collect-keywords(section-data.skills)
   if canonical != none { doc-keywords.push(canonical) }
   if version != none { doc-keywords.push(version) }
   let doc-description = _field(cv.basics, "summary")
   set document(
     // `uppercaseName` is purely visual — PDF metadata stays canonical.
-    title: _fill_template(labels.documentTitle, (name: cv.basics.name)),
+    title: _fill-template(labels.documentTitle, (name: cv.basics.name)),
     author: cv.basics.name,
     ..(if doc-keywords.len() > 0 { (keywords: doc-keywords) }),
     ..(if doc-description != none { (description: doc-description) }),
@@ -104,7 +104,7 @@
   show: _document.with(
     preferences,
     labels,
-    footer: _resolve_page_footer(preferences, labels, meta, cv.basics.name),
+    footer: _resolve-page-footer(preferences, labels, meta, cv.basics.name),
   )
 
   _header(cv, preferences)

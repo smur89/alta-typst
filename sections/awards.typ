@@ -1,7 +1,7 @@
 // Awards. The title links via the altacv `custom.altacv.url`
 // extension; entries without a `title` are skipped.
 
-#import "../internal/util/dates.typ": _format_date
+#import "../internal/util/dates.typ": _format-date
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _altacv
 #import "../internal/components/entry.typ": _entry
@@ -14,7 +14,7 @@
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: _format_date(_field(award, "date"), prefs, labels),
+    period: _format-date(_field(award, "date"), prefs, labels),
     summary: _field(award, "summary"),
   ),
 )

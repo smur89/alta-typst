@@ -6,7 +6,7 @@
 #import "../sections/certificates.typ": _certificates
 #import "../sections/education.typ": _education
 #import "../sections/experience.typ": _experience, _volunteer
-#import "../sections/focus-areas.typ": _focus_areas
+#import "../sections/focus-areas.typ": _focus-areas
 #import "../sections/languages.typ": _languages
 #import "../sections/projects.typ": _projects
 #import "../sections/publications.typ": _publications
@@ -19,7 +19,7 @@
 #let _renderers = (
   work: _experience,
   volunteer: _volunteer,
-  focusAreas: _focus_areas,
+  focusAreas: _focus-areas,
   skills: _skills,
   languages: _languages,
   education: _education,
