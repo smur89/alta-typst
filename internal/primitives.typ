@@ -237,12 +237,11 @@
 }
 
 // A label pill, a dash, then `items` as pills, wrapping under a
-// hanging indent. `text("-")`, not
-// `[-]`, which markup parses as a list bullet. The `_tag_gap` after it
-// mirrors the gap `tag()` leaves on its left, so the dash sits centred
-// between the pills.
-#let _keyword_row(label, items) = context {
-  let body-size = _body_size_state.get()
+// hanging indent. Called in `context`, which supplies `body-size`.
+// `text("-")`, not `[-]`, which markup parses as a list bullet. The
+// `_tag_gap` after it mirrors the gap `tag()` leaves on its left, so
+// the dash sits centred between the pills.
+#let _keyword_row(body-size, label, items) = {
   let (gap, hanging-indent) = _theme.keyword-row
   let row-gap = gap * body-size
   block(above: 0pt, below: row-gap, par(
@@ -317,7 +316,7 @@
 // authors, source, date, identifiers and summary, each on its own
 // line. Absent lines drop out so none leaves an orphan `\` break.
 #let _bib_entry(
-  title: none,
+  title,
   url: none,
   authors: (),
   source: none,

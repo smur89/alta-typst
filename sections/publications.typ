@@ -57,12 +57,14 @@
 
 // An unlinked title's destination: the first linkable ref in
 // `_identifier_schemes` order, whatever order the data lists them in.
+// Of two refs sharing a scheme (`DOI` and `doi`), the last wins.
 #let _identifier_url(refs) = {
-  let rank = _identifier_schemes.keys()
-  let linked = refs
-    .filter(r => r.url != none)
-    .sorted(key: r => rank.position(k => k == r.scheme))
-  if linked.len() > 0 { linked.first().url }
+  let linkable = refs.rev().filter(r => r.url != none)
+  let hit = _identifier_schemes
+    .keys()
+    .map(k => linkable.find(r => r.scheme == k))
+    .find(r => r != none)
+  if hit != none { hit.url }
 }
 
 // Journal-style `12(3), 45–67`; each part takes its punctuation with
@@ -103,7 +105,7 @@
   let refs = _identifier_refs(_identifiers(pub))
   let url = _field(pub, "url")
   _bib_entry(
-    title: pub.name,
+    pub.name,
     url: if url != none { url } else { _identifier_url(refs) },
     authors: _authors(pub, owner),
     source: _source(pub),

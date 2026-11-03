@@ -35,6 +35,11 @@
 )
 #assert.eq(url-of((("arxiv", "2101.1"),)), "https://arxiv.org/abs/2101.1")
 #assert.eq(url-of((("isbn", "978"),)), none)
+// Two keys lowercased to one scheme: the last listed wins.
+#assert.eq(
+  url-of((("doi", "10.1/a"), ("doi", "10.1/b"))),
+  "https://doi.org/10.1/b",
+)
 
 // _identifier_line: one `name id` per ref, joined with ` · `.
 #assert.eq(
