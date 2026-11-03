@@ -83,41 +83,48 @@
   _sections.keys().filter(k => _sections.at(k).column == col)
 )
 
-// Documented in the README's preferences table; comments here note
-// only constraints the README doesn't need.
+// Documented in the README's preferences tables and grouped as there,
+// which is also the order the "Supported:" list of an unknown-key
+// panic follows. Comments here note only constraints the README
+// doesn't need.
 #let _default_preferences = (
+  // Look.
   // Must be installed on the build host (CI installs it: apt in
   // setup-typst, apk in the pinned image).
   font: "Lato",
   bodySize: 10pt,
-  paper: "a4",
-  margin: (x: 0.9cm, y: 1.5cm),
   accent: palettes.teal,
-  // Deprecated and ignored; removed in the next major (#239).
-  groupCertificates: true,
-  imageSize: 6em,
-  linkContactInfo: true,
-  mapsProvider: maps-providers.google,
-  imagePosition: "right",
-  imageStackOrder: "above",
-  headerTextAlign: "left",
-  qrCode: none,
+  publicationIcons: _publication_icons,
+  // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
   showPronouns: false,
+  headerTextAlign: "left",
+  imageSize: 6em,
+  imagePosition: "right",
+  imageStackOrder: "above",
+  qrCode: none,
+  // Page and layout.
+  paper: "a4",
+  margin: (x: 0.9cm, y: 1.5cm),
+  columnRatio: 0.65,
+  leftColumnSections: _keys_for_column("left"),
+  rightColumnSections: _keys_for_column("right"),
+  // Footer.
+  pageFooter: none,
   lastModifiedFooter: false,
   // Rides the `lastModifiedFooter` line; no-op without it.
   footerVersion: false,
+  // Formatting and links.
   dateFormat: "long",
-  columnRatio: 0.65,
-  pageFooter: none,
-  leftColumnSections: _keys_for_column("left"),
-  rightColumnSections: _keys_for_column("right"),
-  // Deprecated (#239): `_canonical_cv` turns it into a
-  // `references[].availableOnRequest` entry.
-  referencesAvailableOnRequest: false,
+  linkContactInfo: true,
+  mapsProvider: maps-providers.google,
   maxRating: 5,
-  publicationIcons: _publication_icons,
+  // Deprecated, removed in the next major (#239). `groupCertificates`
+  // is ignored; `_canonical_cv` turns `referencesAvailableOnRequest`
+  // into a `references[].availableOnRequest` entry.
+  groupCertificates: true,
+  referencesAvailableOnRequest: false,
 )
 
 // The caller's `labels` and `preferences`, each canonicalised before
