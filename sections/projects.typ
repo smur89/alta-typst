@@ -42,11 +42,11 @@
       labels.projects,
       _group-by-type(entries, labels.otherProjects),
       // `projectIcons` is lowercase-keyed (`_canonical-preferences`); a
-      // group it doesn't map leads with no icon.
-      (group, _) => {
-        let icon-name = prefs.projectIcons.at(lower(group), default: none)
-        if icon-name == none { group } else { _icon-heading(icon-name, group) }
-      },
+      // group it doesn't map gets `folder`.
+      (group, _) => _icon-heading(
+        prefs.projectIcons.at(lower(group), default: "folder"),
+        group,
+      ),
       render,
     )
   }

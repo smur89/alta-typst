@@ -309,7 +309,7 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 | `url` | string | Links the title. |
 | `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
-| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) if set (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
+| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 
 #### Awards
 
@@ -419,7 +419,7 @@ Override any subset of the keys below.
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
 | `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
-| `projectIcons` | `(:)` | Icons per `projects[].type`. See [Project icons](#project-icons). |
+| `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
 
 #### Header
 
@@ -491,13 +491,13 @@ The plural and free-text keys exist for the deprecated free-text `type` headings
 
 #### Project icons
 
-`preferences.projectIcons` maps `projects[].type` values to the icon leading their subheading, matched case-insensitively, with values from the same icon set. A type it doesn't map has no icon, so project groups are plain accent headings unless you choose otherwise:
+`preferences.projectIcons` maps `projects[].type` values to the icon leading their subheading, matched case-insensitively, with values from the same icon set. A type it doesn't map gets `folder`:
 
 ```typst
 #alta(cv, preferences: (projectIcons: (application: "laptop-code", library: "cubes")))
 ```
 
-Icons that suit project kinds include `laptop-code`, `cubes`, `terminal`, `flask` and `folder`.
+Icons that suit project kinds include `laptop-code`, `cubes`, `terminal` and `flask`.
 
 #### Examples
 
