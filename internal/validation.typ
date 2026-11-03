@@ -4,6 +4,7 @@
 // code that consumes them, as they apply only when the field is set.
 
 #import "dates.typ": _date_format_aliases
+#import "icons.typ": _icon_glyphs
 #import "qr.typ": _check_qr_code
 #import "text.typ": _placeholder_re
 
@@ -38,18 +39,18 @@
   }
 }
 
-// Unknown keys panic rather than being silently absorbed. With
-// `nested: true`, a dictionary default (a label table such as
-// `publicationTypes`) merges key by key, so a partial override keeps
-// the rest.
-#let _strict_merge(defaults, overrides, name, nested: false) = {
+// Unknown keys panic rather than being silently absorbed. The keys
+// named in `tables` (`labels.publicationTypes`) hold dictionaries that
+// merge entry by entry, so a partial override keeps the rest; any
+// other key is replaced whole, dictionary or not (`margin`).
+#let _strict_merge(defaults, overrides, name, tables: ()) = {
   if type(overrides) != dictionary {
     panic(name + " must be a dictionary, got: " + repr(overrides))
   }
   _check_unknown_keys(overrides.keys(), defaults.keys(), name)
   let merge-key(key, value) = {
     let default = defaults.at(key)
-    if nested and type(default) == dictionary {
+    if key in tables {
       _require(
         name + "." + key,
         value,
@@ -195,6 +196,10 @@
   let max-rating = preferences.maxRating
   if type(max-rating) != int or max-rating < 1 {
     panic("maxRating must be a positive integer, got: " + repr(max-rating))
+  }
+  // Here, as `icon()` would fail on a bare missing key.
+  for (code, name) in preferences.publicationIcons {
+    _check_enum("publicationIcons." + code, name, _icon_glyphs.keys())
   }
   let page-footer = preferences.pageFooter
   let footer-ok = (

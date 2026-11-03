@@ -7,6 +7,7 @@
 // data with no imports.
 
 #import "presets.typ": maps-providers, palettes
+#import "icons.typ": _publication_icons
 #import "text.typ": _altacv
 #import "validation.typ": _check_section_entries
 #import "canonical.typ": _legacy_root_fields
@@ -109,4 +110,5 @@
   // `references[].availableOnRequest` entry.
   referencesAvailableOnRequest: false,
   maxRating: 5,
+  publicationIcons: _publication_icons,
 )

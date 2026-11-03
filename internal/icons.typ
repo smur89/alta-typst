@@ -42,6 +42,15 @@
 #let _icon_glyphs = _utility_icons + _network_icons
 #let _profile_networks = _network_icons.keys()
 
+// `publications[].type` codes → the icon leading their subheading:
+// the `preferences.publicationIcons` default.
+#let _publication_icons = (
+  article: "newspaper",
+  book: "book",
+  thesis: "book",
+  talk: "microphone",
+)
+
 // Renamed networks → the key their icon still ships under. Keys are
 // lowercase, as the lookup follows `lower(profile.network)`.
 #let _network_aliases = (

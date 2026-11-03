@@ -10,15 +10,6 @@
 )
 #import "../internal/dates.typ": _format_date
 
-// Extended via `labels.publicationIcons`; anything unmatched,
-// including `patent`, falls back to `file`.
-#let _code_publication_icons = (
-  article: "newspaper",
-  book: "book",
-  thesis: "book",
-  talk: "microphone",
-)
-
 // `type` arrives trimmed (`_canonical_cv`); lowercasing makes `Talk`
 // and `talk` share a subheading, and untyped entries join `article`.
 #let _type_code(pub) = {
@@ -115,20 +106,17 @@
   )
 }
 
-// Label tables arrive lowercase-keyed (`_canonical_labels`). Icons
-// resolve `labels.publicationIcons` → `_code_publication_icons` →
-// `file`. A list, so no dividers between entries.
+// `publicationTypes` and `publicationIcons` arrive lowercase-keyed
+// (`_canonical_labels`, `_canonical_preferences`); a code with no icon
+// gets `file`. A list, so no dividers between entries.
 #let _publications(pubs, ctx) = {
-  let (labels, ..) = ctx
+  let (labels, prefs, ..) = ctx
   let headings = labels.publicationTypes
   _grouped_section(
     labels.publications,
     _group_by(pubs.filter(p => _field(p, "name") != none), _type_code),
     (code, items) => {
-      let group-icon = labels.publicationIcons.at(
-        code,
-        default: _code_publication_icons.at(code, default: "file"),
-      )
+      let group-icon = prefs.publicationIcons.at(code, default: "file")
       // An unknown code's entries all share a string `type`, so print
       // the first as written. Not `default:`, which is evaluated even
       // when the key exists.
