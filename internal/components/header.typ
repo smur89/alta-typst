@@ -83,35 +83,29 @@
 // The name, then any pronouns. The `box` keeps "(they/them)" whole
 // when a long name wraps.
 #let _name-line(name, pronouns, body-size, accent) = {
-  let (name-weight, name-below, pronouns-gap, ..) = _theme.header
+  let (name-below, pronouns-gap, ..) = _theme.header
   block(spacing: 0pt, below: name-below * body-size, {
     text(
-      _theme.size.name * body-size,
+      _theme.type.display.size * body-size,
       fill: accent,
-      weight: name-weight,
+      weight: _theme.type.display.weight,
       name,
     )
     if pronouns != none {
       h(pronouns-gap * body-size)
-      box(text(body-size, fill: _theme.colour.body, [(#pronouns)]))
+      box[(#pronouns)]
     }
   })
 }
 
 #let _headline(headline, body-size) = if headline != none {
-  let (
-    headline: headline-size,
-    headline-weight,
-    headline-below,
-    ..,
-  ) = _theme.header
   block(
     spacing: 0pt,
-    below: headline-below * body-size,
+    below: _theme.header.headline-below * body-size,
     text(
-      headline-size * body-size,
+      _theme.type.title.size * body-size,
       fill: _theme.colour.emphasis,
-      weight: headline-weight,
+      weight: _theme.font-weight.bold,
       headline,
     ),
   )
@@ -121,9 +115,10 @@
 // linked where `url` is set. A `box` per entry, so the bar wraps
 // between entries, never between an icon and its text.
 #let _contact-bar(contacts, body-size, accent) = {
-  let (contact-weight, contact-icon, contact-gap, ..) = _theme.header
-  let bar-icon = icon.with(size: contact-icon * body-size, fill: accent)
-  set text(_theme.size.meta * body-size, weight: contact-weight)
+  let contact-gap = _theme.header.contact-gap
+  let size = _theme.header.contact-size * body-size
+  let bar-icon = icon.with(size: size, fill: accent)
+  set text(size, weight: _theme.font-weight.bold)
   contacts
     .map(entry => box({
       bar-icon(entry.icon, alt: entry.at("alt", default: none))

@@ -16,13 +16,13 @@
   if objective != none or summary != none {
     context {
       let body-size = _body-size-state.get()
-      let (above, rule, inset, gap, below) = _theme.intro
+      let (above, inset, gap, below) = _theme.intro
       v(above * body-size)
       _join-present(
         (
           if objective != none {
             block(
-              stroke: (left: rule + _accent-state.get()),
+              stroke: (left: _theme.stroke-width.thick + _accent-state.get()),
               inset: (left: inset.left * body-size, y: inset.y * body-size),
               _preamble(objective),
             )

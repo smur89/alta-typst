@@ -48,3 +48,8 @@
 })
 
 #let _round-half(x) = calc.round(x * 2) / 2
+
+// `https://jane.dev/` → `jane.dev`.
+#let _display-url(url) = (
+  url.replace(regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "").trim("/", at: end)
+)

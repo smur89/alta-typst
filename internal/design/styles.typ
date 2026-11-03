@@ -13,25 +13,26 @@
 // section title, 3 role / qualification, 4 sub-grouping (e.g.
 // publication type).
 #let _content-styles(body-size, accent, body) = {
-  let (par: p, list: l, section, subheading, size, colour, ..) = _theme
+  let (par: p, list: l, section, subheading, ..) = _theme
+  let (type: ty, colour, stroke-width: sw, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   set list(
-    marker: text(l.marker * 1em, "•"),
+    marker: [•],
     indent: 0pt,
     body-indent: l.body-indent * body-size,
     spacing: l.spacing,
   )
-  let (above, rule-gap, rule, below, weight, case) = section
+  let (above, rule-gap, below, case) = section
   show heading.where(level: 2): it => block(sticky: true)[
     #v(above * body-size)
     #text(
-      size.section * body-size,
+      ty.headline.size * body-size,
       fill: accent,
-      weight: weight,
+      weight: ty.headline.weight,
       _treat(case, it.body),
     )
     #v(rule-gap * body-size)
-    #line(length: 100%, stroke: rule + accent)
+    #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
   let sub-heading((above, below, weight)) = it => block(
@@ -39,7 +40,7 @@
     below: below * body-size,
     sticky: true,
     text(
-      size.subheading * body-size,
+      ty.title.size * body-size,
       fill: colour.emphasis,
       weight: weight,
       it.body,

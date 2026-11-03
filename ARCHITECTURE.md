@@ -52,10 +52,10 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 
 ## The look
 
-- **`design/theme.typ`**: plain data, keyed by component: colours, sizes, gaps, weights, separators, and treatments by name (`"emph"`), which `_treat` (`design/styles.typ`) applies. Unitless sizes multiply the body size.
+- **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), Bootstrap colour roles (`body`, `secondary`, `emphasis`, `border`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
 - **`context.typ`**: the accent, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
 
-Users style through [preferences](README.md#preferences); the theme itself isn't configurable yet.
+Users style through [preferences](README.md#preferences); the theme isn't configurable yet. When it is, `alta()` deep-merges token overrides, rebuilds, then merges role overrides.
 
 ## Deprecations
 

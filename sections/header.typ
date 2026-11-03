@@ -4,7 +4,7 @@
 // has checked the fields it reads.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/values.typ": _url-encode
+#import "../internal/util/values.typ": _display-url, _url-encode
 #import "../internal/data/cv.typ": _format-location, _profile-network
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/primitives.typ": _portrait
@@ -26,8 +26,11 @@
   // thing naming the network. The user's own string, not the
   // lowercased key, keeps their capitalisation ("GitHub").
   alt: profile.network,
-  // A profile without `url` renders unlinked rather than failing.
-  value: profile.at("username", default: profile.at("url", default: "")),
+  // No `url`: unlinked. No `username`: its URL, scheme dropped.
+  value: profile.at(
+    "username",
+    default: _display-url(profile.at("url", default: "")),
+  ),
   url: profile.at("url", default: none),
 )
 
@@ -69,7 +72,9 @@
         },
       )
     },
-    if url != none { (channel: "url", icon: "link", value: url, url: url) },
+    if url != none {
+      (channel: "url", icon: "link", value: _display-url(url), url: url)
+    },
   ).filter(e => e != none)
   fields + basics.at("profiles", default: ()).map(_profile-entry)
 }

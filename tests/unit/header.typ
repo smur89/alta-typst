@@ -1,7 +1,7 @@
 // Unit checks for the header's data stages in sections/header.typ,
 // including the QR URL resolution.
 
-#import "/internal/util/values.typ": _url-encode
+#import "/internal/util/values.typ": _display-url, _url-encode
 #import "/internal/data/options.typ": _merge-options
 #import "/sections/header.typ": (
   _contact-entries, _header-image, _linked-contacts, _profile-entry,
@@ -48,11 +48,20 @@
 )
 
 // _profile-entry: aliases resolve, `alt` keeps the user's spelling,
-// a profile without `url` shows the username unlinked.
+// a profile without `url` shows the username unlinked, one without a
+// `username` shows its URL without the scheme but links the full URL.
 #let x = _profile-entry((network: "X", username: "jane"))
 #assert.eq((x.icon, x.alt, x.value, x.url), ("twitter", "X", "jane", none))
 #let gh = _profile-entry((network: "GitHub", url: "https://github.com/jane"))
-#assert.eq((gh.icon, gh.value), ("github", "https://github.com/jane"))
+#assert.eq(
+  (gh.icon, gh.value, gh.url),
+  ("github", "github.com/jane", "https://github.com/jane"),
+)
+
+// _display-url: scheme and trailing slash dropped, the rest kept.
+#assert.eq(_display-url("https://jane.dev/"), "jane.dev")
+#assert.eq(_display-url("http://x.io/a/b?q=1"), "x.io/a/b?q=1")
+#assert.eq(_display-url("jane.dev"), "jane.dev")
 
 // _resolve-qr-url: none stays off, a string is used verbatim, auto
 // reads basics.url.
