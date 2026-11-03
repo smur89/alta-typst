@@ -14,8 +14,9 @@ concurrency:
 env:
   # Typst version for every job that installs it via setup-typst. Keep
   # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
-  # and the Makefile's DOCKER_IMAGE tag — the fixtures are rendered in
-  # that image, so a mismatch shows up as drift between the two paths.
+  # and the Makefile's DOCKER_IMAGE tag: the fixtures are committed
+  # from that image (`make docker-pdfs`) and the lint job re-renders
+  # them on its runner, so a mismatch shows up as drift.
   TYPST_VERSION: v0.15.1
   # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
   # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
@@ -54,16 +55,20 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      - name: Compile examples, test fixtures + template
-        run: make test
+      # Rendering the fixtures is also their compile check, standing in
+      # for `make test`'s `test-fixtures`. `-B`: tracked PDFs get
+      # checkout-order mtimes, so make could skip them and the gate
+      # would compare the committed files to themselves. `-k` and the
+      # next step's `!cancelled()` report every failure in one run.
+      - name: Render test fixtures
+        run: make -k -B test-pdfs
 
-      # `-B`: tracked PDFs get checkout-order mtimes, so make could
-      # skip them and the gate would compare the committed files to
-      # themselves.
+      - name: Compile examples + template, run panic and unit checks
+        if: ${{ !cancelled() }}
+        run: make test-compile test-panics test-unit
+
       - name: Verify examples/tests/*.pdf are in sync
-        run: |
-          make -B test-pdfs
-          make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make test-pdfs'
+        run: make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'
 
   # typstyle parses source only, so no setup-typst or fonts needed.
   format:
@@ -213,7 +218,7 @@ jobs:
   # release-please-config.json bumps typst.toml's `package.version`
   # as an extra-file, keeping it in lockstep with the tag.
   release-please:
-    needs: [lint, build]
+    needs: [lint, format, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5

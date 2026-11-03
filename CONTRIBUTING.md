@@ -31,7 +31,7 @@ tests/panics/     # must-fail fixtures — each names the error it expects
 tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fields, header, …)
 ```
 
-Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ` for a quick directory.
+Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ sections/*.typ` for a quick directory.
 
 Identifiers are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); JSON Resume and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
@@ -48,25 +48,15 @@ brew install --cask font-lato font-fontawesome
 
 Linux / Windows / manual install paths: see the [Fonts section in the README](README.md#fonts). Run `typst fonts` to confirm both are visible to Typst.
 
-Most everyday tasks go through the `Makefile`:
+Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
 ```sh
-make             # build every example PDF + cv preview + per-fixture PDFs
-make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
-make example-full # build examples/example_full.pdf + per-page gallery PNGs
-make thumbnail   # build thumbnail.png (Universe package-card image)
-make test        # compile every example + fixture + template/cv.typ (same shape as CI lint)
-make test-panics # check every tests/panics/*.typ fails with its `// expect:` message
-make test-unit   # run the helper checks under tests/unit/
-make test-template # compile-check just template/cv.typ (the `typst init` starter)
-make fmt         # format every tracked .typ in place (typstyle)
-make fmt-check   # check formatting without writing (the CI gate)
-make check       # test + fmt-check in one go
-make clean       # remove generated PDFs and PNGs
-make help        # summarise the available targets
+make check        # test + fmt-check
+make fmt          # format every tracked .typ in place (typstyle)
+make docker-pdfs  # regenerate the committed renders in the pinned image (see below)
 ```
 
-`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too.
 
 ### Helper unit tests
 
@@ -89,7 +79,7 @@ make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and run
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`) and — once the follow-up PR adds `container:` to `build.yml` — must also be kept in sync there.
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION` and `FA_VERSION` must match it: CI's lint job re-renders the fixtures on its runner and compares them byte for byte.
 
 If you'd rather drive Typst directly, the manual incantations are:
 
@@ -128,7 +118,7 @@ This is the most common shape of contribution. Two changes:
 
 For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `check` for the fields its renderer reads, in `internal/data/cv-checks.typ`) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, format-date, owner)`, usually destructured as `(labels, format-date, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
 
-The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
+The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make docker-pdfs` (see [Regenerating PDF fixtures](#regenerating-pdf-fixtures-docker)) and commit the updated PDFs alongside your source change.
 
 ## Security
 

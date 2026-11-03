@@ -699,12 +699,7 @@ typst compile --root . examples/example_full.typ examples/example_full.pdf
 
 To regenerate the preview artefacts (the canonical CV render, the animated GIF that cycles through preference variations, the multi-page gallery PNGs, and the Universe package-card thumbnail):
 
-```sh
-make cv             # examples/cv.pdf + examples/cv.png from template/cv.typ
-make example-full   # examples/example_full.pdf + examples/example_full-{1,2,…}.png
-make thumbnail      # thumbnail.png (Universe package card, 250 PPI)
-make preview-gif    # examples/preview.gif (requires ffmpeg)
-```
+`make cv`, `make example-full`, `make thumbnail` and `make preview-gif` (which needs ffmpeg); `make help` describes each.
 
 The GIF is sourced from `examples/preview-frames.typ` — one page per variation, each rendering the `template/cv.typ` starter's CV, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
 
