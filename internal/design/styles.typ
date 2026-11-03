@@ -22,13 +22,14 @@
     body-indent: l.body-indent * body-size,
     spacing: l.spacing,
   )
-  let (above, rule-gap, below, case) = section
+  let (above, rule-gap, below, case, tracking) = section
   show heading.where(level: 2): it => block(sticky: true)[
     #v(above * body-size)
     #text(
       ty.headline.size * body-size,
       fill: accent,
       weight: ty.headline.weight,
+      tracking: tracking,
       _treat(case, it.body),
     )
     #v(rule-gap * body-size)

@@ -19,7 +19,7 @@
   // differ by colour, not size).
   type: (
     display: (size: 2.5, weight: "bold"),
-    headline: (size: 1.7, weight: "bold"),
+    headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
     // Always 1: `bodySize` sets it.
     body: (size: 1, weight: "regular"),
@@ -64,11 +64,13 @@
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
     // `==` headings. `rule-gap` pulls the rule up (geometry).
+    // `tracking` opens up the capitals.
     section: (
       above: sp.small,
       rule-gap: -0.7,
       below: sp.xx-small,
       case: "upper",
+      tracking: 0.04em,
     ),
     // `===` entries and `====` groups.
     subheading: (
