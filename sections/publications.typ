@@ -146,7 +146,6 @@
       [#context icon(
           group-icon,
           size: 1.2 * _body_size_state.get(),
-          shift: 0pt,
         ) #heading]
     },
     pub => _render_publication(pub, ctx),
