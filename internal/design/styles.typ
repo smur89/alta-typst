@@ -9,6 +9,16 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
+// The block a `===` / `====` heading sits in: its `subheading` role's
+// spacing, kept with what follows. An entry's dated title row
+// (`_title-row`) sits in the same block, so the two can't drift.
+#let _subheading-block((above, below, ..), body-size, body) = block(
+  above: above * body-size,
+  below: below * body-size,
+  sticky: true,
+  body,
+)
+
 // For `show: _content-styles.with(body-size, accent)`. Levels: 2
 // section title, 3 role / qualification, 4 sub-grouping (e.g.
 // publication type).
@@ -36,11 +46,10 @@
     #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
-  let sub-heading((above, below, weight), fill) = it => block(
-    above: above * body-size,
-    below: below * body-size,
-    sticky: true,
-    text(ty.title.size * body-size, fill: fill, weight: weight, it.body),
+  let sub-heading(role, fill) = it => _subheading-block(
+    role,
+    body-size,
+    text(ty.title.size * body-size, fill: fill, weight: role.weight, it.body),
   )
   show heading.where(level: 3): sub-heading(subheading.entry, colour.emphasis)
   // In the accent, so a group reads apart from the entries under it.

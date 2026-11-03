@@ -2,6 +2,7 @@
 // the heading with its date at the right edge, then the organisation
 // and the entry's other facts on one line.
 
+#import "../design/styles.typ": _subheading-block
 #import "../design/theme.typ": _theme
 #import "../context.typ": _body-size-state
 #import "../util/values.typ": _join-present, _present
@@ -15,35 +16,29 @@
 
 // `lead` with `date` at the right edge, on the lead's first baseline:
 // `lead-size` (of the body size) is the lead's text size, and the date
-// drops by the difference in cap height. A long lead wraps beside the
-// date, unless the date would take more than `entry.date-max` of the
-// column; then it takes a line of its own, still at the right edge.
-// `sticky`, as a heading alone is, so the row stays with its entry.
-#let _title-row(lead, lead-size, date) = context {
-  let body-size = _body-size-state.get()
-  let (date-gap, date-max) = _theme.entry
-  let (above, below) = _theme.subheading.entry
-  let cap-height(size) = measure(text(size, "X")).height
-  let date = block(
-    inset: (top: cap-height(lead-size * body-size) - cap-height(body-size)),
-    date,
-  )
-  block(
-    above: above * body-size,
-    below: below * body-size,
-    sticky: true,
-    layout(size => {
-      if measure(date).width + date-gap.to-absolute() > date-max * size.width {
-        grid(columns: 1fr, lead, align(right, date))
-      } else {
-        grid(
-          columns: (1fr, auto),
-          column-gutter: date-gap,
-          lead, date,
-        )
-      }
-    }),
-  )
+// drops by the difference in cap height, which scales with it. A long
+// lead wraps beside the date, unless the date would take more than
+// `entry.date-max` of the column; then it takes a line of its own,
+// still at the right edge. The row sits in the entry heading's block,
+// so it keeps that spacing and stays with its entry. No date leaves
+// `lead` as it is.
+#let _title-row(lead, lead-size, date) = if not _present(date) { lead } else {
+  context {
+    let body-size = _body-size-state.get()
+    let (date-gap, date-max) = _theme.entry
+    let drop = (lead-size - 1) * measure(text(body-size, "X")).height
+    let date = block(inset: (top: drop), date)
+    _subheading-block(_theme.subheading.entry, body-size, layout(size => {
+      let own-line = (
+        measure(date).width + date-gap.to-absolute() > date-max * size.width
+      )
+      grid(
+        columns: if own-line { 1fr } else { (1fr, auto) },
+        column-gutter: date-gap,
+        lead, align(right, date),
+      )
+    }))
+  }
 }
 
 // One CV entry in a fixed slot order, so the entry sections lay
@@ -79,11 +74,10 @@
   let facts = if facts != none {
     block(below: _theme.entry.facts-below, facts)
   }
-  let (lead, lead-size, facts) = if _present(title) {
-    ([=== #_link-if(url, title)], _theme.type.title.size, facts)
-  } else { (facts, 1, none) }
-  if _present(period) { _title-row(lead, lead-size, period) } else { lead }
-  facts
+  if _present(title) {
+    _title-row([=== #_link-if(url, title)], _theme.type.title.size, period)
+    facts
+  } else { _title-row(facts, 1, period) }
   _subtitle(subtitle)
   _preamble(summary)
   for bullet in highlights [- #bullet]

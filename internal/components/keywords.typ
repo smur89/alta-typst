@@ -2,6 +2,7 @@
 // name as a label pill and the keywords wrapping under the first of
 // them; interests' as a line of text.
 
+#import "../design/styles.typ": _treat
 #import "../design/theme.typ": _theme
 #import "../context.typ": _body-size-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
@@ -26,14 +27,17 @@
   }
 }
 
-// `Music: Trad, Jazz`, the name in bold, one line per group. Quieter
-// than `_keyword-rows`' pills, for groups a reader skims past.
-#let _label-rows(groups) = par(
-  groups
-    .map(((name, keywords, ..)) => [#text(
-        weight: _theme.font-weight.bold,
-        fill: _theme.colour.emphasis,
-        name,
-      )#_theme.separator.label#keywords.join(_theme.separator.items)])
-    .join(linebreak()),
-)
+// `Music: Trad, Jazz`, one line per group, the name in the emphasis
+// colour and `treatment.label` (bold by default). Quieter than
+// `_keyword-rows`' pills, for groups a reader skims past.
+#let _label-rows(groups) = {
+  let (colour, separator, treatment, ..) = _theme
+  par(
+    groups
+      .map(((name, keywords, ..)) => [#text(
+          fill: colour.emphasis,
+          _treat(treatment.label, name),
+        )#separator.label#keywords.join(separator.items)])
+      .join(linebreak()),
+  )
+}

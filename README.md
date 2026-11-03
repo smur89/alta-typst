@@ -684,7 +684,7 @@ meta: (
 | Helper | Purpose |
 |---|---|
 | `icon(name, size: auto, shift: 0pt, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
-| `name(body)` | Accent-coloured line — the company / institution row under a role. |
+| `name(body)` | Accent-coloured line, for an organisation on a line of its own in a custom layout. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value, max: auto)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`max`, which defaults to `preferences.maxRating` (5 unless set); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |

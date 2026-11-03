@@ -59,9 +59,14 @@
     // between groups; `label` after an interest group's name
     // (`Music: Trad, Jazz`).
     separator: (facts: " · ", items: ", ", label: ": "),
-    // For a summary, a `styled-link` title, and the CV owner among
-    // publication authors.
-    treatment: (preamble: "emph", link: "emph", owner: "strong"),
+    // For a summary, a `styled-link` title, the CV owner among
+    // publication authors, and an interest group's name.
+    treatment: (
+      preamble: "emph",
+      link: "emph",
+      owner: "strong",
+      label: "strong",
+    ),
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
     // `==` headings. `rule-gap` pulls the rule up (geometry).
