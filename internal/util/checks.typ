@@ -33,6 +33,10 @@
 // tests the value and `expected` completes "<name> must be …".
 #let _type-rule(types, expected) = (v => type(v) in types, expected)
 #let _bool-rule = _type-rule((bool,), "a bool")
+#let _positive-int-rule = (
+  v => type(v) == int and v >= 1,
+  "a positive integer",
+)
 #let _enum-rule(allowed) = (
   v => v in allowed,
   _prose-list(allowed.map(_quote)),
@@ -54,12 +58,4 @@
   name,
   value,
   _type-rule(allowed, expected),
-)
-
-#let _check-bool(name, value) = _check(name, value, _bool-rule)
-
-#let _check-enum(name, value, allowed) = _check(
-  name,
-  value,
-  _enum-rule(allowed),
 )

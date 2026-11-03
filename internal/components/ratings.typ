@@ -6,7 +6,7 @@
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
-#import "../util/checks.typ": _check-type, _require
+#import "../util/checks.typ": _check, _check-type, _positive-int-rule, _require
 #import "../util/values.typ": _round-half
 #import "../primitives.typ": _small
 
@@ -33,12 +33,7 @@
   let accent = _accent-state.get()
   let max-rating = if max == auto { _max-rating-state.get() } else { max }
   // The state is validated as `maxRating`; an explicit `max` isn't.
-  _require(
-    "rating() max",
-    max-rating,
-    type(max-rating) == int and max-rating >= 1,
-    "a positive integer",
-  )
+  _check("rating() max", max-rating, _positive-int-rule)
   _check-type("rating value", value, (int, float), "a number")
   _require(
     "rating value",

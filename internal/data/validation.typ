@@ -5,8 +5,8 @@
 
 #import "../design/icon-set.typ": _icon-glyphs
 #import "../util/checks.typ": (
-  _bool-rule, _check-bool, _check-enum, _check-rules, _check-type,
-  _check-unknown-keys, _enum-rule, _prose-list, _require, _type-rule,
+  _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
+  _enum-rule, _positive-int-rule, _prose-list, _require, _type-rule,
 )
 #import "../util/dates.typ": _date-format-aliases
 #import "../util/values.typ": _placeholder-re
@@ -20,9 +20,7 @@
 // merge entry by entry, so a partial override keeps the rest; any
 // other key is replaced whole, dictionary or not (`margin`).
 #let _strict-merge(defaults, overrides, name, tables: ()) = {
-  if type(overrides) != dictionary {
-    panic(name + " must be a dictionary, got: " + repr(overrides))
-  }
+  _check-type(name, overrides, (dictionary,), "a dictionary")
   _check-unknown-keys(overrides.keys(), defaults.keys(), name)
   let merge-key(key, value) = {
     let default = defaults.at(key)
@@ -59,17 +57,19 @@
     )
 )
 
-// The single-value preferences, in the README's order. The rest are
-// checked in `_validate-preferences`; `groupCertificates` is ignored,
-// so it isn't checked.
+// The single-value preferences, in `_default-preferences`' order. The
+// rest are checked in `_validate-preferences` or, for
+// `publicationIcons`, `_canonical-preferences`; `groupCertificates` is
+// ignored, so it isn't checked.
 #let _preference-rules = (
+  font: (_is-font, "a font family name or a non-empty array of them"),
+  bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   // Only a colour supports `lighten` / `darken`; a palette name string
   // is the common slip.
   accent: _type-rule(
     (color,),
     "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
   ),
-  bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercaseName: _bool-rule,
   showPronouns: _bool-rule,
   headerTextAlign: _enum-rule(("left", "right", "center")),
@@ -87,7 +87,6 @@
     _is-margin,
     "a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm))",
   ),
-  font: (_is-font, "a font family name or a non-empty array of them"),
   columnRatio: (
     v => type(v) in (int, float) and v > 0 and v <= 1,
     "a number in (0, 1]",
@@ -107,7 +106,7 @@
     v => v == none or (type(v) == str and "{q}" in v),
     "`none` or a URL template string containing `{q}`",
   ),
-  maxRating: (v => type(v) == int and v >= 1, "a positive integer"),
+  maxRating: _positive-int-rule,
   referencesAvailableOnRequest: _bool-rule,
 )
 
@@ -129,7 +128,7 @@
       "linkContactInfo",
     )
     for (channel, v) in link-contact-info {
-      _check-bool("linkContactInfo." + channel, v)
+      _check("linkContactInfo." + channel, v, _bool-rule)
     }
   }
   for key in ("leftColumnSections", "rightColumnSections") {
@@ -188,8 +187,10 @@
 // Checked up front, as `icon()` would fail on a bare missing key.
 // `name` is the table's full path, for the message.
 #let _check-icon-names(table, name) = for (code, icon-name) in table {
-  _check-enum(name + "." + code, icon-name, _icon-glyphs.keys())
+  _check(name + "." + code, icon-name, _enum-rule(_icon-glyphs.keys()))
 }
+
+#let _lang-re = regex("^[a-z]{2,3}$")
 
 #let _label-rules = (
   // Deprecated (#239), and merged into the preference's icons by
@@ -198,7 +199,7 @@
   // Typst accepts any case; requiring lowercase keeps label files
   // canonical and catches a language *name* ("Irish") up front.
   lang: (
-    v => type(v) == str and v.match(regex("^[a-z]{2,3}$")) != none,
+    v => type(v) == str and v.match(_lang-re) != none,
     "a lowercase ISO 639 code (2–3 letters, e.g. \"de\")",
   ),
   months: (
