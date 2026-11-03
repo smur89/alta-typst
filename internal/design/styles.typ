@@ -10,8 +10,8 @@
 #let _treat(name, body) = _treatments.at(name)(body)
 
 // The block a `===` / `====` heading sits in: its `subheading` role's
-// spacing, kept with what follows. An entry's dated title row
-// (`_title-row`) sits in the same block, so the two can't drift.
+// spacing, kept with what follows. An entry's first lines
+// (`_entry-head`) sit in the same block, so the two can't drift.
 #let _subheading-block((above, below, ..), body-size, body) = block(
   above: above * body-size,
   below: below * body-size,

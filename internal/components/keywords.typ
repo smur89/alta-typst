@@ -17,26 +17,24 @@
   let body-size = _body-size-state.get()
   let (gap, dash, indent-max) = _theme.keyword-row
   let row-gap = gap * body-size
-  for (name, keywords, ..) in groups {
+  layout(size => for (name, keywords, ..) in groups {
     let label = {
       tag(name, label: true)
       text(dash)
       _tag-gap(body-size)
     }
-    block(above: 0pt, below: row-gap, layout(size => {
-      let indent = measure(label).width
-      par(
-        hanging-indent: if indent > indent-max * size.width { 0pt } else {
-          indent
-        },
-        leading: row-gap,
-        {
-          label
-          _tag-row(keywords)
-        },
-      )
-    }))
-  }
+    let indent = measure(label).width
+    block(above: 0pt, below: row-gap, par(
+      hanging-indent: if indent > indent-max * size.width { 0pt } else {
+        indent
+      },
+      leading: row-gap,
+      {
+        label
+        _tag-row(keywords)
+      },
+    ))
+  })
 }
 
 // `Music: Trad, Jazz`, one line per group, the name in the emphasis

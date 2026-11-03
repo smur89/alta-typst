@@ -20,27 +20,17 @@
 // the facts line) over the `facts` on the left; the date and the
 // location on the right, each led by its icon and flush with the
 // column's right edge. A long title wraps beside the date, unless the
-// date or location would take more than `entry.date-max` of the
+// date or location would take more than `entry.side-max` of the
 // column; then each takes a line of its own under its row. A row
 // with nothing on the right spans the grid. The grid sits in the
 // entry heading's block, so it keeps that spacing and stays with its
 // entry; after a facts line, `entry.facts-below`.
 #let _entry-head(title, facts, date, location) = context {
   let body-size = _body-size-state.get()
-  let (date-gap, date-max, facts-below, row-gap) = _theme.entry
-  let (above, below) = _theme.subheading.entry
-  let title-size = _theme.type.title.size * body-size
-  let (lead, lead-size, facts) = if title != none {
-    ([=== #title], title-size, facts)
+  let (side-gap, side-max, facts-below, row-gap) = _theme.entry
+  let (lead, lead-size, under) = if title != none {
+    ([=== #title], _theme.type.title.size * body-size, facts)
   } else { (facts, body-size, none) }
-  let rows = (
-    (lead, lead-size, _icon-fact("calendar", date)),
-    (facts, body-size, _icon-fact("location", location)),
-  ).filter(((left, _, side)) => left != none or side != none)
-  if rows.len() == 0 { return }
-  let below = if title == none or rows.len() > 1 { facts-below } else {
-    below
-  }
   // A line's height runs from its top edge (the cap height, or an
   // icon's top when taller) to its baseline. Every row sets its
   // baseline that far down from the taller of its text's capitals and
@@ -52,34 +42,47 @@
     inset: (top: baseline - top(body)),
     body,
   )
-  // Stacked (`own-line`), each side takes its own line.
-  let cells(own-line) = rows
+  let rows = (
+    (lead, lead-size, _icon-fact("calendar", date)),
+    (under, body-size, _icon-fact("location", location)),
+  )
+    .filter(((left, _, side)) => left != none or side != none)
     .map(((left, size, side)) => {
       let baseline = calc.max(top(text(size, "X")), icon-top)
-      let left = drop(left, baseline)
-      if side == none {
-        (if own-line { left } else { grid.cell(colspan: 2, left) },)
-      } else {
-        (
-          left,
-          align(right, drop(side, if own-line { top(side) } else { baseline })),
-        )
-      }
+      (
+        left: drop(left, baseline),
+        side: side,
+        dropped: if side != none { drop(side, baseline) },
+        width: if side != none {
+          measure(side).width + side-gap.to-absolute()
+        } else {
+          0pt
+        },
+      )
     })
-    .flatten()
-  let wide(side, width) = (
-    side != none
-      and measure(side).width + date-gap.to-absolute() > date-max * width
+  if rows.len() == 0 { return }
+  let below = if title == none or rows.len() > 1 { facts-below } else {
+    _theme.subheading.entry.below
+  }
+  _subheading-block(
+    _theme.subheading.entry + (below: below),
+    body-size,
+    layout(size => {
+      // Stacked, each side takes its own line, undropped.
+      let own-line = rows.any(row => row.width > side-max * size.width)
+      let cells = rows.map(row => if row.side == none {
+        (grid.cell(colspan: if own-line { 1 } else { 2 }, row.left),)
+      } else {
+        (row.left, align(right, if own-line { row.side } else { row.dropped }))
+      })
+      grid(
+        columns: if own-line { 1fr } else { (1fr, auto) },
+        column-gutter: side-gap,
+        row-gutter: row-gap * body-size,
+        ..cells.flatten(),
+      )
+    }),
   )
-  _subheading-block((above: above, below: below), body-size, layout(size => {
-    let own-line = rows.any(((_, _, side)) => wide(side, size.width))
-    grid(
-      columns: if own-line { 1fr } else { (1fr, auto) },
-      column-gutter: date-gap,
-      row-gutter: row-gap * body-size,
-      ..cells(own-line),
-    )
-  }))
 }
 
 // One CV entry in a fixed slot order, so the entry sections lay
@@ -115,7 +118,7 @@
   let org = if _present(org) { _accent-text(_link-if(org-url, org)) }
   _entry-head(
     if _present(title) { _link-if(url, title) },
-    _fact-line((org,), roles.filter(_present), details),
+    _fact-line((org,), roles, details),
     period,
     location,
   )
@@ -125,7 +128,7 @@
   _join-present(
     (
       keywords-lead,
-      _join-present(keywords.filter(_present), _theme.separator.facts),
+      _join-present(keywords, _theme.separator.facts),
     ),
     [\ ],
   )

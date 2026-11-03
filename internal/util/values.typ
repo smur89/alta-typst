@@ -6,9 +6,10 @@
 // The three ways a field can be effectively absent.
 #let _present(v) = v != none and v != "" and v != []
 
-// The non-`none` parts joined by `sep`; `none` when no part is left,
-// so callers can skip the whole line.
-#let _join-present(parts, sep) = parts.filter(p => p != none).join(sep)
+// The present parts (`_present`) joined by `sep`; `none` when no part
+// is left, so callers can skip the whole line and an empty string
+// never leaves a stray separator.
+#let _join-present(parts, sep) = parts.filter(_present).join(sep)
 
 // Stricter than `_present` where a plain string is required (PDF
 // metadata, grouping keys).

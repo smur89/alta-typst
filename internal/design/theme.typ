@@ -93,10 +93,11 @@
       // roles), and under the facts row, before the summary.
       row-gap: sp.small,
       facts-below: sp.medium,
-      // Between a title and the date at its right edge; the date takes
-      // a line of its own past `date-max` of the column.
-      date-gap: sp.medium * 1em,
-      date-max: 50%,
+      // Between the left side and the date or location at the right
+      // edge; each takes a line of its own past `side-max` of the
+      // column.
+      side-gap: sp.medium * 1em,
+      side-max: 50%,
     ),
     term: (below: sp.medium, inset: sp.x-small),
     // Fills lighten the accent, the text darkens it.
