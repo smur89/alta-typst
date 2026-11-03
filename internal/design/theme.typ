@@ -102,7 +102,7 @@
     ),
     divider: (gap: sp.x-small, dash: "dashed", clearance: 0.5cm),
     // A skill group's label pill and its keywords.
-    keyword-row: (gap: sp.medium, hanging-indent: sp.medium * 1em, dash: "-"),
+    keyword-row: (gap: sp.medium, hanging-indent: sp.medium * 1em, dash: "–"),
     header: (
       name-below: sp.large,
       pronouns-gap: sp.small,
