@@ -26,6 +26,7 @@ sections/         # one renderer per part of the CV: the header, then each secti
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
+tests/components.typ # the component gallery: each component, each variant
 tests/panics/     # must-fail fixtures — each names the error it expects
 tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fields, header, …)
 ```
@@ -125,7 +126,7 @@ This is the most common shape of contribution. Two changes:
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section_specs` in `internal/data/sections.typ` (column, and `read` / `items` when it isn't a plain entry array) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/data/defaults.typ`, validate it in `_validate_preferences` (`internal/data/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section_specs` in `internal/data/sections.typ` (column, and `read` / `items` when it isn't a plain entry array) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` is `cv.at(key, default: ())` and `ctx` is `(labels, prefs, owner)`, usually destructured as `(labels, prefs, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default_preferences` in `internal/data/defaults.typ`, validate it in `_validate_preferences` (`internal/data/validation.typ`) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
 
 The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
 
