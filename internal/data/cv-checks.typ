@@ -4,11 +4,18 @@
 
 #import "../design/icon-set.typ": _profile-networks
 #import "../util/checks.typ": (
-  _check-rating, _check-type, _check-unknown-keys, _prose-list, _require,
+  _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
+  _prose-list, _require, _type-rule,
 )
-#import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
-#import "cv.typ": _altacv, _location-fields, _profile-network
+#import "cv.typ": _altacv, _altacv-ns, _location-fields, _profile-network
+
+// Field rules (`_section-specs`' `fields`, `basics`): the types the
+// renderers can draw. Dates are text too: a non-ISO one renders as
+// written.
+#let _text-rule = _type-rule((str, content), "a string or content")
+#let _string-rule = _type-rule((str,), "a string")
+#let _texts-rule = _list-rule((str, content), "an array of strings or content")
 
 // A dict where a list belongs fails here, not deep in a renderer.
 // Returns `entries`.
@@ -46,10 +53,17 @@
   key + "[].location",
 )
 
+// An award's link, in its `custom.altacv` namespace, which `fields`
+// can't reach.
+#let _check-award(key, entry, _) = _check-rules(
+  _altacv-ns(entry),
+  (url: _string-rule),
+  prefix: key + "[].custom.altacv.",
+  optional: true,
+)
+
 // A `custom.altacv.rating` wins over `fluency`, so either will do.
-// Nameless entries aren't rendered, so they aren't checked.
 #let _check-language(key, entry, prefs) = {
-  if _field(entry, "language") == none { return }
   let rating = _altacv(entry, "rating")
   if rating != none {
     _check-rating(key + "[].custom.altacv.rating", rating, prefs.maxRating)
@@ -63,9 +77,26 @@
   }
 }
 
+#let _basics-fields = (
+  name: _text-rule,
+  label: _text-rule,
+  pronouns: _text-rule,
+  email: _string-rule,
+  phone: _string-rule,
+  url: _string-rule,
+  summary: _text-rule,
+  profiles: _list-rule((dictionary,), "an array of dictionaries"),
+)
+#let _profile-fields = (
+  network: _string-rule,
+  username: _text-rule,
+  url: _string-rule,
+)
+
 // The root fields outside the sections: `basics` and `objective`.
 #let _check-root(cv, prefs) = {
   let basics = cv.basics
+  _check-rules(basics, _basics-fields, prefix: "basics.", optional: true)
   _check-type(
     "basics.image",
     basics.at("image", default: none),
@@ -74,11 +105,17 @@
   )
   _check-location(basics.at("location", default: none), "basics.location")
   for profile in basics.at("profiles", default: ()) {
-    _check-type(
+    _check-rules(
+      profile,
+      _profile-fields,
+      prefix: "basics.profiles[].",
+      optional: true,
+    )
+    _require(
       "basics.profiles[].network",
       profile.at("network", default: none),
-      (str,),
-      "a string",
+      "network" in profile,
+      "set",
     )
     if _profile-network(profile) not in _profile-networks {
       panic(
@@ -99,6 +136,14 @@
       "a non-empty URL string when preferences.qrCode is `auto`",
     )
   }
+  _check-type("meta", cv.meta, (dictionary,), "a dictionary")
+  // `version` and `canonical` are read leniently (`_string-at`).
+  _check-rules(
+    cv.meta,
+    (lastModified: _text-rule),
+    prefix: "meta.",
+    optional: true,
+  )
   _check-type(
     "objective",
     cv.at("objective", default: none),

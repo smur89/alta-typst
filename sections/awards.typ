@@ -1,5 +1,5 @@
 // Awards. The title links via the altacv `custom.altacv.url`
-// extension; entries without a `title` are skipped.
+// extension.
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _altacv
@@ -8,7 +8,7 @@
 
 #let _awards(entries, (labels, format-date, ..)) = _section(
   labels.awards,
-  entries.filter(a => _field(a, "title") != none),
+  entries,
   award => _entry(
     title: award.title,
     url: _altacv(award, "url"),

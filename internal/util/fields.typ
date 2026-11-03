@@ -10,7 +10,9 @@
   if _present(v) { v }
 }
 
+// Lenient readers: a value of the wrong type reads as empty.
 #let _dict-or-empty(v) = if type(v) == dictionary { v } else { (:) }
+#let _array-or-empty(v) = if type(v) == array { v } else { () }
 
 #let _string-at(obj, key) = {
   let v = obj.at(key, default: none)
