@@ -5,9 +5,7 @@
 #import "../design/theme.typ": _theme
 #import "../context.typ": _body-size-state
 #import "../util/values.typ": _join-present, _present
-#import "../primitives.typ": (
-  _accent-text, _fact-line, _link-if, _preamble, _tag-row,
-)
+#import "../primitives.typ": _accent-text, _fact-line, _link-if, _preamble
 
 // A small line under an entry's heading: a referee's attribution.
 // Absent bodies render nothing.
@@ -57,8 +55,10 @@
 // accent), the person's `roles`, the `location` and short `details`
 // (a credential ID) with ` · `. Without a title, it leads instead.
 //
-// `tags-lead` is a line of its own above the `tags` pills (education's
-// score), so it doesn't read as one of them.
+// The `keywords` (a project's stack, education's courses) end the
+// entry as one line joined with ` · `; `keywords-lead` is a line of
+// its own above them (education's score), so it doesn't read as one
+// of them.
 #let _entry(
   title: none,
   url: none,
@@ -71,8 +71,8 @@
   details: (),
   summary: none,
   highlights: (),
-  tags-lead: none,
-  tags: (),
+  keywords-lead: none,
+  keywords: (),
 ) = {
   let org = if _present(org) { _accent-text(_link-if(org-url, org)) }
   let facts = _fact-line((org,), roles, (location,), details)
@@ -87,5 +87,8 @@
   _subtitle(subtitle)
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present((tags-lead, _tag-row(tags)), [\ ])
+  _join-present(
+    (keywords-lead, _join-present(keywords, _theme.separator.facts)),
+    [\ ],
+  )
 }

@@ -245,7 +245,7 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (location, roles, a credential ID) on one line, `summary`, highlights, then tags. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (location, roles, a credential ID) on one line, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
@@ -259,7 +259,7 @@ These mean the same in every section that reads them:
 | `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
 | `summary` | string or content | A short paragraph of context. |
 | `highlights` | array of content | Accomplishments, as a bulleted list. |
-| `keywords`, `courses` | array of strings | Tags, one per item. |
+| `keywords`, `courses` | array of strings | One line at the end of the entry, joined with ` · `. Skills' `keywords` are the exception: tags, one per item. |
 
 #### Work
 
@@ -296,7 +296,7 @@ Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#s
 | `institution` | string | School name; the organisation. |
 | `url` | string | Links the institution. |
 | `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, on its own line above the `courses` tags. |
+| `score` | string | Grade / classification, on its own line above the `courses`. |
 
 #### Projects
 
@@ -358,7 +358,7 @@ The date sits at the title's right edge; the issuer and credential ID share the 
 
 #### Interests
 
-A `{name, keywords}` category per entry, shown as a row: the category as a label tag, then one tag per keyword. Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
+A `{name, keywords}` category per entry, shown as a line of text: the category in bold, then its keywords (`Music: Trad, Jazz`). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
 
 | Field | Type | Effect |
 |---|---|---|

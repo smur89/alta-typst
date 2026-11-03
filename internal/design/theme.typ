@@ -56,8 +56,9 @@
       + colour,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
     // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-    // between groups.
-    separator: (facts: " · ", items: ", "),
+    // between groups; `label` after an interest group's name
+    // (`Music: Trad, Jazz`).
+    separator: (facts: " · ", items: ", ", label: ": "),
     // For a summary, a `styled-link` title, and the CV owner among
     // publication authors.
     treatment: (preamble: "emph", link: "emph", owner: "strong"),
@@ -106,7 +107,7 @@
     ),
     divider: (gap: sp.x-small, dash: "dashed", clearance: 0.5cm),
     // A skill group's label pill and its keywords.
-    keyword-row: (gap: sp.medium, hanging-indent: sp.medium * 1em, dash: "–"),
+    keyword-row: (gap: sp.medium, dash: "–"),
     header: (
       name-below: sp.large,
       pronouns-gap: sp.small,

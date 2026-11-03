@@ -1,6 +1,5 @@
 // Education. The heading falls back to `area` when `studyType` is
-// absent; `courses` render as pills like other string arrays, inline
-// after the score.
+// absent; `courses` end the entry as one line, under the score.
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _entry-period, _format-location
@@ -18,7 +17,7 @@
     period: _entry-period(edu, format-date, labels.present),
     location: _format-location(edu),
     summary: _field(edu, "summary"),
-    tags-lead: _field(edu, "score"),
-    tags: edu.at("courses", default: ()),
+    keywords-lead: _field(edu, "score"),
+    keywords: edu.at("courses", default: ()),
   ),
 )

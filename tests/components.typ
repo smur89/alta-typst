@@ -18,7 +18,7 @@
 #import "../internal/components/frame.typ": _grouped-section, _section
 #import "../internal/components/header.typ": _page-header
 #import "../internal/components/intro.typ": _intro-block
-#import "../internal/components/keywords.typ": _keyword-rows
+#import "../internal/components/keywords.typ": _keyword-rows, _label-rows
 #import "../internal/components/ratings.typ": _rating-row, rating
 
 #show: _document.with(
@@ -80,7 +80,7 @@
 
 #pagebreak()
 
-= Section of entries: full, with roles and tags
+= Section of entries: full, with roles and keywords
 #_section("Entries", (1, 2), _ => _entry(
   title: "Staff Engineer",
   url: "https://example.com",
@@ -92,8 +92,8 @@
   location: "Dublin, IE",
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
-  tags-lead: "First class",
-  tags: ("Scala", "Kafka"),
+  keywords-lead: "First class",
+  keywords: ("Scala", "Kafka"),
 ))
 
 = Entry: issuer and details
@@ -128,10 +128,19 @@
   summary: [What the paper is about.],
 )
 
-= Keyword rows
-#_keyword-rows((
+= Keyword rows, the second wrapping under its first keyword
+#block(width: 60%, _keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
-  (name: "Infra", keywords: ("Kafka", "Kubernetes")),
+  (
+    name: "Infra",
+    keywords: ("Kafka", "Kubernetes", "Terraform", "AWS", "Docker", "Helm"),
+  ),
+)))
+
+= Label rows
+#_label-rows((
+  (name: "Music", keywords: ("Trad", "Jazz")),
+  (name: "Sport", keywords: ("Hurling", "Climbing")),
 ))
 
 = Rating rows: dots, a half dot, and the text fallback
