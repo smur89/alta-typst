@@ -1,9 +1,8 @@
 # Installs the toolchain every CI job that compiles the package needs:
 # the Typst binary, the Lato body font, and the FontAwesome desktop
 # OTFs that resolve glyphs for `@preview/fontawesome`. Extracted into
-# a composite action so the three jobs that build PDFs (lint, build,
-# attach-release-artifacts) share a single source of truth instead of
-# duplicating the install block.
+# a composite action so every job that builds PDFs shares a single
+# source of truth instead of duplicating the install block.
 #
 # The FA zip is restored from cache when available — keyed on the
 # version input, so bumping `FA_VERSION` in the workflow invalidates
