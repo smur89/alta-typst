@@ -86,8 +86,10 @@
 // _contact-rows: details first, then profiles; an empty group drops out.
 #let c(channel) = (channel: channel)
 #assert.eq(
-  _contact-rows((c("email"), c("url"), c("profiles"))).map(r => r.len()),
-  (2, 1),
+  _contact-rows((c("email"), c("url"), c("profiles"))).map(r => r.map(
+    x => x.channel,
+  )),
+  (("email", "url"), ("profiles",)),
 )
 #assert.eq(_contact-rows((c("profiles"),)).len(), 1)
 #assert.eq(_contact-rows(()), ())

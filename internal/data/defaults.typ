@@ -30,7 +30,6 @@
   bodySize: 10pt,
   accent: palettes.teal,
   publicationIcons: _publication-icons,
-  // A project type without one gets `folder`.
   projectIcons: (:),
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.

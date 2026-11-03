@@ -126,19 +126,25 @@
 // Typst has no keep-with-previous, so a divider before an entry that
 // moved to a new page would orphan at its top. Suppress it within
 // `clearance` of the top margin (headroom for a following heading), so
-// it tracks `preferences.margin`.
-#let divider() = context {
+// it tracks `preferences.margin`. `rule: false` keeps the spacing
+// without the line (`_divider-space`).
+#let _divider(rule) = context {
   let body-size = _body-size-state.get()
   let (gap, dash, clearance) = _theme.divider
   if here().position().y < _top-margin() + clearance { return }
   v(gap * body-size)
-  line(length: 100%, stroke: (
-    paint: _theme.colour.border,
-    thickness: _theme.stroke-width.thin,
-    dash: dash,
-  ))
+  if rule {
+    line(length: 100%, stroke: (
+      paint: _theme.colour.border,
+      thickness: _theme.stroke-width.thin,
+      dash: dash,
+    ))
+  }
   v(gap * body-size)
 }
+
+#let divider() = _divider(true)
+#let _divider-space() = _divider(false)
 
 // `label` renders the whole row in the darker variant (e.g. project
 // roles, set apart from keyword pills).
@@ -153,7 +159,8 @@
 #let _icon-heading(icon-name, body) = [#context icon(
     icon-name,
     size: _theme.type.title.size * _body-size-state.get(),
-    fill: _accent-state.get(),
+    // The heading's own colour (`styles.typ`), not the icon's default.
+    fill: text.fill,
   ) #body]
 
 // The circular portrait. `image()` resolves a bare string path from

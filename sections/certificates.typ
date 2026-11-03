@@ -4,6 +4,7 @@
 #import "../internal/util/dates.typ": _format-date-span
 #import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry
+#import "../internal/primitives.typ": _divider-space
 #import "../internal/components/frame.typ": _section
 
 // No `open-end`: a cert without `expiryDate` doesn't expire, so it
@@ -24,5 +25,6 @@
     ),
     summary: _field(cert, "summary"),
   ),
-  separator: "space",
+  // Short, uniform rows: the spacing without the rule.
+  separator: _divider-space(),
 )

@@ -172,18 +172,18 @@
 // Runs before the merge over the defaults. #239: the deprecated
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
-// one table, `projectIcons` is lowercased too, and the string
-// `pageFooter: "auto"` becomes `auto`. A
-// non-dictionary (overall or as the table) passes through for
-// `_strict-merge` to reject.
+// one table. `projectIcons` is lowercased too. #239: the string
+// `pageFooter: "auto"` becomes `auto`. A non-dictionary (overall or as
+// a table) passes through for `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"
   ) { overrides + (pageFooter: auto) } else { overrides }
-  let project-icons = if type(overrides) == dictionary {
-    overrides.at("projectIcons", default: none)
-  }
+  let project-icons = _dict-or-empty(overrides).at(
+    "projectIcons",
+    default: none,
+  )
   let overrides = if type(project-icons) == dictionary {
     let lowered = _lowercase-table(project-icons, "preferences.projectIcons")
     overrides + (projectIcons: lowered)

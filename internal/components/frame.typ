@@ -1,8 +1,7 @@
-// Section scaffolding: the `==` heading and its entries, separated,
-// optionally clustered under `====` subheadings.
+// Section scaffolding: the `==` heading and its entries with a
+// separator between neighbours, optionally clustered under `====`
+// subheadings.
 
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state
 #import "../primitives.typ": divider
 
 // Empty `entries` renders nothing, not even the heading, so callers
@@ -12,20 +11,13 @@
   body
 }
 
-// Each entry unbreakable, with a `separator` between neighbours only,
-// so a section doesn't end on a stray rule: `"divider"` a rule,
-// `"space"` the rule's spacing without the line (short, uniform
-// entries, where rules would outweigh the content), `none` nothing (a
-// list that spaces itself).
-#let _entry-blocks(entries, render-entry, separator: "divider") = (
-  entries
-    .map(e => block(breakable: false, render-entry(e)))
-    .join(if separator == "divider" { divider() } else if separator == "space" {
-      context v(2 * _theme.divider.gap * _body-size-state.get())
-    })
+// Each entry unbreakable, with `separator` between neighbours only, so
+// a section doesn't end on a stray rule.
+#let _entry-blocks(entries, render-entry, separator: divider()) = (
+  entries.map(e => block(breakable: false, render-entry(e))).join(separator)
 )
 
-#let _section(heading, entries, render-entry, separator: "divider") = (
+#let _section(heading, entries, render-entry, separator: divider()) = (
   _section-frame(
     heading,
     entries,
@@ -41,7 +33,7 @@
   groups,
   subheading,
   render-entry,
-  separator: "divider",
+  separator: divider(),
 ) = _section-frame(heading, groups, {
   for (key, items) in groups.pairs() {
     [==== #subheading(key, items)]

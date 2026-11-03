@@ -4,6 +4,7 @@
 #import "../internal/util/fields.typ": _string-at
 #import "../internal/util/values.typ": _round-half
 #import "../internal/data/cv.typ": _altacv
+#import "../internal/primitives.typ": _divider-space
 #import "../internal/components/frame.typ": _section
 #import "../internal/components/ratings.typ": _rating-row
 
@@ -38,5 +39,6 @@
     max: prefs.maxRating,
     fallback: _string-at(lang, "fluency"),
   ),
-  separator: "space",
+  // Short, uniform rows: the spacing without the rule.
+  separator: _divider-space(),
 )

@@ -1,4 +1,4 @@
-// expect: preferences.projectIcons.library must be "book"
+// expect: preferences.projectIcons.Library must be "book"
 #import "/lib.typ": alta
 
 #alta(
