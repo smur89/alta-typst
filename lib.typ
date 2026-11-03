@@ -25,6 +25,7 @@
 #import "internal/data/read.typ": _read-cv
 #import "internal/data/metadata.typ": _pdf-metadata
 #import "internal/data/json-resume.typ": from-json-resume
+#import "internal/util/dates.typ": _format-date
 #import "internal/document.typ": _document
 #import "internal/registry.typ": _renderers
 #import "internal/components/columns.typ": _columns
@@ -57,8 +58,14 @@
   _header(cv, preferences)
   _intro(cv)
   // Renderers are width-agnostic, so any section fits either column.
-  // `owner` bolds the CV owner among publication authors.
-  let ctx = (labels: labels, prefs: preferences, owner: name)
+  // `format-date` formats a date per the preferences and labels; `owner` bolds
+  // the CV owner among publication authors.
+  let ctx = (
+    labels: labels,
+    prefs: preferences,
+    format-date: v => _format-date(v, preferences.dateFormat, labels.months),
+    owner: name,
+  )
   let render(key) = (_renderers.at(key))(sections.at(key), ctx)
   _columns(
     preferences.leftColumnSections.map(render),

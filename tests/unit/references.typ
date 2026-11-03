@@ -2,12 +2,12 @@
 // sections/references.typ.
 
 #import "/internal/data/defaults.typ": _default-labels
+#import "/internal/util/dates.typ": _format-date
 #import "/sections/references.typ": _attribution
 
 #let attribution(entry, format: "long") = _attribution(
   entry,
-  (dateFormat: format),
-  _default-labels,
+  v => _format-date(v, format, _default-labels.months),
 )
 
 #assert.eq(

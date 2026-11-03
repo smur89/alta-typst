@@ -2,19 +2,19 @@
 // subheadings only when at least one has a `type`; an all-untyped list
 // renders flat. Entries without a `name` are skipped.
 
-#import "../internal/util/dates.typ": _format-date-range
 #import "../internal/util/fields.typ": _field, _string-at
 #import "../internal/util/values.typ": _group-by
+#import "../internal/data/cv.typ": _entry-period
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _grouped-section, _section
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
-#let _render-project(project, (labels, prefs, ..)) = _entry(
+#let _render-project(project, (labels, format-date, ..)) = _entry(
   title: project.name,
   url: _field(project, "url"),
   subtitle: _field(project, "entity"),
   roles: project.at("roles", default: ()),
-  period: _format-date-range(project, prefs, labels),
+  period: _entry-period(project, format-date, labels.present),
   summary: _field(project, "summary"),
   highlights: project.at("highlights", default: ()),
   tags: project.at("keywords", default: ()),

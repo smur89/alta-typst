@@ -18,7 +18,7 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 ```text
 lib.typ           # public entry — re-exports + `alta()`
 internal/         # wiring (the registry, render-time context) and the shared primitives and icons
-internal/util/    # generic helpers: field reads, joins, checks, date and location formatting
+internal/util/    # generic helpers: field reads, joins, checks, date formatting
 internal/data/    # reading and checking the CV, labels and preferences, and their defaults
 internal/design/  # the theme, document-wide styles, palettes and the icon set
 internal/components/ # the layout components sections map onto

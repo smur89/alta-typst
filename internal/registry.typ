@@ -15,7 +15,7 @@
 #import "data/sections.typ": _section-specs
 
 // Renderers take `(entries, ctx)`, `ctx` being `(labels, prefs,
-// owner)`. Must follow the renderer imports: Typst binds identifiers
+// format-date, owner)`. Must follow the renderer imports: Typst binds identifiers
 // eagerly.
 #let _renderers = (
   work: _experience,

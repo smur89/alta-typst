@@ -17,9 +17,9 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 | Layer | Path | Holds | May import |
 |---|---|---|---|
-| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date and location formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
+| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme, document styles, palettes, icon set | util |
-| data | `data/` | reading and checking the CV, labels and preferences; their defaults | util, design |
+| data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_format-location`, `_entry-period` in `cv.typ`) | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
 | document | `document.typ` | the document setup shared by `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
@@ -27,7 +27,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | sections | `sections/` (root) | one renderer per CV part, mapping its data onto components | all of the above |
 | root | `registry.typ`, `lib.typ` (repository root) | renderers bound to section keys; the public API | everything |
 
-The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
+The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
 
 ## Sections and components
 
@@ -35,20 +35,20 @@ A section reads fields and fills a component's slots:
 
 ```typst
 // sections/awards.typ
-#let _awards(entries, (labels, prefs, ..)) = _section(
+#let _awards(entries, (labels, format-date, ..)) = _section(
   labels.awards,
   entries.filter(a => _field(a, "title") != none),
   award => _entry(
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: _format-date(_field(award, "date"), prefs, labels),
+    period: format-date(_field(award, "date")),
     summary: _field(award, "summary"),
   ),
 )
 ```
 
-A section doesn't check its input: everything it reads was checked in step 2, so it only maps values onto slots. Column sections are registered twice: their spec (field, default column, accepted entries, field checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`) and the CV `owner`. A section doesn't check its input: everything it reads was checked in step 2, so it only maps values onto slots. Column sections are registered twice: their spec (field, default column, accepted entries, field checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
 
 ## The look
 

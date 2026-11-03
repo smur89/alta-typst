@@ -4,9 +4,8 @@
 // has checked the fields it reads.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/location.typ": _format-location
 #import "../internal/util/values.typ": _url-encode
-#import "../internal/data/cv.typ": _profile-network
+#import "../internal/data/cv.typ": _format-location, _profile-network
 #import "../internal/data/validation.typ": _contact-channels
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
