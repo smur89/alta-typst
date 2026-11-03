@@ -104,9 +104,10 @@ The repo uses [release-please](https://github.com/googleapis/release-please) to 
 | `fix:` | patch | Bug fix, doc correction, broken link, cosmetic polish |
 | `feat:` | minor | New section, new `preferences` or `labels` key, new profile network |
 | `feat!:` or `BREAKING CHANGE:` footer | major | API change that existing users would need to migrate |
-| `chore:`, `docs:`, `ci:`, `refactor:`, `test:` | none | Internal changes that shouldn't trigger a release |
+| `refactor:` | patch, if nothing else is pending | Internal restructuring; listed under "Code Refactoring" |
+| `chore:`, `docs:`, `ci:`, `test:` | none | Internal changes that don't trigger a release or appear in its notes |
 
-PRs squash-merge with the PR title as the commit subject, so just make the **PR title** a conventional commit. The body of the squash commit comes from the PR description.
+PRs squash-merge with the PR title as the commit subject, so just make the **PR title** a conventional commit. The squash body lists the PR's commit messages, so keep those conventional too; a `fix:` commit inside a `feat:` PR is listed as a fix. If a merged PR's notes come out wrong, add a `BEGIN_COMMIT_OVERRIDE` … `END_COMMIT_OVERRIDE` block (one conventional line per entry) to its description; the next release-please run picks it up.
 
 ## Adding a profile-network icon
 
