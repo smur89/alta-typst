@@ -2,6 +2,7 @@
 
 #import "/internal/text.typ": (
   _field, _fill_template, _join_present, _link_if, _present, _present_str,
+  _treat,
 )
 #import "/internal/location.typ": _format_location
 
