@@ -96,11 +96,10 @@
   tags: ("Scala", "Kafka"),
 ))
 
-= Entry: compact
+= Entry: issuer and details
 #_section("Compact", (1,), _ => _entry(
   title: "Certified Kubernetes Administrator",
   url: "https://example.com",
-  compact: true,
   org: "CNCF",
   details: ("CKA-123",),
   period: "Mar 2024 – Mar 2027",

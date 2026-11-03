@@ -83,9 +83,13 @@
     entry: (
       name-below: sp.small,
       subtitle-below: sp.small * 1em,
-      roles-below: sp.x-small * 1em,
-      // Between a compact term row's parts.
-      compact-gap: sp.medium * 1em,
+      // Under the facts line (organisation · location), before the
+      // summary.
+      facts-below: sp.medium * 1em,
+      // Between a title and the date at its right edge; the date takes
+      // a line of its own past `date-max` of the column.
+      date-gap: sp.medium * 1em,
+      date-max: 50%,
     ),
     term: (below: sp.medium, inset: sp.x-small),
     // Fills lighten the accent, the text darkens it.

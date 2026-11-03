@@ -1,56 +1,64 @@
-// The CV entry component every entry section maps its fields onto,
-// with the date and location row beneath its heading.
+// The CV entry component every entry section maps its fields onto:
+// the heading with its date at the right edge, then the organisation
+// and the entry's other facts on one line.
 
 #import "../design/theme.typ": _theme
+#import "../context.typ": _body-size-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-text, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
-  term,
+  _accent-text, _fact-line, _link-if, _preamble, _tag-row,
 )
 
-// A small line under an entry's heading: a project's client, a
-// referee's attribution. Absent bodies render nothing.
+// A small line under an entry's heading: a referee's attribution.
+// Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
   block(below: _theme.entry.subtitle-below, body)
 }
 
-// An organisation line via `name()`, linked when `url` is present
-// (`link()` inherits the bold accent). An absent organisation renders
-// nothing rather than an empty block that leaves a blank line.
-#let _org-line(org, url: none) = if _present(org) {
-  name(_link-if(url, org))
-}
-
-// The compact term row: period and location at natural widths (no
-// column to align), then the organisation and `details` joined by
-// ` · `, so several short entries stay one line each. The
-// `entry.compact-gap` gaps are `em` of the row's text.
-#let _compact-term(period, location, org, org-url, details) = {
-  let org = if _present(org) {
-    _accent-text(_link-if(org-url, org))
-  }
-  let facts = _join-present((org, ..details), _theme.separator.facts)
-  let row = _join-present(
-    (
-      _term-part("calendar", period, width: auto),
-      _term-part("location", location, width: auto),
-      if facts != none { box(facts) },
-    ),
-    h(_theme.entry.compact-gap),
+// `lead` with `date` at the right edge, on the lead's first baseline:
+// `lead-size` (of the body size) is the lead's text size, and the date
+// drops by the difference in cap height. A long lead wraps beside the
+// date, unless the date would take more than `entry.date-max` of the
+// column; then it takes a line of its own, still at the right edge.
+// `sticky`, as a heading alone is, so the row stays with its entry.
+#let _title-row(lead, lead-size, date) = context {
+  let body-size = _body-size-state.get()
+  let (date-gap, date-max) = _theme.entry
+  let (above, below) = _theme.subheading.entry
+  let cap-height(size) = measure(text(size, "X")).height
+  let date = block(
+    inset: (top: cap-height(lead-size * body-size) - cap-height(body-size)),
+    date,
   )
-  if row != none { _term-row(row) }
+  block(
+    above: above * body-size,
+    below: below * body-size,
+    sticky: true,
+    layout(size => {
+      if measure(date).width + date-gap.to-absolute() > date-max * size.width {
+        grid(columns: 1fr, lead, align(right, date))
+      } else {
+        grid(
+          columns: (1fr, auto),
+          column-gutter: date-gap,
+          lead, date,
+        )
+      }
+    }),
+  )
 }
 
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
-// plain heading style whether or not it links. `tags-lead` is a
-// line of its own above the `tags` pills (education's score), so it
-// doesn't read as one of them.
+// plain heading style whether or not it links.
 //
-// `compact: true` folds the organisation and `details` (short facts
-// such as a credential ID) onto the date row instead of giving the
-// organisation a line of its own.
+// The facts line under the title joins the organisation (in the
+// accent), the person's `roles`, the `location` and short `details`
+// (a credential ID) with ` · `. Without a title, it leads instead.
+//
+// `tags-lead` is a line of its own above the `tags` pills (education's
+// score), so it doesn't read as one of them.
 #let _entry(
   title: none,
   url: none,
@@ -60,25 +68,23 @@
   roles: (),
   period: none,
   location: none,
-  compact: false,
   details: (),
   summary: none,
   highlights: (),
   tags-lead: none,
   tags: (),
 ) = {
-  if _present(title) [=== #_link-if(url, title)]
-  if not compact { _org-line(org, url: org-url) }
+  let org = if _present(org) { _accent-text(_link-if(org-url, org)) }
+  let facts = _fact-line((org,), roles, (location,), details)
+  let facts = if facts != none {
+    block(below: _theme.entry.facts-below, facts)
+  }
+  let (lead, lead-size, facts) = if _present(title) {
+    ([=== #_link-if(url, title)], _theme.type.title.size, facts)
+  } else { (facts, 1, none) }
+  if _present(period) { _title-row(lead, lead-size, period) } else { lead }
+  facts
   _subtitle(subtitle)
-  // The person's roles as darker pills, set apart from the `tags`.
-  if roles.len() > 0 {
-    block(below: _theme.entry.roles-below, _tag-row(roles, label: true))
-  }
-  if compact {
-    _compact-term(period, location, org, org-url, details)
-  } else {
-    term(period, location: location)
-  }
   _preamble(summary)
   for bullet in highlights [- #bullet]
   _join-present((tags-lead, _tag-row(tags)), [\ ])

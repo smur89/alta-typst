@@ -245,7 +245,7 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: title, organisation or subtitle, date row, `summary`, highlights, then tags. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (location, roles, a credential ID) on one line, `summary`, highlights, then tags. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
@@ -259,7 +259,7 @@ These mean the same in every section that reads them:
 | `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
 | `summary` | string or content | A short paragraph of context. |
 | `highlights` | array of content | Accomplishments, as a bulleted list. |
-| `keywords`, `courses`, `roles` | array of strings | Tags, one per item. |
+| `keywords`, `courses` | array of strings | Tags, one per item. |
 
 #### Work
 
@@ -305,9 +305,9 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 | Field | Type | Effect |
 |---|---|---|
 | `name` | string | Project title. Missing / empty `name` → entry silently skipped. |
-| `entity` | string | The company or client the project belonged to; the subtitle. |
+| `entity` | string | The company or client the project belonged to; leads the line under the title, as an organisation does. |
 | `url` | string | Links the title. |
-| `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
+| `roles` | array of strings | Your role(s) on the project, after `entity` on the line under the title (`Acme Corp · Lead, Architect`). |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
 | `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 
@@ -344,7 +344,7 @@ All fields are optional — omitted fields drop their line.
 
 #### Certificates
 
-A compact entry: the date, issuer and credential ID share one row.
+The date sits at the title's right edge; the issuer and credential ID share the line under it.
 
 | Field | Type | Effect |
 |---|---|---|
