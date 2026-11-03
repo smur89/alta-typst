@@ -1,7 +1,9 @@
 // The component gallery: each layout component and primitive in its
 // variants, from fixed slot values rather than CV data, so a change to
 // one shows in this PDF on its own. It renders under `alta()`'s own
-// document setup and defaults; each heading names what it shows.
+// document setup and defaults. Headings stay plain text: inline code
+// would use a system monospace font, which differs between CI's runner
+// and the pinned image.
 
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _document
@@ -45,7 +47,7 @@
   uppercase: true,
 )
 
-= `_page_header`: each photo placement, and centred with left text
+= Page header: each photo placement, and centred with left text
 #let portrait = _portrait(
   avatar-placeholder,
   _default_preferences.imageSize,
@@ -63,14 +65,14 @@
 
 #pagebreak()
 
-= `_page_header`: a QR code, and a contact bar that wraps
+= Page header: a QR code, and a contact bar that wraps
 #variant(header(qr-url: "https://example.com"))
 // Each entry wraps whole: no line starts with a bare value.
 #variant(header(contacts: contacts * 4))
 
 #pagebreak()
 
-= `_intro_block`
+= Intro
 #_intro_block(
   objective: [Lead a platform team building reliable data systems.],
   summary: [Backend engineer with eight years of distributed systems.],
@@ -78,7 +80,7 @@
 
 #pagebreak()
 
-= `_section` of `_entry`: full, with roles and tags
+= Section of entries: full, with roles and tags
 #_section("Entries", (1, 2), _ => _entry(
   title: "Staff Engineer",
   url: "https://example.com",
@@ -94,7 +96,7 @@
   tags: ("Scala", "Kafka"),
 ))
 
-= `_entry`: compact
+= Entry: compact
 #_section("Compact", (1,), _ => _entry(
   title: "Certified Kubernetes Administrator",
   url: "https://example.com",
@@ -105,7 +107,7 @@
   summary: [Cluster administration.],
 ))
 
-= `_grouped_section`, without dividers
+= Grouped section, without dividers
 #_grouped_section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
@@ -114,7 +116,7 @@
   dividers: false,
 )
 
-= `_bib_entry`
+= Bibliography item
 #_bib_entry(
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
@@ -127,13 +129,13 @@
   summary: [What the paper is about.],
 )
 
-= `_keyword_rows`
+= Keyword rows
 #_keyword_rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
   (name: "Infra", keywords: ("Kafka", "Kubernetes")),
 ))
 
-= `_rating_row`: dots, a half dot, and the text fallback
+= Rating rows: dots, a half dot, and the text fallback
 #_rating_row("English", 5)
 #_rating_row("Irish", 3.5)
 #_rating_row("German", none, fallback: "Conversational")
