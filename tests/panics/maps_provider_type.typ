@@ -1,4 +1,4 @@
-// expect: mapsProvider must be a URL template string
+// expect: mapsProvider must be `none` or a URL template string containing `{q}`
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

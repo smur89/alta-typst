@@ -103,7 +103,7 @@
   )
 }
 
-// Separate from `_check-qr-code` because `auto` needs `basics`.
+// `auto` resolves here, not in `data/validation.typ`, as it needs `basics`.
 #let _resolve-qr-url(qr-code, basics) = {
   if qr-code == none { return none }
   if qr-code != auto { return qr-code }

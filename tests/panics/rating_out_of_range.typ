@@ -1,4 +1,4 @@
-// expect: Rating out of range
+// expect: rating value must be between 0 and
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

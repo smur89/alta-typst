@@ -6,7 +6,7 @@
 
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
-#import "../util/checks.typ": _require
+#import "../util/checks.typ": _check-type, _require
 #import "../util/values.typ": _round-half
 #import "../primitives.typ": _small
 
@@ -39,23 +39,21 @@
     type(max-rating) == int and max-rating >= 1,
     "a positive integer",
   )
-  if type(value) not in (int, float) {
-    panic("Rating must be numeric, got: " + repr(value))
-  }
-  if value < 0 or value > max-rating {
-    panic(
-      "Rating out of range: "
-        + repr(value)
-        + ". Expected 0–"
-        + str(max-rating)
-        + ".",
-    )
-  }
+  _check-type("rating value", value, (int, float), "a number")
+  _require(
+    "rating value",
+    value,
+    value >= 0 and value <= max-rating,
+    "between 0 and " + str(max-rating),
+  )
   // Half dots are the only fraction drawable; rejecting others stops
   // `3.1` and `3.9` silently rounding alike.
-  if _round-half(value) != value {
-    panic("Rating must use 0.5 increments, got: " + repr(value))
-  }
+  _require(
+    "rating value",
+    value,
+    _round-half(value) == value,
+    "a multiple of 0.5",
+  )
   let (radius, baseline, gap) = _theme.rating
   let dot(fill) = box(
     baseline: baseline * body-size,

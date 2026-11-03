@@ -1,4 +1,4 @@
-// expect: qrCode must be a non-empty string
+// expect: qrCode must be `none`, `auto`, or a non-empty URL string
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

@@ -1,5 +1,6 @@
 // Generic input checks behind every guided panic: "must be …" with
-// the value got, unknown-key and enum checks, and their prose lists.
+// the value got, the rules that drive it, unknown-key and enum checks,
+// and their prose lists.
 
 #let _quote(s) = "\"" + s + "\""
 
@@ -28,18 +29,37 @@
   }
 }
 
-#let _check-type(name, value, allowed, expected) = _require(
+// Rules for `_check` and `_check-rules`: `(ok, expected)`, where `ok`
+// tests the value and `expected` completes "<name> must be …".
+#let _type-rule(types, expected) = (v => type(v) in types, expected)
+#let _bool-rule = _type-rule((bool,), "a bool")
+#let _enum-rule(allowed) = (
+  v => v in allowed,
+  _prose-list(allowed.map(_quote)),
+)
+
+#let _check(name, value, (ok, expected)) = _require(
   name,
   value,
-  type(value) in allowed,
+  ok(value),
   expected,
 )
 
-#let _check-bool(name, value) = _check-type(name, value, (bool,), "a bool")
+// Each `key: rule` against `values.at(key)`, named `prefix + key`.
+#let _check-rules(values, rules, prefix: "") = for (key, rule) in rules {
+  _check(prefix + key, values.at(key), rule)
+}
 
-#let _check-enum(name, value, allowed) = _require(
+#let _check-type(name, value, allowed, expected) = _check(
   name,
   value,
-  value in allowed,
-  _prose-list(allowed.map(_quote)),
+  _type-rule(allowed, expected),
+)
+
+#let _check-bool(name, value) = _check(name, value, _bool-rule)
+
+#let _check-enum(name, value, allowed) = _check(
+  name,
+  value,
+  _enum-rule(allowed),
 )
