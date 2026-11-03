@@ -3,7 +3,8 @@
 // after the score.
 
 #import "../internal/text.typ": _field
-#import "../internal/primitives.typ": _entry, _entry_when, _section
+#import "../internal/components/frame.typ": _section
+#import "../internal/components/entry.typ": _entry, _entry_when
 
 #let _education(entries, (labels, prefs, ..)) = _section(
   labels.education,

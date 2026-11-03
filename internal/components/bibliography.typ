@@ -1,0 +1,44 @@
+// The bibliography list item publications map onto, and the line
+// builders for its author and identifier records.
+
+#import "../text.typ": _join_present, styled-link
+#import "../primitives.typ": _meta, _preamble, _small
+
+// `(name, owner)` records, the owner bold (the academic-CV
+// convention); `none` when there are none.
+#let _author_line(authors) = (
+  authors.map(a => if a.owner { strong(a.name) } else { a.name }).join(", ")
+)
+
+// `(name, id, url)` records as `name id`, the id linked when `url` is
+// set; `none` when there are none.
+#let _identifier_line(refs) = (
+  refs
+    .map(r => [#r.name #if r.url == none { r.id } else { link(r.url, r.id) }])
+    .join[ · ]
+)
+
+// One bibliography list item: the title (linked to `url`), then
+// authors, source, date, identifiers and summary, each on its own
+// line. Absent lines drop out so none leaves an orphan `\` break.
+#let _bib_entry(
+  title,
+  url: none,
+  authors: (),
+  source: none,
+  date: none,
+  identifiers: (),
+  summary: none,
+) = {
+  let lines = _join_present(
+    (
+      _small(_author_line(authors)),
+      _small(source),
+      _meta(date),
+      _meta(_identifier_line(identifiers)),
+      _preamble(summary),
+    ),
+    [\ ],
+  )
+  [- #styled-link(title, dest: url). #if lines != none [\ #lines]]
+}

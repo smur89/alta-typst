@@ -5,9 +5,9 @@
 // Helpers shape the fields into data; `_bib_entry` lays them out.
 
 #import "../internal/text.typ": _field, _join_present, _present_str, _string_at
-#import "../internal/primitives.typ": (
-  _bib_entry, _group_by, _grouped_section, _icon_heading,
-)
+#import "../internal/primitives.typ": _icon_heading
+#import "../internal/components/frame.typ": _group_by, _grouped_section
+#import "../internal/components/bibliography.typ": _bib_entry
 #import "../internal/dates.typ": _format_date
 
 // `type` arrives trimmed (`_canonical_cv`); lowercasing makes `Talk`

@@ -2,7 +2,8 @@
 // extension; entries without a `title` are skipped.
 
 #import "../internal/text.typ": _altacv, _field
-#import "../internal/primitives.typ": _entry, _section
+#import "../internal/components/frame.typ": _section
+#import "../internal/components/entry.typ": _entry
 #import "../internal/dates.typ": _format_date
 
 #let _awards(entries, (labels, prefs, ..)) = _section(

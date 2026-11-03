@@ -79,7 +79,8 @@ PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # Everything `lib.typ` reads at compile time. Every render depends on
 # it, so a renderer edit can't leave stale outputs to be committed.
-LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard internal/*.toml) \
+LIB_SOURCES   := lib.typ $(wildcard internal/*.typ) $(wildcard internal/components/*.typ) \
+  $(wildcard internal/*.toml) \
   $(wildcard sections/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages: shared by the release tarball and

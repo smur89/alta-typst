@@ -49,12 +49,18 @@
   if _present_str(v) { v }
 }
 
+// `body` linked to `dest` when it's present, so an empty `url` never
+// becomes a dead link.
+#let _link_if(dest, body) = if _present(dest) { link(dest, body) } else {
+  body
+}
+
 // Entry titles look the same linked or not. `_present` rather than
 // `!= none` so an empty `url` doesn't become a dead link.
 #let styled-link(content, dest: none) = context {
   let accent = _accent_state.get()
   let styled = emph(text(fill: accent, content))
-  if _present(dest) { link(dest, styled) } else { styled }
+  _link_if(dest, styled)
 }
 
 // `{key}` label templates. One regex pass, so a substituted value

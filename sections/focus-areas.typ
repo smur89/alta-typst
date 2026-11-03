@@ -3,7 +3,7 @@
 // `_sections`); JSON Resume's `interests` has the `{name, keywords}`
 // shape that `skills` renders.
 
-#import "../internal/primitives.typ": _section_frame
+#import "../internal/components/frame.typ": _section_frame
 
 // One list, not an entry per item, so the bullets keep list spacing.
 #let _focus_areas(items, (labels, ..)) = _section_frame(
