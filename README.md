@@ -701,7 +701,7 @@ To regenerate the preview artefacts (the canonical CV render, the animated GIF t
 
 `make cv`, `make example-full`, `make thumbnail` and `make preview-gif` (which needs ffmpeg); `make help` describes each.
 
-The GIF is sourced from `examples/preview_frames.typ` — one page per variation, each rendering the `template/cv.typ` starter's CV, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
+The GIF is sourced from `examples/preview-frames.typ` — one page per variation, each rendering the `template/cv.typ` starter's CV, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
 
 ## Credits
 
