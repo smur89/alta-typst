@@ -107,7 +107,15 @@
     name: basics.name,
     pronouns: if prefs.showPronouns { _field(basics, "pronouns") },
     headline: _field(basics, "label"),
-    contacts: _linked-contacts(basics, prefs),
+    // Contact details on one line, profiles on the next, so a busy bar
+    // scans in two groups.
+    contacts: {
+      let linked = _linked-contacts(basics, prefs)
+      (
+        linked.filter(c => c.channel != "profiles"),
+        linked.filter(c => c.channel == "profiles"),
+      ).filter(row => row.len() > 0)
+    },
     text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
