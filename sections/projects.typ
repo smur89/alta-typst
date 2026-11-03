@@ -6,6 +6,7 @@
 #import "../internal/util/values.typ": _group-by
 #import "../internal/data/cv.typ": _entry-period
 #import "../internal/components/entry.typ": _entry
+#import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
 
 // The client or company (`entity`) mirrors `publications[].publisher`.
@@ -28,7 +29,7 @@
 })
 
 #let _projects(entries, ctx) = {
-  let (labels, ..) = ctx
+  let (labels, prefs, ..) = ctx
   let render(p) = _render-project(p, ctx)
 
   // Flat unless some entry has a usable `type`, so the common untyped
@@ -40,7 +41,12 @@
     _grouped-section(
       labels.projects,
       _group-by-type(entries, labels.otherProjects),
-      (group, _) => group,
+      // `projectIcons` is lowercase-keyed (`_canonical-preferences`); a
+      // group it doesn't map gets `folder`.
+      (group, _) => _icon-heading(
+        prefs.projectIcons.at(lower(group), default: "folder"),
+        group,
+      ),
       render,
     )
   }

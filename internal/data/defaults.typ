@@ -30,6 +30,7 @@
   bodySize: 10pt,
   accent: palettes.teal,
   publicationIcons: _publication-icons,
+  projectIcons: (:),
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,

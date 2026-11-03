@@ -17,10 +17,13 @@
 // `labels.publicationIcons`. Only the caller's own icon names are
 // checked, before that fold: the deprecated label's are left to fail
 // where used, so an unused bad one doesn't stop a CV compiling.
+// `projectIcons` has no such fold but is checked the same way.
 #let _merge-options(labels, preferences) = {
-  let icons = _dict-or-empty(preferences).at("publicationIcons", default: none)
-  if type(icons) == dictionary {
-    _check-icon-names(icons, "preferences.publicationIcons")
+  for table in _preference-tables {
+    let icons = _dict-or-empty(preferences).at(table, default: none)
+    if type(icons) == dictionary {
+      _check-icon-names(icons, "preferences." + table)
+    }
   }
   let merged-labels = _strict-merge(
     _default-labels,

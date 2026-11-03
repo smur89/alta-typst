@@ -1,5 +1,6 @@
-// Section scaffolding: the `==` heading and its entries, with dividers
-// between them, optionally clustered under `====` subheadings.
+// Section scaffolding: the `==` heading and its entries with a
+// separator between neighbours, optionally clustered under `====`
+// subheadings.
 
 #import "../primitives.typ": divider
 
@@ -10,18 +11,18 @@
   body
 }
 
-// Each entry unbreakable, with rules between neighbours only, so a
-// section doesn't end on a stray rule.
-#let _entry-blocks(entries, render-entry, dividers: true) = (
-  entries
-    .map(e => block(breakable: false, render-entry(e)))
-    .join(if dividers { divider() })
+// Each entry unbreakable, with `separator` between neighbours only, so
+// a section doesn't end on a stray rule.
+#let _entry-blocks(entries, render-entry, separator: divider()) = (
+  entries.map(e => block(breakable: false, render-entry(e))).join(separator)
 )
 
-#let _section(heading, entries, render-entry) = _section-frame(
-  heading,
-  entries,
-  _entry-blocks(entries, render-entry),
+#let _section(heading, entries, render-entry, separator: divider()) = (
+  _section-frame(
+    heading,
+    entries,
+    _entry-blocks(entries, render-entry, separator: separator),
+  )
 )
 
 // `_section` with entries clustered under `====` subheadings, one per
@@ -32,10 +33,10 @@
   groups,
   subheading,
   render-entry,
-  dividers: true,
+  separator: divider(),
 ) = _section-frame(heading, groups, {
   for (key, items) in groups.pairs() {
     [==== #subheading(key, items)]
-    _entry-blocks(items, render-entry, dividers: dividers)
+    _entry-blocks(items, render-entry, separator: separator)
   }
 })

@@ -79,16 +79,6 @@
         [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
       ),
     ),
-    (
-      name: "Grand Canal Systems",
-      position: "Software Engineer",
-      location: "Dublin, Ireland",
-      startDate: "2017-09",
-      endDate: "2019-06",
-      highlights: (
-        [Led the migration of services from VMs to Kubernetes.],
-      ),
-    ),
   ),
 
   skills: (
@@ -117,12 +107,6 @@
       issuer: "CNCF",
       date: "2023-09",
       url: "https://www.cncf.io/training/certification/cka/",
-    ),
-    (
-      name: "Certified Kubernetes Application Developer",
-      issuer: "CNCF",
-      date: "2024-04",
-      url: "https://www.cncf.io/training/certification/ckad/",
     ),
   ),
 

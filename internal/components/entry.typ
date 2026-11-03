@@ -4,7 +4,7 @@
 #import "../design/theme.typ": _theme
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-strong, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
+  _accent-text, _link-if, _preamble, _tag-row, _term-part, _term-row, name,
   term,
 )
 
@@ -27,7 +27,7 @@
 // `entry.compact-gap` gaps are `em` of the row's text.
 #let _compact-term(period, location, org, org-url, details) = {
   let org = if _present(org) {
-    _accent-strong(_link-if(org-url, org))
+    _accent-text(_link-if(org-url, org))
   }
   let facts = _join-present((org, ..details), _theme.separator.facts)
   let row = _join-present(
@@ -44,8 +44,9 @@
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
-// plain heading style whether or not it links. `tags-lead` is
-// inline text leading the `tags` pills (education's score).
+// plain heading style whether or not it links. `tags-lead` is a
+// line of its own above the `tags` pills (education's score), so it
+// doesn't read as one of them.
 //
 // `compact: true` folds the organisation and `details` (short facts
 // such as a credential ID) onto the date row instead of giving the
@@ -80,5 +81,5 @@
   }
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present((tags-lead, _tag-row(tags)), [ ])
+  _join-present((tags-lead, _tag-row(tags)), [\ ])
 }

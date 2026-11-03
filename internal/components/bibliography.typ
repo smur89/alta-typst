@@ -24,8 +24,9 @@
 )
 
 // One bibliography list item: the title (linked to `url`), then
-// authors, source, date, identifiers and summary, each on its own
-// line. Absent lines drop out so none leaves an orphan `\` break.
+// authors, the source with its date (`Personal Blog · Jun 2024`),
+// identifiers and summary, each on its own line. Absent parts drop
+// out so none leaves an orphan `\` break or separator.
 #let _bib-entry(
   title,
   url: none,
@@ -38,8 +39,7 @@
   let lines = _join-present(
     (
       _author-line(authors),
-      source,
-      _meta(date),
+      _join-present((source, _meta(date)), _theme.separator.facts),
       _meta(_identifier-line(identifiers)),
       _preamble(summary),
     ),

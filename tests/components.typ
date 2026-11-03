@@ -43,7 +43,7 @@
   name: "Jane Doe",
   pronouns: "she/her",
   headline: "Staff Engineer",
-  contacts: contacts,
+  contacts: (contacts.slice(0, 2), contacts.slice(2)),
   uppercase: true,
 )
 
@@ -68,7 +68,7 @@
 = Page header: a QR code, and a contact bar that wraps
 #variant(header(qr-url: "https://example.com"))
 // Each entry wraps whole: no line starts with a bare value.
-#variant(header(contacts: contacts * 4))
+#variant(header(contacts: (contacts * 4,)))
 
 #pagebreak()
 
@@ -107,13 +107,13 @@
   summary: [Cluster administration.],
 ))
 
-= Grouped section, without dividers
+= Grouped section, without separators
 #_grouped-section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
   _ => _entry(title: "An item", period: "2024"),
-  dividers: false,
+  separator: none,
 )
 
 = Bibliography item

@@ -6,7 +6,7 @@
 #import "../context.typ": _body-size-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
-// The dash is `text(...)`, not markup, where `-` parses as a list
+// The dash is `text(...)`, not markup, so it can't parse as a list
 // bullet. The `_tag-gap` after it mirrors the gap `tag()` leaves on
 // its left, so the dash sits centred between the pills.
 #let _keyword-rows(groups) = context {

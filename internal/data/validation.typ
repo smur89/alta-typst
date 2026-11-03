@@ -65,8 +65,8 @@
 }
 
 // The single-value preferences, in `_default-preferences`' order. The
-// rest are checked in `_validate-preferences`, or for
-// `publicationIcons` in `_merge-options`; `groupCertificates` is
+// rest are checked in `_validate-preferences`, or for the icon tables
+// in `_merge-options`; `groupCertificates` is
 // ignored, so it isn't checked.
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),

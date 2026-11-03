@@ -40,7 +40,7 @@
 // Tables matched case-insensitively and merged entry by entry over
 // their defaults (`_strict-merge`'s `tables`).
 #let _label-tables = ("publicationTypes",)
-#let _preference-tables = ("publicationIcons",)
+#let _preference-tables = ("publicationIcons", "projectIcons")
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -172,14 +172,22 @@
 // Runs before the merge over the defaults. #239: the deprecated
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
-// one table, and the string `pageFooter: "auto"` becomes `auto`. A
-// non-dictionary (overall or as the table) passes through for
-// `_strict-merge` to reject.
+// one table. `projectIcons` is lowercased too. #239: the string
+// `pageFooter: "auto"` becomes `auto`. A non-dictionary (overall or as
+// a table) passes through for `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"
   ) { overrides + (pageFooter: auto) } else { overrides }
+  let project-icons = _dict-or-empty(overrides).at(
+    "projectIcons",
+    default: none,
+  )
+  let overrides = if type(project-icons) == dictionary {
+    let lowered = _lowercase-table(project-icons, "preferences.projectIcons")
+    overrides + (projectIcons: lowered)
+  } else { overrides }
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }

@@ -111,20 +111,23 @@
   )
 }
 
-// `contacts` are `(icon, value, url)` records with an optional `alt`,
-// linked where `url` is set. A `box` per entry, so the bar wraps
-// between entries, never between an icon and its text.
+// `contacts` are rows, each its own line, of `(icon, value, url)`
+// records with an optional `alt`, linked where `url` is set. A `box`
+// per entry, so a long row wraps between entries, never between an
+// icon and its text.
 #let _contact-bar(contacts, body-size, accent) = {
   let contact-gap = _theme.header.contact-gap
   let size = _theme.header.contact-size * body-size
   let bar-icon = icon.with(size: size, fill: accent)
   set text(size, weight: _theme.font-weight.bold)
   contacts
-    .map(entry => box({
-      bar-icon(entry.icon, alt: entry.at("alt", default: none))
-      _link-if(entry.url, [#entry.value])
-    }))
-    .join(h(contact-gap * body-size))
+    .map(row => row
+      .map(entry => box({
+        bar-icon(entry.icon, alt: entry.at("alt", default: none))
+        _link-if(entry.url, [#entry.value])
+      }))
+      .join(h(contact-gap * body-size)))
+    .join(linebreak())
   // Inherits `par.spacing`, so the gap tracks the rest of the document.
   parbreak()
 }

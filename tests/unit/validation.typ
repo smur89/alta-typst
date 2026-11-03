@@ -7,6 +7,7 @@
 // can't skip validation; the rules keep the defaults' order.
 #let checked-elsewhere = (
   "publicationIcons",
+  "projectIcons",
   "leftColumnSections",
   "rightColumnSections",
   "linkContactInfo",

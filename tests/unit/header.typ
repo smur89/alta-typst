@@ -4,8 +4,8 @@
 #import "/internal/util/values.typ": _display-url, _url-encode
 #import "/internal/data/options.typ": _merge-options
 #import "/sections/header.typ": (
-  _contact-entries, _header-image, _linked-contacts, _profile-entry,
-  _resolve-link-config, _resolve-qr-url,
+  _contact-entries, _contact-rows, _header-image, _linked-contacts,
+  _profile-entry, _resolve-link-config, _resolve-qr-url,
 )
 
 // _url-encode: RFC 3986 unreserved set kept, everything else
@@ -82,3 +82,14 @@
 )
 #assert.eq(_header-image(""), none)
 #assert.eq(_header-image(none), none)
+
+// _contact-rows: details first, then profiles; an empty group drops out.
+#let c(channel) = (channel: channel)
+#assert.eq(
+  _contact-rows((c("email"), c("url"), c("profiles"))).map(r => r.map(
+    x => x.channel,
+  )),
+  (("email", "url"), ("profiles",)),
+)
+#assert.eq(_contact-rows((c("profiles"),)).len(), 1)
+#assert.eq(_contact-rows(()), ())

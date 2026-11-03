@@ -4,7 +4,7 @@
 // has checked the fields it reads.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/values.typ": _display-url, _url-encode
+#import "../internal/util/values.typ": _display-url, _group-by, _url-encode
 #import "../internal/data/cv.typ": _format-location, _profile-network
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/primitives.typ": _portrait
@@ -100,6 +100,13 @@
   ))
 }
 
+// The contact bar's rows: contact details on one line, profiles on
+// the next, so a busy bar scans in two groups. An empty row drops out.
+#let _contact-rows(contacts) = _group-by(
+  contacts,
+  c => if c.channel == "profiles" { "profiles" } else { "details" },
+).values()
+
 #let _header(cv, (prefs, ..)) = {
   let basics = cv.basics
   let image = _header-image(basics.at("image", default: none))
@@ -107,7 +114,7 @@
     name: basics.name,
     pronouns: if prefs.showPronouns { _field(basics, "pronouns") },
     headline: _field(basics, "label"),
-    contacts: _linked-contacts(basics, prefs),
+    contacts: _contact-rows(_linked-contacts(basics, prefs)),
     text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.

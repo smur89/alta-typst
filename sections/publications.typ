@@ -109,7 +109,7 @@
 
 // `publicationTypes` and `publicationIcons` arrive lowercase-keyed
 // (`_canonical-labels`, `_canonical-preferences`); a code with no icon
-// gets `file`. A list, so no dividers between entries.
+// gets `file`. A list, so nothing between entries.
 #let _publications(pubs, ctx) = {
   let (labels, prefs, ..) = ctx
   let headings = labels.publicationTypes
@@ -127,6 +127,6 @@
       _icon-heading(group-icon, heading)
     },
     pub => _render-publication(pub, ctx),
-    dividers: false,
+    separator: none,
   )
 }

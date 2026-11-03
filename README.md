@@ -296,7 +296,7 @@ Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#s
 | `institution` | string | School name; the organisation. |
 | `url` | string | Links the institution. |
 | `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, leading the `courses` tags. |
+| `score` | string | Grade / classification, on its own line above the `courses` tags. |
 
 #### Projects
 
@@ -309,7 +309,7 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 | `url` | string | Links the title. |
 | `roles` | array of strings | Your role(s) on the project, as tags set apart from `keywords`. |
 | `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
-| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
+| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
 
 #### Awards
 
@@ -326,7 +326,7 @@ Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([sha
 
 #### Publications
 
-A bibliography list rather than entries: the title, then a line each for the authors, the source (publisher and citation), the date, the identifiers and the summary.
+A bibliography list rather than entries: the title, then a line each for the authors, the source (publisher and citation) with its date, the identifiers and the summary.
 
 | Field | Type | Effect |
 |---|---|---|
@@ -417,8 +417,9 @@ Override any subset of the keys below.
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
-| `accent` | `palettes.teal` | Theme colour for headings, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value. |
+| `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
+| `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
 
 #### Header
 
@@ -487,6 +488,16 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | anything else | `file` |
 
 The plural and free-text keys exist for the deprecated free-text `type` headings.
+
+#### Project icons
+
+`preferences.projectIcons` maps `projects[].type` values to the icon leading their subheading, matched case-insensitively, with values from the same icon set. A type it doesn't map gets `folder`:
+
+```typst
+#alta(cv, preferences: (projectIcons: (application: "laptop-code", library: "cubes")))
+```
+
+Icons that suit project kinds include `laptop-code`, `cubes`, `terminal` and `flask`.
 
 #### Examples
 
@@ -673,11 +684,11 @@ meta: (
 | Helper | Purpose |
 |---|---|
 | `icon(name, size: auto, shift: 0pt, fill: auto, alt: none)` | Render a FontAwesome glyph (delegated to `@preview/fontawesome`). `name` is any key from the built-in icon set (utility or network). Icons are decorative in tagged PDF output (screen readers skip them) unless `alt` is given, which becomes the icon's alternative description — use it when the icon alone carries meaning. |
-| `name(body)` | Bold accent-coloured line — the company / institution row under a role. |
+| `name(body)` | Accent-coloured line — the company / institution row under a role. |
 | `term(period, location: none)` | Two half-width boxes for a date range and optional location, each with a leading icon. |
 | `rating(label, value, max: auto)` | Label on the left, filled / half-filled / empty dots on the right. `value` is numeric 0–`max`, which defaults to `preferences.maxRating` (5 unless set); fractions must be in 0.5 increments (`2.3` panics). Drives the language fluency dots; works for any row on the configured scale. Shares a name with the `languages[].custom.altacv.rating` data field — the function is not auto-fed; pass the value explicitly. |
 | `tag(body, label: false, trailing: true)` | Pill-style tag. `label: true` for a darker, bold "category" variant. `trailing: false` suppresses trailing horizontal space — use for the last tag in a row so it does not push the next line's leading edge inward. |
-| `divider()` | Dashed grey rule used between entries within a section. |
+| `divider()` | Dashed grey rule used between entries in most sections. |
 | `styled-link(content, dest: none)` | Accent-coloured italic styling for entry titles (publications, awards, projects). Wraps in a link when `dest` is supplied. |
 | `palettes` | Dict of curated accent presets — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal`. Use as `accent: palettes.navy`. |
 | `maps-providers` | Dict of map deep-link URL templates — `google`, `apple`, `bing`, `duckduckgo`, `osm`. Use as `mapsProvider: maps-providers.osm`. |
