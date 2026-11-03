@@ -6,8 +6,9 @@
 // it: public helpers (`tag`, `term`, `divider`, `rating`, `icon`) read
 // the body size from state and multiply, since they may sit outside
 // `alta()`'s text. `em` lengths are relative to the enclosing text,
-// for internal helpers where that's the intent. Absolute lengths
-// (gutter, rule thicknesses) deliberately don't scale.
+// for internal helpers where that's the intent. `pt` and `cm` lengths
+// (the column gutter, rules and strokes, the pill radius, the divider
+// clearance) deliberately don't scale.
 //
 // The accent and body size are preferences, kept in `state.typ`;
 // nothing here is configurable yet. A function reading several values
@@ -19,6 +20,7 @@
 #let _size = (
   name: 2.5,
   section: 1.7,
+  // `===` and `====` headings, and the icon leading a `====` group.
   subheading: 1.2,
   term: 0.9,
   // Secondary lines: a subtitle, a fluency label, authors, pills.
@@ -37,17 +39,19 @@
   ),
   size: _size,
   par: (leading: 0.55em, spacing: 0.7em),
-  list: (body-indent: 0.4, spacing: 0.55em),
+  list: (marker: 0.85, body-indent: 0.4, spacing: 0.55em),
   // `==` headings: the gap above, the pull up to the rule, the rule,
   // and the gap below it.
   section: (above: 0.6, rule-gap: -0.7, rule: 2pt, below: 0.2),
-  // `===` (a role or qualification) and `====` (a sub-grouping, whose
-  // icon matches its size). `weight` tells the two apart.
+  // `===` (a role or qualification) and `====` (a sub-grouping), both
+  // at `size.subheading`. `weight` tells the two apart.
   subheading: (
-    entry: (size: _size.subheading, above: 1.0, below: 0.8, weight: "regular"),
-    group: (size: _size.subheading, above: 0.6, below: 0.6, weight: "bold"),
+    entry: (above: 1.0, below: 0.8, weight: "regular"),
+    group: (above: 0.6, below: 0.6, weight: "bold"),
   ),
   column-gutter: 12pt,
+  // `name-below` multiplies the body size (`name()` is public); the
+  // rest are `em` of the entry's text.
   entry: (
     name-below: 0.6,
     subtitle-below: 0.5em,
@@ -65,6 +69,7 @@
     stroke: 0.5pt,
     radius: 2.5pt,
     inset: (x: 0.4, y: 0.15),
+    outset-y: 0.15,
     gap: 0.25,
   ),
   divider: (
@@ -76,6 +81,7 @@
   header: (
     name-below: 1.2,
     pronouns-gap: 0.5,
+    headline: 1.2,
     headline-below: 0.8,
     contact-icon: 0.9,
     contact-gap: 1.2,
@@ -87,7 +93,7 @@
   intro: (
     above: 0.8,
     rule: 1.5pt,
-    inset: (x: 0.7, y: 0.15),
+    inset: (left: 0.7, y: 0.15),
     gap: 0.3,
     below: 0.4,
   ),

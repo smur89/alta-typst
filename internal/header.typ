@@ -129,6 +129,7 @@
   let (
     name-below,
     pronouns-gap,
+    headline: headline-size,
     headline-below,
     contact-icon,
     contact-gap,
@@ -168,7 +169,7 @@
         spacing: 0pt,
         below: headline-below * body-size,
         text(
-          size.subheading * body-size,
+          headline-size * body-size,
           fill: colour.emphasis,
           weight: "bold",
           headline,
@@ -328,7 +329,7 @@
           if goal != none {
             block(
               stroke: (left: rule + _accent_state.get()),
-              inset: (left: inset.x * body-size, y: inset.y * body-size),
+              inset: (left: inset.left * body-size, y: inset.y * body-size),
               goal,
             )
           },

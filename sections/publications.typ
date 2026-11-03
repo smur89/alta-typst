@@ -146,7 +146,7 @@
       // Read in context: `em` inside the heading is already scaled.
       [#context icon(
           group-icon,
-          size: _theme.subheading.group.size * _body_size_state.get(),
+          size: _theme.size.subheading * _body_size_state.get(),
         ) #heading]
     },
     pub => _render_publication(pub, ctx),

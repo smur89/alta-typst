@@ -11,7 +11,7 @@
   let (par: p, list: l, section, subheading, size, colour, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   set list(
-    marker: text(size.small * 1em, "•"),
+    marker: text(l.marker * 1em, "•"),
     indent: 0pt,
     body-indent: l.body-indent * body-size,
     spacing: l.spacing,
@@ -25,11 +25,16 @@
     #line(length: 100%, stroke: section.rule + accent)
     #v(section.below * body-size)
   ]
-  let sub-heading((size, above, below, weight)) = it => block(
+  let sub-heading((above, below, weight)) = it => block(
     above: above * body-size,
     below: below * body-size,
     sticky: true,
-    text(size * body-size, fill: colour.emphasis, weight: weight, it.body),
+    text(
+      size.subheading * body-size,
+      fill: colour.emphasis,
+      weight: weight,
+      it.body,
+    ),
   )
   show heading.where(level: 3): sub-heading(subheading.entry)
   show heading.where(level: 4): sub-heading(subheading.group)

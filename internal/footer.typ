@@ -7,9 +7,10 @@
 #import "theme.typ": _theme
 #import "text.typ": _field, _fill_template, _string_at
 
-// Both footers' text: small, in the body colour.
-#let _footer_text(body) = context text(
-  _theme.size.meta * _body_size_state.get(),
+// Both footers' text: small, in the body colour. Called in `context`,
+// which supplies `body-size`.
+#let _footer_text(body-size, body) = text(
+  _theme.size.meta * body-size,
   fill: _theme.colour.body,
   body,
 )
@@ -17,7 +18,7 @@
 #let _auto_page_footer(name, page-number) = context {
   let total = counter(page).final().first()
   if total <= 1 { return }
-  _footer_text(grid(
+  _footer_text(_body_size_state.get(), grid(
     columns: (1fr, auto),
     align: (left, right),
     name,
@@ -46,7 +47,7 @@
     let version-suffix = if preferences.footerVersion and version != none {
       " (" + version + ")"
     } else { "" }
-    align(right, _footer_text({
+    context align(right, _footer_text(_body_size_state.get(), {
       labels.lastModified
       ": "
       last-modified

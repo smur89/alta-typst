@@ -101,8 +101,9 @@
 
 // The compact term row: period and location at natural widths (no
 // column to align), then the organisation and `details` joined by
-// ` · `, so several short entries stay one line each. The `1em` gaps
-// scale with the row's smaller text.
+// ` · `, so several short entries stay one line each. The
+// `entry.compact-gap` gaps are `em`, so scale with the row's smaller
+// text.
 #let _compact_term(period, location, org, org-url, details) = {
   let org = if _present(org) {
     _accent_strong(if _present(org-url) { link(org-url, org) } else { org })
@@ -124,14 +125,23 @@
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body_size_state.get()
   let accent = _accent_state.get()
-  let (fill, label-fill, text-darken, stroke, radius, inset, ..) = _theme.tag
+  let (
+    fill,
+    label-fill,
+    text-darken,
+    stroke,
+    radius,
+    inset,
+    outset-y,
+    ..,
+  ) = _theme.tag
   let text-weight = if label { "bold" } else { "regular" }
   box(
     fill: accent.lighten(if label { label-fill } else { fill }),
     stroke: stroke + accent,
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
-    outset: (y: inset.y * body-size),
+    outset: (y: outset-y * body-size),
     text(
       _theme.size.small * body-size,
       fill: accent.darken(text-darken),
