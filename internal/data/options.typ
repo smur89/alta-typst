@@ -1,31 +1,31 @@
-// `_merge_options`: the caller's labels and preferences, merged over the
+// `_merge-options`: the caller's labels and preferences, merged over the
 // defaults and validated, as the pair `alta()` renders with.
 
 #import "canonical.typ": (
-  _canonical_labels, _canonical_preferences, _label_tables, _preference_tables,
+  _canonical-labels, _canonical-preferences, _label-tables, _preference-tables,
 )
-#import "defaults.typ": _default_labels, _default_preferences
-#import "sections.typ": _section_specs
-#import "validation.typ": _strict_merge, _validate_labels, _validate_preferences
+#import "defaults.typ": _default-labels, _default-preferences
+#import "sections.typ": _section-specs
+#import "validation.typ": _strict-merge, _validate-labels, _validate-preferences
 
 // The caller's `labels` and `preferences`, each canonicalised before
 // its merge over the defaults and validated after it. The raw labels
-// go to `_canonical_preferences`, which folds in the deprecated
+// go to `_canonical-preferences`, which folds in the deprecated
 // `labels.publicationIcons`.
-#let _merge_options(labels, preferences) = {
-  let merged-labels = _strict_merge(
-    _default_labels,
-    _canonical_labels(labels),
+#let _merge-options(labels, preferences) = {
+  let merged-labels = _strict-merge(
+    _default-labels,
+    _canonical-labels(labels),
     "labels",
-    tables: _label_tables,
+    tables: _label-tables,
   )
-  _validate_labels(merged-labels)
-  let merged-preferences = _strict_merge(
-    _default_preferences,
-    _canonical_preferences(preferences, labels),
+  _validate-labels(merged-labels)
+  let merged-preferences = _strict-merge(
+    _default-preferences,
+    _canonical-preferences(preferences, labels),
     "preferences",
-    tables: _preference_tables,
+    tables: _preference-tables,
   )
-  _validate_preferences(merged-preferences, _section_specs.keys())
+  _validate-preferences(merged-preferences, _section-specs.keys())
   (labels: merged-labels, preferences: merged-preferences)
 }

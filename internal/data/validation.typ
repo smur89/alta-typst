@@ -3,17 +3,17 @@
 // surfacing mid-render. Checks on individual `cv` fields stay with the
 // code that consumes them, as they apply only when the field is set.
 
-#import "../design/icon-set.typ": _icon_glyphs
+#import "../design/icon-set.typ": _icon-glyphs
 #import "../util/checks.typ": (
-  _check_bool, _check_enum, _check_type, _check_unknown_keys, _prose_list,
+  _check-bool, _check-enum, _check-type, _check-unknown-keys, _prose-list,
   _require,
 )
-#import "../util/dates.typ": _date_format_aliases
-#import "../util/values.typ": _placeholder_re
+#import "../util/dates.typ": _date-format-aliases
+#import "../util/values.typ": _placeholder-re
 
-// Called from `_validate_preferences`, so a typo (`qrCode: true`)
+// Called from `_validate-preferences`, so a typo (`qrCode: true`)
 // fails up front rather than inside `qrcode(...)` at render time.
-#let _check_qr_code(value) = {
+#let _check-qr-code(value) = {
   if value == none or value == auto { return }
   if type(value) != str {
     panic(
@@ -27,17 +27,17 @@
 
 // `linkContactInfo` channels. Here rather than in `sections/header.typ`,
 // which reads them, to avoid a cycle: it imports this module.
-#let _contact_channels = ("email", "phone", "location", "url", "profiles")
+#let _contact-channels = ("email", "phone", "location", "url", "profiles")
 
 // Unknown keys panic rather than being silently absorbed. The keys
 // named in `tables` (`labels.publicationTypes`) hold dictionaries that
 // merge entry by entry, so a partial override keeps the rest; any
 // other key is replaced whole, dictionary or not (`margin`).
-#let _strict_merge(defaults, overrides, name, tables: ()) = {
+#let _strict-merge(defaults, overrides, name, tables: ()) = {
   if type(overrides) != dictionary {
     panic(name + " must be a dictionary, got: " + repr(overrides))
   }
-  _check_unknown_keys(overrides.keys(), defaults.keys(), name)
+  _check-unknown-keys(overrides.keys(), defaults.keys(), name)
   let merge-key(key, value) = {
     let default = defaults.at(key)
     if key in tables {
@@ -56,25 +56,25 @@
 // Every spacing token multiplies `bodySize`, so it must be an absolute
 // length: `1em` would resolve against itself, and a bare number reaches
 // `set text(...)` as a stray positional.
-#let _is_body_size(v) = type(v) == length and v.em == 0 and v.abs > 0pt
+#let _is-body-size(v) = type(v) == length and v.em == 0 and v.abs > 0pt
 
-#let _is_margin_side(v) = type(v) in (length, ratio, relative) or v == auto
-#let _is_margin(v) = if type(v) == dictionary {
-  v.values().all(_is_margin_side)
-} else { _is_margin_side(v) }
+#let _is-margin-side(v) = type(v) in (length, ratio, relative) or v == auto
+#let _is-margin(v) = if type(v) == dictionary {
+  v.values().all(_is-margin-side)
+} else { _is-margin-side(v) }
 
 // A family name, or a fallback list of names / `(name, covers)` dicts.
-#let _is_font_list(v) = (
+#let _is-font-list(v) = (
   type(v) == array and v.len() > 0 and v.all(f => type(f) in (str, dictionary))
 )
-#let _is_font(v) = type(v) == str or _is_font_list(v)
+#let _is-font(v) = type(v) == str or _is-font-list(v)
 
 // `section-keys` is passed in, not imported: `registry.typ` imports this
 // module. `groupCertificates` is ignored, so it isn't checked.
-#let _validate_preferences(preferences, section-keys) = {
+#let _validate-preferences(preferences, section-keys) = {
   // Only a colour supports `lighten` / `darken`; a palette name string
   // is the common slip.
-  _check_type(
+  _check-type(
     "accent",
     preferences.accent,
     (color,),
@@ -83,26 +83,26 @@
   _require(
     "bodySize",
     preferences.bodySize,
-    _is_body_size(preferences.bodySize),
+    _is-body-size(preferences.bodySize),
     "a positive absolute length (e.g. 10pt)",
   )
-  _check_type(
+  _check-type(
     "imageSize",
     preferences.imageSize,
     (length, ratio, relative),
     "a length (e.g. 6em)",
   )
-  _check_type("paper", preferences.paper, (str,), "a paper name (e.g. \"a4\")")
+  _check-type("paper", preferences.paper, (str,), "a paper name (e.g. \"a4\")")
   _require(
     "margin",
     preferences.margin,
-    _is_margin(preferences.margin),
+    _is-margin(preferences.margin),
     "a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm))",
   )
   _require(
     "font",
     preferences.font,
-    _is_font(preferences.font),
+    _is-font(preferences.font),
     "a font family name or a non-empty array of them",
   )
   let column-ratio = preferences.columnRatio
@@ -128,30 +128,30 @@
       )
     }
   }
-  _check_enum("imagePosition", preferences.imagePosition, (
+  _check-enum("imagePosition", preferences.imagePosition, (
     "left",
     "right",
     "center",
   ))
   // Checked even when unused, so a typo surfaces before it matters.
-  _check_enum("imageStackOrder", preferences.imageStackOrder, (
+  _check-enum("imageStackOrder", preferences.imageStackOrder, (
     "above",
     "below",
   ))
-  _check_enum("headerTextAlign", preferences.headerTextAlign, (
+  _check-enum("headerTextAlign", preferences.headerTextAlign, (
     "left",
     "right",
     "center",
   ))
   let link-contact-info = preferences.linkContactInfo
   if type(link-contact-info) == dictionary {
-    _check_unknown_keys(
+    _check-unknown-keys(
       link-contact-info.keys(),
-      _contact_channels,
+      _contact-channels,
       "linkContactInfo",
     )
     for (channel, v) in link-contact-info {
-      _check_bool("linkContactInfo." + channel, v)
+      _check-bool("linkContactInfo." + channel, v)
     }
   } else if type(link-contact-info) != bool {
     panic(
@@ -159,11 +159,11 @@
         + repr(link-contact-info),
     )
   }
-  _check_bool("uppercaseName", preferences.uppercaseName)
-  _check_bool("showPronouns", preferences.showPronouns)
-  _check_bool("lastModifiedFooter", preferences.lastModifiedFooter)
-  _check_bool("footerVersion", preferences.footerVersion)
-  _check_bool(
+  _check-bool("uppercaseName", preferences.uppercaseName)
+  _check-bool("showPronouns", preferences.showPronouns)
+  _check-bool("lastModifiedFooter", preferences.lastModifiedFooter)
+  _check-bool("footerVersion", preferences.footerVersion)
+  _check-bool(
     "referencesAvailableOnRequest",
     preferences.referencesAvailableOnRequest,
   )
@@ -183,8 +183,8 @@
   }
   let df = preferences.dateFormat
   if type(df) == str {
-    // Bracketed templates are left to `_apply_date_template`.
-    if "[" not in df and df != "iso" and df not in _date_format_aliases {
+    // Bracketed templates are left to `_apply-date-template`.
+    if "[" not in df and df != "iso" and df not in _date-format-aliases {
       panic(
         "dateFormat must be \"long\", \"short\", \"iso\", a bracketed template "
           + "(e.g. \"[day]/[month]/[year]\"), or a closure; got: "
@@ -198,13 +198,13 @@
         + repr(df),
     )
   }
-  _check_qr_code(preferences.qrCode)
-  _check_unknown_keys(
+  _check-qr-code(preferences.qrCode)
+  _check-unknown-keys(
     preferences.leftColumnSections,
     section-keys,
     "leftColumnSections",
   )
-  _check_unknown_keys(
+  _check-unknown-keys(
     preferences.rightColumnSections,
     section-keys,
     "rightColumnSections",
@@ -214,13 +214,13 @@
 // A `{key}` template label. A missing or misspelt (`{totl}`)
 // placeholder would otherwise render literally — for the title,
 // silently into PDF metadata.
-#let _validate_template_label(labels, key, required, optional) = {
+#let _validate-template-label(labels, key, required, optional) = {
   let template = labels.at(key)
   if type(template) != str {
     panic("labels." + key + " must be a string, got: " + repr(template))
   }
   let allowed = required + optional
-  let found = template.matches(_placeholder_re).map(m => m.captures.first())
+  let found = template.matches(_placeholder-re).map(m => m.captures.first())
   let unknown = found.filter(p => p not in allowed)
   if unknown.len() > 0 {
     panic(
@@ -249,46 +249,46 @@
 
 // Typst accepts any case; requiring lowercase keeps label files
 // canonical and catches a language *name* ("Irish") up front.
-#let _lang_re = regex("^[a-z]{2,3}$")
+#let _lang-re = regex("^[a-z]{2,3}$")
 
 // A dict where a list belongs fails here, not deep in a renderer.
 // Returns `entries`.
-#let _check_section_entries(key, entries, item-types) = {
-  _check_type(key, entries, (array,), "an array")
+#let _check-section-entries(key, entries, item-types) = {
+  _check-type(key, entries, (array,), "an array")
   let bad = entries.find(e => type(e) not in item-types)
   _require(
     key + " entries",
     bad,
     bad == none,
-    _prose_list(item-types.map(repr)),
+    _prose-list(item-types.map(repr)),
   )
   entries
 }
 
 // Checked up front, as `icon()` would fail on a bare missing key.
 // `name` is the table's full path, for the message.
-#let _check_icon_names(table, name) = for (code, icon-name) in table {
-  _check_enum(name + "." + code, icon-name, _icon_glyphs.keys())
+#let _check-icon-names(table, name) = for (code, icon-name) in table {
+  _check-enum(name + "." + code, icon-name, _icon-glyphs.keys())
 }
 
-#let _validate_labels(labels) = {
+#let _validate-labels(labels) = {
   // Deprecated (#239), and merged into the preference's icons by
-  // `_canonical_preferences`, which needs a dictionary.
-  _check_type(
+  // `_canonical-preferences`, which needs a dictionary.
+  _check-type(
     "labels.publicationIcons",
     labels.publicationIcons,
     (dictionary,),
     "a dictionary",
   )
   let lang = labels.lang
-  if type(lang) != str or lang.match(_lang_re) == none {
+  if type(lang) != str or lang.match(_lang-re) == none {
     panic(
       "labels.lang must be a lowercase ISO 639 code (2–3 letters, e.g. \"de\"), got: "
         + repr(lang),
     )
   }
-  _validate_template_label(labels, "pageNumber", ("current",), ("total",))
-  _validate_template_label(labels, "documentTitle", ("name",), ())
+  _validate-template-label(labels, "pageNumber", ("current",), ("total",))
+  _validate-template-label(labels, "documentTitle", ("name",), ())
   let months = labels.months
   if (
     type(months) != array

@@ -1,10 +1,10 @@
 // Unit checks for the publication field helpers in
-// sections/publications.typ and the `_bib_entry` line builders in
+// sections/publications.typ and the `_bib-entry` line builders in
 // internal/components/bibliography.typ.
 
-#import "/internal/components/bibliography.typ": _author_line, _identifier_line
+#import "/internal/components/bibliography.typ": _author-line, _identifier-line
 #import "/sections/publications.typ": (
-  _authors, _citation, _identifier_refs, _identifier_url, _identifiers, _source,
+  _authors, _citation, _identifier-refs, _identifier-url, _identifiers, _source,
 )
 #import "/tests/unit/_plain.typ": plain
 
@@ -16,19 +16,19 @@
 #assert.eq(_identifiers((identifiers: "10.1/x")), ())
 #assert.eq(_identifiers((:)), ())
 
-// _identifier_refs: conventional names and resolver URLs; unknown
+// _identifier-refs: conventional names and resolver URLs; unknown
 // schemes as given, unlinked.
 #assert.eq(
-  _identifier_refs((("doi", "10.1/x"), ("hal", "hal-1"))),
+  _identifier-refs((("doi", "10.1/x"), ("hal", "hal-1"))),
   (
     (scheme: "doi", name: "DOI", id: "10.1/x", url: "https://doi.org/10.1/x"),
     (scheme: "hal", name: "hal", id: "hal-1", url: none),
   ),
 )
 
-// _identifier_url: the first linkable scheme in DOI, arXiv, PMID
+// _identifier-url: the first linkable scheme in DOI, arXiv, PMID
 // order, whatever order the data lists them in.
-#let url-of(ids) = _identifier_url(_identifier_refs(ids))
+#let url-of(ids) = _identifier-url(_identifier-refs(ids))
 #assert.eq(
   url-of((("isbn", "978"), ("arxiv", "2101.1"), ("doi", "10.1/x"))),
   "https://doi.org/10.1/x",
@@ -41,15 +41,15 @@
   "https://doi.org/10.1/b",
 )
 
-// _identifier_line: one `name id` per ref, joined with ` · `.
+// _identifier-line: one `name id` per ref, joined with ` · `.
 #assert.eq(
-  plain(_identifier_line((
+  plain(_identifier-line((
     (name: "DOI", id: "10.1/x", url: "https://doi.org/10.1/x"),
     (name: "hal", id: "hal-1", url: none),
   ))),
   "DOI 10.1/x · hal hal-1",
 )
-#assert.eq(_identifier_line(()), none)
+#assert.eq(_identifier-line(()), none)
 
 // _citation: journal-style tail, each part optional, page hyphens
 // set as one en dash.
@@ -81,15 +81,15 @@
   ((name: "A. Smith", owner: false),),
 )
 
-// _author_line: the owner in bold.
+// _author-line: the owner in bold.
 #assert.eq(
-  plain(_author_line((
+  plain(_author-line((
     (name: "A. Smith", owner: false),
     (name: "jane doe", owner: true),
   ))),
   "A. Smith, *jane doe*",
 )
-#assert.eq(_author_line(()), none)
+#assert.eq(_author-line(()), none)
 
 // _source: publisher, then citation; either alone.
 #assert.eq(_source((publisher: "ACM", volume: "12")), "ACM 12")

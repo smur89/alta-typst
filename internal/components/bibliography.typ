@@ -3,13 +3,13 @@
 
 #import "../design/styles.typ": _treat
 #import "../design/theme.typ": _theme
-#import "../util/values.typ": _join_present
-#import "../primitives.typ": _link_if, _meta, _preamble, _small, styled-link
+#import "../util/values.typ": _join-present
+#import "../primitives.typ": _link-if, _meta, _preamble, _small, styled-link
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,
 // bold by default: the academic-CV convention); `none` when there are
 // none.
-#let _author_line(authors) = (
+#let _author-line(authors) = (
   authors
     .map(a => if a.owner { _treat(_theme.treatment.owner, a.name) } else {
       a.name
@@ -19,14 +19,14 @@
 
 // `(name, id, url)` records as `name id`, the id linked when `url` is
 // set; `none` when there are none.
-#let _identifier_line(refs) = (
-  refs.map(r => [#r.name #_link_if(r.url, r.id)]).join(_theme.separator.facts)
+#let _identifier-line(refs) = (
+  refs.map(r => [#r.name #_link-if(r.url, r.id)]).join(_theme.separator.facts)
 )
 
 // One bibliography list item: the title (linked to `url`), then
 // authors, source, date, identifiers and summary, each on its own
 // line. Absent lines drop out so none leaves an orphan `\` break.
-#let _bib_entry(
+#let _bib-entry(
   title,
   url: none,
   authors: (),
@@ -35,12 +35,12 @@
   identifiers: (),
   summary: none,
 ) = {
-  let lines = _join_present(
+  let lines = _join-present(
     (
-      _small(_author_line(authors)),
+      _small(_author-line(authors)),
       _small(source),
       _meta(date),
-      _meta(_identifier_line(identifiers)),
+      _meta(_identifier-line(identifiers)),
       _preamble(summary),
     ),
     [\ ],

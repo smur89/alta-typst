@@ -3,21 +3,21 @@
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
-#import "../util/fields.typ": _dict_or_empty, _field, _string_at
-#import "cv.typ": _altacv_ns, _reference_usable
-#import "validation.typ": _check_icon_names
+#import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "cv.typ": _altacv-ns, _reference-usable
+#import "validation.typ": _check-icon-names
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
 // lifted into `custom.altacv` (which wins when both are set).
-#let _legacy_root_fields = ("focusAreas",)
-#let _legacy_entry_fields = (languages: ("rating",), awards: ("url",))
+#let _legacy-root-fields = ("focusAreas",)
+#let _legacy-entry-fields = (languages: ("rating",), awards: ("url",))
 
 // #239: sections whose `description` is a deprecated alias of `summary`.
-#let _summary_alias_sections = ("work", "volunteer", "projects")
+#let _summary-alias-sections = ("work", "volunteer", "projects")
 
 // #239: plural free-text publication types, mapped to their code so
 // `"Articles"` and untyped entries share one subheading.
-#let _legacy_type_codes = (
+#let _legacy-type-codes = (
   articles: "article",
   books: "book",
   patents: "patent",
@@ -26,7 +26,7 @@
 )
 
 // #239: icons for deprecated free-text publication types.
-#let _legacy_publication_icons = (
+#let _legacy-publication-icons = (
   "blog posts": "newspaper",
   "blog post": "newspaper",
   presentations: "microphone",
@@ -38,14 +38,14 @@
 )
 
 // Tables matched case-insensitively and merged entry by entry over
-// their defaults (`_strict_merge`'s `tables`).
-#let _label_tables = ("publicationTypes",)
-#let _preference_tables = ("publicationIcons",)
+// their defaults (`_strict-merge`'s `tables`).
+#let _label-tables = ("publicationTypes",)
+#let _preference-tables = ("publicationIcons",)
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
-#let _lift_into_custom(obj, keys) = {
-  let ns = _altacv_ns(obj)
+#let _lift-into-custom(obj, keys) = {
+  let ns = _altacv-ns(obj)
   let lifted = keys
     .filter(k => (
       obj.at(k, default: none) != none and ns.at(k, default: none) == none
@@ -53,12 +53,12 @@
     .map(k => (k, obj.at(k)))
     .to-dict()
   if lifted.len() == 0 { obj } else {
-    let custom = _dict_or_empty(obj.at("custom", default: none))
+    let custom = _dict-or-empty(obj.at("custom", default: none))
     obj + (custom: custom + (altacv: ns + lifted))
   }
 }
 
-#let _alias_summary(entry) = {
+#let _alias-summary(entry) = {
   let description = entry.at("description", default: none)
   if _field(entry, "summary") != none or description == none { entry } else {
     entry + (summary: description)
@@ -66,23 +66,23 @@
 }
 
 // `" talk "` groups with `talk`; an all-space `type` becomes untyped.
-#let _trim_type(entry) = {
-  let raw = _string_at(entry, "type")
+#let _trim-type(entry) = {
+  let raw = _string-at(entry, "type")
   if raw == none { entry } else {
     let trimmed = raw.trim()
     entry + (type: if trimmed != "" { trimmed })
   }
 }
 
-#let _canonical_type(pub) = {
-  let pub = _trim_type(pub)
-  let raw = _string_at(pub, "type")
-  let code = if raw != none { _legacy_type_codes.at(lower(raw), default: none) }
+#let _canonical-type(pub) = {
+  let pub = _trim-type(pub)
+  let raw = _string-at(pub, "type")
+  let code = if raw != none { _legacy-type-codes.at(lower(raw), default: none) }
   if code == none { pub } else { pub + (type: code) }
 }
 
 // Non-dictionary entries are left for the shape checks to report.
-#let _map_entries(cv, key, f) = {
+#let _map-entries(cv, key, f) = {
   let entries = cv.at(key, default: none)
   if type(entries) != array { cv } else {
     cv + ((key): entries.map(e => if type(e) == dictionary { f(e) } else { e }))
@@ -91,9 +91,9 @@
 
 // #239: `preferences.referencesAvailableOnRequest` means the same as
 // one `availableOnRequest: true` entry when no reference is usable.
-#let _references_on_request(cv, prefs) = {
+#let _references-on-request(cv, prefs) = {
   let refs = cv.at("references", default: ())
-  let usable(r) = type(r) == dictionary and _reference_usable(r)
+  let usable(r) = type(r) == dictionary and _reference-usable(r)
   if (
     not prefs.referencesAvailableOnRequest
       or type(refs) != array
@@ -102,29 +102,29 @@
 }
 
 // `prefs` is the merged, validated preferences dict.
-#let _canonical_cv(cv, prefs) = (
-  cv => _lift_into_custom(cv, _legacy_root_fields),
-  cv => _legacy_entry_fields
+#let _canonical-cv(cv, prefs) = (
+  cv => _lift-into-custom(cv, _legacy-root-fields),
+  cv => _legacy-entry-fields
     .pairs()
-    .fold(cv, (acc, (key, fields)) => _map_entries(
+    .fold(cv, (acc, (key, fields)) => _map-entries(
       acc,
       key,
-      e => _lift_into_custom(e, fields),
+      e => _lift-into-custom(e, fields),
     )),
-  cv => _summary_alias_sections.fold(cv, (acc, key) => _map_entries(
+  cv => _summary-alias-sections.fold(cv, (acc, key) => _map-entries(
     acc,
     key,
-    _alias_summary,
+    _alias-summary,
   )),
-  cv => _map_entries(cv, "publications", _canonical_type),
-  cv => _map_entries(cv, "projects", _trim_type),
-  cv => _references_on_request(cv, prefs),
+  cv => _map-entries(cv, "publications", _canonical-type),
+  cv => _map-entries(cv, "projects", _trim-type),
+  cv => _references-on-request(cv, prefs),
 ).fold(cv, (acc, step) => step(acc))
 
 // Panics when two keys collapse onto one (`Talks` + `talks`) rather
 // than letting the last silently win. `name` is the table's full path
 // (`labels.publicationTypes`), for the message.
-#let _lowercase_table(table, name) = {
+#let _lowercase-table(table, name) = {
   let keys = table.keys()
   if keys.map(lower).dedup().len() != keys.len() {
     panic(
@@ -139,14 +139,14 @@
 }
 
 // Runs before the merge over the defaults; a non-dictionary (overall
-// or as a table) passes through for `_strict_merge` to reject.
-#let _canonical_labels(overrides) = if type(overrides) != dictionary {
+// or as a table) passes through for `_strict-merge` to reject.
+#let _canonical-labels(overrides) = if type(overrides) != dictionary {
   overrides
 } else {
   let table(name) = overrides.at(name, default: (:))
-  let tables = _label_tables
+  let tables = _label-tables
     .filter(t => type(table(t)) == dictionary)
-    .map(t => (t, _lowercase_table(table(t), "labels." + t)))
+    .map(t => (t, _lowercase-table(table(t), "labels." + t)))
     .to-dict()
   let types = tables.at("publicationTypes", default: table("publicationTypes"))
   // #239: a set `labels.articles` heads `article`, unless
@@ -163,24 +163,24 @@
 // one table. Only the caller's own icon names are checked: the
 // deprecated label's are left to fail where used, as they always
 // have. A non-dictionary (overall or as the table) passes through for
-// `_strict_merge` to reject.
-#let _canonical_preferences(overrides, labels) = {
+// `_strict-merge` to reject.
+#let _canonical-preferences(overrides, labels) = {
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }
   if type(icons) != dictionary { overrides } else {
-    _check_icon_names(icons, "preferences.publicationIcons")
-    let label-icons = _dict_or_empty(labels).at(
+    _check-icon-names(icons, "preferences.publicationIcons")
+    let label-icons = _dict-or-empty(labels).at(
       "publicationIcons",
       default: none,
     )
     let from-label = if type(label-icons) == dictionary {
-      _lowercase_table(label-icons, "labels.publicationIcons")
+      _lowercase-table(label-icons, "labels.publicationIcons")
     } else { (:) }
     let merged = (
-      _legacy_publication_icons
+      _legacy-publication-icons
         + from-label
-        + _lowercase_table(icons, "preferences.publicationIcons")
+        + _lowercase-table(icons, "preferences.publicationIcons")
     )
     overrides + (publicationIcons: merged)
   }

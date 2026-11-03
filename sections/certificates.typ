@@ -2,7 +2,7 @@
 // on one term row so several certs stay short. Entries without a
 // `name` are skipped.
 
-#import "../internal/util/dates.typ": _format_date_span
+#import "../internal/util/dates.typ": _format-date-span
 #import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
@@ -18,7 +18,7 @@
     compact: true,
     org: _field(cert, "issuer"),
     details: (_field(cert, "credentialId"),),
-    period: _format_date_span(
+    period: _format-date-span(
       _field(cert, "date"),
       _field(cert, "expiryDate"),
       prefs,

@@ -5,9 +5,9 @@
 // compile on typst.app, which preinstalls them.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "design/icon-set.typ": _icon_glyphs, _solid_names
+#import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "design/theme.typ": _theme
-#import "context.typ": _body_size_state
+#import "context.typ": _body-size-state
 
 // Emits a trailing `h(...)` so callers needn't space icons themselves.
 // The fixed-size box evens out FA's varied glyph widths, which would
@@ -19,12 +19,12 @@
 // in `figure(alt: ...)` instead, as `box` and `link` take no alt text;
 // the outer `box` keeps the figure inline.
 #let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
-  let body-size = _body_size_state.get()
+  let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }
   let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
 
-  let glyph = _icon_glyphs.at(name)
-  let solid = name in _solid_names
+  let glyph = _icon-glyphs.at(name)
+  let solid = name in _solid-names
   let mark = box(
     baseline: shift,
     width: resolved-size,

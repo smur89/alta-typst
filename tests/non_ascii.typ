@@ -1,5 +1,5 @@
 // Non-ASCII content in name, location, and other fields. Exercises
-// _url_encode's multi-byte UTF-8 path (fadas in Gaeilge — á é í ó ú)
+// _url-encode's multi-byte UTF-8 path (fadas in Gaeilge — á é í ó ú)
 // and verifies that accented characters survive the contact-bar /
 // header emission unchanged. Section headings are loaded from the
 // file-based Irish translation, so the rendered document is end-to-end

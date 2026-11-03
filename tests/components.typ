@@ -7,24 +7,24 @@
 
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _document
-#import "../internal/data/defaults.typ": _default_labels, _default_preferences
+#import "../internal/data/defaults.typ": _default-labels, _default-preferences
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
-  _portrait, _tag_row, divider, name, styled-link, tag, term,
+  _portrait, _tag-row, divider, name, styled-link, tag, term,
 )
-#import "../internal/components/bibliography.typ": _bib_entry
+#import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/entry.typ": _entry
-#import "../internal/components/footer.typ": _auto_page_footer
-#import "../internal/components/frame.typ": _grouped_section, _section
-#import "../internal/components/header.typ": _page_header
-#import "../internal/components/intro.typ": _intro_block
-#import "../internal/components/keywords.typ": _keyword_rows
-#import "../internal/components/ratings.typ": _rating_row, rating
+#import "../internal/components/footer.typ": _auto-page-footer
+#import "../internal/components/frame.typ": _grouped-section, _section
+#import "../internal/components/header.typ": _page-header
+#import "../internal/components/intro.typ": _intro-block
+#import "../internal/components/keywords.typ": _keyword-rows
+#import "../internal/components/ratings.typ": _rating-row, rating
 
 #show: _document.with(
-  _default_preferences,
-  _default_labels,
-  footer: _auto_page_footer("Jane Doe", _default_labels.pageNumber),
+  _default-preferences,
+  _default-labels,
+  footer: _auto-page-footer("Jane Doe", _default-labels.pageNumber),
 )
 
 #let contacts = (
@@ -39,7 +39,7 @@
 )
 // One variant per unbreakable block, spaced so neighbours stay apart.
 #let variant(body) = block(breakable: false, below: 2.5em, body)
-#let header = _page_header.with(
+#let header = _page-header.with(
   name: "Jane Doe",
   pronouns: "she/her",
   headline: "Staff Engineer",
@@ -50,7 +50,7 @@
 = Page header: each photo placement, and centred with left text
 #let portrait = _portrait(
   avatar-placeholder,
-  _default_preferences.imageSize,
+  _default-preferences.imageSize,
   "Jane Doe",
 )
 #for (at, text-align) in (
@@ -73,7 +73,7 @@
 #pagebreak()
 
 = Intro
-#_intro_block(
+#_intro-block(
   objective: [Lead a platform team building reliable data systems.],
   summary: [Backend engineer with eight years of distributed systems.],
 )
@@ -108,7 +108,7 @@
 ))
 
 = Grouped section, without dividers
-#_grouped_section(
+#_grouped-section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
@@ -117,7 +117,7 @@
 )
 
 = Bibliography item
-#_bib_entry(
+#_bib-entry(
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
   authors: ((name: "A. Smith", owner: false), (name: "Jane Doe", owner: true)),
@@ -130,15 +130,15 @@
 )
 
 = Keyword rows
-#_keyword_rows((
+#_keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
   (name: "Infra", keywords: ("Kafka", "Kubernetes")),
 ))
 
 = Rating rows: dots, a half dot, and the text fallback
-#_rating_row("English", 5)
-#_rating_row("Irish", 3.5)
-#_rating_row("German", none, fallback: "Conversational")
+#_rating-row("English", 5)
+#_rating-row("Irish", 3.5)
+#_rating-row("German", none, fallback: "Conversational")
 
 = Primitives
 #name[Acme]
@@ -146,7 +146,7 @@
 #tag[Scala] #tag(label: true)[Label] #tag(trailing: false)[Last]
 
 // A row long enough to wrap: no gap after the last pill.
-#block(width: 60%, _tag_row(
+#block(width: 60%, _tag-row(
   ("Scala", "Python", "Rust", "Go", "TypeScript", "Kotlin", "Java"),
 ))
 #divider()

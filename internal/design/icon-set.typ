@@ -5,7 +5,7 @@
 
 // Free Solid glyphs (https://fontawesome.com/search). Keys are part of
 // the public `icon(...)` API: renaming one is a breaking change.
-#let _utility_icons = (
+#let _utility-icons = (
   book: "book",
   calendar: "calendar",
   email: "envelope",
@@ -18,8 +18,8 @@
 
 // Keys are lowercase to match `lower(profile.network)` in
 // `header.typ`. Brand marks, except `link` and `website` (see
-// `_solid_names`).
-#let _network_icons = (
+// `_solid-names`).
+#let _network-icons = (
   bluesky: "bluesky",
   github: "github",
   gitlab: "gitlab",
@@ -33,15 +33,15 @@
 )
 
 // `link` and `website` are profile networks but not brand marks.
-#let _solid_names = _utility_icons.keys() + ("link", "website")
+#let _solid-names = _utility-icons.keys() + ("link", "website")
 
-#let _icon_glyphs = _utility_icons + _network_icons
+#let _icon-glyphs = _utility-icons + _network-icons
 
-#let _profile_networks = _network_icons.keys()
+#let _profile-networks = _network-icons.keys()
 
 // `publications[].type` codes → the icon leading their subheading:
 // the `preferences.publicationIcons` default.
-#let _publication_icons = (
+#let _publication-icons = (
   article: "newspaper",
   book: "book",
   thesis: "book",
@@ -50,6 +50,6 @@
 
 // Renamed networks → the key their icon still ships under. Keys are
 // lowercase, as the lookup follows `lower(profile.network)`.
-#let _network_aliases = (
+#let _network-aliases = (
   x: "twitter",
 )

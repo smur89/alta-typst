@@ -2,9 +2,9 @@
 // absent; `courses` render as pills like other string arrays, inline
 // after the score.
 
-#import "../internal/util/dates.typ": _format_date_range
+#import "../internal/util/dates.typ": _format-date-range
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/location.typ": _format_location
+#import "../internal/util/location.typ": _format-location
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
@@ -16,8 +16,8 @@
     title: (_field(edu, "studyType"), _field(edu, "area")).find(t => t != none),
     org: _field(edu, "institution"),
     org-url: _field(edu, "url"),
-    period: _format_date_range(edu, prefs, labels),
-    location: _format_location(
+    period: _format-date-range(edu, prefs, labels),
+    location: _format-location(
       edu.at("location", default: none),
       "education" + "[].location",
     ),

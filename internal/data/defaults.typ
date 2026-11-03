@@ -3,11 +3,11 @@
 // file rather than Typst source, and the preferences, with the
 // `maps-providers` presets for `mapsProvider`.
 
-#import "../design/icon-set.typ": _publication_icons
+#import "../design/icon-set.typ": _publication-icons
 #import "../design/presets.typ": palettes
-#import "sections.typ": _keys_for_column
+#import "sections.typ": _keys-for-column
 
-#let _default_labels = toml("labels-en.toml")
+#let _default-labels = toml("labels-en.toml")
 
 // `{q}` becomes the URL-encoded `basics.location`.
 #let maps-providers = (
@@ -22,14 +22,14 @@
 // which is also the order the "Supported:" list of an unknown-key
 // panic follows. Comments here note only constraints the README
 // doesn't need.
-#let _default_preferences = (
+#let _default-preferences = (
   // Look.
   // Must be installed on the build host (CI installs it: apt in
   // setup-typst, apk in the pinned image).
   font: "Lato",
   bodySize: 10pt,
   accent: palettes.teal,
-  publicationIcons: _publication_icons,
+  publicationIcons: _publication-icons,
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
@@ -43,8 +43,8 @@
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
   columnRatio: 0.65,
-  leftColumnSections: _keys_for_column("left"),
-  rightColumnSections: _keys_for_column("right"),
+  leftColumnSections: _keys-for-column("left"),
+  rightColumnSections: _keys-for-column("right"),
   // Footer.
   pageFooter: none,
   lastModifiedFooter: false,
@@ -56,7 +56,7 @@
   mapsProvider: maps-providers.google,
   maxRating: 5,
   // Deprecated, removed in the next major (#239). `groupCertificates`
-  // is ignored; `_canonical_cv` turns `referencesAvailableOnRequest`
+  // is ignored; `_canonical-cv` turns `referencesAvailableOnRequest`
   // into a `references[].availableOnRequest` entry.
   groupCertificates: true,
   referencesAvailableOnRequest: false,

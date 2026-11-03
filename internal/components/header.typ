@@ -3,13 +3,13 @@
 // with an optional portrait and QR around them.
 
 #import "../design/theme.typ": _theme
-#import "../context.typ": _accent_state, _body_size_state
+#import "../context.typ": _accent-state, _body-size-state
 #import "../icons.typ": icon
-#import "../primitives.typ": _link_if
-#import "qr.typ": _qr_render
+#import "../primitives.typ": _link-if
+#import "qr.typ": _qr-render
 
 // `photo` and `qr` are `none` when absent.
-#let _header_layout(
+#let _header-layout(
   header-text,
   qr-size,
   body-size,
@@ -82,7 +82,7 @@
 
 // The name, then any pronouns. The `box` keeps "(they/them)" whole
 // when a long name wraps.
-#let _name_line(name, pronouns, body-size, accent) = {
+#let _name-line(name, pronouns, body-size, accent) = {
   let (name-weight, name-below, pronouns-gap, ..) = _theme.header
   block(spacing: 0pt, below: name-below * body-size, {
     text(
@@ -120,14 +120,14 @@
 // `contacts` are `(icon, value, url)` records with an optional `alt`,
 // linked where `url` is set. A `box` per entry, so the bar wraps
 // between entries, never between an icon and its text.
-#let _contact_bar(contacts, body-size, accent) = {
+#let _contact-bar(contacts, body-size, accent) = {
   let (contact-weight, contact-icon, contact-gap, ..) = _theme.header
   let bar-icon = icon.with(size: contact-icon * body-size, fill: accent)
   set text(_theme.size.meta * body-size, weight: contact-weight)
   contacts
     .map(entry => box({
       bar-icon(entry.icon, alt: entry.at("alt", default: none))
-      _link_if(entry.url, [#entry.value])
+      _link-if(entry.url, [#entry.value])
     }))
     .join(h(contact-gap * body-size))
   // Inherits `par.spacing`, so the gap tracks the rest of the document.
@@ -137,7 +137,7 @@
 // `photo` (a built portrait) and `qr-url` are `none` when absent;
 // `photo-at` places the photo `"left"` or `"right"` of the text, or
 // centred `"above"` / `"below"` it.
-#let _page_header(
+#let _page-header(
   name: none,
   pronouns: none,
   headline: none,
@@ -149,27 +149,27 @@
   qr-url: none,
 ) = context {
   // Read once here and passed to the subcomponents.
-  let body-size = _body_size_state.get()
-  let accent = _accent_state.get()
+  let body-size = _body-size-state.get()
+  let accent = _accent-state.get()
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
   let qr-size = _theme.header.qr * body-size
-  _header_layout(
+  _header-layout(
     align(text-align, {
       // Pronouns stay outside the uppercasing: they aren't the name.
-      _name_line(
+      _name-line(
         if uppercase { upper(name) } else { name },
         pronouns,
         body-size,
         accent,
       )
       _headline(headline, body-size)
-      _contact_bar(contacts, body-size, accent)
+      _contact-bar(contacts, body-size, accent)
     }),
     qr-size,
     body-size,
     photo: photo,
-    qr: if qr-url != none { _qr_render(qr-url, qr-size, accent) },
+    qr: if qr-url != none { _qr-render(qr-url, qr-size, accent) },
     photo-at: photo-at,
   )
 }
