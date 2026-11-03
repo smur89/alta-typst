@@ -2,9 +2,8 @@
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
-#import "state.typ": (
-  _accent_state, _body_size_state, _empty_dot_colour, _max_rating_state,
-)
+#import "state.typ": _accent_state, _body_size_state, _max_rating_state
+#import "theme.typ": _theme
 #import "text.typ": _altacv
 #import "validation.typ": _require
 
@@ -50,8 +49,8 @@
 #let _half_fill(accent) = gradient.linear(
   (accent, 0%),
   (accent, 50%),
-  (_empty_dot_colour, 50%),
-  (_empty_dot_colour, 100%),
+  (_theme.colour.empty-dot, 50%),
+  (_theme.colour.empty-dot, 100%),
 )
 
 // A label with `trailing` pushed to the right edge, then a line
@@ -93,9 +92,10 @@
   if _round_half(value) != value {
     panic("Rating must use 0.5 increments, got: " + repr(value))
   }
+  let (radius, baseline, gap) = _theme.rating
   let dot(fill) = box(
-    baseline: -0.25 * body-size,
-    circle(radius: 0.45 * body-size, fill: fill),
+    baseline: baseline * body-size,
+    circle(radius: radius * body-size, fill: fill),
   )
   _label_row(
     label,
@@ -103,8 +103,8 @@
       .map(i => dot(
         if value >= i { accent } else if value > i - 1 {
           _half_fill(accent)
-        } else { _empty_dot_colour },
+        } else { _theme.colour.empty-dot },
       ))
-      .join(h(0.4 * body-size)),
+      .join(h(gap * body-size)),
   )
 }

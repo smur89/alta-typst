@@ -4,6 +4,7 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 
 #import "../internal/state.typ": _body_size_state
+#import "../internal/theme.typ": _theme
 #import "../internal/text.typ": (
   _field, _join_present, _present_str, _string_at, styled-link,
 )
@@ -145,7 +146,7 @@
       // Read in context: `em` inside the heading is already scaled.
       [#context icon(
           group-icon,
-          size: 1.2 * _body_size_state.get(),
+          size: _theme.size.subheading * _body_size_state.get(),
         ) #heading]
     },
     pub => _render_publication(pub, ctx),
