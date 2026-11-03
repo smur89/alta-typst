@@ -107,13 +107,13 @@
   summary: [Cluster administration.],
 ))
 
-= Grouped section, without dividers
+= Grouped section, without separators
 #_grouped-section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
   _ => _entry(title: "An item", period: "2024"),
-  dividers: false,
+  separator: none,
 )
 
 = Bibliography item
