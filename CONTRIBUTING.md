@@ -15,10 +15,10 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 
 ```text
 lib.typ           # public entry — re-exports + `alta()`
-internal/         # wiring (registry, options) and the shared primitives and icons
+internal/         # wiring (registry, options, render-time context) and the shared primitives and icons
 internal/util/    # generic helpers: field reads, joins, checks, date and location formatting
 internal/data/    # reading and checking the CV, labels and preferences
-internal/design/  # the theme, document-wide styles, palettes and state
+internal/design/  # the theme, document-wide styles and palettes
 internal/components/ # the layout components sections map onto
 sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
@@ -30,7 +30,7 @@ tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fiel
 
 Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ` for a quick directory.
 
-Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
+Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Development loop
 

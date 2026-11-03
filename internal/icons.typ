@@ -5,8 +5,8 @@
 // compile on typst.app, which preinstalls them.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "design/state.typ": _body_size_state
 #import "design/theme.typ": _theme
+#import "context.typ": _body_size_state
 #import "data/icon-names.typ": _icon_glyphs, _solid_names
 
 // Emits a trailing `h(...)` so callers needn't space icons themselves.

@@ -3,9 +3,9 @@
 // `name`, `term`, `tag`, `divider` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
-#import "design/state.typ": _accent_state, _body_size_state
 #import "design/styles.typ": _treat
 #import "design/theme.typ": _theme
+#import "context.typ": _accent_state, _body_size_state
 #import "util/fields.typ": _join_present, _present
 #import "icons.typ": icon
 

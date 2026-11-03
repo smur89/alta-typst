@@ -21,7 +21,7 @@
 #import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
-#import "internal/design/state.typ": (
+#import "internal/context.typ": (
   _accent_state, _body_size_state, _max_rating_state,
 )
 #import "internal/design/theme.typ": _theme

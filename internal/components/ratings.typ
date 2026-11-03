@@ -2,10 +2,8 @@
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
-#import "../design/state.typ": (
-  _accent_state, _body_size_state, _max_rating_state,
-)
 #import "../design/theme.typ": _theme
+#import "../context.typ": _accent_state, _body_size_state, _max_rating_state
 #import "../util/checks.typ": _require
 #import "../util/fields.typ": _string_at
 #import "../data/cv.typ": _altacv

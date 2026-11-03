@@ -12,7 +12,7 @@
 // (the column gutter, rules and strokes, the pill radius, the divider
 // clearance) deliberately don't scale.
 //
-// The accent and body size are preferences, kept in `state.typ`;
+// The accent and body size are preferences, kept in `context.typ`;
 // nothing here is configurable yet. A function reading several values
 // of one component destructures it; a single read uses the path.
 
