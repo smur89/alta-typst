@@ -4,7 +4,7 @@
 
 #import "../design/styles.typ": _subheading-block
 #import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state
+#import "../context.typ": _body-size-state, _icon-alts-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
   _accent-text, _fact-line, _icon-fact, _link-if, _preamble,
@@ -42,9 +42,10 @@
     inset: (top: baseline - top(body)),
     body,
   )
+  let alts = _icon-alts-state.get()
   let rows = (
-    (lead, lead-size, _icon-fact("calendar", date)),
-    (under, body-size, _icon-fact("location", location)),
+    (lead, lead-size, _icon-fact("calendar", date, alt: alts.date)),
+    (under, body-size, _icon-fact("location", location, alt: alts.location)),
   )
     .filter(((left, _, side)) => left != none or side != none)
     .map(((left, size, side)) => {
