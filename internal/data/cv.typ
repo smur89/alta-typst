@@ -35,11 +35,11 @@
   _network-aliases.at(raw, default: raw)
 }
 
-// The caller's FontAwesome glyph for a profile's network, from the
-// lowercase-keyed `preferences.profileIcons`, or `none` to use the
-// icon set's. The network as written is looked up before its alias's
-// key, so `x` can be mapped apart from `twitter`, and a `twitter`
-// mapping covers both.
+// A profile network's FontAwesome glyph from the merged, lowercase-keyed
+// `preferences.profileIcons`, or `none` for a network it doesn't map.
+// The network as written is looked up before its alias's key, so `x`
+// can be mapped apart from `twitter`, and a `twitter` mapping covers
+// both.
 #let _profile-glyph(profile, profile-icons) = {
   let raw = lower(profile.network)
   profile-icons.at(

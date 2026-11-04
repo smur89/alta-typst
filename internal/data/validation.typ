@@ -59,14 +59,12 @@
     )
 )
 
-// The icon tables' value rules. `publicationIcons` and `projectIcons`
-// take icon-set keys; `profileIcons` takes raw FontAwesome glyph
-// names, as it draws networks the icon set doesn't ship. Too many to
-// list, so its message points at the catalogue instead.
+// The icon tables' value rules: icon-set keys, except `profileIcons`,
+// which takes raw FontAwesome glyph names, as it draws networks the
+// icon set doesn't ship. Too many to list, so its message points at
+// the catalogue instead.
 #let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
 #let _icon-table-rules = (
-  publicationIcons: _icon-name-rule,
-  projectIcons: _icon-name-rule,
   profileIcons: (
     v => type(v) == str and v in _fa-glyphs,
     "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
@@ -79,7 +77,7 @@
   _check(
     "preferences." + key + "." + code,
     icon-name,
-    _icon-table-rules.at(key),
+    _icon-table-rules.at(key, default: _icon-name-rule),
   )
 }
 

@@ -57,17 +57,16 @@
 // a profile without `url` shows the username unlinked, one without a
 // `username` shows its URL without the scheme but links the full URL.
 #let x = _profile-entry((network: "X", username: "jane"))
-#assert.eq((x.icon, x.alt, x.value, x.url), ("twitter", "X", "jane", none))
+#assert.eq((x.glyph, x.alt, x.value, x.url), ("twitter", "X", "jane", none))
 #let gh = _profile-entry((network: "GitHub", url: "https://github.com/jane"))
 #assert.eq(
-  (gh.icon, gh.value, gh.url),
+  (gh.glyph, gh.value, gh.url),
   ("github", "github.com/jane", "https://github.com/jane"),
 )
 
-// _profile-entry with `profileIcons`: no mapping leaves `glyph` unset;
-// the network as written wins over its alias's key, which still
-// covers the alias when the network itself is unmapped.
-#assert.eq(x.glyph, none)
+// _profile-entry with `profileIcons`: the network as written wins
+// over its alias's key, which still covers the alias when the network
+// itself is unmapped.
 #let glyph(network, icons) = {
   _profile-entry(
     (network: network, username: "jane"),

@@ -453,7 +453,7 @@ Override any subset of the keys below.
 | `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 | `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
-| `profileIcons` | `(:)` | FontAwesome glyphs per `basics.profiles[].network`, for networks without a built-in icon. See [Profile icons](#profile-icons). |
+| `profileIcons` | built-ins | FontAwesome glyphs per `basics.profiles[].network`. See [Profile icons](#profile-icons). |
 
 #### Header
 
@@ -539,7 +539,9 @@ Icons that suit project kinds include `laptop-code`, `cubes`, `terminal` and `fl
 
 #### Profile icons
 
-`preferences.profileIcons` maps `basics.profiles[].network` values to the icon drawn beside them in the contact bar, matched case-insensitively, so a network without a [built-in icon](#profile-networks) renders instead of panicking. Values are FontAwesome glyph names as listed at [fontawesome.com/search](https://fontawesome.com/search), not icon-set keys: brand marks (`"kaggle"`, `"researchgate"`, `"strava"`) and Free Solid glyphs (`"flask"`) both work. A name FontAwesome doesn't know panics; a Pro-only one passes the check but draws only with the Pro fonts installed. A mapped built-in network is redrawn with the given glyph, and a mapping for `twitter` covers its alias `X` unless `x` is mapped too:
+`preferences.profileIcons` maps `basics.profiles[].network` values, case-insensitively, to the glyph drawn beside them in the contact bar. Its default is the [built-in set](#profile-networks); your entries merge over it, so you can add a network or redraw a built-in one. A mapping for `twitter` also covers its alias `X`, unless `x` is mapped too.
+
+Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawesome.com/search), not icon-set keys: brand marks (`"kaggle"`, `"researchgate"`) and Free Solid glyphs (`"flask"`) both work. A name FontAwesome doesn't know panics; a Pro-only one draws only with the Pro fonts installed.
 
 ```typst
 #alta(cv, preferences: (profileIcons: (kaggle: "kaggle", researchgate: "researchgate", github: "square-github")))

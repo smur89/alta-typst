@@ -5,7 +5,7 @@
 #import "../design/styles.typ": _part
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state
-#import "../icons.typ": _glyph, icon
+#import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
 #import "qr.typ": _qr-render
 
@@ -110,28 +110,21 @@
   })
 }
 
-// `contacts` are rows, each its own line, of `(icon, value, url)`
-// records with an optional `alt`, linked where `url` is set, and an
-// optional raw FontAwesome `glyph` drawn in place of `icon` when not
-// `none` (a network the icon set doesn't ship). A `box` per
-// entry, so a long row wraps between entries, never between an icon
-// and its text. The bar's text styles are `set` around the
-// entries, each a `_part`.
+// `contacts` are rows, each its own line, of `(glyph, value, url)`
+// records with an optional `alt`, linked where `url` is set. `glyph`
+// is a FontAwesome name, Solid or a brand mark (`_glyph`'s default
+// `solid: true` draws either). A `box` per entry, so a long row wraps
+// between entries, never between an icon and its text. The bar's text
+// styles are `set` around the entries, each a `_part`.
 #let _contact-bar(contacts, body-size, accent) = {
   let contact-gap = _theme.header.contact-gap
   let size = _theme.header.contact-size * body-size
-  let bar-icon(entry) = {
-    let glyph = entry.at("glyph", default: none)
-    let alt = entry.at("alt", default: none)
-    if glyph != none {
-      _glyph(glyph, size: size, fill: accent, alt: alt)
-    } else { icon(entry.icon, size: size, fill: accent, alt: alt) }
-  }
+  let bar-icon = _glyph.with(size: size, fill: accent)
   set text(size, weight: _theme.font-weight.bold)
   contacts
     .map(row => row
       .map(entry => box({
-        bar-icon(entry)
+        bar-icon(entry.glyph, alt: entry.at("alt", default: none))
         _link-if(entry.url, _part("contact", entry.value))
       }))
       .join(h(contact-gap * body-size)))

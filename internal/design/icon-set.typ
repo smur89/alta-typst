@@ -24,9 +24,10 @@
   terminal: "terminal",
 )
 
-// Keys are lowercase to match `_profile-network` (`data/cv.typ`),
-// which lowercases the network. Brand marks, except `link` and `website` (see
-// `_solid-names`).
+// The `preferences.profileIcons` default: the networks the contact bar
+// draws out of the box. Keys are lowercase to match `_profile-network`
+// (`data/cv.typ`), which lowercases the network. Brand marks, except
+// `link` and `website` (see `_solid-names`).
 #let _network-icons = (
   bluesky: "bluesky",
   github: "github",
@@ -46,8 +47,6 @@
 
 #let _icon-glyphs = _utility-icons + _network-icons
 
-#let _profile-networks = _network-icons.keys()
-
 // `publications[].type` codes → the icon leading their subheading:
 // the `preferences.publicationIcons` default.
 #let _publication-icons = (
@@ -65,7 +64,7 @@
 
 // Every glyph name `fa-icon` resolves under FontAwesome 7, the
 // version `@preview/fontawesome` defaults to and the pinned image
-// installs: what a `preferences.profileIcons` value is checked
+// installs (bump the key with the import and the image): what a `preferences.profileIcons` value is checked
 // against, so a typo (`githb`) panics rather than rendering a missing
 // glyph. It includes Pro-only names, which the Free fonts lack.
 #let _fa-glyphs = fa-icon-map-common + fa-icon-map-version.at("7")

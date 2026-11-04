@@ -5,10 +5,9 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
-#import "../internal/data/cv.typ": (
-  _format-location, _profile-glyph, _profile-network,
-)
+#import "../internal/data/cv.typ": _format-location, _profile-glyph
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
+#import "../internal/design/icon-set.typ": _icon-glyphs, _network-icons
 #import "../internal/design/theme.typ": _theme
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
@@ -22,12 +21,11 @@
   }
 }
 
-// `profile-icons` is the lowercase-keyed `preferences.profileIcons`.
-// A network it maps carries that raw `glyph`, which wins over the
-// icon set's `icon`, so a built-in network can be redrawn too.
-#let _profile-entry(profile, profile-icons: (:)) = (
+// `profile-icons` is the merged, lowercase-keyed
+// `preferences.profileIcons`, which `_read-cv` has checked maps the
+// network.
+#let _profile-entry(profile, profile-icons: _network-icons) = (
   channel: "profiles",
-  icon: _profile-network(profile),
   glyph: _profile-glyph(profile, profile-icons),
   // The value is usually a bare username, so the icon is the only
   // thing naming the network. The user's own string, not the
@@ -42,7 +40,8 @@
 )
 
 // The contact bar's entries in display order, one
-// `(channel, icon, value, url)` dict per present field; `channel` keys
+// `(channel, glyph, value, url)` dict per present field, `glyph` a
+// FontAwesome name; `channel` keys
 // into the resolved `linkContactInfo` config. Pure data, no `context`.
 // An empty string counts as absent, so it never renders a bare icon
 // behind a dead `mailto:` / `tel:` link.
@@ -50,7 +49,7 @@
   basics,
   maps-provider,
   location-alt: none,
-  profile-icons: (:),
+  profile-icons: _network-icons,
 ) = {
   let email = _field(basics, "email")
   let phone = _field(basics, "phone")
@@ -60,14 +59,19 @@
   let url = _field(basics, "url")
   let fields = (
     if email != none {
-      (channel: "email", icon: "email", value: email, url: "mailto:" + email)
+      (
+        channel: "email",
+        glyph: _icon-glyphs.email,
+        value: email,
+        url: "mailto:" + email,
+      )
     },
     if phone != none {
       // Strip RFC 3966 visual separators (spaces, parens, hyphens,
       // dots) from the dialable URI; the displayed value keeps them.
       (
         channel: "phone",
-        icon: "phone",
+        glyph: _icon-glyphs.phone,
         value: phone,
         url: "tel:" + phone.replace(regex("[\s()\-.]"), ""),
       )
@@ -75,7 +79,7 @@
     if location != none {
       (
         channel: "location",
-        icon: "location",
+        glyph: _icon-glyphs.location,
         alt: location-alt,
         value: location,
         url: if maps-provider != none {
@@ -86,7 +90,12 @@
       )
     },
     if url != none {
-      (channel: "url", icon: "link", value: _display-url(url), url: url)
+      (
+        channel: "url",
+        glyph: _icon-glyphs.link,
+        value: _display-url(url),
+        url: url,
+      )
     },
   ).filter(e => e != none)
   let profiles = basics.at("profiles", default: ())
@@ -104,7 +113,7 @@
   basics.url
 } else { qr-code }
 
-// The contact bar's `(channel, icon, value, url)` entries (plus `alt`
+// The contact bar's `(channel, glyph, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
 // its channel.
 #let _linked-contacts(basics, prefs, location-alt: none) = {

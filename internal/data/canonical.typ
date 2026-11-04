@@ -187,10 +187,10 @@
       prefs + ((key): _lowercase-table(table, "preferences." + key))
     }
   }
-  let overrides = ("projectIcons", "profileIcons").fold(
-    overrides,
-    lowercase-key,
-  )
+  // `publicationIcons` is lowercased with its deprecated sources below.
+  let overrides = _preference-tables
+    .filter(t => t != "publicationIcons")
+    .fold(overrides, lowercase-key)
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }
