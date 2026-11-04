@@ -2,7 +2,7 @@
 // caller's input rather than surfacing mid-render. The CV's are in
 // `cv-checks.typ`.
 
-#import "../design/icon-set.typ": _icon-glyphs
+#import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
 #import "../design/theme.typ": _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
@@ -59,10 +59,26 @@
     )
 )
 
-// `name` is the table's full path, for the message.
+// The icon tables' value rules: icon-set keys, except `profileIcons`,
+// which takes raw FontAwesome glyph names, as it draws networks the
+// icon set doesn't ship. Too many to list, so its message points at
+// the catalogue instead.
 #let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
-#let _check-icon-names(table, name) = for (code, icon-name) in table {
-  _check(name + "." + code, icon-name, _icon-name-rule)
+#let _icon-table-rules = (
+  profileIcons: (
+    v => type(v) == str and v in _fa-glyphs,
+    "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
+  ),
+)
+
+// `table` is the caller's `preferences.<key>`; each value is checked
+// against that key's rule and named by its full path, for the message.
+#let _check-icon-names(table, key) = for (code, icon-name) in table {
+  _check(
+    "preferences." + key + "." + code,
+    icon-name,
+    _icon-table-rules.at(key, default: _icon-name-rule),
+  )
 }
 
 // The single-value preferences, in `_default-preferences`' order. The

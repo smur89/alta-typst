@@ -2,7 +2,6 @@
 // field a renderer reads, so a renderer only meets values it can draw.
 // `_read-cv` runs them; the options' are in `validation.typ`.
 
-#import "../design/icon-set.typ": _profile-networks
 #import "../util/checks.typ": (
   _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
   _prose-list, _quote, _require, _type-rule, _unknown,
@@ -10,7 +9,7 @@
 #import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
 #import "cv.typ": (
-  _altacv, _altacv-ns, _location-fields, _profile-network, _skill-levels,
+  _altacv, _altacv-ns, _location-fields, _profile-glyph, _skill-levels,
   _term-rating,
 )
 
@@ -153,12 +152,12 @@
       "network" in profile,
       "set",
     )
-    if _profile-network(profile) not in _profile-networks {
+    if _profile-glyph(profile, prefs.profileIcons) == none {
       _unknown(
         "profile network",
         repr(profile.network),
-        _profile-networks.join(", "),
-        hint: " To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
+        prefs.profileIcons.keys().join(", "),
+        hint: " To use another, map it to a FontAwesome glyph in preferences.profileIcons (e.g. (kaggle: \"kaggle\")).",
       )
     }
   }

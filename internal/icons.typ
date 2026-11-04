@@ -30,28 +30,23 @@
 // Decorative is a `pdf.artifact`, so screen readers skip the
 // private-use codepoint rather than read it; `alt` wraps the glyph in
 // `_alt-figure` instead, the outer `box` keeping the figure inline.
-/// A FontAwesome glyph from altacv's icon set, standing on the text's
-/// baseline. Decorative in tagged PDF unless `alt` is given.
-///
-/// - name (str): A key of the icon set (a utility icon or a profile
-///   network, e.g. `"calendar"`, `"github"`). Unknown names panic.
-/// - size (auto, length): The glyph's box; `auto` is the body size.
-/// - shift (length): A vertical offset from the baseline.
-/// - fill (auto, color): The glyph's colour; `auto` is the body text's.
-/// - alt (str, none): Alt text, when the icon alone carries meaning.
-/// -> content
-#let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
+//
+// `glyph` is a raw FontAwesome name, unchecked here: `icon()` takes it
+// from the icon set, the contact bar from `preferences.profileIcons`
+// (checked against `_fa-glyphs` as the options merge). `solid` puts
+// the Free Solid font first; a brand glyph it lacks falls through to
+// Brands, so `solid: true` draws either kind.
+#let _glyph(
+  glyph,
+  solid: true,
+  size: auto,
+  shift: 0pt,
+  fill: auto,
+  alt: none,
+) = context {
   let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }
   let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
-
-  // A public helper, so it checks its own argument; the prose list is
-  // built only on a miss.
-  if name not in _icon-glyphs {
-    _check("icon() name", name, _enum-rule(_icon-glyphs.keys()))
-  }
-  let glyph = _icon-glyphs.at(name)
-  let solid = name in _solid-names
   let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,
@@ -69,4 +64,30 @@
     box(_alt-figure(mark, alt))
   }
   h(_theme.icon.gap * body-size)
+}
+
+/// A FontAwesome glyph from altacv's icon set, standing on the text's
+/// baseline. Decorative in tagged PDF unless `alt` is given.
+///
+/// - name (str): A key of the icon set (a utility icon or a profile
+///   network, e.g. `"calendar"`, `"github"`). Unknown names panic.
+/// - size (auto, length): The glyph's box; `auto` is the body size.
+/// - shift (length): A vertical offset from the baseline.
+/// - fill (auto, color): The glyph's colour; `auto` is the body text's.
+/// - alt (str, none): Alt text, when the icon alone carries meaning.
+/// -> content
+#let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = {
+  // A public helper, so it checks its own argument; the prose list is
+  // built only on a miss.
+  if name not in _icon-glyphs {
+    _check("icon() name", name, _enum-rule(_icon-glyphs.keys()))
+  }
+  _glyph(
+    _icon-glyphs.at(name),
+    solid: name in _solid-names,
+    size: size,
+    shift: shift,
+    fill: fill,
+    alt: alt,
+  )
 }

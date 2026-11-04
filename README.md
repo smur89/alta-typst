@@ -422,7 +422,7 @@ The [`referencesAvailableOnRequest` preference](#deprecated-preferences) is depr
 
 The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set.
 
-To add another, map the new key to its FontAwesome glyph name in `_network-icons` (`internal/design/icon-set.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
+For a network outside that set, map it to a FontAwesome glyph name in [`preferences.profileIcons`](#profile-icons). To add one to the built-in set, map the new key to its glyph in `_network-icons` (`internal/design/icon-set.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
 
 Icons are resolved via [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome), which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for local installation; on typst.app they are preinstalled.
 
@@ -453,6 +453,7 @@ Override any subset of the keys below.
 | `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 | `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
+| `profileIcons` | built-ins | FontAwesome glyphs per `basics.profiles[].network`. See [Profile icons](#profile-icons). |
 
 #### Header
 
@@ -535,6 +536,16 @@ The plural and free-text keys exist for the deprecated free-text `type` headings
 ```
 
 Icons that suit project kinds include `laptop-code`, `cubes`, `terminal` and `flask`.
+
+#### Profile icons
+
+`preferences.profileIcons` maps `basics.profiles[].network` values, case-insensitively, to the glyph drawn beside them in the contact bar. Its default is the [built-in set](#profile-networks); your entries merge over it, so you can add a network or redraw a built-in one. A mapping for `twitter` also covers its alias `X`, unless `x` is mapped too.
+
+Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawesome.com/search), not icon-set keys: brand marks (`"kaggle"`, `"researchgate"`) and Free Solid glyphs (`"flask"`) both work. A name FontAwesome doesn't know panics; a Pro-only one draws only with the Pro fonts installed.
+
+```typst
+#alta(cv, preferences: (profileIcons: (kaggle: "kaggle", researchgate: "researchgate", github: "square-github")))
+```
 
 #### Examples
 

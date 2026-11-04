@@ -32,10 +32,14 @@
 )
 
 #let contacts = (
-  (icon: "email", value: "jane@example.com", url: "mailto:jane@example.com"),
-  (icon: "location", value: "Dublin, IE", url: none),
   (
-    icon: "github",
+    glyph: "envelope",
+    value: "jane@example.com",
+    url: "mailto:jane@example.com",
+  ),
+  (glyph: "location-dot", value: "Dublin, IE", url: none),
+  (
+    glyph: "github",
     value: "janedoe",
     url: "https://github.com/janedoe",
     alt: "GitHub",

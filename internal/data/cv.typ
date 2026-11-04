@@ -35,6 +35,19 @@
   _network-aliases.at(raw, default: raw)
 }
 
+// A profile network's FontAwesome glyph from the merged, lowercase-keyed
+// `preferences.profileIcons`, or `none` for a network it doesn't map.
+// The network as written is looked up before its alias's key, so `x`
+// can be mapped apart from `twitter`, and a `twitter` mapping covers
+// both.
+#let _profile-glyph(profile, profile-icons) = {
+  let raw = lower(profile.network)
+  profile-icons.at(
+    raw,
+    default: profile-icons.at(_profile-network(profile), default: none),
+  )
+}
+
 // JSON Resume's `location` (a string or the shared dict), collapsed
 // one way for every caller so a location reads the same everywhere.
 // `address` / `postalCode` are accepted but not rendered — a CV isn't

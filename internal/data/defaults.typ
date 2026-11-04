@@ -3,7 +3,7 @@
 // file rather than Typst source, and the preferences, with the
 // `maps-providers` presets for `mapsProvider`.
 
-#import "../design/icon-set.typ": _publication-icons
+#import "../design/icon-set.typ": _network-icons, _publication-icons
 #import "../design/presets.typ": palettes
 #import "sections.typ": _keys-for-column
 
@@ -33,6 +33,7 @@
   accent: palettes.teal,
   publicationIcons: _publication-icons,
   projectIcons: (:),
+  profileIcons: _network-icons,
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
