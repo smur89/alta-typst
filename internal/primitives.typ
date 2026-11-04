@@ -43,12 +43,12 @@
 )
 
 // A summary as a paragraph of prose: the paragraph labelled
-// `<alta-prose>` for `justify` (`design/styles.typ`), its text the
+// `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
 // public `<alta-summary>` part.
 #let _prose(body, treatment: "none") = [#par(_treat(
   treatment,
   _part("summary", body),
-))<alta-prose>]
+))<alta-internal-prose>]
 
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
 // doesn't compete with the facts line above it. Its own paragraph, so

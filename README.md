@@ -708,6 +708,8 @@ Parts of the CV carry labels that a Typst show rule can target, so you can resty
 
 A rule overrides any text setting the template gives that part: font, size, colour, weight, style or tracking. It doesn't reach a part's icon or other graphics, except a group title's icon, which takes the title's colour.
 
+The labels in this table are public API and follow semver: a rename or removal is a breaking change, made only in a major release. Labels prefixed `alta-internal-` are the template's own and may change at any time, so don't target them.
+
 | Label | Part |
 |---|---|
 | `<alta-name>` | The name. |
