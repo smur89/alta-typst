@@ -359,7 +359,8 @@
   // built-in code, so the `alta()` call below names its heading
   // (`labels.publicationTypes`) and icon (`preferences.publicationIcons`).
   // Each subheading carries its type's icon (newspaper / newspaper /
-  // microphone / book) — see the README's "Publication icons".
+  // microphone / book) — see `publicationIcons` in the README's
+  // Preferences.
   publications: (
     (
       name: "Event Sourcing in Practice",
