@@ -105,6 +105,7 @@
   ),
   lastModifiedFooter: _bool-rule,
   footerVersion: _bool-rule,
+  justify: _bool-rule,
   dateFormat: (
     _is-date-format,
     "\"long\", \"short\", \"iso\", a bracketed template "

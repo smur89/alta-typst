@@ -45,8 +45,9 @@
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
 // doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
+// Prose, so `<alta-prose>` (`design/styles.typ`).
 #let _preamble(body) = if _present(body) {
-  par(_treat(_theme.treatment.preamble, body))
+  [#par(_treat(_theme.treatment.preamble, body)) <alta-prose>]
 }
 
 // The term row's frame: indented text under an entry's heading.

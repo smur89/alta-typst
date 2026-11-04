@@ -26,6 +26,6 @@
     lang: labels.lang,
   )
   set page(paper: prefs.paper, margin: prefs.margin, footer: footer)
-  show: _content-styles.with(body-size, accent)
+  show: _content-styles.with(body-size, accent, prefs.justify)
   body
 }
