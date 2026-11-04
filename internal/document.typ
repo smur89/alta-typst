@@ -5,7 +5,7 @@
 // components exactly as a CV does.
 
 #import "design/styles.typ": _content-styles, _part
-#import "design/theme.typ": _theme-for
+#import "design/theme.typ": _theme-for, _token-prefs
 #import "context.typ": (
   _body-size-state, _icon-alts-state, _max-rating-state, _theme-state,
 )
@@ -14,7 +14,7 @@
 // merged, validated preferences and labels.
 #let _document(prefs, labels, footer: none, body) = {
   let (bodySize: body-size, maxRating: max-rating, ..) = prefs
-  let theme = _theme-for(prefs.theme, prefs.colours)
+  let theme = _theme-for(prefs.theme, _token-prefs(prefs))
   _theme-state.update(theme)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
@@ -22,7 +22,7 @@
   // Before `set page`, so the footer inherits the font and language.
   set text(
     body-size,
-    font: prefs.font,
+    font: theme.font,
     fill: theme.colours.body,
     lang: labels.lang,
   )

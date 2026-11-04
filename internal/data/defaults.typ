@@ -26,12 +26,11 @@
 // doesn't need.
 #let _default-preferences = (
   // Look.
-  // Must be installed on the build host (CI installs it: apt in
-  // setup-typst, apk in the pinned image).
-  font: "Lato",
+  // `auto`: the theme's.
+  font: auto,
   bodySize: 10pt,
-  // `_tokens`' colours, as the theme state's default is
-  // (`tests/unit/colours.typ` checks).
+  // Renders as the theme state's default does (`tests/unit/colours.typ`
+  // checks).
   theme: themes.teal,
   colours: (:),
   publicationIcons: _publication-icons,

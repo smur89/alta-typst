@@ -50,3 +50,43 @@
     preferences: (theme: themes.altacv, colours: (body: black)),
   )
 }
+
+#pagebreak()
+
+// A theme of the caller's own, setting only some tokens: a serif
+// typeface, a smaller headline and ` | ` between facts (education's
+// area and score). Everything else, colours included, is the default
+// theme's.
+#alta(
+  (
+    basics: (
+      name: "Own theme: serif, smaller headings",
+      label: "A partial theme",
+    ),
+    work: (
+      (
+        position: "Engineer",
+        name: "Acme",
+        startDate: "2020-01",
+        location: "Cork, Ireland",
+      ),
+    ),
+    education: (
+      (
+        institution: "UCC",
+        studyType: "M.Sc.",
+        area: "Engineering",
+        score: "First class",
+        startDate: "2018",
+        endDate: "2019",
+      ),
+    ),
+  ),
+  preferences: (
+    theme: (
+      font: "Libertinus Serif",
+      type: (headline: (size: 1.2)),
+      separator: (facts: " | "),
+    ),
+  ),
+)

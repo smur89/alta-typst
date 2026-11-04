@@ -3,10 +3,12 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": _colour-role-names, _default-theme
+#import "../design/theme.typ": (
+  _default-theme, _token-prefs, _tokens, _treatment-names,
+)
 #import "../util/checks.typ": (
-  _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _list-rule, _positive-int-rule, _prose-list, _quote, _require,
+  _bool-rule, _check, _check-keys, _check-rules, _check-type,
+  _check-unknown-keys, _enum-rule, _list-rule, _number-rule, _positive-int-rule,
   _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
@@ -23,8 +25,7 @@
 // merge entry by entry, so a partial override keeps the rest; any
 // other key is replaced whole, dictionary or not (`margin`).
 #let _strict-merge(defaults, overrides, name, tables: ()) = {
-  _check-type(name, overrides, (dictionary,), "a dictionary")
-  _check-unknown-keys(overrides.keys(), defaults.keys(), name)
+  _check-keys(name, overrides, defaults.keys())
   let merge-key(key, value) = {
     let default = defaults.at(key)
     if key in tables {
@@ -83,11 +84,10 @@
 }
 
 // The single-value preferences, in `_default-preferences`' order. The
-// rest are checked in `_validate-preferences`, or for the icon tables
-// in `_merge-options`; `groupCertificates` and `showPronouns` are
+// rest are checked in `_validate-preferences` (`font` and `colours`
+// with the theme's tokens), or for the icon tables in `_merge-options`; `groupCertificates` and `showPronouns` are
 // ignored, so they aren't checked.
 #let _preference-rules = (
-  font: (_is-font, "a font family name or a non-empty array of them"),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
@@ -143,36 +143,72 @@
   "a colour (e.g. rgb(\"#1A3A6C\"))",
 )
 
-// Colours for any of the roles, `name` their full path.
-#let _check-colours(colours, name) = {
-  _check-type(name, colours, (dictionary,), "a dictionary")
-  _check-unknown-keys(colours.keys(), _colour-role-names, name)
-  for (role, v) in colours { _check(name + "." + role, v, _colour-rule) }
+#let _font-rule = (_is-font, "a font family name or a non-empty array of them")
+#let _weight-rule = _type-rule(
+  (str, int),
+  "a font weight (e.g. \"bold\" or 600)",
+)
+
+// Tokens whose rule isn't their default's kind, by the first segment
+// of their path (`treatment`), else by its last (`weight`).
+#let _token-rules = (
+  font: _font-rule,
+  treatment: _enum-rule(_treatment-names),
+  font-weight: _weight-rule,
+  weight: _weight-rule,
+)
+
+// A token of `default`'s kind: a colour, a number, strings as many as
+// its own (the citation's issue brackets), or a string.
+#let _kind-rule(default) = if type(default) == color { _colour-rule } else if (
+  type(default) in (int, float)
+) { _number-rule } else if type(default) == array {
+  let (is-strings, _) = _list-rule((str,), "")
+  (
+    v => is-strings(v) and v.len() == default.len(),
+    "an array of " + str(default.len()) + " strings",
+  )
+} else { _type-rule((str,), "a string") }
+
+#let _token-rule(path, default) = _token-rules.at(
+  path.first(),
+  default: _token-rules.at(path.last(), default: _kind-rule(default)),
+)
+
+// `value` as overrides of `defaults` (some of `_tokens`, at `path`), any
+// subset at any depth: no key `defaults` lacks, a dictionary where it
+// has one, and each value by `_token-rule`. `prefix` leads the path in
+// messages (`theme.type.title.size`).
+#let _check-tokens(value, defaults, prefix, path: ()) = {
+  let name(at) = ((prefix,) + at).filter(s => s != "").join(".")
+  _check-keys(name(path), value, defaults.keys())
+  for (key, v) in value {
+    let at = path + (key,)
+    let default = defaults.at(key)
+    if type(default) == dictionary {
+      _check-tokens(v, default, prefix, path: at)
+    } else { _check(name(at), v, _token-rule(at, default)) }
+  }
 }
 
-// A theme is `(colours: ...)` setting every role: a whole look, the
-// way the built-in ones are, with the caller's `colours` for any
-// single role.
-#let _validate-colours(theme, colours) = {
-  _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
-  _check-unknown-keys(theme.keys(), ("colours",), "theme")
-  let theme-colours = theme.at("colours", default: none)
-  _check-colours(theme-colours, "theme.colours")
-  let missing = _colour-role-names.filter(r => r not in theme-colours)
-  _require(
-    "theme.colours",
-    theme-colours,
-    missing.len() == 0,
-    "a colour for every role, missing " + _prose-list(missing.map(_quote)),
+// A theme is `_tokens` overrides, any of them, and so are the
+// preferences that override it (`_token-prefs`: `font`, `colours`).
+#let _validate-theme(prefs) = {
+  _check-type(
+    "theme",
+    prefs.theme,
+    (dictionary,),
+    "a theme (e.g. themes.altacv)",
   )
-  _check-colours(colours, "colours")
+  _check-tokens(prefs.theme, _tokens, "theme")
+  _check-tokens(_token-prefs(prefs), _tokens, "")
 }
 
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
-  _validate-colours(prefs.theme, prefs.colours)
+  _validate-theme(prefs)
   let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",

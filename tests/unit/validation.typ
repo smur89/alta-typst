@@ -9,6 +9,7 @@
   "publicationIcons",
   "projectIcons",
   "profileIcons",
+  "font",
   "theme",
   "colours",
   "leftColumnSections",

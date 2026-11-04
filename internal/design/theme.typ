@@ -1,10 +1,10 @@
-// The template's look. `_tokens` are the scales (type, colours,
-// separators, treatments, spacing, strokes); `_build-theme` maps them
-// onto the roles components read. A role exists only where components
-// differ by design; otherwise they read tokens. A theme (`presets.typ`)
-// overrides tokens: `_theme-for` merges it and `preferences.colours`
-// over `_tokens` and builds, once per render, into the state
-// components read (`_theme-state`).
+// The template's look. `_tokens` are the font and the scales, with
+// their defaults; `_build-theme` maps them onto the roles components
+// read. A role exists only where components differ by design;
+// otherwise they read tokens. A theme (`presets.typ`) overrides any of
+// the tokens: `_theme-for` merges it, then the preferences that
+// override tokens (`_token-prefs`), over `_tokens` and builds, once per
+// render, into the state components read (`_theme-state`).
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
@@ -24,6 +24,10 @@
 )
 
 #let _tokens = (
+  // The family, or a fallback array of them. Must be installed on the
+  // build host (CI installs it: apt in setup-typst, apk in the pinned
+  // image).
+  font: "Lato",
   // Material Design 3's type roles: `display` the name, `headline` a
   // section title, `title` a heading, `body` the rest (quieter lines
   // differ by colour, not size).
@@ -31,8 +35,8 @@
     display: (size: 2.5, weight: "bold"),
     headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
-    // Always 1: `bodySize` sets it.
-    body: (size: 1, weight: "regular"),
+    // No size: `bodySize` is the body's.
+    body: (weight: "regular"),
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
@@ -82,6 +86,7 @@
 #let _build-theme(tokens) = {
   let (type: ty, font-weight: fw, space: sp, stroke-width: sw) = tokens
   (
+    font: tokens.font,
     type: ty,
     font-weight: fw,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
@@ -176,15 +181,24 @@
   )
 }
 
-// The colour roles every theme sets, and `preferences.colours` may.
-#let _colour-role-names = _tokens.colours.keys()
-
 // The theme with no overrides: the state's default, for public helpers
 // used outside `alta()`.
 #let _default-theme = _build-theme(_tokens)
 
+// The preferences that override a theme's tokens, as tokens: `colours`,
+// and `font` unless `auto` (the theme's).
+#let _token-prefs(prefs) = (
+  (colours: prefs.colours)
+    + if prefs.font != auto { (font: prefs.font) } else { (:) }
+)
+
+// The names `_treat` (`styles.typ`) applies, for a theme's
+// `treatment` tokens.
+#let _treatment-names = ("emph", "italic", "strong", "upper", "none")
+
 // The theme to render with: the chosen theme's tokens, then
-// `preferences.colours`, over `_tokens`.
-#let _theme-for(theme, colours) = _build-theme(
-  (theme, (colours: colours)).fold(_tokens, _deep-merge),
+// `overrides` (`_token-prefs`), over `_tokens`. Either may set only
+// some tokens.
+#let _theme-for(theme, overrides) = _build-theme(
+  (theme, overrides).fold(_tokens, _deep-merge),
 )
