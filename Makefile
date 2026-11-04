@@ -169,13 +169,15 @@ examples/preview.gif: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) example
 #   $(call compile-check,<files>)
 # On GitHub Actions it adds log groups and `::error file=` annotations.
 # `$(TEMPLATE_SRC)` is reported as template/cv.typ, the file people edit.
+# As PDF/A-2b, which backs the README's PDF/A section; the output is
+# discarded, so the committed renders are unaffected.
 define compile-check
 @status=0; \
 for f in $(1); do \
   name=$$f; [ "$$f" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
   if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
   else printf '  %s\n' "$$name"; fi; \
-  if ! $(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null; then \
+  if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard a-2b "$$f" /dev/null; then \
     if [ -n "$$GITHUB_ACTIONS" ]; then \
       printf '::error file=%s::compile failed\n' "$$name"; \
     fi; \

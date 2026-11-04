@@ -25,6 +25,7 @@
 - [Configuration](#configuration)
 - [Header QR code](#header-qr-code-preferencesqrcode)
 - [PDF metadata](#pdf-metadata)
+- [PDF/A](#pdfa)
 - [Helpers](#helpers)
 - [Building the examples](#building-the-examples)
 - [Credits](#credits)
@@ -387,7 +388,7 @@ The [`referencesAvailableOnRequest` preference](#deprecated-preferences) is depr
 
 ### Profile networks
 
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set.
+The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set.
 
 To add another, map the new key to its FontAwesome glyph name in `_network-icons` (`internal/design/icon-set.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
 
@@ -677,6 +678,16 @@ meta: (
   version: "v1.0.0",                         // → PDF Keywords + optional footer suffix (footerVersion)
 )
 ```
+
+## PDF/A
+
+Some application portals and archives ask for PDF/A, the archival form of PDF. Typst produces it at compile time, so the template needs no setting for it:
+
+```sh
+typst compile --pdf-standard a-2b cv.typ
+```
+
+`a-2b` is the usual choice; `a-1b` (what LaTeX AltaCV produces) and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
 
 ## Helpers
 
