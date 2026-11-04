@@ -103,7 +103,24 @@ The repo uses [release-please](https://github.com/googleapis/release-please) to 
 | `feat!:` or `BREAKING CHANGE:` footer | major | API change that existing users would need to migrate |
 | `chore:`, `docs:`, `ci:`, `refactor:`, `test:` | none | Internal changes that shouldn't trigger a release |
 
-PRs squash-merge with the PR title as the commit subject, so just make the **PR title** a conventional commit. The body of the squash commit comes from the PR description.
+PRs squash-merge with the PR title as the commit subject, so make the **PR title** a conventional commit. The squash commit's body is the PR's commit messages, one per line.
+
+**No issue or PR number in a commit subject.** GitHub appends the PR's number to the squash subject, and release-please reads the commit messages in the body too, so a subject like `feat: add ORCID (#302)` lists the change twice in the release notes, once as `#302` and once as the PR. Reference the issue in the body instead: `Closes #302`.
+
+**Fixing a merged PR's release notes.** If a squash still produces a wrong or duplicate entry, add a block to the merged PR's description with one conventional line per entry, including the PR number. Then re-run the `release-please` job of the latest `main` push:
+
+```
+BEGIN_COMMIT_OVERRIDE
+feat: add ORCID as a profile network (#313)
+END_COMMIT_OVERRIDE
+```
+
+A `chore:` line drops a PR from the notes entirely.
+
+## Merging
+
+- **Merge only when the PR is up to date with `main`.** Two PRs can each pass CI and still break `main` together, for example when one changes a render the other's new fixture captured. Update the branch, let CI run on the combination, then merge.
+- **Merge a stack bottom-up, each PR against `main`.** A PR stacked on another branch merges into that branch, not `main`. Retarget it to `main` once the PR below it lands, merge `main` into it (force-pushing is blocked), and check CI before merging.
 
 ## Adding a profile-network icon
 
