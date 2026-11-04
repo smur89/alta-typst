@@ -34,11 +34,13 @@
   // The state is validated as `maxRating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  let (radius, gap) = _theme.rating
+  let (radius, gap, row-pad) = _theme.rating
   let dot(fill) = box(circle(radius: radius * body-size, fill: fill))
   _label-row(
     label,
-    _inline(
+    // Padded evenly, so the centred dots keep the row its height.
+    box(inset: (y: row-pad * body-size), _inline(
+      to: _theme.inline.mark,
       range(1, max-rating + 1)
         .map(i => dot(
           if value >= i { accent } else if value > i - 1 {
@@ -46,7 +48,7 @@
           } else { _theme.colour.border },
         ))
         .join(h(gap * body-size)),
-    ),
+    )),
   )
 }
 

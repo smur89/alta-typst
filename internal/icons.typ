@@ -43,21 +43,20 @@
   }
   let glyph = _icon-glyphs.at(name)
   let solid = name in _solid-names
-  // Laid out by its ink (`bounds`), not the icon font's metrics, so
-  // `_inline` centres what's drawn on the cap height; then moved by
+  // Placed by `_inline` (a glyph: on the baseline), then moved by
   // `shift`.
-  let mark = box(baseline: shift, _inline(to: "cap-height", box(
+  let mark = box(baseline: shift, _inline(to: _theme.inline.icon, box(
     width: resolved-size,
     height: resolved-size,
-    align(center + horizon, {
-      set text(top-edge: "bounds", bottom-edge: "bounds")
+    align(
+      center + horizon,
       fa-icon(
         glyph,
         solid: solid,
         size: _theme.icon.glyph * resolved-size,
         fill: resolved-fill,
-      )
-    }),
+      ),
+    ),
   )))
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))

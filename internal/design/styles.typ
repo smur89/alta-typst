@@ -9,19 +9,22 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
-// `body`, an inline graphic, centred on the surrounding text, so it
-// lines up whatever the font, size or neighbours: on the x-height for
-// geometric marks (rating dots), on the cap height (`to:
-// "cap-height"`) for glyph icons, which are drawn to sit with
-// capitals. Measured in context, so no per-site offset is needed.
-#let _inline(body, to: "x-height") = context {
-  let height = measure(body).height
-  let reference = measure(text(
-    top-edge: to,
-    bottom-edge: "baseline",
-    "x",
-  )).height
-  box(baseline: (height - reference) / 2, body)
+// `body`, an inline graphic, placed on the surrounding text by one
+// rule (the theme's `inline`): glyphs stand on the baseline, drawn
+// shapes centre on the x-height. `to: "baseline"` stands `body` on
+// the baseline, as a FontAwesome glyph is drawn to (#211); any other
+// text edge centres it between the baseline and that edge, measured
+// in context, so it lines up whatever the font, size or neighbours.
+#let _inline(body, to: "x-height") = if to == "baseline" { box(body) } else {
+  context {
+    let height = measure(body).height
+    let reference = measure(text(
+      top-edge: to,
+      bottom-edge: "baseline",
+      "x",
+    )).height
+    box(baseline: (height - reference) / 2, body)
+  }
 }
 
 // The block a `===` / `====` heading sits in: its `subheading` role's
