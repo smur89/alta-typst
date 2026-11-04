@@ -15,8 +15,8 @@
   // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
   // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
   // just one of them and break the pinned-image PDF drift gate. The
-  // typstyle and package-check pins have no such coupling, so
-  // `custom.regex` tracks them below.
+  // typstyle, package-check and tytanic pins are tracked by
+  // `custom.regex` below.
   enabledManagers: ['github-actions', 'typst', 'custom.regex'],
 
   customManagers: [
@@ -34,6 +34,15 @@
       managerFilePatterns: ['/^\\.github/workflows/build\\.yml$/'],
       matchStrings: ['PCHECK_IMAGE: (?<depName>ghcr\\.io/typst/package-check):(?<currentValue>\\S+)'],
       datasourceTemplate: 'docker',
+    },
+    {
+      description: "The Dockerfile's TYTANIC_VERSION, from tytanic's GitHub releases.",
+      customType: 'regex',
+      managerFilePatterns: ['/^Dockerfile$/'],
+      matchStrings: ['ARG TYTANIC_VERSION=(?<currentValue>\\S+)'],
+      depNameTemplate: 'typst-community/tytanic',
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v(?<version>.+)$',
     },
   ],
 
@@ -76,6 +85,16 @@
       // the package-check job the same way.
       description: 'typstyle and package-check bumps are CI changes.',
       matchDepNames: ['Enter-tainer/typstyle', 'ghcr.io/typst/package-check'],
+      semanticCommitType: 'ci',
+      semanticCommitScope: null,
+    },
+    {
+      // CI-only, like typstyle. Renovate can't recompute TYTANIC_SHA256, so
+      // the image build fails its checksum check on the bump PR until the
+      // new release's SHA-256 is set by hand. Each release bundles a Typst
+      // version: hold the bump if it isn't the Dockerfile's.
+      description: 'tytanic bumps are CI changes; the checksum is updated by hand.',
+      matchDepNames: ['typst-community/tytanic'],
       semanticCommitType: 'ci',
       semanticCommitScope: null,
     },
