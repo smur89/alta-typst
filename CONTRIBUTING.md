@@ -46,7 +46,7 @@ brew install typst
 brew install --cask font-lato font-fontawesome
 ```
 
-Linux / Windows / manual install paths: see the [Fonts section in the README](README.md#fonts). Run `typst fonts` to confirm both are visible to Typst.
+Linux / Windows / manual install paths: see the [Requirements section in the README](README.md#requirements). Run `typst fonts` to confirm both are visible to Typst.
 
 Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
