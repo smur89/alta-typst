@@ -80,15 +80,18 @@
   }
 }
 
+// A `title` element, so a user's `show title: set text(...)` restyles
+// it (its font, say) as `show heading` does the headings, and tagged
+// PDF reads it as the document's title.
 #let _name-line(name, body-size, accent) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
-  text(
+  title(text(
     _theme.type.display.size * body-size,
     fill: accent,
     weight: _theme.type.display.weight,
     name,
-  ),
+  )),
 )
 
 #let _headline(headline, body-size) = if headline != none {

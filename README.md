@@ -156,6 +156,18 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons render as tofu. Any other body font works: `#alta(cv, preferences: (font: "Inter"))`.
 
+### Heading fonts
+
+The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is a `title` element, the section headings are level-2 `heading`s and the entry titles are deeper `heading`s, so each rule picks its own scope:
+
+```typst
+// A slab-serif name and section headings over a sans body:
+#show selector.or(title, heading.where(level: 2)): set text(font: "Roboto Slab")
+#alta(cv, preferences: (font: "Source Sans 3"))
+```
+
+`selector.or(title, heading)` reaches the entry titles too. The body font can't be set the same way: `alta()` applies `preferences.font` to the whole document, and that wins over a `set text(font: ...)` outside it. Like any font, these must be installed.
+
 ## Data schema
 
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or missing `endDate` renders as `Present` (localisable via `labels.present`). Sections with empty input are skipped — no orphan headings. Unknown top-level keys panic.
