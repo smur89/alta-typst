@@ -12,14 +12,20 @@
 // its left, so the dash sits centred between the pills. The hanging
 // indent is the label's measured width, so wrapped keywords line up
 // under the first; a label wider than `keyword-row.indent-max` of the
-// column hangs nothing, so its keywords keep room to wrap.
+// column hangs nothing, so its keywords keep room to wrap. A group's
+// optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
   let body-size = _body-size-state.get()
   let (gap, dash, indent-max) = _theme.keyword-row
   let row-gap = gap * body-size
-  layout(size => for (name, keywords, ..) in groups {
+  layout(size => for (name, keywords, ..group) in groups {
+    let mark = group.at("mark", default: none)
     let label = {
       tag(name, label: true)
+      if mark != none {
+        mark
+        _tag-gap(body-size)
+      }
       text(dash)
       _tag-gap(body-size)
     }

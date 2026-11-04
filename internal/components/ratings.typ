@@ -28,28 +28,31 @@
   [\ ]
 }
 
-// `max` defaults to the enclosing `alta()`'s `preferences.maxRating`.
-#let rating(label, value, max: auto) = context {
+// `value` as `max` dots: filled, half-filled, then empty. Each dot is
+// centred on its own (`_inline`), so a long row can still break
+// between dots. Unchecked: `rating` checks its arguments, and
+// `_read-cv` the CV's ratings.
+#let _rating-dots(value, max) = context {
   let body-size = _body-size-state.get()
   let accent = _accent-state.get()
+  let (radius, gap, ..) = _theme.rating
+  let dot(fill) = _inline(box(circle(radius: radius * body-size, fill: fill)))
+  range(1, max + 1)
+    .map(i => dot(
+      if value >= i { accent } else if value > i - 1 {
+        _half-fill(accent)
+      } else { _theme.colour.border },
+    ))
+    .join(h(gap * body-size))
+}
+
+// `max` defaults to the enclosing `alta()`'s `preferences.maxRating`.
+#let rating(label, value, max: auto) = context {
   let max-rating = if max == auto { _max-rating-state.get() } else { max }
   // The state is validated as `maxRating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  let (radius, gap, ..) = _theme.rating
-  // Each dot centred on its own, so a long row can still break between
-  // dots, as the separate dots always could.
-  let dot(fill) = _inline(box(circle(radius: radius * body-size, fill: fill)))
-  _label-row(
-    label,
-    range(1, max-rating + 1)
-      .map(i => dot(
-        if value >= i { accent } else if value > i - 1 {
-          _half-fill(accent)
-        } else { _theme.colour.border },
-      ))
-      .join(h(gap * body-size)),
-  )
+  _label-row(label, _rating-dots(value, max-rating))
 }
 
 // The label's rating as dots on a scale of `max` or, with no `value`,
