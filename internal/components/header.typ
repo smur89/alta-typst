@@ -82,29 +82,31 @@
 
 // A `title` element, so a user's `show title: set text(...)` restyles
 // it (its font, say) as `show heading` does the headings, and tagged
-// PDF reads it as the document's title.
+// PDF reads it as the document's title. Its styles are `set` around the
+// name, labelled `<alta-name>`, so a user's `show <alta-name>` rule
+// overrides any of them (#327); the headline likewise.
 #let _name-line(name, body-size, accent) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
-  title(text(
-    _theme.type.display.size * body-size,
-    fill: accent,
-    weight: _theme.type.display.weight,
-    name,
-  )),
+  title({
+    set text(
+      _theme.type.display.size * body-size,
+      fill: accent,
+      weight: _theme.type.display.weight,
+    )
+    [#name <alta-name>]
+  }),
 )
 
 #let _headline(headline, body-size) = if headline != none {
-  block(
-    spacing: 0pt,
-    below: _theme.header.headline-below * body-size,
-    text(
+  block(spacing: 0pt, below: _theme.header.headline-below * body-size, {
+    set text(
       _theme.type.title.size * body-size,
       fill: _theme.colour.emphasis,
       weight: _theme.font-weight.bold,
-      headline,
-    ),
-  )
+    )
+    [#headline <alta-headline>]
+  })
 }
 
 // `contacts` are rows, each its own line, of `(icon, value, url)`
