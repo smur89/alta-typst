@@ -62,23 +62,30 @@
 #assert.eq(_citation((pages: "9")), "9")
 #assert.eq(_citation((:)), none)
 
-// _authors: published order, trimmed, unusable entries skipped, the
-// owner (ignoring case and spaces) flagged.
+// _authors: published order, trimmed, unusable entries skipped, each
+// of `owners` (normalised, as `ctx.owners` is) flagged ignoring case.
 #assert.eq(
   _authors(
-    (authors: ("A. Smith", " jane doe ", "", 3, "B. Jones")),
-    "Jane Doe",
+    (authors: ("A. Smith", " Jane Doe ", "", 3, "B. Jones")),
+    ("jane doe",),
   ),
   (
     (name: "A. Smith", owner: false),
-    (name: "jane doe", owner: true),
+    (name: "Jane Doe", owner: true),
     (name: "B. Jones", owner: false),
   ),
 )
-#assert.eq(_authors((authors: "A. Smith"), "Jane Doe"), ())
+#assert.eq(_authors((authors: "A. Smith"), ("jane doe",)), ())
 #assert.eq(
-  _authors((authors: ("A. Smith",)), none),
+  _authors((authors: ("A. Smith",)), ()),
   ((name: "A. Smith", owner: false),),
+)
+#assert.eq(
+  _authors(
+    (authors: ("J. Doe", "Jane Smith", "Jane Doe", "A. Smith")),
+    ("jane doe", "j. doe", "jane smith"),
+  ).map(a => a.owner),
+  (true, true, true, false),
 )
 
 // _author-line: the owner in bold.

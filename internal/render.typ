@@ -25,13 +25,15 @@
   let (labels, prefs) = _merge-options(labels, preferences)
   let (cv, sections) = _read-cv(cv, prefs)
   // What every renderer takes with its data. `format-date` formats a
-  // date per the preferences and labels; `owner` bolds the CV owner
-  // among publication authors.
+  // date per the preferences and labels; `owner` is the CV owner's
+  // name, and `owners` every spelling of it (`preferences.ownerNames`
+  // too), trimmed and lowercased, to bold among publication authors.
   let ctx = (
     labels: labels,
     prefs: prefs,
     format-date: v => _format-date(v, prefs.dateFormat, labels.months),
     owner: cv.basics.name,
+    owners: (cv.basics.name, ..prefs.ownerNames).map(n => lower(n.trim())),
   )
   set document(.._pdf-metadata(cv, sections, labels))
   show: _document.with(prefs, labels, footer: _footer(cv, ctx))
