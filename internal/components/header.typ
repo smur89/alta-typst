@@ -3,8 +3,7 @@
 // with an optional portrait and QR around them.
 
 #import "../design/styles.typ": _part
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state, _colour-state
+#import "../context.typ": _body-size-state, _theme-state
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
 #import "qr.typ": _qr-render
@@ -13,12 +12,13 @@
 #let _header-layout(
   header-text,
   qr-size,
+  theme,
   body-size,
   photo: none,
   qr: none,
   photo-at: none,
 ) = {
-  let (ornament-gutter, photo-gap, ..) = _theme.header
+  let (ornament-gutter, photo-gap, ..) = theme.header
   // Full-width `block` centres the photo against the page (a bare
   // `align(center, box)` centres against the inline position). The
   // `qr-size` spacer balances the QR so the content stays centred
@@ -86,25 +86,25 @@
 // `show heading.where(level: 1)` rule restyles it (its font, say) as
 // `heading.where(level: 2)` does the sections. Its styles are `set`
 // around `name`, which arrives labelled (`_page-header`).
-#let _name-line(name, body-size, fill) = block(
+#let _name-line(name, theme, body-size) = block(
   spacing: 0pt,
-  below: _theme.header.name-below * body-size,
+  below: theme.header.name-below * body-size,
   [#heading(level: 1, {
     set text(
-      _theme.type.display.size * body-size,
-      fill: fill,
-      weight: _theme.type.display.weight,
+      theme.type.display.size * body-size,
+      fill: theme.colours.name,
+      weight: theme.type.display.weight,
     )
     name
   })<alta-internal-name>],
 )
 
-#let _headline(headline, body-size, fill) = if headline != none {
-  block(spacing: 0pt, below: _theme.header.headline-below * body-size, {
+#let _headline(headline, theme, body-size) = if headline != none {
+  block(spacing: 0pt, below: theme.header.headline-below * body-size, {
     set text(
-      _theme.type.title.size * body-size,
-      fill: fill,
-      weight: _theme.font-weight.bold,
+      theme.type.title.size * body-size,
+      fill: theme.colours.tagline,
+      weight: theme.font-weight.bold,
     )
     _part("headline", headline)
   })
@@ -116,11 +116,11 @@
 // `solid: true` draws either). A `box` per entry, so a long row wraps
 // between entries, never between an icon and its text. The bar's text
 // styles are `set` around the entries, each a `_part`.
-#let _contact-bar(contacts, body-size, accent) = {
-  let contact-gap = _theme.header.contact-gap
-  let size = _theme.header.contact-size * body-size
-  let bar-icon = _glyph.with(size: size, fill: accent)
-  set text(size, weight: _theme.font-weight.bold)
+#let _contact-bar(contacts, theme, body-size) = {
+  let contact-gap = theme.header.contact-gap
+  let size = theme.header.contact-size * body-size
+  let bar-icon = _glyph.with(size: size, fill: theme.colours.accent)
+  set text(size, weight: theme.font-weight.bold)
   contacts
     .map(row => row
       .map(entry => box({
@@ -148,25 +148,28 @@
 ) = context {
   // Read once here and passed to the subcomponents.
   let body-size = _body-size-state.get()
-  let (accent, name: name-fill, tagline, ..) = _colour-state.get()
+  let theme = _theme-state.get()
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
-  let qr-size = _theme.header.qr * body-size
+  let qr-size = theme.header.qr * body-size
   _header-layout(
     align(text-align, {
       let name = _part("name", name)
       _name-line(
         if uppercase { upper(name) } else { name },
+        theme,
         body-size,
-        name-fill,
       )
-      _headline(headline, body-size, tagline)
-      _contact-bar(contacts, body-size, accent)
+      _headline(headline, theme, body-size)
+      _contact-bar(contacts, theme, body-size)
     }),
     qr-size,
+    theme,
     body-size,
     photo: photo,
-    qr: if qr-url != none { _qr-render(qr-url, qr-size, accent) },
+    qr: if qr-url != none {
+      _qr-render(qr-url, qr-size, theme.colours.accent)
+    },
     photo-at: photo-at,
   )
 }

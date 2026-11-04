@@ -2,7 +2,7 @@
 // builders for its author and identifier records.
 
 #import "../design/styles.typ": _treat
-#import "../design/theme.typ": _theme
+#import "../design/theme.typ": _conventions
 #import "../util/values.typ": _join-present
 #import "../primitives.typ": _link-if, _meta, _preamble, styled-link
 
@@ -11,16 +11,18 @@
 // none.
 #let _author-line(authors) = (
   authors
-    .map(a => if a.owner { _treat(_theme.treatment.owner, a.name) } else {
+    .map(a => if a.owner { _treat(_conventions.treatment.owner, a.name) } else {
       a.name
     })
-    .join(_theme.separator.items)
+    .join(_conventions.separator.items)
 )
 
 // `(name, id, url)` records as `name id`, the id linked when `url` is
 // set; `none` when there are none.
 #let _identifier-line(refs) = (
-  refs.map(r => [#r.name #_link-if(r.url, r.id)]).join(_theme.separator.facts)
+  refs
+    .map(r => [#r.name #_link-if(r.url, r.id)])
+    .join(_conventions.separator.facts)
 )
 
 // One bibliography list item: the title (linked to `url`), then
@@ -39,7 +41,7 @@
   let lines = _join-present(
     (
       _author-line(authors),
-      _join-present((source, _meta(date)), _theme.separator.facts),
+      _join-present((source, _meta(date)), _conventions.separator.facts),
       _meta(_identifier-line(identifiers)),
       _preamble(summary),
     ),

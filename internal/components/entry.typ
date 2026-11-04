@@ -3,8 +3,8 @@
 // and the entry's other facts with its location at the right edge.
 
 #import "../design/styles.typ": _part, _subheading-block
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state, _icon-alts-state
+#import "../design/theme.typ": _conventions
+#import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
   _accent-text, _date-fact, _fact-line, _link-if, _location-fact, _preamble,
@@ -13,7 +13,7 @@
 // A small line under an entry's heading: a referee's attribution.
 // Absent bodies render nothing.
 #let _subtitle(body) = if _present(body) {
-  block(below: _theme.entry.subtitle-below, body)
+  context block(below: _theme-state.get().entry.subtitle-below, body)
 }
 
 // An entry's first lines as one grid: the title (or, without one,
@@ -27,12 +27,13 @@
 // entry; after a facts line, `entry.facts-below`.
 #let _entry-head(title, facts, date, location) = context {
   let body-size = _body-size-state.get()
-  let (side-gap, side-max, facts-below, row-gap) = _theme.entry
+  let theme = _theme-state.get()
+  let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
     (
       // Level 3, or 4 under a group (`components/frame.typ`).
       [#heading(depth: 3, title)<alta-internal-entry>],
-      _theme.type.title.size * body-size,
+      theme.type.title.size * body-size,
       facts,
     )
   } else { (facts, body-size, none) }
@@ -76,10 +77,10 @@
     })
   if rows.len() == 0 { return }
   let below = if title == none or rows.len() > 1 { facts-below } else {
-    _theme.subheading.entry.below
+    theme.subheading.entry.below
   }
   _subheading-block(
-    _theme.subheading.entry + (below: below),
+    theme.subheading.entry + (below: below),
     body-size,
     layout(size => {
       // Stacked, each side takes its own line, undropped.
@@ -145,7 +146,7 @@
   _join-present(
     (
       keywords-lead,
-      _join-present(keywords, _theme.separator.facts),
+      _join-present(keywords, _conventions.separator.facts),
     ),
     [\ ],
   )

@@ -3,8 +3,7 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/presets.typ": _colour-role-names
-#import "../design/theme.typ": _theme
+#import "../design/theme.typ": _colour-role-names, _default-theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
   _enum-rule, _list-rule, _positive-int-rule, _prose-list, _quote, _require,
@@ -93,7 +92,7 @@
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
-  imageShape: _enum-rule(_theme.header.portrait-radius.keys()),
+  imageShape: _enum-rule(_default-theme.header.portrait-radius.keys()),
   imagePosition: _enum-rule(("left", "right", "center")),
   // Checked even when unused, so a typo surfaces before it matters.
   imageStackOrder: _enum-rule(("above", "below")),
@@ -151,8 +150,9 @@
   for (role, v) in colours { _check(name + "." + role, v, _colour-rule) }
 }
 
-// A theme is `(colours: ...)` setting every role, as it replaces the
-// default theme whole; the caller's `colours` may set any of them.
+// A theme is `(colours: ...)` setting every role: a whole look, the
+// way the built-in ones are, with the caller's `colours` for any
+// single role.
 #let _validate-colours(theme, colours) = {
   _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
   _check-unknown-keys(theme.keys(), ("colours",), "theme")

@@ -1,15 +1,17 @@
-// The template's look. `_tokens` are the scales (type, spacing,
-// strokes); `_build-theme` maps them onto the roles components read. A
-// role exists only where components differ by design; otherwise they
-// read tokens. Colours come from `preferences.theme` (`presets.typ`)
-// and `preferences.colours`, resolved per render by `_colour-roles`.
-// Token values are numbers and strings (font weights), so a theme
-// could load from TOML.
+// The template's look. `_tokens` are the scales (type, colours,
+// spacing, strokes); `_build-theme` maps them onto the roles components
+// read. A role exists only where components differ by design;
+// otherwise they read tokens. A theme (`presets.typ`) overrides tokens:
+// `_theme-for` merges it and `preferences.colours` over `_tokens` and
+// builds, once per render, into the state components read
+// (`_theme-state`).
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
 // they may sit outside `alta()`. `em` roles follow their own text;
 // `pt` and `cm` lengths don't scale.
+
+#import "../util/values.typ": _deep-merge
 
 #let _tokens = (
   // Material Design 3's type roles: `display` the name, `headline` a
@@ -24,6 +26,19 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
+  // The colour roles (`preferences.colours`): a teal accent over grey
+  // text, the default theme. `emphasis` and `body` follow Bootstrap's
+  // roles.
+  colours: (
+    accent: rgb("#00796B"),
+    emphasis: rgb("#2E2E2E"),
+    body: rgb("#666666"),
+    heading: rgb("#00796B"),
+    headingRule: rgb("#00796B"),
+    subheading: rgb("#00796B"),
+    name: rgb("#00796B"),
+    tagline: rgb("#2E2E2E"),
+  ),
   // CSS's size keywords.
   space: (
     xx-small: 0.15,
@@ -43,18 +58,14 @@
     type: ty,
     font-weight: fw,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
-    // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-    // between groups; `label` after an interest group's name
-    // (`Music: Trad, Jazz`).
-    separator: (facts: " · ", items: ", ", label: ": "),
-    // For a summary, a `styled-link` title, the CV owner among
-    // publication authors, and an interest group's name.
-    treatment: (
-      // A plain setting, not `emph`: the summary is a `_part`.
-      preamble: "italic",
-      link: "emph",
-      owner: "strong",
-      label: "strong",
+    // `secondary` (the quietest lines) and `border` (dividers, empty
+    // rating dots) derive from `body`.
+    colours: (
+      tokens.colours
+        + (
+          secondary: tokens.colours.body.lighten(35%),
+          border: tokens.colours.body.lighten(65%),
+        )
     ),
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
@@ -135,18 +146,34 @@
   )
 }
 
-#let _theme = _build-theme(_tokens)
+// The colour roles every theme sets, and `preferences.colours` may.
+#let _colour-role-names = _tokens.colours.keys()
 
-// A theme's colours with `colours` (the preference) over them, plus
-// `secondary` (the quietest lines) and `border` (dividers, empty
-// rating dots), derived from `body`.
-#let _colour-roles(theme, colours) = {
-  let roles = theme.colours + colours
-  (
-    roles
-      + (
-        secondary: roles.body.lighten(35%),
-        border: roles.body.lighten(65%),
-      )
-  )
-}
+// The theme with no overrides: the state's default, for public helpers
+// used outside `alta()`.
+#let _default-theme = _build-theme(_tokens)
+
+// The theme to render with: the chosen theme's tokens, then
+// `preferences.colours`, over `_tokens`.
+#let _theme-for(theme, colours) = _build-theme(
+  (theme, (colours: colours)).fold(_tokens, _deep-merge),
+)
+
+// Fixed typographic choices, outside the theme: the ones pure helpers
+// read (`_fact-line`, `_preamble`, the bibliography lines), which
+// return `none` when empty and so can't wait on context.
+#let _conventions = (
+  // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
+  // between groups; `label` after an interest group's name
+  // (`Music: Trad, Jazz`).
+  separator: (facts: " · ", items: ", ", label: ": "),
+  // For a summary, a `styled-link` title, the CV owner among
+  // publication authors, and an interest group's name.
+  treatment: (
+    // A plain setting, not `emph`: the summary is a `_part`.
+    preamble: "italic",
+    link: "emph",
+    owner: "strong",
+    label: "strong",
+  ),
+)

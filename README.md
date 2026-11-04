@@ -520,6 +520,8 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 #alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))
 ```
 
+A show rule on a part ([Restyling parts](#restyling-parts)) overrides both, so the layers run theme, then `colours`, then show rules: `show <alta-section-title>: set text(fill: navy)` recolours the section titles whatever the theme and `colours` set.
+
 | Role | Colours |
 |---|---|
 | `accent` | Organisation lines, tags, rating dots, contact icons, the objective's rule, publication titles, the QR code. |

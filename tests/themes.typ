@@ -1,9 +1,9 @@
 // Each built-in theme rendered as its own page so a reviewer can flip
 // through and check its colours against the name, the headline, the
 // heading and its rule, the language-rating dots, the skill-pill
-// fills and the organisation line all at once. Plus a final page
-// setting `colours` over a theme, to confirm it changes only the
-// roles it names.
+// fills and the organisation line all at once. Then a page setting
+// `colours` over a theme, to confirm it changes only the roles it
+// names, and one adding a show rule on a part over both, which wins.
 
 #import "../lib.typ": alta, themes
 
@@ -39,3 +39,14 @@
     colours: (headingRule: rgb("#E7D192")),
   ),
 )
+#pagebreak()
+
+// A theme, a role over it, and a show rule over both: the body turns
+// black, the section titles navy, the rules stay gold.
+#{
+  show <alta-section-title>: set text(fill: themes.navy.colours.heading)
+  alta(
+    sample("Theme altacv, black body, navy titles", "altacv"),
+    preferences: (theme: themes.altacv, colours: (body: black)),
+  )
+}

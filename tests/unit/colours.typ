@@ -1,14 +1,14 @@
 // Unit checks for how `preferences.theme` and `preferences.colours`
-// resolve, through `_merge-options` and `_colour-roles`, the sequence
+// resolve, through `_merge-options` and `_theme-for`, the sequence
 // `alta()` runs.
 
 #import "/internal/data/options.typ": _merge-options
-#import "/internal/design/presets.typ": _colour-role-names, palettes, themes
-#import "/internal/design/theme.typ": _colour-roles
+#import "/internal/design/presets.typ": palettes, themes
+#import "/internal/design/theme.typ": _colour-role-names, _theme-for
 
 #let roles(preferences) = {
   let prefs = _merge-options((:), preferences).prefs
-  _colour-roles(prefs.theme, prefs.colours)
+  _theme-for(prefs.theme, prefs.colours).colours
 }
 
 // Every theme sets every role, and nothing else.

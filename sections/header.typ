@@ -8,7 +8,6 @@
 #import "../internal/data/cv.typ": _format-location, _profile-glyph
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/design/icon-set.typ": _icon-glyphs, _network-icons
-#import "../internal/design/theme.typ": _theme
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
 
@@ -159,8 +158,7 @@
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
-      let radius = _theme.header.portrait-radius.at(prefs.imageShape)
-      _portrait(image, prefs.imageSize, basics.name, radius: radius)
+      _portrait(image, prefs.imageSize, basics.name, shape: prefs.imageShape)
     },
     photo-at: if prefs.imagePosition == "center" {
       prefs.imageStackOrder

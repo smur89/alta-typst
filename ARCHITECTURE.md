@@ -17,7 +17,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 | Layer | Path | Holds | May import |
 |---|---|---|---|
-| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
+| util | `util/` | generic helpers: presence checks, joins, grouping, a deep merge, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme, document styles, the built-in themes and palettes, icon set | util |
 | data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_format-location`, `_entry-period` in `cv.typ`) | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
@@ -54,11 +54,11 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 
 ## The look
 
-- **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
-- **`design/presets.typ`**: the built-in `themes`, each `(colours: ...)` setting every colour role, and the deprecated accent `palettes` they're built from. `_colour-roles` (`theme.typ`) sets the caller's `colours` over the theme's and derives `secondary` and `border` from `body`, once per render in `_document`.
-- **`context.typ`**: the resolved colours, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
+- **`design/theme.typ`**: plain data. `_tokens` are the scales and their defaults: Material 3 type roles (`display` … `body`), the colour roles (the default theme's), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles, deriving `secondary` and `border` from `body`. `_theme-for` builds the theme to render with, once per render in `_document`: the chosen theme's tokens, then `preferences.colours`, deep-merged over `_tokens`. `_conventions` hold the fixed choices that pure helpers read (separators, treatments): helpers like `_fact-line` return `none` when empty, which they couldn't from inside a `context`. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
+- **`design/presets.typ`**: the built-in `themes`, each `_tokens` overrides setting every colour role (`(colours: ...)`), built over the default colours, and the deprecated accent `palettes`.
+- **`context.typ`**: the built theme, body size and rating scale, as `state`. Components and the public helpers (`tag`, `rating`, …), which may sit anywhere in a user's document, read the theme from it in `context`; `_content-styles` takes it from `_document` directly.
 
-Users style through [preferences](README.md#preferences): `theme` picks a theme (`themes.teal` unless set) and `colours` overrides its roles. A theme sets only colours so far; fonts and sizes join it as `_tokens` overrides, which `alta()` would deep-merge, rebuild, then merge role overrides over.
+Users style through [preferences](README.md#preferences) and show rules, in that order of precedence: `theme` picks a theme (`themes.teal` unless set), `colours` overrides its roles, and a show rule on a labelled part overrides both. A theme sets only colours so far; as `_tokens` overrides, it can set the type, spacing and strokes too once its validation allows them.
 
 ## Deprecations
 
