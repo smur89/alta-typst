@@ -66,8 +66,8 @@
 
 // The single-value preferences, in `_default-preferences`' order. The
 // rest are checked in `_validate-preferences`, or for the icon tables
-// in `_merge-options`; `groupCertificates` is
-// ignored, so it isn't checked.
+// in `_merge-options`; `groupCertificates` and `showPronouns` are
+// ignored, so they aren't checked.
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
@@ -78,7 +78,6 @@
     "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
   ),
   uppercaseName: _bool-rule,
-  showPronouns: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
   imagePosition: _enum-rule(("left", "right", "center")),

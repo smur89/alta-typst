@@ -34,7 +34,6 @@
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
-  showPronouns: false,
   headerTextAlign: "left",
   imageSize: 6em,
   imagePosition: "right",
@@ -57,8 +56,12 @@
   mapsProvider: maps-providers.google,
   maxRating: 5,
   // Deprecated, removed in the next major (#239). `groupCertificates`
-  // is ignored; `_canonical-cv` turns `referencesAvailableOnRequest`
-  // into a `references[].availableOnRequest` entry.
+  // and `showPronouns` are ignored (JSON Resume dropped
+  // `basics.pronouns` as added by accident,
+  // https://github.com/jsonresume/jsonresume.org/pull/629),
+  // and `_canonical-cv` turns `referencesAvailableOnRequest` into a
+  // `references[].availableOnRequest` entry.
   groupCertificates: true,
+  showPronouns: false,
   referencesAvailableOnRequest: false,
 )

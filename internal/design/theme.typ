@@ -119,7 +119,6 @@
     keyword-row: (gap: sp.medium, dash: "–", indent-max: 50%),
     header: (
       name-below: sp.large,
-      pronouns-gap: sp.small,
       headline-below: sp.medium,
       // The contact bar's text and icons, below body so they don't
       // compete with the name.

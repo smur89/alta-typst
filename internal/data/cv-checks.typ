@@ -77,10 +77,12 @@
   }
 }
 
+// No `pronouns`: JSON Resume dropped it as added by accident, so
+// it is ignored like any other extra field.
+// https://github.com/jsonresume/jsonresume.org/pull/629
 #let _basics-fields = (
   name: _text-rule,
   label: _text-rule,
-  pronouns: _text-rule,
   email: _string-rule,
   phone: _string-rule,
   url: _string-rule,

@@ -12,6 +12,7 @@
   "rightColumnSections",
   "linkContactInfo",
   "groupCertificates",
+  "showPronouns",
 )
 #assert.eq(
   _preference-rules.keys(),
