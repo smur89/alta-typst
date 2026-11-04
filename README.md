@@ -166,7 +166,7 @@ The body font is `preferences.font`. To set the name or headings in a different 
 #alta(cv, preferences: (font: "Source Sans 3"))
 ```
 
-`selector.or(title, heading)` reaches the entry titles too. The body font can't be set the same way: `alta()` applies `preferences.font` to the whole document, and that wins over a `set text(font: ...)` outside it. Like any font, these must be installed.
+`selector.or(title, heading)` reaches the entry titles too. The body font can't be set the same way: `alta()` sets the document's font, size, colour and language itself (from `preferences.font`, `preferences.bodySize`, the theme and `labels.lang`), and those win over a `set text(...)` outside it. Every other text setting you make outside `alta()` (tracking, number styles, OpenType features) still applies. Like any font, these must be installed.
 
 ## Data schema
 
