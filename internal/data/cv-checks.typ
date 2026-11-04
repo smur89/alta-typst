@@ -5,10 +5,14 @@
 #import "../design/icon-set.typ": _profile-networks
 #import "../util/checks.typ": (
   _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
-  _prose-list, _require, _type-rule, _unknown,
+  _prose-list, _quote, _require, _type-rule, _unknown,
 )
+#import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
-#import "cv.typ": _altacv, _altacv-ns, _location-fields, _profile-network
+#import "cv.typ": (
+  _altacv, _altacv-ns, _location-fields, _profile-network, _skill-levels,
+  _term-rating,
+)
 
 // Field rules (`_section-specs`' `fields`, `basics`): the types the
 // renderers can draw. Dates are text too: a non-ISO one renders as
@@ -62,17 +66,47 @@
   optional: true,
 )
 
-// A `custom.altacv.rating` wins over `fluency`, so either will do.
-#let _check-language(key, entry, prefs) = {
+// An entry's `custom.altacv.rating`, checked against `maxRating` when
+// set; `none` when not.
+#let _altacv-rating(key, entry, prefs) = {
   let rating = _altacv(entry, "rating")
   if rating != none {
     _check-rating(key + "[].custom.altacv.rating", rating, prefs.maxRating)
-  } else {
+  }
+  rating
+}
+
+// A `custom.altacv.rating` wins over `fluency`, so either will do.
+#let _check-language(key, entry, prefs) = {
+  if _altacv-rating(key, entry, prefs) == none {
     _check-type(
       key + "[].fluency",
       entry.at("fluency", default: none),
       (str,),
       "a string when there's no numeric `custom.altacv.rating`",
+    )
+  }
+}
+
+#let _skill-level-expected = (
+  "one of "
+    + _prose-list(_skill-levels.keys().map(_quote))
+    + " with `skillLevelDisplay: \"rating\"`, or overridden by `custom.altacv.rating`"
+)
+
+// With `skillLevelDisplay: "rating"`, a `level` must map to dots.
+#let _check-skill(key, entry, prefs) = {
+  let level = _field(entry, "level")
+  if (
+    _altacv-rating(key, entry, prefs) == none
+      and prefs.skillLevelDisplay == "rating"
+      and level != none
+  ) {
+    _require(
+      key + "[].level",
+      level,
+      _term-rating(entry, "level", _skill-levels, prefs.maxRating) != none,
+      _skill-level-expected,
     )
   }
 }
