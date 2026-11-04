@@ -1,6 +1,6 @@
 // The colour themes and the deprecated accent palettes, re-exported
-// from `lib.typ`. A theme is `_tokens` overrides (`theme.typ`); for
-// now validation lets it set the colours only, every role of them.
+// from `lib.typ`. A theme is `_tokens` overrides (`theme.typ`), any
+// subset of them; the built-in ones set every colour role.
 
 #import "theme.typ": _accent-roles, _tokens
 

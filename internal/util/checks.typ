@@ -38,6 +38,7 @@
 // tests the value and `expected` completes "<name> must be …".
 #let _type-rule(types, expected) = (v => type(v) in types, expected)
 #let _bool-rule = _type-rule((bool,), "a bool")
+#let _number-rule = _type-rule((int, float), "a number")
 #let _positive-int-rule = (
   v => type(v) == int and v >= 1,
   "a positive integer",
@@ -75,11 +76,17 @@
   _type-rule(allowed, expected),
 )
 
+// `value` a dictionary whose keys are all in `allowed`.
+#let _check-keys(name, value, allowed) = {
+  _check-type(name, value, (dictionary,), "a dictionary")
+  _check-unknown-keys(value.keys(), allowed, name)
+}
+
 // A rating on a `max`-dot scale: a number from 0 to `max`, in halves.
 // Half dots are the only fraction drawable; rejecting others stops
 // `3.1` and `3.9` silently rounding alike.
 #let _check-rating(name, value, max) = {
-  _check-type(name, value, (int, float), "a number")
+  _check(name, value, _number-rule)
   _require(
     name,
     value,

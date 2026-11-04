@@ -448,9 +448,9 @@ Override any subset of the keys below.
 
 | Key | Default | Effect |
 |---|---|---|
-| `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
+| `font` | `auto` | The font family, or a fallback array of families, over the theme's. `auto` keeps the theme's, Lato unless the theme sets another. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
-| `theme` | `themes.teal` | The colour theme. See [Themes and colours](#themes-and-colours). |
+| `theme` | `themes.teal` | The look: font, colours, type sizes, spacing, separators. See [Themes and colours](#themes-and-colours). |
 | `colours` | `(:)` | Colours for any of the theme's roles, over the theme's. See [Themes and colours](#themes-and-colours). |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 | `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
@@ -514,13 +514,13 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 
 #### Themes and colours
 
-`preferences.theme` picks the colour of every role from a built-in theme: `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum` and `charcoal`, each one accent over grey text, or `themes.altacv`, dark red headings over a gold rule. `preferences.colours` then sets any of the roles over the theme's, so a theme serves as the default for a few changes; an unknown role panics.
+`preferences.theme` picks the look: the font, the colours, the type sizes, the spacing, the separators. The built-in themes set the colour of every role: `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum` and `charcoal`, each one accent over grey text, or `themes.altacv`, dark red headings over a gold rule. `preferences.colours` then sets any of the roles over the theme's, and `preferences.font` the font, so a theme serves as the default for a few changes; an unknown role panics.
 
 ```typst
 #alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))
 ```
 
-A show rule on a part ([Restyling parts](#restyling-parts)) overrides both, so the layers run theme, then `colours`, then show rules: `show <alta-section-title>: set text(fill: navy)` recolours the section titles whatever the theme and `colours` set.
+A show rule on a part ([Restyling parts](#restyling-parts)) overrides them all, so the layers run theme, then `colours` and `font`, then show rules: `show <alta-section-title>: set text(fill: navy)` recolours the section titles whatever the theme and `colours` set.
 
 | Role | Colours |
 |---|---|
@@ -533,7 +533,32 @@ A show rule on a part ([Restyling parts](#restyling-parts)) overrides both, so t
 | `name` | `basics.name`. |
 | `tagline` | `basics.label`, under the name. |
 
-Any `rgb(...)` value works for a role; the ones that colour text should be dark enough to read on white, as the themes' are. A theme of your own is `(colours: (...))` setting every role, as it replaces the default theme whole: e.g. `(colours: themes.navy.colours + (accent: rgb("#0a4"), name: rgb("#0a4")))`.
+Any `rgb(...)` value works for a role; the ones that colour text should be dark enough to read on white, as the themes' are.
+
+A theme of your own sets only what it changes; everything else is the default theme's. Start from a built-in one to change a little of it, `themes.navy + (font: "Libertinus Serif")`, or from nothing. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours, the rest falling back to the default's: set a few roles over a theme with `preferences.colours` instead.
+
+```typst
+#alta(cv, preferences: (theme: (
+  font: "Libertinus Serif",
+  type: (headline: (size: 1.2)),
+  separator: (facts: " | "),
+)))
+```
+
+A key the theme doesn't know, or a value of the wrong kind, panics with its path (`theme.type.headline.size must be a number`).
+
+| Key | Default | Sets |
+|---|---|---|
+| `font` | `"Lato"` | The font family, or a fallback array of them. |
+| `colours` | the teal theme's | The colour roles above. |
+| `type` | `display` 2.5 bold, `headline` 1.4 bold, `title` 1.2 semibold, `body` regular | Each role's `size` (a multiple of `bodySize`) and `weight`: `display` the name, `headline` a section title, `title` an entry or the headline under the name, `body` the rest (its size is `bodySize`). |
+| `font-weight` | `regular`, `bold` | The weights used to embolden within a role. |
+| `space` | `xx-small` 0.15 … `large` 1.2 | The spacing scale, in multiples of `bodySize`: `xx-small`, `x-small`, `small`, `medium`, `large`. |
+| `stroke-width` | `thin` 0.5, `thick` 1 | Rule and border widths, in pt. |
+| `leading` | 0.55 | Line spacing, in `em`. |
+| `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "` | Between groups of facts, the parts of one (and of a location), after a label (`Music: Trad`, the footer's "Last updated"), and between a period's dates. |
+| `treatment` | `preamble` `"italic"`, `link` `"emph"`, `owner` `"strong"`, `label` `"strong"` | How a summary, a publication title, the CV owner among authors and an interest group's name are set apart: `"italic"`, `"emph"`, `"strong"`, `"upper"` or `"none"`. |
+| `citation` | `issue` `("(", ")")`, `pages` `", "`, `source` `" "`, `page-range` `"–"` | A publication's citation, `ACM 12(3), 45–67`: the issue's brackets, before the pages, after the publisher, and the dash in a page range. |
 
 #### Publication icons
 
