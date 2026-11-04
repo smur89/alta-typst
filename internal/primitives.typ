@@ -24,6 +24,11 @@
 // `em`, since `tag()` is public and may sit outside `alta()`'s text.
 #let _tag-gap(body-size) = h(_theme.tag.gap * body-size)
 
+/// An accent-coloured line, for an organisation on a line of its own in
+/// a custom layout.
+///
+/// - body (content): The text.
+/// -> content
 #let name(body) = context {
   let body-size = _body-size-state.get()
   block(
@@ -85,6 +90,12 @@
 
 // An absent side is skipped, so undated or unlocated entries don't
 // emit a stray icon.
+/// A date and an optional location on one row, each led by its icon.
+/// Renders nothing when both are absent.
+///
+/// - period (content, str, none): The date or date range.
+/// - location (content, str, none): The place.
+/// -> content
 #let term(period, location: none) = {
   if not (_present(period) or _present(location)) { return }
   _term-row({
@@ -95,6 +106,14 @@
 
 // `label: true` is the darker, bold category pill. Pass
 // `trailing: false` on a row's last pill so it doesn't end on a gap.
+/// A pill, as altacv draws a skill.
+///
+/// - body (content): The pill's text.
+/// - label (bool): The darker, bold category pill (a skill group's
+///   label).
+/// - trailing (bool): Leave the gap after the pill; `false` on a row's
+///   last pill, so the next line doesn't start indented.
+/// -> content
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body-size-state.get()
   let accent = _accent-state.get()
@@ -158,6 +177,8 @@
   v(gap * body-size)
 }
 
+/// The dashed grey rule altacv draws between entries.
+/// -> content
 #let divider() = _divider(true)
 #let _divider-space() = _divider(false)
 
@@ -198,6 +219,12 @@
 }
 
 // Entry titles look the same linked or not.
+/// Text in altacv's entry-title style (the accent, italic), linked when
+/// `dest` is set.
+///
+/// - content (content): The title.
+/// - dest (str, none): A URL to link it to.
+/// -> content
 #let styled-link(content, dest: none) = context {
   let accent = _accent-state.get()
   let styled = _treat(_theme.treatment.link, text(fill: accent, content))

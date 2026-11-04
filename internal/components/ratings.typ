@@ -47,6 +47,14 @@
 }
 
 // `max` defaults to the enclosing `alta()`'s `preferences.maxRating`.
+/// A label with a row of rating dots at the right edge: filled,
+/// half-filled, then empty.
+///
+/// - label (content, str): The row's label.
+/// - value (int, float): The rating, from 0 to `max`, in steps of 0.5.
+/// - max (auto, int): The dots in the row; `auto` is
+///   `preferences.maxRating` (5 unless set).
+/// -> content
 #let rating(label, value, max: auto) = context {
   let max-rating = if max == auto { _max-rating-state.get() } else { max }
   // The state is validated as `maxRating`; an explicit `max` isn't.

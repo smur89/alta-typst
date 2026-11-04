@@ -3,6 +3,9 @@
 // Each dark enough to stay legible beside the grey body text and to
 // survive a B&W photocopy as a distinct mid-tone. `teal` is the
 // default.
+/// The built-in accent colours for `preferences.accent`: `teal` (the
+/// default), `navy`, `crimson`, `forest`, `plum`, `charcoal`.
+/// -> dictionary
 #let palettes = (
   teal: rgb("#00796B"),
   navy: rgb("#1A3A6C"),

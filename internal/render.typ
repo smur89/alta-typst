@@ -17,6 +17,17 @@
 // `cv` follows the JSON Resume schema; `labels` and `preferences` are
 // partial dicts merged over the defaults (unknown keys panic). Every
 // input is checked before anything renders.
+/// Renders a CV from a JSON Resume-style dictionary.
+///
+/// - cv (dictionary): The CV, in the JSON Resume schema plus altacv's
+///   `custom.altacv` extensions. Unknown keys and wrong types panic,
+///   naming the field.
+/// - labels (dictionary): Display strings to override, merged over the
+///   English defaults (`internal/data/labels-en.toml`).
+/// - preferences (dictionary): Settings to override (accent, font,
+///   columns, …), merged over the defaults. See the README's
+///   Preferences tables.
+/// -> content
 #let alta(
   cv,
   labels: (:),
@@ -52,6 +63,14 @@
 // `..rest` forwards future `alta` kwargs without an edit here. Extra
 // positionals (`alta-from-json(p, my-prefs)`) panic with a
 // wrapper-aware message rather than an `alta`-level one.
+/// Renders a CV from a `resume.json`, validated against the JSON Resume
+/// schema first: `alta(from-json-resume(data), ..)`.
+///
+/// - data (path, str, dictionary): The `resume.json`, as
+///   `path("resume.json")`, a path string from the project root
+///   (`"/resume.json"`), or an already-decoded dictionary.
+/// - ..rest (arguments): `labels:` and `preferences:`, as for `alta`.
+/// -> content
 #let alta-from-json(data, ..rest) = {
   if rest.pos().len() > 0 {
     panic(

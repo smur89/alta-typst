@@ -31,6 +31,17 @@
 // rather than read a private-use codepoint aloud. When the icon alone
 // carries meaning (a network beside a bare username), `alt` wraps it
 // in `_alt-figure` instead; the outer `box` keeps the figure inline.
+/// A FontAwesome glyph from altacv's icon set, standing on the text's
+/// baseline. Decorative in tagged PDF unless `alt` is given.
+///
+/// - name (str): A key of the icon set (a utility icon or a profile
+///   network, e.g. `"calendar"`, `"github"`). Unknown names panic.
+/// - size (auto, length): The glyph's box; `auto` is the body size.
+/// - shift (length): Shifts the glyph vertically, as the `baseline` of
+///   its box.
+/// - fill (auto, color): The glyph's colour; `auto` is the body text's.
+/// - alt (str, none): Alt text, when the icon alone carries meaning.
+/// -> content
 #let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = context {
   let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }

@@ -766,7 +766,7 @@ For an accessible PDF, add PDF/UA-1, the accessibility standard: `--pdf-standard
 
 ## Helpers
 
-`alta()` uses these internally; importing them lets you compose a custom section, or preview a single helper in isolation:
+`alta()` uses these internally; importing them lets you compose a custom section, or preview a single helper in isolation. Each one, and `alta` itself, has a doc comment listing its parameters, which editors with Typst support (Tinymist) show on hover and in autocomplete:
 
 | Helper | Purpose |
 |---|---|
