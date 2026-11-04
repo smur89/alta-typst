@@ -39,7 +39,7 @@ A section reads fields and fills a component's slots:
 // sections/awards.typ
 #let _awards(entries, (labels, format-date, ..)) = _section(
   labels.awards,
-  entries.filter(a => _field(a, "title") != none),
+  entries,
   award => _entry(
     title: award.title,
     url: _altacv(award, "url"),
