@@ -75,31 +75,30 @@
   )
 }
 
-// `authors` in published order, trimmed, each flagged when it's
-// `owner` (`basics.name`, ignoring case and surrounding spaces). Read
-// leniently: anything but an array reads as none, and a non-string or
-// empty author is dropped.
-#let _authors(pub, owner) = {
-  let owner-key = if _present-str(owner) { lower(owner.trim()) }
+// `authors` in published order, trimmed, each flagged when it's one
+// of `owners` (`ctx.owners`: trimmed, lowercased), ignoring case.
+// Read leniently: anything but an array reads as none, and a
+// non-string or empty author is dropped.
+#let _authors(pub, owners) = (
   _array-or-empty(pub.at("authors", default: none))
     .filter(a => type(a) == str)
     .map(a => a.trim())
     .filter(_present-str)
-    .map(a => (name: a, owner: lower(a) == owner-key))
-}
+    .map(a => (name: a, owner: lower(a) in owners))
+)
 
 #let _source(pub) = _join-present(
   (_field(pub, "publisher"), _citation(pub)),
   " ",
 )
 
-#let _render-publication(pub, (format-date, owner, ..)) = {
+#let _render-publication(pub, (format-date, owners, ..)) = {
   let refs = _identifier-refs(_identifiers(pub))
   let url = _field(pub, "url")
   _bib-entry(
     pub.name,
     url: if url != none { url } else { _identifier-url(refs) },
-    authors: _authors(pub, owner),
+    authors: _authors(pub, owners),
     source: _source(pub),
     date: format-date(_field(pub, "releaseDate")),
     identifiers: refs,

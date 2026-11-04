@@ -6,7 +6,7 @@
 #import "../design/theme.typ": _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _positive-int-rule, _type-rule,
+  _enum-rule, _list-rule, _positive-int-rule, _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
@@ -115,6 +115,7 @@
     "`none` or a URL template string containing `{q}`",
   ),
   maxRating: _positive-int-rule,
+  ownerNames: _list-rule((str,), "an array of strings"),
   referencesAvailableOnRequest: _bool-rule,
 )
 

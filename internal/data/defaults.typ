@@ -56,6 +56,7 @@
   linkContactInfo: true,
   mapsProvider: maps-providers.google,
   maxRating: 5,
+  ownerNames: (),
   // Deprecated, removed in the next major (#239). `groupCertificates`
   // and `showPronouns` are ignored (JSON Resume dropped
   // `basics.pronouns` as added by accident,

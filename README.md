@@ -333,7 +333,7 @@ A bibliography list rather than entries: the title, then a line each for the aut
 |---|---|---|
 | `name` | string | Publication title. |
 | `url` | string | Links the title. Without it, the title links to the first resolvable identifier (DOI, then arXiv, then PMID). |
-| `authors` | array of strings | JSON Resume 1.7.0 author list in published order. The CV owner's own entry (matching `basics.name`, ignoring case and surrounding spaces) is set apart. |
+| `authors` | array of strings | JSON Resume 1.7.0 author list in published order. The CV owner's own entry (matching `basics.name`, or one of `preferences.ownerNames`, ignoring case and surrounding spaces) is set apart. |
 | `publisher` | string | Where it was published. |
 | `volume` / `issue` / `pages` | string | JSON Resume 1.7.0 journal citation, after the publisher as `12(3), 45–67`. Each part is optional and takes its punctuation with it; a hyphen or run of hyphens in `pages` becomes one en dash. |
 | `releaseDate` | string | Publication date. |
@@ -462,6 +462,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
 | `maxRating` | `5` | Number of dots on the language scale. Positive integer. Set `6` for a CEFR-style scale, `4` for ILR-style, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half. |
+| `ownerNames` | `()` | Other spellings of `basics.name` that also mark the CV owner among `publications[].authors`, matched the same way: e.g. `("J. Doe", "Jane Smith")` for initials or a former name. |
 
 #### Deprecated preferences
 

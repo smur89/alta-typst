@@ -15,7 +15,7 @@
 #import "data/sections.typ": _section-specs
 
 // Renderers take `(entries, ctx)`, `ctx` being `(labels, prefs,
-// format-date, owner)`.
+// format-date, owner, owners)`.
 #let _renderers = (
   work: _work,
   volunteer: _volunteer,
