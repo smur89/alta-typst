@@ -706,7 +706,7 @@ Parts of the CV carry labels that a Typst show rule can target, so you can resty
 #alta(cv)
 ```
 
-A rule overrides any text setting the template gives that part: font, size, colour, weight, style or tracking. It doesn't reach a part's icon or other graphics, except a group title's icon, which takes the title's colour.
+A rule on a text part overrides any text setting the template gives it: font, size, colour, weight, style or tracking. It doesn't reach the part's icon, except a group title's icon, which takes the title's colour. The two line parts take `set line(...)` instead; a partial stroke keeps the rest of the template's, so `set line(stroke: (paint: gray))` recolours a divider and leaves it dashed.
 
 The labels in this table are public API and follow semver: a rename or removal is a breaking change, made only in a major release. Labels prefixed `alta-internal-` are the template's own and may change at any time, so don't target them.
 
@@ -727,6 +727,8 @@ The labels in this table are public API and follow semver: a rename or removal i
 | `<alta-pill-label>` | A skill group's label pill. |
 | `<alta-rating-label>` | A language's name beside its rating. |
 | `<alta-footer>` | The page footer. |
+| `<alta-section-rule>` | The line under a section's heading. |
+| `<alta-divider>` | The dashed line between entries (and `divider()`). |
 
 The name and headings are also `heading` elements, so `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
 

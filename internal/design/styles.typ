@@ -100,7 +100,12 @@
       _treat(case, _part("section-title", it.body))
     }
     #v(rule-gap * body-size)
-    #line(length: 100%, stroke: sw.thick + accent)
+    // The stroke is `set` around the `section-rule` part, so a user's
+    // `show <alta-section-rule>: set line(...)` overrides it.
+    #{
+      set line(stroke: sw.thick + accent)
+      _part("section-rule", line(length: 100%))
+    }
     #v(below * body-size)
   ]
   let sub-heading(role, fill, part) = it => _subheading-block(

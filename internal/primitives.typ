@@ -165,11 +165,14 @@
   if here().position().y < _top-margin() + clearance { return }
   v(gap * body-size)
   if rule {
-    line(length: 100%, stroke: (
+    // The stroke is `set` around the `divider` part, so a user's
+    // `show <alta-divider>: set line(...)` overrides it.
+    set line(stroke: (
       paint: _theme.colour.border,
       thickness: _theme.stroke-width.thin,
       dash: dash,
     ))
+    _part("divider", line(length: 100%))
   }
   v(gap * body-size)
 }
