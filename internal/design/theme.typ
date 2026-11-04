@@ -52,6 +52,10 @@
   // group's name (`Music: Trad, Jazz`) and the footer's "Last
   // updated"; `range` between a period's dates.
   separator: (facts: " · ", items: ", ", label: ": ", range: [ – ]),
+  // A publication's citation, `ACM 12(3), 45–67`: the brackets around
+  // the issue, before the pages, between the publisher and the rest,
+  // and the dash that replaces hyphens in a page range.
+  citation: (issue: ("(", ")"), pages: ", ", source: " ", page-range: "–"),
   // For a summary, a `styled-link` title, the CV owner among
   // publication authors, and an interest group's name.
   treatment: (
@@ -81,6 +85,7 @@
     font-weight: fw,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
     separator: tokens.separator,
+    citation: tokens.citation,
     treatment: tokens.treatment,
     // `secondary` (the quietest lines) and `border` (dividers, empty
     // rating dots) derive from `body`.

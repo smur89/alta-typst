@@ -140,7 +140,8 @@
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
   authors: ((name: "A. Smith", owner: false), (name: "Jane Doe", owner: true)),
-  source: "ACM 12(3), 45–67",
+  publisher: "ACM",
+  citation: (volume: "12", issue: "3", pages: "45-67"),
   date: "Jun 2024",
   identifiers: (
     (name: "DOI", id: "10.1000/182", url: "https://doi.org/10.1000/182"),

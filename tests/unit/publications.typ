@@ -1,14 +1,15 @@
 // Unit checks for the publication field helpers in
-// sections/publications.typ and the `_bib-entry` line builders in
-// internal/components/bibliography.typ.
+// sections/publications.typ and the `_bib-entry` line builders,
+// citation included, in internal/components/bibliography.typ.
 
 #import "/internal/components/bibliography.typ": (
-  _author-line, _author-names, _identifier-groups,
+  _author-line, _author-names, _citation, _identifier-groups, _source,
+  _source-line,
 )
 #import "/internal/primitives.typ": _join-facts
 #import "/internal/design/theme.typ": _default-theme
 #import "/sections/publications.typ": (
-  _authors, _citation, _identifier-refs, _identifier-url, _identifiers, _source,
+  _authors, _identifier-refs, _identifier-url, _identifiers,
 )
 #import "/tests/unit/_plain.typ": plain
 
@@ -55,16 +56,17 @@
 )
 #assert.eq(_identifier-groups(()), ())
 
-// _citation: journal-style tail, each part optional, page hyphens
-// set as one en dash.
+// _citation: journal-style tail in the default theme's style, each
+// part optional, page hyphens set as one en dash.
+#let style = _default-theme.citation
 #assert.eq(
-  _citation((volume: "12", issue: "3", pages: "45--67")),
+  _citation(style, (volume: "12", issue: "3", pages: "45--67")),
   "12(3), 45–67",
 )
-#assert.eq(_citation((volume: "12")), "12")
-#assert.eq(_citation((issue: "3")), "(3)")
-#assert.eq(_citation((pages: "9")), "9")
-#assert.eq(_citation((:)), none)
+#assert.eq(_citation(style, (volume: "12")), "12")
+#assert.eq(_citation(style, (issue: "3")), "(3)")
+#assert.eq(_citation(style, (pages: "9")), "9")
+#assert.eq(_citation(style, (:)), none)
 
 // _authors: published order, trimmed, unusable entries skipped, each
 // of `owners` (normalised, as `ctx.owners` is) flagged ignoring case.
@@ -102,7 +104,11 @@
 )
 #assert.eq(_author-line(()), none)
 
-// _source: publisher, then citation; either alone.
-#assert.eq(_source((publisher: "ACM", volume: "12")), "ACM 12")
-#assert.eq(_source((publisher: "ACM")), "ACM")
-#assert.eq(_source((:)), none)
+// _source: publisher, then citation; either alone. _source-line is
+// `none` with neither.
+#assert.eq(_source(style, "ACM", (volume: "12")), "ACM 12")
+#assert.eq(_source(style, "ACM", (:)), "ACM")
+#assert.eq(_source(style, none, (volume: none)), none)
+#assert.eq(_source-line(none, (volume: none, issue: none), none), none)
+#assert.ne(_source-line(none, (pages: "9"), none), none)
+#assert.ne(_source-line(none, (:), "2024"), none)

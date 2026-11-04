@@ -1,10 +1,12 @@
 // The bibliography list item publications map onto, and the line
-// builders for its author and identifier records.
+// builders for its author and identifier records and its citation.
 
 #import "../design/styles.typ": _treat
 #import "../context.typ": _theme-state
-#import "../util/values.typ": _join-present
-#import "../primitives.typ": _fact-line, _link-if, _meta, _preamble, styled-link
+#import "../util/values.typ": _join-present, _present
+#import "../primitives.typ": (
+  _fact-line, _join-facts, _link-if, _meta, _preamble, styled-link,
+)
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,
 // bold by default: the academic-CV convention), with `theme`'s
@@ -29,15 +31,57 @@
   [#r.name #_link-if(r.url, r.id)],
 ))
 
+// Journal-style `12(3), 45–67` from `citation`'s `volume`, `issue`
+// and `pages` (each optional), in `style` (the theme's `citation`):
+// each part takes its punctuation with it, and hyphens in `pages`
+// become one `page-range` dash.
+#let _citation(style, citation) = {
+  let part(key) = citation.at(key, default: none)
+  let issue = part("issue")
+  let pages = part("pages")
+  let (open, close) = style.issue
+  _join-present(
+    (
+      (part("volume"), if issue != none { open + issue + close }).join(),
+      if pages != none { pages.replace(regex("-+"), style.page-range) },
+    ),
+    style.pages,
+  )
+}
+
+// The publisher, then the citation, in `style`.
+#let _source(style, publisher, citation) = _join-present(
+  (publisher, _citation(style, citation)),
+  style.source,
+)
+
+// The source then its date (`ACM 12(3), 45–67 · Jun 2024`), in the
+// theme's citation style and separators; `none` with none of its
+// parts, decided outside context as `_fact-line` does. One context for
+// the line keeps it one run of text, as a plain join would be.
+#let _source-line(publisher, citation, date) = if (
+  publisher != none or citation.values().any(v => v != none) or _present(date)
+) {
+  context {
+    let theme = _theme-state.get()
+    _join-facts(
+      theme.separator,
+      (_source(theme.citation, publisher, citation),),
+      (_meta(date),),
+    )
+  }
+}
+
 // One bibliography list item: the title (linked to `url`), then
-// authors, the source with its date (`Personal Blog · Jun 2024`),
+// authors, the source with its date (`ACM 12(3), 45–67 · Jun 2024`),
 // identifiers and summary, each on its own line. Absent parts drop
 // out so none leaves an orphan `\` break or separator.
 #let _bib-entry(
   title,
   url: none,
   authors: (),
-  source: none,
+  publisher: none,
+  citation: (:),
   date: none,
   identifiers: (),
   summary: none,
@@ -45,7 +89,7 @@
   let lines = _join-present(
     (
       _author-line(authors),
-      _fact-line((source,), (_meta(date),)),
+      _source-line(publisher, citation, date),
       _meta(_fact-line(.._identifier-groups(identifiers))),
       _preamble(summary),
     ),
