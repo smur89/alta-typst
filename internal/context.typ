@@ -5,10 +5,12 @@
 // and can't be passed the preferences. The theme's fixed values live
 // in `design/theme.typ`.
 
-#import "design/presets.typ": palettes
+#import "design/presets.typ": themes
+#import "design/theme.typ": _colour-roles
 
 #let _body-size-state = state("alta-body-size", 10pt)
-#let _accent-state = state("alta-accent", palettes.teal)
+// The resolved colours.
+#let _colour-state = state("alta-colours", _colour-roles(themes.teal, (:)))
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.maxRating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)

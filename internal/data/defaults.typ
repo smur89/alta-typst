@@ -4,7 +4,7 @@
 // `maps-providers` presets for `mapsProvider`.
 
 #import "../design/icon-set.typ": _network-icons, _publication-icons
-#import "../design/presets.typ": palettes
+#import "../design/presets.typ": themes
 #import "sections.typ": _keys-for-column
 
 #let _default-labels = toml("labels-en.toml")
@@ -30,7 +30,8 @@
   // setup-typst, apk in the pinned image).
   font: "Lato",
   bodySize: 10pt,
-  accent: palettes.teal,
+  theme: themes.teal,
+  colours: (:),
   publicationIcons: _publication-icons,
   projectIcons: (:),
   profileIcons: _network-icons,
@@ -63,9 +64,10 @@
   maxRating: 5,
   skillLevelDisplay: auto,
   ownerNames: (),
-  // Deprecated, removed in the next major (#239). `groupCertificates`
-  // and `showPronouns` are ignored (JSON Resume dropped
-  // `basics.pronouns` as added by accident,
+  // Deprecated, removed in the next major (#239). `accent` has no
+  // default, as `_canonical-preferences` folds it into `colours`.
+  // `groupCertificates` and `showPronouns` are ignored (JSON Resume
+  // dropped `basics.pronouns` as added by accident,
   // https://github.com/jsonresume/jsonresume.org/pull/629),
   // and `_canonical-cv` turns `referencesAvailableOnRequest` into a
   // `references[].availableOnRequest` entry.

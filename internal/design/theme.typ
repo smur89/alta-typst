@@ -1,12 +1,10 @@
-// The template's look. `_tokens` are the scales (type, colour,
-// spacing, strokes); `_build-theme` maps them onto the roles components
-// read and derives `secondary` and `border` from `body`. A role exists
-// only where components differ by design; otherwise they read tokens.
-//
-// Not configurable yet. When it is, `alta()` deep-merges token
-// overrides (the tokens nest), rebuilds, then merges role overrides.
-// Token values are numbers and strings (hex colours, widths in pt), so
-// a theme could load from TOML.
+// The template's look. `_tokens` are the scales (type, spacing,
+// strokes); `_build-theme` maps them onto the roles components read. A
+// role exists only where components differ by design; otherwise they
+// read tokens. Colours come from `preferences.theme` (`presets.typ`)
+// and `preferences.colours`, resolved per render by `_colour-roles`.
+// Token values are numbers and strings (font weights), so a theme
+// could load from TOML.
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
@@ -26,9 +24,6 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // Bootstrap's colour roles; `secondary` and `border` derive from
-  // `body` unless set.
-  colour: (body: "#666666", emphasis: "#2E2E2E"),
   // CSS's size keywords.
   space: (
     xx-small: 0.15,
@@ -44,16 +39,9 @@
 
 #let _build-theme(tokens) = {
   let (type: ty, font-weight: fw, space: sp, stroke-width: sw) = tokens
-  let colour = tokens.colour.pairs().map(((k, v)) => (k, rgb(v))).to-dict()
   (
     type: ty,
     font-weight: fw,
-    colour: (
-      secondary: colour.body.lighten(35%),
-      // Dividers, empty rating dots.
-      border: colour.body.lighten(65%),
-    )
-      + colour,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
     // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
     // between groups; `label` after an interest group's name
@@ -148,3 +136,17 @@
 }
 
 #let _theme = _build-theme(_tokens)
+
+// A theme's colours with `colours` (the preference) over them, plus
+// `secondary` (the quietest lines) and `border` (dividers, empty
+// rating dots), derived from `body`.
+#let _colour-roles(theme, colours) = {
+  let roles = theme.colours + colours
+  (
+    roles
+      + (
+        secondary: roles.body.lighten(35%),
+        border: roles.body.lighten(65%),
+      )
+  )
+}

@@ -3,10 +3,12 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
+#import "../design/presets.typ": _colour-role-names
 #import "../design/theme.typ": _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _list-rule, _positive-int-rule, _type-rule,
+  _enum-rule, _list-rule, _positive-int-rule, _prose-list, _quote, _require,
+  _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
@@ -88,12 +90,6 @@
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
-  // Only a colour supports `lighten` / `darken`; a palette name string
-  // is the common slip.
-  accent: _type-rule(
-    (color,),
-    "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
-  ),
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
@@ -141,10 +137,42 @@
   referencesAvailableOnRequest: _bool-rule,
 )
 
+// Only a colour supports `lighten` / `darken`; a palette name string
+// is the common slip.
+#let _colour-rule = _type-rule(
+  (color,),
+  "a colour (e.g. rgb(\"#1A3A6C\"))",
+)
+
+// Colours for any of the roles, `name` their full path.
+#let _check-colours(colours, name) = {
+  _check-type(name, colours, (dictionary,), "a dictionary")
+  _check-unknown-keys(colours.keys(), _colour-role-names, name)
+  for (role, v) in colours { _check(name + "." + role, v, _colour-rule) }
+}
+
+// A theme is `(colours: ...)` setting every role, as it replaces the
+// default theme whole; the caller's `colours` may set any of them.
+#let _validate-colours(theme, colours) = {
+  _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
+  _check-unknown-keys(theme.keys(), ("colours",), "theme")
+  let theme-colours = theme.at("colours", default: none)
+  _check-colours(theme-colours, "theme.colours")
+  let missing = _colour-role-names.filter(r => r not in theme-colours)
+  _require(
+    "theme.colours",
+    theme-colours,
+    missing.len() == 0,
+    "a colour for every role, missing " + _prose-list(missing.map(_quote)),
+  )
+  _check-colours(colours, "colours")
+}
+
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
+  _validate-colours(prefs.theme, prefs.colours)
   let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",

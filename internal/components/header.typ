@@ -4,7 +4,7 @@
 
 #import "../design/styles.typ": _part
 #import "../design/theme.typ": _theme
-#import "../context.typ": _accent-state, _body-size-state
+#import "../context.typ": _body-size-state, _colour-state
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
 #import "qr.typ": _qr-render
@@ -86,24 +86,24 @@
 // `show heading.where(level: 1)` rule restyles it (its font, say) as
 // `heading.where(level: 2)` does the sections. Its styles are `set`
 // around `name`, which arrives labelled (`_page-header`).
-#let _name-line(name, body-size, accent) = block(
+#let _name-line(name, body-size, fill) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
   [#heading(level: 1, {
     set text(
       _theme.type.display.size * body-size,
-      fill: accent,
+      fill: fill,
       weight: _theme.type.display.weight,
     )
     name
   })<alta-internal-name>],
 )
 
-#let _headline(headline, body-size) = if headline != none {
+#let _headline(headline, body-size, fill) = if headline != none {
   block(spacing: 0pt, below: _theme.header.headline-below * body-size, {
     set text(
       _theme.type.title.size * body-size,
-      fill: _theme.colour.emphasis,
+      fill: fill,
       weight: _theme.font-weight.bold,
     )
     _part("headline", headline)
@@ -148,15 +148,19 @@
 ) = context {
   // Read once here and passed to the subcomponents.
   let body-size = _body-size-state.get()
-  let accent = _accent-state.get()
+  let (accent, name: name-fill, tagline, ..) = _colour-state.get()
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
   let qr-size = _theme.header.qr * body-size
   _header-layout(
     align(text-align, {
       let name = _part("name", name)
-      _name-line(if uppercase { upper(name) } else { name }, body-size, accent)
-      _headline(headline, body-size)
+      _name-line(
+        if uppercase { upper(name) } else { name },
+        body-size,
+        name-fill,
+      )
+      _headline(headline, body-size, tagline)
       _contact-bar(contacts, body-size, accent)
     }),
     qr-size,

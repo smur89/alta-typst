@@ -5,19 +5,19 @@
 
 #import "design/styles.typ": _part, _treat
 #import "design/theme.typ": _theme
-#import "context.typ": _accent-state, _body-size-state
+#import "context.typ": _body-size-state, _colour-state
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": _icon-glyph, icon
 
 // The accent text `name()` sets on its own line, for inline use (an
 // entry's organisation on its facts line). Regular weight, so the
 // title above it leads.
-#let _accent-text(body) = context text(fill: _accent-state.get(), body)
+#let _accent-text(body) = context text(fill: _colour-state.get().accent, body)
 
 // The quietest lines (publication dates, identifiers); absent bodies
 // render nothing.
 #let _meta(body) = if _present(body) {
-  text(fill: _theme.colour.secondary, body)
+  context text(fill: _colour-state.get().secondary, body)
 }
 
 // The gap `tag()` leaves after a pill. Takes the CV's body size, not
@@ -118,7 +118,7 @@
 /// -> content
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body-size-state.get()
-  let accent = _accent-state.get()
+  let accent = _colour-state.get().accent
   let (
     fill,
     label-fill,
@@ -173,7 +173,7 @@
     // The stroke is `set` around the `divider` part, so a user's
     // `show <alta-divider>: set line(...)` overrides it.
     set line(stroke: (
-      paint: _theme.colour.border,
+      paint: _colour-state.get().border,
       thickness: _theme.stroke-width.thin,
       dash: dash,
     ))
@@ -230,7 +230,7 @@
 /// - dest (str, none): A URL to link it to.
 /// -> content
 #let styled-link(content, dest: none) = context {
-  let accent = _accent-state.get()
+  let accent = _colour-state.get().accent
   let styled = _treat(_theme.treatment.link, text(fill: accent, content))
   _link-if(dest, styled)
 }

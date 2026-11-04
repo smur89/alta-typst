@@ -3,7 +3,7 @@
 // `basics.summary` onto.
 
 #import "../design/theme.typ": _theme
-#import "../context.typ": _accent-state, _body-size-state
+#import "../context.typ": _body-size-state, _colour-state
 #import "../util/values.typ": _join-present
 #import "../primitives.typ": _preamble, _prose
 
@@ -22,7 +22,9 @@
         (
           if objective != none {
             block(
-              stroke: (left: _theme.stroke-width.thick + _accent-state.get()),
+              stroke: (
+                left: _theme.stroke-width.thick + _colour-state.get().accent,
+              ),
               inset: (left: inset.left * body-size, y: inset.y * body-size),
               _preamble(objective),
             )

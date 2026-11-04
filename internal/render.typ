@@ -22,7 +22,7 @@
 ///   naming the field.
 /// - labels (dictionary): Display strings to override, merged over the
 ///   English defaults. See the README's Labels section.
-/// - preferences (dictionary): Settings to override (accent, font,
+/// - preferences (dictionary): Settings to override (colours, font,
 ///   columns, …), merged over the defaults. See the README's
 ///   Preferences tables.
 /// -> content

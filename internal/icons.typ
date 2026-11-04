@@ -9,7 +9,7 @@
 #import "util/checks.typ": _check, _enum-rule
 #import "design/styles.typ": _inline, _part
 #import "design/theme.typ": _theme
-#import "context.typ": _body-size-state
+#import "context.typ": _body-size-state, _colour-state
 
 // `body` with `alt` as its alt text in tagged PDF. `figure` is Typst's
 // carrier for alt text on non-image content, as `box` and `link` take
@@ -50,7 +50,9 @@
 ) = context {
   let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }
-  let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
+  let resolved-fill = if fill == auto { _colour-state.get().body } else {
+    fill
+  }
   let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,

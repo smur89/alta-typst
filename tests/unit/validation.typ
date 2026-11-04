@@ -9,6 +9,8 @@
   "publicationIcons",
   "projectIcons",
   "profileIcons",
+  "theme",
+  "colours",
   "leftColumnSections",
   "rightColumnSections",
   "linkContactInfo",

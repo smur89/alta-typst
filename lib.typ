@@ -19,7 +19,7 @@
 #import "internal/render.typ": alta, alta-from-json
 #import "internal/data/defaults.typ": maps-providers
 #import "internal/data/json-resume.typ": from-json-resume
-#import "internal/design/presets.typ": palettes
+#import "internal/design/presets.typ": palettes, themes
 #import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating

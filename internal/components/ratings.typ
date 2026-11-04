@@ -6,14 +6,14 @@
 
 #import "../design/styles.typ": _inline, _part
 #import "../design/theme.typ": _theme
-#import "../context.typ": _accent-state, _body-size-state, _max-rating-state
+#import "../context.typ": _body-size-state, _colour-state, _max-rating-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
 
-#let _half-fill(accent) = gradient.linear(
+#let _half-fill(accent, border) = gradient.linear(
   (accent, 0%),
   (accent, 50%),
-  (_theme.colour.border, 50%),
-  (_theme.colour.border, 100%),
+  (border, 50%),
+  (border, 100%),
 )
 
 // A label with `trailing` pushed to the right edge, then a line
@@ -35,12 +35,12 @@
 // ratings.
 #let _rating-dots(value, max) = context {
   let body-size = _body-size-state.get()
-  let accent = _accent-state.get()
+  let (accent, border, ..) = _colour-state.get()
   let (radius, gap, ..) = _theme.rating
   let fills = (
     full: accent,
-    half: _half-fill(accent),
-    empty: _theme.colour.border,
+    half: _half-fill(accent, border),
+    empty: border,
   )
   let dot(state) = _inline(box({
     set circle(fill: fills.at(state))
