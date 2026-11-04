@@ -33,6 +33,7 @@
   accent: palettes.teal,
   publicationIcons: _publication-icons,
   projectIcons: (:),
+  profileIcons: (:),
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,

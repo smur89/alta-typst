@@ -10,8 +10,8 @@
 #import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
 #import "cv.typ": (
-  _altacv, _altacv-ns, _location-fields, _profile-network, _skill-levels,
-  _term-rating,
+  _altacv, _altacv-ns, _location-fields, _profile-glyph, _profile-network,
+  _skill-levels, _term-rating,
 )
 
 // Field rules (`_section-specs`' `fields`, `basics`): the types the
@@ -153,12 +153,15 @@
       "network" in profile,
       "set",
     )
-    if _profile-network(profile) not in _profile-networks {
+    if (
+      _profile-network(profile) not in _profile-networks
+        and _profile-glyph(profile, prefs.profileIcons) == none
+    ) {
       _unknown(
         "profile network",
         repr(profile.network),
         _profile-networks.join(", "),
-        hint: " To add another, register its FontAwesome glyph in _network-icons (internal/design/icon-set.typ).",
+        hint: " To use another, map it to a FontAwesome glyph in preferences.profileIcons (e.g. (kaggle: \"kaggle\")).",
       )
     }
   }

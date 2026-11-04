@@ -5,7 +5,9 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
-#import "../internal/data/cv.typ": _format-location, _profile-network
+#import "../internal/data/cv.typ": (
+  _format-location, _profile-glyph, _profile-network,
+)
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/design/theme.typ": _theme
 #import "../internal/primitives.typ": _portrait
@@ -20,9 +22,13 @@
   }
 }
 
-#let _profile-entry(profile) = (
+// `profile-icons` is the lowercase-keyed `preferences.profileIcons`.
+// A network it maps carries that raw `glyph`, which wins over the
+// icon set's `icon`, so a built-in network can be redrawn too.
+#let _profile-entry(profile, profile-icons: (:)) = (
   channel: "profiles",
   icon: _profile-network(profile),
+  glyph: _profile-glyph(profile, profile-icons),
   // The value is usually a bare username, so the icon is the only
   // thing naming the network. The user's own string, not the
   // lowercased key, keeps their capitalisation ("GitHub").
@@ -40,7 +46,12 @@
 // into the resolved `linkContactInfo` config. Pure data, no `context`.
 // An empty string counts as absent, so it never renders a bare icon
 // behind a dead `mailto:` / `tel:` link.
-#let _contact-entries(basics, maps-provider, location-alt: none) = {
+#let _contact-entries(
+  basics,
+  maps-provider,
+  location-alt: none,
+  profile-icons: (:),
+) = {
   let email = _field(basics, "email")
   let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
@@ -78,7 +89,8 @@
       (channel: "url", icon: "link", value: _display-url(url), url: url)
     },
   ).filter(e => e != none)
-  fields + basics.at("profiles", default: ()).map(_profile-entry)
+  let profiles = basics.at("profiles", default: ())
+  fields + profiles.map(p => _profile-entry(p, profile-icons: profile-icons))
 }
 
 // `basics.image`, or `none` when there's nothing to frame: a `path`
@@ -97,11 +109,12 @@
 // its channel.
 #let _linked-contacts(basics, prefs, location-alt: none) = {
   let link-config = _resolve-link-config(prefs.linkContactInfo)
-  _contact-entries(basics, prefs.mapsProvider, location-alt: location-alt).map(
-    e => (
-      e + (url: if link-config.at(e.channel) { e.url })
-    ),
-  )
+  _contact-entries(
+    basics,
+    prefs.mapsProvider,
+    location-alt: location-alt,
+    profile-icons: prefs.profileIcons,
+  ).map(e => e + (url: if link-config.at(e.channel) { e.url }))
 }
 
 // The contact bar's rows: contact details on one line, profiles on

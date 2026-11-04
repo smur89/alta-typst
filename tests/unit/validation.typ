@@ -8,6 +8,7 @@
 #let checked-elsewhere = (
   "publicationIcons",
   "projectIcons",
+  "profileIcons",
   "leftColumnSections",
   "rightColumnSections",
   "linkContactInfo",

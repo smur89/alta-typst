@@ -124,7 +124,7 @@ A `chore:` line drops a PR from the notes entirely.
 
 ## Adding a profile-network icon
 
-This is the most common shape of contribution. Two changes:
+This is the most common shape of contribution. A user can already draw any network with `preferences.profileIcons`; a built-in entry saves everyone the mapping. Two changes:
 
 1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (`_profile-network` in `internal/data/cv.typ` lowercases the network before the lookup) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").

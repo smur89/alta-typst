@@ -40,7 +40,7 @@
 // Tables matched case-insensitively and merged entry by entry over
 // their defaults (`_strict-merge`'s `tables`).
 #let _label-tables = ("publicationTypes",)
-#let _preference-tables = ("publicationIcons", "projectIcons")
+#let _preference-tables = ("publicationIcons", "projectIcons", "profileIcons")
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -172,22 +172,25 @@
 // Runs before the merge over the defaults. #239: the deprecated
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
-// one table. `projectIcons` is lowercased too. #239: the string
-// `pageFooter: "auto"` becomes `auto`. A non-dictionary (overall or as
-// a table) passes through for `_strict-merge` to reject.
+// one table. `projectIcons` and `profileIcons` are lowercased too.
+// #239: the string `pageFooter: "auto"` becomes `auto`. A
+// non-dictionary (overall or as a table) passes through for
+// `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"
   ) { overrides + (pageFooter: auto) } else { overrides }
-  let project-icons = _dict-or-empty(overrides).at(
-    "projectIcons",
-    default: none,
+  let lowercase-key(prefs, key) = {
+    let table = _dict-or-empty(prefs).at(key, default: none)
+    if type(table) != dictionary { prefs } else {
+      prefs + ((key): _lowercase-table(table, "preferences." + key))
+    }
+  }
+  let overrides = ("projectIcons", "profileIcons").fold(
+    overrides,
+    lowercase-key,
   )
-  let overrides = if type(project-icons) == dictionary {
-    let lowered = _lowercase-table(project-icons, "preferences.projectIcons")
-    overrides + (projectIcons: lowered)
-  } else { overrides }
   let icons = if type(overrides) == dictionary {
     overrides.at("publicationIcons", default: (:))
   }

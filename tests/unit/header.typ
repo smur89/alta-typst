@@ -64,6 +64,20 @@
   ("github", "github.com/jane", "https://github.com/jane"),
 )
 
+// _profile-entry with `profileIcons`: no mapping leaves `glyph` unset;
+// the network as written wins over its alias's key, which still
+// covers the alias when the network itself is unmapped.
+#assert.eq(x.glyph, none)
+#let glyph(network, icons) = {
+  _profile-entry(
+    (network: network, username: "jane"),
+    profile-icons: icons,
+  ).glyph
+}
+#assert.eq(glyph("Kaggle", (kaggle: "kaggle")), "kaggle")
+#assert.eq(glyph("X", (x: "x-twitter", twitter: "twitter")), "x-twitter")
+#assert.eq(glyph("X", (twitter: "square-twitter")), "square-twitter")
+
 // _display-url: scheme and trailing slash dropped, the rest kept.
 #assert.eq(_display-url("https://jane.dev/"), "jane.dev")
 #assert.eq(_display-url("http://x.io/a/b?q=1"), "x.io/a/b?q=1")
