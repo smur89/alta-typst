@@ -16,6 +16,7 @@ TYPST     ?= typst ## the typst binary
 # leave it empty and use system fonts.
 FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
+TT        ?= tt ## the tytanic binary (test-visual)
 FFMPEG    ?= ffmpeg ## the ffmpeg binary
 ROOT      := .
 PDF_STANDARDS := a-2b,ua-1
@@ -75,7 +76,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template test-visual check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
 # bump the tag here when bumping Typst / FontAwesome / Lato versions
@@ -250,6 +251,14 @@ test-panics: ## check each tests/panics/*.typ fails with its `// expect:` text
 # A quick check after editing template/cv.typ; `test-compile` covers it.
 test-template: $(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 	$(call compile-check,$(TEMPLATE_SRC))
+
+# Spike (#332): tytanic compares each tests/visual/<name>/ render
+# against its committed ref/*.png, and compile-checks the template as
+# `@template`. `tt update` rewrites the references. tytanic skips system
+# fonts by default, so with FONT_PATHS unset it opts back in; the
+# references only match the pinned Lato and FontAwesome builds, though.
+test-visual: ## compare tests/visual/ renders with their reference PNGs (tytanic)
+	$(TT) run --no-fail-fast $(if $(strip $(FONT_PATHS)),,--use-system-fonts)
 
 # Fail if any tracked render under DRIFT_PATHS differs from HEAD. The
 # CI drift gates run this right after regenerating with `make -B` (see
