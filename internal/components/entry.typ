@@ -30,8 +30,8 @@
   let (side-gap, side-max, facts-below, row-gap) = _theme.entry
   let (lead, lead-size, under) = if title != none {
     (
-      // Level 2, or 3 under a group (`components/frame.typ`).
-      [#heading(depth: 2, title)<alta-internal-entry>],
+      // Level 3, or 4 under a group (`components/frame.typ`).
+      [#heading(depth: 3, title)<alta-internal-entry>],
       _theme.type.title.size * body-size,
       facts,
     )

@@ -1,16 +1,16 @@
 // Section scaffolding: the section's heading and its entries with a
 // separator between neighbours, optionally clustered under group
 // headings. A heading's level is its place in the document's outline
-// (section 1, group 2, an entry 2 or, under a group, 3), so tagged PDF
-// and the bookmarks nest; its role, and so its look, is an internal
-// label (`design/styles.typ`).
+// (the name 1, a section 2, a group 3, an entry 3 or, under a group,
+// 4), so tagged PDF and the bookmarks nest; its role, and so its look,
+// is an internal label (`design/styles.typ`).
 
 #import "../primitives.typ": divider
 
 // Empty `entries` renders nothing, not even the heading, so callers
 // filter unusable entries first and no heading is orphaned.
 #let _section-frame(title, entries, body) = if entries.len() > 0 {
-  [#heading(level: 1, title)<alta-internal-section>]
+  [#heading(level: 2, title)<alta-internal-section>]
   body
 }
 
@@ -39,7 +39,7 @@
   separator: divider(),
 ) = _section-frame(title, groups, {
   for (key, items) in groups.pairs() {
-    [#heading(level: 2, subheading(key, items))<alta-internal-group>]
+    [#heading(level: 3, subheading(key, items))<alta-internal-group>]
     // A level deeper, so the group's entries nest under it.
     set heading(offset: 1)
     _entry-blocks(items, render-entry, separator: separator)

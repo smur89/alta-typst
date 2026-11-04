@@ -50,7 +50,11 @@
   uppercase: true,
 )
 
-= Page header: each photo placement, and centred with left text
+// One level-1 title, so the captions (level 2) nest under it and the
+// components' own headings keep a valid outline for PDF/UA.
+= altacv component gallery
+
+== Page header: each photo placement, and centred with left text
 #let portrait = _portrait(
   avatar-placeholder,
   prefs.imageSize,
@@ -68,14 +72,14 @@
 
 #pagebreak()
 
-= Page header: a QR code, and a contact bar that wraps
+== Page header: a QR code, and a contact bar that wraps
 #variant(header(qr-url: "https://example.com"))
 // Each entry wraps whole: no line starts with a bare value.
 #variant(header(contacts: (contacts * 4,)))
 
 #pagebreak()
 
-= Intro
+== Intro
 #_intro-block(
   objective: [Lead a platform team building reliable data systems.],
   summary: [Backend engineer with eight years of distributed systems.],
@@ -83,7 +87,7 @@
 
 #pagebreak()
 
-= Section of entries: full, with roles and keywords
+== Section of entries: full, with roles and keywords
 #_section("Entries", (1, 2), _ => _entry(
   title: "Staff Engineer",
   url: "https://example.com",
@@ -100,7 +104,7 @@
   keywords: ("Scala", "", "Kafka"),
 ))
 
-= Entry: in a narrow column, the date and location on lines of their own
+== Entry: in a narrow column, the date and location on lines of their own
 #block(width: 30%, _entry(
   title: "Staff Engineer",
   org: "Acme",
@@ -108,7 +112,7 @@
   location: "Dublin, IE",
 ))
 
-= Entry: issuer and details
+== Entry: issuer and details
 #_section("Compact", (1,), _ => _entry(
   title: "Certified Kubernetes Administrator",
   url: "https://example.com",
@@ -118,7 +122,7 @@
   summary: [Cluster administration.],
 ))
 
-= Grouped section, without separators
+== Grouped section, without separators
 #_grouped-section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
@@ -127,7 +131,7 @@
   separator: none,
 )
 
-= Bibliography item
+== Bibliography item
 #_bib-entry(
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
@@ -140,7 +144,7 @@
   summary: [What the paper is about.],
 )
 
-= Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing
+== Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing
 #block(width: 60%, _keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
   (
@@ -153,18 +157,18 @@
   ),
 )))
 
-= Label rows
+== Label rows
 #_label-rows((
   (name: "Music", keywords: ("Trad", "Jazz")),
   (name: "Sport", keywords: ("Hurling", "Climbing")),
 ))
 
-= Rating rows: dots, a half dot, and the text fallback
+== Rating rows: dots, a half dot, and the text fallback
 #_rating-row("English", 5)
 #_rating-row("Irish", 3.5)
 #_rating-row("German", none, fallback: "Conversational")
 
-= Primitives
+== Primitives
 #name[Acme]
 #term("2022 – 2024", location: "Remote")
 #tag[Scala] #tag(label: true)[Label] #tag(trailing: false)[Last]

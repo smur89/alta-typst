@@ -81,21 +81,22 @@
   }
 }
 
-// A `title` element, so a user's `show title: set text(...)` restyles
-// it (its font, say) as `show heading` does the headings, and tagged
-// PDF reads it as the document's title. Its styles are `set` around
-// `name`, which arrives labelled (`_page-header`).
+// The CV's one level-1 heading, so tagged PDF and the bookmarks nest
+// the sections under the person, and a user's
+// `show heading.where(level: 1)` rule restyles it (its font, say) as
+// `heading.where(level: 2)` does the sections. Its styles are `set`
+// around `name`, which arrives labelled (`_page-header`).
 #let _name-line(name, body-size, accent) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
-  title({
+  [#heading(level: 1, {
     set text(
       _theme.type.display.size * body-size,
       fill: accent,
       weight: _theme.type.display.weight,
     )
     name
-  }),
+  })<alta-internal-name>],
 )
 
 #let _headline(headline, body-size) = if headline != none {

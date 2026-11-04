@@ -85,25 +85,22 @@
   // rule on `heading` itself can't override what this transform sets,
   // as it runs inside the heading.
   // Matched by role (an internal label), not level: a heading's level
-  // is its outline depth (`components/frame.typ`).
+  // is its outline depth (`components/frame.typ`). The name is the one
+  // level-1 heading, drawn as it is (`components/header.typ`).
+  show <alta-internal-name>: it => it.body
   show <alta-internal-section>: it => block(sticky: true)[
     #v(above * body-size)
-    // The title and its rule as one stack, so the gap between them is
-    // `rule-gap` alone, not paragraph spacing that would follow the
-    // heading's level.
-    #stack(
-      spacing: rule-gap * body-size,
-      {
-        set text(
-          ty.headline.size * body-size,
-          fill: accent,
-          weight: ty.headline.weight,
-          tracking: tracking,
-        )
-        _treat(case, _part("section-title", it.body))
-      },
-      line(length: 100%, stroke: sw.thick + accent),
-    )
+    #{
+      set text(
+        ty.headline.size * body-size,
+        fill: accent,
+        weight: ty.headline.weight,
+        tracking: tracking,
+      )
+      _treat(case, _part("section-title", it.body))
+    }
+    #v(rule-gap * body-size)
+    #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
   let sub-heading(role, fill, part) = it => _subheading-block(
