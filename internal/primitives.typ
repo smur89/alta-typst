@@ -45,9 +45,10 @@
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
 // doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
-// Prose, so `<alta-prose>` (`design/styles.typ`).
+// Labelled `<alta-summary>`: prose for `justify` (`design/styles.typ`),
+// and a part a user's show rule can restyle (#327).
 #let _preamble(body) = if _present(body) {
-  [#par(_treat(_theme.treatment.preamble, body)) <alta-prose>]
+  [#par(_treat(_theme.treatment.preamble, body))<alta-summary>]
 }
 
 // The term row's frame: indented text under an entry's heading.
@@ -109,11 +110,13 @@
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
     outset: (y: outset-y * body-size),
+    // Labelled inside its styles, for a user's `show <alta-pill>` /
+    // `<alta-pill-label>` rules (#327); the box's look is the theme's.
     text(
       body-size,
       fill: accent.darken(text-darken),
       weight: text-weight,
-      body,
+      if label [#body<alta-pill-label>] else [#body<alta-pill>],
     ),
   )
   if trailing { _tag-gap(body-size) }

@@ -25,7 +25,12 @@
     fill: _theme.colour.body,
     lang: labels.lang,
   )
-  set page(paper: prefs.paper, margin: prefs.margin, footer: footer)
+  // Labelled for a user's `show <alta-footer>` rule (#327).
+  set page(
+    paper: prefs.paper,
+    margin: prefs.margin,
+    footer: if footer != none [#footer<alta-footer>],
+  )
   show: _content-styles.with(body-size, accent, prefs.justify)
   body
 }

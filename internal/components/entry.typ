@@ -51,7 +51,7 @@
       lead-size,
       _icon-fact(
         "calendar",
-        if date != none [#date <alta-date>],
+        if date != none [#date<alta-date>],
         alt: alts.date,
       ),
     ),
@@ -60,7 +60,7 @@
       body-size,
       _icon-fact(
         "location",
-        if location != none [#location <alta-location>],
+        if location != none [#location<alta-location>],
         alt: alts.location,
       ),
     ),
@@ -134,10 +134,17 @@
   keywords-lead: none,
   keywords: (),
 ) = {
-  let org = if _present(org) { _accent-text(_link-if(org-url, org)) }
+  // Labelled inside their styles, for a user's `show <alta-org>` /
+  // `<alta-facts>` rules (#327).
+  let org = if _present(org) {
+    _accent-text(_link-if(org-url, [#org<alta-org>]))
+  }
   _entry-head(
     if _present(title) { _link-if(url, title) },
-    _fact-line((org,), roles, details),
+    {
+      let facts = _fact-line((org,), roles, details)
+      if facts != none [#facts<alta-facts>]
+    },
     period,
     location,
   )

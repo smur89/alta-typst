@@ -39,7 +39,7 @@
 // For `show: _content-styles.with(body-size, accent, justify)`.
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
-// the paragraphs labelled `<alta-prose>`, so rows of facts, names or
+// the paragraphs labelled `<alta-summary>`, so rows of facts, names or
 // pills never stretch; Typst then hyphenates it too
 // (`text.hyphenate` is `auto`).
 #let _content-styles(body-size, accent, justify, body) = {
@@ -47,7 +47,7 @@
   let (type: ty, colour, stroke-width: sw, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   show list: set par(justify: justify)
-  show <alta-prose>: set par(justify: justify)
+  show <alta-summary>: set par(justify: justify)
   set list(
     marker: [•],
     indent: 0pt,
@@ -69,7 +69,7 @@
         weight: ty.headline.weight,
         tracking: tracking,
       )
-      [#_treat(case, it.body) <alta-section-title>]
+      _treat(case, [#it.body<alta-section-title>])
     }
     #v(rule-gap * body-size)
     #line(length: 100%, stroke: sw.thick + accent)
@@ -80,7 +80,7 @@
     body-size,
     {
       set text(ty.title.size * body-size, fill: fill, weight: role.weight)
-      [#it.body #label]
+      [#it.body#label]
     },
   )
   show heading.where(level: 3): sub-heading(

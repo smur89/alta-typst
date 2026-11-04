@@ -22,7 +22,7 @@
 // same height, so mixed rows align.
 #let _label-row(label, trailing) = {
   _inline(box(height: _theme.rating.row-height * 1em))
-  text(label)
+  [#label<alta-rating-label>]
   h(1fr)
   trailing
   [\ ]

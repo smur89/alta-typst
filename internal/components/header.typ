@@ -94,7 +94,7 @@
       fill: accent,
       weight: _theme.type.display.weight,
     )
-    [#name <alta-name>]
+    name
   }),
 )
 
@@ -105,7 +105,7 @@
       fill: _theme.colour.emphasis,
       weight: _theme.font-weight.bold,
     )
-    [#headline <alta-headline>]
+    [#headline<alta-headline>]
   })
 }
 
@@ -124,7 +124,7 @@
     .map(row => row
       .map(entry => box({
         bar-icon(entry.icon, alt: entry.at("alt", default: none))
-        _link-if(entry.url, [#entry.value <alta-contact>])
+        _link-if(entry.url, [#entry.value<alta-contact>])
       }))
       .join(h(contact-gap * body-size)))
     .join(linebreak())
@@ -153,6 +153,9 @@
   let qr-size = _theme.header.qr * body-size
   _header-layout(
     align(text-align, {
+      // Labelled before the uppercasing, so the label stays on the
+      // text rather than on the styled result.
+      let name = [#name<alta-name>]
       _name-line(if uppercase { upper(name) } else { name }, body-size, accent)
       _headline(headline, body-size)
       _contact-bar(contacts, body-size, accent)
