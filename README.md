@@ -706,15 +706,20 @@ Parts of the CV carry labels that a Typst show rule can target, so you can resty
 #alta(cv)
 ```
 
-A rule overrides any text setting the template gives that part: font, size, colour, weight, style or tracking. It doesn't reach a part's icon or other graphics.
+A rule overrides any text setting the template gives that part: font, size, colour, weight, style or tracking. It doesn't reach a part's icon or other graphics, except a group title's icon, which takes the title's colour.
 
 | Label | Part |
 |---|---|
+| `<alta-name>` | The name. |
+| `<alta-headline>` | The headline under the name (`basics.label`). |
+| `<alta-section-title>` | A section's heading (Experience, Skills, …). |
+| `<alta-entry-title>` | An entry's title: a role, qualification, project or award. |
+| `<alta-group-title>` | A group's heading within a section: a publication type, a project type. |
 | `<alta-contact>` | Each contact-bar entry: email, phone, location, URL, profiles. |
 | `<alta-date>` | An entry's date or date range. |
 | `<alta-location>` | An entry's location (the header's location is a contact entry). |
 
-The name and headings are Typst elements, so `title` and `heading` reach them too (see [Heading fonts](#heading-fonts)). Labels for the other parts are tracked in [#327](https://github.com/smur89/alta-typst/issues/327).
+The name is also a `title` element and the headings `heading` elements, so `show title` / `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. Labels for the remaining parts are tracked in [#327](https://github.com/smur89/alta-typst/issues/327).
 
 ## PDF metadata
 

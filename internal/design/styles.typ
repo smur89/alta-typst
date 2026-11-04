@@ -55,26 +55,44 @@
     spacing: l.spacing,
   )
   let (above, rule-gap, below, case, tracking) = section
+  // Each heading's styles are `set` around its body, labelled inside
+  // the rule (`<alta-section-title>`, `<alta-entry-title>`,
+  // `<alta-group-title>`), so a user's `show <label>` rule overrides
+  // any of them: a rule on `heading` itself can't, as this transform
+  // runs inside it (#327).
   show heading.where(level: 2): it => block(sticky: true)[
     #v(above * body-size)
-    #text(
-      ty.headline.size * body-size,
-      fill: accent,
-      weight: ty.headline.weight,
-      tracking: tracking,
-      _treat(case, it.body),
-    )
+    #{
+      set text(
+        ty.headline.size * body-size,
+        fill: accent,
+        weight: ty.headline.weight,
+        tracking: tracking,
+      )
+      [#_treat(case, it.body) <alta-section-title>]
+    }
     #v(rule-gap * body-size)
     #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
-  let sub-heading(role, fill) = it => _subheading-block(
+  let sub-heading(role, fill, label) = it => _subheading-block(
     role,
     body-size,
-    text(ty.title.size * body-size, fill: fill, weight: role.weight, it.body),
+    {
+      set text(ty.title.size * body-size, fill: fill, weight: role.weight)
+      [#it.body #label]
+    },
   )
-  show heading.where(level: 3): sub-heading(subheading.entry, colour.emphasis)
+  show heading.where(level: 3): sub-heading(
+    subheading.entry,
+    colour.emphasis,
+    <alta-entry-title>,
+  )
   // In the accent, so a group reads apart from the entries under it.
-  show heading.where(level: 4): sub-heading(subheading.group, accent)
+  show heading.where(level: 4): sub-heading(
+    subheading.group,
+    accent,
+    <alta-group-title>,
+  )
   body
 }
