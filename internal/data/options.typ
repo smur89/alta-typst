@@ -39,5 +39,14 @@
     tables: _preference-tables,
   )
   _validate-preferences(merged-preferences, _section-specs.keys())
-  (labels: merged-labels, prefs: merged-preferences)
+  // `headingFont: auto` is `font`, resolved here once, so every reader
+  // gets a family.
+  let (font, headingFont: heading-font, ..) = merged-preferences
+  let prefs = (
+    merged-preferences
+      + (
+        headingFont: if heading-font == auto { font } else { heading-font },
+      )
+  )
+  (labels: merged-labels, prefs: prefs)
 }

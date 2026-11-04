@@ -122,6 +122,7 @@
     ),
     text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
+    name-font: prefs.headingFont,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
       let radius = _theme.header.portrait-radius.at(prefs.imageShape)

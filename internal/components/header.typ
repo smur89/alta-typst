@@ -80,15 +80,19 @@
   }
 }
 
-#let _name-line(name, body-size, accent) = block(
+// In `font` when given; `none` keeps the surrounding font.
+#let _name-line(name, font, body-size, accent) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
-  text(
-    _theme.type.display.size * body-size,
-    fill: accent,
-    weight: _theme.type.display.weight,
-    name,
-  ),
+  {
+    set text(font: font) if font != none
+    text(
+      _theme.type.display.size * body-size,
+      fill: accent,
+      weight: _theme.type.display.weight,
+      name,
+    )
+  },
 )
 
 #let _headline(headline, body-size) = if headline != none {
@@ -130,6 +134,7 @@
 // centred `"above"` / `"below"` it.
 #let _page-header(
   name: none,
+  name-font: none,
   headline: none,
   contacts: (),
   text-align: left,
@@ -146,7 +151,12 @@
   let qr-size = _theme.header.qr * body-size
   _header-layout(
     align(text-align, {
-      _name-line(if uppercase { upper(name) } else { name }, body-size, accent)
+      _name-line(
+        if uppercase { upper(name) } else { name },
+        name-font,
+        body-size,
+        accent,
+      )
       _headline(headline, body-size)
       _contact-bar(contacts, body-size, accent)
     }),

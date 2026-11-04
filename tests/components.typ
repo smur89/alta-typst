@@ -7,7 +7,7 @@
 
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _document
-#import "../internal/data/defaults.typ": _default-labels, _default-preferences
+#import "../internal/data/options.typ": _merge-options
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
   _portrait, _tag-row, divider, name, styled-link, tag, term,
@@ -21,10 +21,12 @@
 #import "../internal/components/keywords.typ": _keyword-rows, _label-rows
 #import "../internal/components/ratings.typ": _rating-row, rating
 
+// The merged defaults, as `alta()` resolves them.
+#let (labels, prefs) = _merge-options((:), (:))
 #show: _document.with(
-  _default-preferences,
-  _default-labels,
-  footer: _auto-page-footer("Jane Doe", _default-labels.pageNumber),
+  prefs,
+  labels,
+  footer: _auto-page-footer("Jane Doe", labels.pageNumber),
 )
 
 #let contacts = (
@@ -49,7 +51,7 @@
 = Page header: each photo placement, and centred with left text
 #let portrait = _portrait(
   avatar-placeholder,
-  _default-preferences.imageSize,
+  prefs.imageSize,
   "Jane Doe",
 )
 #for (at, text-align) in (

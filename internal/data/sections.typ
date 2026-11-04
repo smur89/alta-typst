@@ -10,7 +10,7 @@
 #import "cv.typ": _altacv, _reference-usable
 #import "cv-checks.typ": (
   _check-award, _check-entry-location, _check-language, _check-section-entries,
-  _string-rule, _text-rule, _texts-rule,
+  _check-skill, _string-rule, _text-rule, _texts-rule,
 )
 
 // What a renderer needs to draw an entry (its title, name, a keyword).
@@ -65,7 +65,12 @@
     root: false,
     items: (str, content),
   ),
-  skills: (column: "right") + _keyword-group,
+  skills: _keyword-group
+    + (
+      column: "right",
+      fields: _keyword-group.fields + (level: _text-rule),
+      check: _check-skill,
+    ),
   languages: (
     column: "right",
     fields: (language: _text-rule),
