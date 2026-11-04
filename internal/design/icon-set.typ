@@ -32,6 +32,7 @@
   linkedin: "linkedin",
   mastodon: "mastodon",
   medium: "medium",
+  orcid: "orcid",
   stackoverflow: "stack-overflow",
   twitter: "twitter",
   website: "globe",
