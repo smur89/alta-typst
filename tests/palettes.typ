@@ -25,12 +25,14 @@
 )
 
 #for key in palettes.keys() {
-  alta(sample("Accent " + key, key), preferences: (accent: palettes.at(key)))
+  alta(sample("Accent " + key, key), preferences: (
+    colours: (accent: palettes.at(key)),
+  ))
   pagebreak()
 }
 
 // Custom hex still works — `palettes` is a discoverability aid, not a
-// gate. Anything `rgb(...)` accepts remains valid for `accent`.
+// gate. Anything `rgb(...)` accepts remains valid for `colours.accent`.
 #alta(
   (
     basics: (
@@ -39,5 +41,5 @@
       email: "custom@example.com",
     ),
   ),
-  preferences: (accent: rgb("#B26A00")),
+  preferences: (colours: (accent: rgb("#B26A00"))),
 )

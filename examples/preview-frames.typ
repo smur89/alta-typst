@@ -38,7 +38,7 @@
 // more visual surface to vary — frames flip palettes, swap columns,
 // invert layouts on top of this same starting point.
 #let base = (
-  accent: palettes.navy,
+  colours: (accent: palettes.navy),
   dateFormat: "[day padding:none] [month repr:short] [year]",
   mapsProvider: maps-providers.osm,
   pageFooter: auto,
@@ -97,7 +97,7 @@
     cv,
     base
       + (
-        accent: palettes.charcoal,
+        colours: (accent: palettes.charcoal),
         imagePosition: "center",
         imageStackOrder: "above",
         headerTextAlign: "center",
@@ -122,7 +122,7 @@
     no-image(cv),
     base
       + (
-        accent: palettes.teal,
+        colours: (accent: palettes.teal),
         uppercaseName: false,
         columnRatio: 0.35,
         leftColumnSections: (
@@ -149,7 +149,7 @@
     cv,
     base
       + (
-        accent: palettes.crimson,
+        colours: (accent: palettes.crimson),
         imagePosition: "left",
         qrCode: auto,
         leftColumnSections: (
@@ -174,7 +174,7 @@
     no-image(cv),
     base
       + (
-        accent: palettes.forest,
+        colours: (accent: palettes.forest),
         headerTextAlign: "right",
         leftColumnSections: ("work", "volunteer", "interests"),
         rightColumnSections: (
@@ -199,7 +199,7 @@
     cv,
     base
       + (
-        accent: palettes.plum,
+        colours: (accent: palettes.plum),
         qrCode: auto,
         dateFormat: "[day]/[month]/[year]",
         leftColumnSections: ("work", "education", "certificates"),
@@ -224,7 +224,7 @@
     no-image(cv),
     base
       + (
-        accent: palettes.teal,
+        colours: (accent: palettes.teal),
         columnRatio: 1,
         dateFormat: parts => {
           if parts.month == none { return str(parts.year) }

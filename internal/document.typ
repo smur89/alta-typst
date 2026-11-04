@@ -5,16 +5,17 @@
 // components exactly as a CV does.
 
 #import "design/styles.typ": _content-styles, _part
-#import "design/theme.typ": _theme
+#import "design/theme.typ": _colour-roles
 #import "context.typ": (
-  _accent-state, _body-size-state, _icon-alts-state, _max-rating-state,
+  _body-size-state, _colour-state, _icon-alts-state, _max-rating-state,
 )
 
 // For `show: _document.with(prefs, labels, footer: ...)`, with the
 // merged, validated preferences and labels.
 #let _document(prefs, labels, footer: none, body) = {
-  let (accent, bodySize: body-size, maxRating: max-rating, ..) = prefs
-  _accent-state.update(accent)
+  let (bodySize: body-size, maxRating: max-rating, ..) = prefs
+  let colours = _colour-roles(prefs.colours)
+  _colour-state.update(colours)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
   _icon-alts-state.update((date: labels.date, location: labels.location))
@@ -22,7 +23,7 @@
   set text(
     body-size,
     font: prefs.font,
-    fill: _theme.colour.body,
+    fill: colours.body,
     lang: labels.lang,
   )
   set page(
@@ -30,6 +31,6 @@
     margin: prefs.margin,
     footer: _part("footer", footer),
   )
-  show: _content-styles.with(body-size, accent, prefs.justify)
+  show: _content-styles.with(body-size, colours, prefs.justify)
   body
 }

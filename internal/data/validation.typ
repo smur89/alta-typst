@@ -3,7 +3,7 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": _theme
+#import "../design/theme.typ": _colour-follows, _default-colours, _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
   _enum-rule, _list-rule, _positive-int-rule, _type-rule,
@@ -88,12 +88,6 @@
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
-  // Only a colour supports `lighten` / `darken`; a palette name string
-  // is the common slip.
-  accent: _type-rule(
-    (color,),
-    "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
-  ),
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
@@ -141,10 +135,32 @@
   referencesAvailableOnRequest: _bool-rule,
 )
 
+// Only a colour supports `lighten` / `darken`; a palette name string
+// is the common slip. The roles that follow another also take `auto`.
+#let _colour-rule = _type-rule(
+  (color,),
+  "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
+)
+#let _colour-or-auto-rule = {
+  let (ok, expected) = _colour-rule
+  (v => v == auto or ok(v), "`auto` or " + expected)
+}
+#let _colour-rules = (
+  _default-colours
+    .pairs()
+    .map(((k, _)) => (
+      k,
+      if k in _colour-follows { _colour-or-auto-rule } else { _colour-rule },
+    ))
+    .to-dict()
+)
+
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
+  _check-unknown-keys(prefs.colours.keys(), _colour-rules.keys(), "colours")
+  _check-rules(prefs.colours, _colour-rules, prefix: "colours.")
   let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",

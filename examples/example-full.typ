@@ -410,7 +410,7 @@
   cv,
   labels: (publicationTypes: (paper: "Conference Papers")),
   preferences: (
-    accent: palettes.navy,
+    colours: (accent: palettes.navy),
     publicationIcons: (paper: "newspaper"),
     projectIcons: (application: "laptop-code", library: "cubes"),
     dateFormat: "[day padding:none] [month repr:short] [year]",

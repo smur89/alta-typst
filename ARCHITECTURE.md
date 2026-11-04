@@ -54,8 +54,8 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 
 ## The look
 
-- **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), Bootstrap colour roles (`body`, `secondary`, `emphasis`, `border`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
-- **`context.typ`**: the accent, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
+- **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. The colours are `preferences.colours` over `_default-colours` (Bootstrap-style `body` and `emphasis`; the roles in `_colour-follows` take another's when `auto`), which `_colour-roles` resolves per render, deriving `secondary` and `border` from `body`. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
+- **`context.typ`**: the resolved colours, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
 
 Users style through [preferences](README.md#preferences); the theme isn't configurable yet. When it is, `alta()` deep-merges token overrides, rebuilds, then merges role overrides.
 

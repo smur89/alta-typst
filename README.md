@@ -36,7 +36,7 @@
 
 - **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (focus areas, a numeric language rating and an award link), read from JSON Resume's `custom.altacv` namespace (or, through `alta-from-json`, their deprecated top-level forms; see [From an existing `resume.json`](#from-an-existing-resumejson)).
 - **Single-column ATS mode** (`columnRatio: 1`) alongside the default two-column layout, plus inverted variants with the side panel on either side.
-- **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value.
+- **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value, and a colour per role (headings, their rules, the name, body text) to override.
 - **Full label localisation** via inline dict or TOML file. Every display string is overridable; see [`examples/labels-ga.toml`](examples/labels-ga.toml) for a worked Irish translation.
 - **PDF metadata baked in** — title, author, subject, keywords (auto-derived from skills), and document date populate from the same data dict.
 - **Optional header QR code** linking to `basics.url` (or any URL), restoring one click of digital-PDF affordance for printed CVs.
@@ -83,7 +83,7 @@ To inspect or transform the parsed dict before rendering, use `from-json-resume`
 ```typst
 #import "@preview/altacv:1.8.0": alta, from-json-resume
 
-#alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
+#alta(from-json-resume(path("resume.json")), preferences: (colours: (accent: rgb("#0a4"))))
 ```
 <!-- x-release-please-end -->
 
@@ -260,7 +260,7 @@ Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the
 
 ### Section reference
 
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (roles, a credential ID) with the location at the right edge, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
+Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (roles, a credential ID) with the location at the right edge, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`colours`, `font`, `bodySize`, …).
 
 **Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
@@ -450,7 +450,7 @@ Override any subset of the keys below.
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
-| `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
+| `colours` | teal accent, grey text | The colour of each role: the accent, headings, text. See [Colours](#colours). |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
 | `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
 | `profileIcons` | built-ins | FontAwesome glyphs per `basics.profiles[].network`. See [Profile icons](#profile-icons). |
@@ -506,9 +506,29 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 
 | Key | Default | Effect |
 |---|---|---|
+| `accent` | — | Use [`colours.accent`](#colours) instead, which wins when both are set. |
 | `groupCertificates` | `true` | Ignored: certificates render as entries, each showing its own issuer. |
 | `showPronouns` | `false` | Ignored: `basics.pronouns` is no longer rendered — see [`basics`](#basics). |
 | `referencesAvailableOnRequest` | `false` | Use [`references[].availableOnRequest`](#references) instead. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
+
+#### Colours
+
+`preferences.colours` sets the colour of each role. It merges role by role over the defaults, so set only the roles to change; an unknown role panics. A role set to `auto` follows another, so a set `accent` recolours the headings, their rules, the group titles and the name with it:
+
+```typst
+#alta(cv, preferences: (colours: (accent: palettes.navy, headingRule: rgb("#E7D192"))))
+```
+
+| Role | Default | Colours |
+|---|---|---|
+| `accent` | `palettes.teal` | Organisation lines, tags, rating dots, contact icons, the objective's rule, publication titles, the QR code. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
+| `emphasis` | `rgb("#2E2E2E")` | Entry titles and interest group names. |
+| `body` | `rgb("#666666")` | Body text and icons. Dates, dividers and empty rating dots take lighter shades of it. |
+| `heading` | `auto`: `accent` | Section titles. |
+| `headingRule` | `auto`: `accent` | The rule under each section title. |
+| `subheading` | `auto`: `accent` | Group titles, such as a publication type. |
+| `name` | `auto`: `accent` | `basics.name`. |
+| `tagline` | `auto`: `emphasis` | `basics.label`, under the name. |
 
 #### Publication icons
 
@@ -558,7 +578,7 @@ Reorder the right-column sections, switch to navy, and use US Letter:
 
 #alta(cv, preferences: (
   paper: "us-letter",
-  accent: palettes.navy,
+  colours: (accent: palettes.navy),
   imageSize: 7em,
   linkContactInfo: false,           // contact bar as plain text
   mapsProvider: maps-providers.osm, // OpenStreetMap for `basics.location`
@@ -704,7 +724,7 @@ Printed CVs lose the clickability of digital PDFs. A QR matrix in the header res
 - `auto` — encode `basics.url`. Panics if `basics.url` is missing or empty.
 - any non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page distinct from `basics.url`.
 
-The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` puts the QR on the left). With `imagePosition: "center"`, the QR pins the header's top-left corner, riding the photo row when the photo is on top and the text row otherwise. The matrix inherits `preferences.accent`, renders at roughly `3.5em`, and is wrapped in `link()` so digital readers can click through.
+The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` puts the QR on the left). With `imagePosition: "center"`, the QR pins the header's top-left corner, riding the photo row when the photo is on top and the text row otherwise. The matrix inherits `preferences.colours.accent`, renders at roughly `3.5em`, and is wrapped in `link()` so digital readers can click through.
 
 QR generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra).
 
@@ -814,7 +834,7 @@ For an accessible PDF, add PDF/UA-1, the accessibility standard: `--pdf-standard
 | `tag(body, ..)` | A pill, as the skill rows draw them. |
 | `divider()` | The dashed rule between entries. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `palettes` | The accent presets, for `accent: palettes.navy`. |
+| `palettes` | The accent presets, for `colours: (accent: palettes.navy)`. |
 | `maps-providers` | Map deep-link templates, for `mapsProvider: maps-providers.osm`. |
 | `avatar-placeholder` | A generic silhouette for `basics.image`. |
 

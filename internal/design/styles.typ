@@ -62,15 +62,16 @@
   body,
 )
 
-// For `show: _content-styles.with(body-size, accent, justify)`.
+// For `show: _content-styles.with(body-size, colours, justify)`, with
+// the resolved colours (`_colour-roles`).
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
 // the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
 // pills never stretch; Typst then hyphenates it too
 // (`text.hyphenate` is `auto`).
-#let _content-styles(body-size, accent, justify, body) = {
+#let _content-styles(body-size, colours, justify, body) = {
   let (par: p, list: l, section, subheading, ..) = _theme
-  let (type: ty, colour, stroke-width: sw, ..) = _theme
+  let (type: ty, stroke-width: sw, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   show list: set par(justify: justify)
   show <alta-internal-prose>: set par(justify: justify)
@@ -93,7 +94,7 @@
     #{
       set text(
         ty.headline.size * body-size,
-        fill: accent,
+        fill: colours.heading,
         weight: ty.headline.weight,
         tracking: tracking,
       )
@@ -103,7 +104,7 @@
     // The stroke is `set` around the `section-rule` part, so a user's
     // `show <alta-section-rule>: set line(...)` overrides it.
     #{
-      set line(stroke: sw.thick + accent)
+      set line(stroke: sw.thick + colours.headingRule)
       _part("section-rule", line(length: 100%))
     }
     #v(below * body-size)
@@ -118,13 +119,14 @@
   )
   show <alta-internal-entry>: sub-heading(
     subheading.entry,
-    colour.emphasis,
+    colours.emphasis,
     "entry-title",
   )
-  // In the accent, so a group reads apart from the entries under it.
+  // In the accent by default, so a group reads apart from the entries
+  // under it.
   show <alta-internal-group>: sub-heading(
     subheading.group,
-    accent,
+    colours.subheading,
     "group-title",
   )
   body

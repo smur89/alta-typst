@@ -9,6 +9,7 @@
   "publicationIcons",
   "projectIcons",
   "profileIcons",
+  "colours",
   "leftColumnSections",
   "rightColumnSections",
   "linkContactInfo",

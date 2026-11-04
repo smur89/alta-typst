@@ -4,7 +4,7 @@
 
 #import "../design/styles.typ": _treat
 #import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state
+#import "../context.typ": _body-size-state, _colour-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
@@ -46,12 +46,13 @@
 // `Music: Trad, Jazz`, one line per group, the name in the emphasis
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
-#let _label-rows(groups) = {
-  let (colour, separator, treatment, ..) = _theme
+#let _label-rows(groups) = context {
+  let (separator, treatment, ..) = _theme
+  let emphasis = _colour-state.get().emphasis
   par(
     groups
       .map(((name, keywords, ..)) => [#text(
-          fill: colour.emphasis,
+          fill: emphasis,
           _treat(treatment.label, name),
         )#separator.label#keywords.join(separator.items)])
       .join(linebreak()),

@@ -1,17 +1,20 @@
-// The template's look. `_tokens` are the scales (type, colour,
-// spacing, strokes); `_build-theme` maps them onto the roles components
-// read and derives `secondary` and `border` from `body`. A role exists
-// only where components differ by design; otherwise they read tokens.
+// The template's look. `_tokens` are the scales (type, spacing,
+// strokes); `_build-theme` maps them onto the roles components read. A
+// role exists only where components differ by design; otherwise they
+// read tokens. Colours are `preferences.colours`, over
+// `_default-colours`, resolved per render by `_colour-roles`.
 //
-// Not configurable yet. When it is, `alta()` deep-merges token
-// overrides (the tokens nest), rebuilds, then merges role overrides.
-// Token values are numbers and strings (hex colours, widths in pt), so
-// a theme could load from TOML.
+// The rest isn't configurable yet. When it is, `alta()` deep-merges
+// token overrides (the tokens nest), rebuilds, then merges role
+// overrides. Token values are numbers and strings (widths in pt), so a
+// theme could load from TOML.
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
 // they may sit outside `alta()`. `em` roles follow their own text;
 // `pt` and `cm` lengths don't scale.
+
+#import "presets.typ": palettes
 
 #let _tokens = (
   // Material Design 3's type roles: `display` the name, `headline` a
@@ -26,9 +29,6 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // Bootstrap's colour roles; `secondary` and `border` derive from
-  // `body` unless set.
-  colour: (body: "#666666", emphasis: "#2E2E2E"),
   // CSS's size keywords.
   space: (
     xx-small: 0.15,
@@ -44,16 +44,9 @@
 
 #let _build-theme(tokens) = {
   let (type: ty, font-weight: fw, space: sp, stroke-width: sw) = tokens
-  let colour = tokens.colour.pairs().map(((k, v)) => (k, rgb(v))).to-dict()
   (
     type: ty,
     font-weight: fw,
-    colour: (
-      secondary: colour.body.lighten(35%),
-      // Dividers, empty rating dots.
-      border: colour.body.lighten(65%),
-    )
-      + colour,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
     // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
     // between groups; `label` after an interest group's name
@@ -148,3 +141,46 @@
 }
 
 #let _theme = _build-theme(_tokens)
+
+// The colour roles that default to `auto`, following another: the
+// role each takes when unset.
+#let _colour-follows = (
+  heading: "accent",
+  headingRule: "accent",
+  subheading: "accent",
+  name: "accent",
+  tagline: "emphasis",
+)
+
+// `preferences.colours`' defaults: Bootstrap-style `body` and
+// `emphasis` (`secondary` and `border` derive from `body`), and the
+// rest following them.
+#let _default-colours = (
+  (
+    accent: palettes.teal,
+    emphasis: rgb("#2E2E2E"),
+    body: rgb("#666666"),
+  )
+    + _colour-follows.keys().map(k => (k, auto)).to-dict()
+)
+
+// The merged `preferences.colours` with every role resolved: an `auto`
+// role takes the one it follows (`_colour-follows`). Adds `secondary`
+// (the quietest lines) and `border` (dividers, empty rating dots),
+// derived from `body`.
+#let _colour-roles(colours) = {
+  let resolved = colours
+    .pairs()
+    .map(((k, v)) => (
+      k,
+      if v == auto { colours.at(_colour-follows.at(k)) } else { v },
+    ))
+    .to-dict()
+  (
+    resolved
+      + (
+        secondary: resolved.body.lighten(35%),
+        border: resolved.body.lighten(65%),
+      )
+  )
+}

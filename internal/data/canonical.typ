@@ -40,7 +40,9 @@
 // Tables matched case-insensitively and merged entry by entry over
 // their defaults (`_strict-merge`'s `tables`).
 #let _label-tables = ("publicationTypes",)
-#let _preference-tables = ("publicationIcons", "projectIcons", "profileIcons")
+#let _icon-tables = ("publicationIcons", "projectIcons", "profileIcons")
+// Fixed-key records, merged entry by entry too, keys kept as given.
+#let _preference-records = ("colours",)
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -169,7 +171,20 @@
   }
 }
 
+// #239: the top-level `accent` is `colours.accent`, which wins when
+// both are set. A non-dictionary (overall or `colours`) passes through
+// for `_strict-merge` to reject.
+#let _fold-accent(overrides) = {
+  let prefs = _dict-or-empty(overrides)
+  let colours = prefs.at("colours", default: (:))
+  if "accent" not in prefs or type(colours) != dictionary { overrides } else {
+    let rest = prefs.pairs().filter(((k, _)) => k != "accent").to-dict()
+    rest + (colours: (accent: prefs.accent) + colours)
+  }
+}
+
 // Runs before the merge over the defaults. #239: the deprecated
+// top-level `accent` becomes `colours.accent` (`_fold-accent`), and the
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
 // one table. `projectIcons` and `profileIcons` are lowercased too.
@@ -177,6 +192,7 @@
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
+  let overrides = _fold-accent(overrides)
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"
@@ -188,7 +204,7 @@
     }
   }
   // `publicationIcons` is lowercased with its deprecated sources below.
-  let overrides = _preference-tables
+  let overrides = _icon-tables
     .filter(t => t != "publicationIcons")
     .fold(overrides, lowercase-key)
   let icons = if type(overrides) == dictionary {

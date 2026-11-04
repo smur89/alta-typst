@@ -30,7 +30,7 @@
     ),
   ),
   preferences: (
-    accent: rgb("#1976D2"),
+    colours: (accent: rgb("#1976D2")),
     groupCertificates: false,
     showPronouns: true,
   ),
