@@ -17,14 +17,14 @@
 // left, right). The alternation reinforces that the portrait is
 // optional — one more knob among many, not the visual anchor.
 //
-// Accent palette also changes every frame — no two consecutive
-// frames share an accent colour. The six built-in palettes plus
-// one repeat give us seven distinct visual blocks.
+// The theme also changes every frame — no two consecutive frames
+// share an accent colour. The six single-accent themes plus one
+// repeat give us seven distinct visual blocks.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
-#import "../lib.typ": alta, maps-providers, palettes
+#import "../lib.typ": alta, maps-providers, themes
 #import "_cv.typ": cv, no-image
 
 // Irish-language label overrides used by one of the frames to
@@ -33,12 +33,12 @@
 #let ga-labels = toml("labels-ga.toml")
 
 // Baseline preferences the per-frame overrides patch on top of. A
-// richer-than-defaults setup (navy palette, ISO short-date,
+// richer-than-defaults setup (navy theme, ISO short-date,
 // OSM maps, auto footer, CEFR-style 6-dot rating) gives the GIF
-// more visual surface to vary — frames flip palettes, swap columns,
+// more visual surface to vary — frames flip themes, swap columns,
 // invert layouts on top of this same starting point.
 #let base = (
-  colours: (accent: palettes.navy),
+  theme: themes.navy,
   dateFormat: "[day padding:none] [month repr:short] [year]",
   mapsProvider: maps-providers.osm,
   pageFooter: auto,
@@ -92,12 +92,12 @@
   // Section arrangement matches frame 1, the portrait reappears
   // stacked above a centred header text block. Paired with frame 1
   // to isolate the photo-position change; charcoal accent contrasts
-  // the navy baseline so the palette swap is also visible.
+  // the navy baseline so the theme swap is also visible.
   (
     cv,
     base
       + (
-        colours: (accent: palettes.charcoal),
+        theme: themes.charcoal,
         imagePosition: "center",
         imageStackOrder: "above",
         headerTextAlign: "center",
@@ -122,7 +122,7 @@
     no-image(cv),
     base
       + (
-        colours: (accent: palettes.teal),
+        theme: themes.teal,
         uppercaseName: false,
         columnRatio: 0.35,
         leftColumnSections: (
@@ -149,7 +149,7 @@
     cv,
     base
       + (
-        colours: (accent: palettes.crimson),
+        theme: themes.crimson,
         imagePosition: "left",
         qrCode: auto,
         leftColumnSections: (
@@ -174,7 +174,7 @@
     no-image(cv),
     base
       + (
-        colours: (accent: palettes.forest),
+        theme: themes.forest,
         headerTextAlign: "right",
         leftColumnSections: ("work", "volunteer", "interests"),
         rightColumnSections: (
@@ -199,7 +199,7 @@
     cv,
     base
       + (
-        colours: (accent: palettes.plum),
+        theme: themes.plum,
         qrCode: auto,
         dateFormat: "[day]/[month]/[year]",
         leftColumnSections: ("work", "education", "certificates"),
@@ -224,7 +224,7 @@
     no-image(cv),
     base
       + (
-        colours: (accent: palettes.teal),
+        theme: themes.teal,
         columnRatio: 1,
         dateFormat: parts => {
           if parts.month == none { return str(parts.year) }

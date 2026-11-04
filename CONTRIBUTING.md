@@ -20,7 +20,7 @@ lib.typ           # public entry — re-exports only (`alta()` is in internal/re
 internal/         # wiring (the registry, render-time context) and the shared primitives and icons
 internal/util/    # generic helpers: field reads, joins, checks, date formatting
 internal/data/    # reading and checking the CV, labels and preferences, and their defaults
-internal/design/  # the theme, document-wide styles, palettes and the icon set
+internal/design/  # the theme, document-wide styles, built-in themes and palettes, the icon set
 internal/components/ # the layout components sections map onto
 sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
@@ -33,7 +33,7 @@ tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fiel
 
 Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ sections/*.typ` for a quick directory.
 
-Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); JSON Resume and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
+Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); JSON Resume and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `themes`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Development loop
 

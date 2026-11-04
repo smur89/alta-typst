@@ -29,11 +29,11 @@
 //   • References: a populated entry plus an anonymous (no `name`)
 //     quote — exercises the divider rule and the level-3 heading
 //     above the italic quote.
-//   • Preferences override: bundled tweaks demonstrating accent
-//     palette, ISO-date formatting, custom maps provider, page footer,
+//   • Preferences override: bundled tweaks demonstrating a theme,
+//     ISO-date formatting, custom maps provider, page footer,
 //     and a non-default `maxRating` for the language scale.
 
-#import "../lib.typ": alta, avatar-placeholder, maps-providers, palettes
+#import "../lib.typ": alta, avatar-placeholder, maps-providers, themes
 #import "_dates.typ": ago, today
 
 #let cv = (
@@ -400,7 +400,7 @@
 )
 
 // Preferences override exercising a meaningful slice of the API
-// surface — accent palette swap, ISO-date short formatter, OSM maps
+// surface — theme swap, ISO-date short formatter, OSM maps
 // provider, auto page footer (renders on multi-page output), and a
 // non-default `maxRating: 6` for a CEFR-style language scale.
 //
@@ -410,7 +410,7 @@
   cv,
   labels: (publicationTypes: (paper: "Conference Papers")),
   preferences: (
-    colours: (accent: palettes.navy),
+    theme: themes.navy,
     publicationIcons: (paper: "newspaper"),
     projectIcons: (application: "laptop-code", library: "cubes"),
     dateFormat: "[day padding:none] [month repr:short] [year]",

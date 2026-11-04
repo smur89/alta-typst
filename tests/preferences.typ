@@ -1,4 +1,4 @@
-// Preference overrides: custom accent + ungrouped certificates +
+// Preference overrides: custom accent colour + ungrouped certificates +
 // localised labels. Exercises _strict-merge for both `labels` and
 // `preferences`. Labels are translated to Gaeilge (Irish) to
 // demonstrate the localisation path with a non-English language.

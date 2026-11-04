@@ -2,8 +2,7 @@
 // defaults and validated, as the pair `alta()` renders with.
 
 #import "canonical.typ": (
-  _canonical-labels, _canonical-preferences, _icon-tables, _label-tables,
-  _preference-records,
+  _canonical-labels, _canonical-preferences, _label-tables, _preference-tables,
 )
 #import "../util/fields.typ": _dict-or-empty
 #import "defaults.typ": _default-labels, _default-preferences
@@ -21,7 +20,7 @@
 // `projectIcons` and `profileIcons` have no such fold but are checked
 // the same way, each against its own rule (`_icon-table-rules`).
 #let _merge-options(labels, preferences) = {
-  for table in _icon-tables {
+  for table in _preference-tables {
     let icons = _dict-or-empty(preferences).at(table, default: none)
     if type(icons) == dictionary {
       _check-icon-names(icons, table)
@@ -38,8 +37,10 @@
     _default-preferences,
     _canonical-preferences(preferences, labels),
     "preferences",
-    tables: _icon-tables + _preference-records,
+    tables: _preference-tables,
   )
   _validate-preferences(merged-preferences, _section-specs.keys())
-  (labels: merged-labels, prefs: merged-preferences)
+  // The caller's colours over the theme's, so renderers read one set.
+  let colours = merged-preferences.theme.colours + merged-preferences.colours
+  (labels: merged-labels, prefs: merged-preferences + (colours: colours))
 }

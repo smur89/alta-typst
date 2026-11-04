@@ -5,6 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../design/presets.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
@@ -40,9 +41,7 @@
 // Tables matched case-insensitively and merged entry by entry over
 // their defaults (`_strict-merge`'s `tables`).
 #let _label-tables = ("publicationTypes",)
-#let _icon-tables = ("publicationIcons", "projectIcons", "profileIcons")
-// Fixed-key records, merged entry by entry too, keys kept as given.
-#let _preference-records = ("colours",)
+#let _preference-tables = ("publicationIcons", "projectIcons", "profileIcons")
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -171,20 +170,25 @@
   }
 }
 
-// #239: the top-level `accent` is `colours.accent`, which wins when
-// both are set. A non-dictionary (overall or `colours`) passes through
-// for `_strict-merge` to reject.
+// #239: the top-level `accent` sets the roles a single-accent theme
+// colours with it (`_accent-roles`), beneath the caller's `colours`.
+// It's dropped even when `colours` isn't a dictionary, so the check
+// names `colours` rather than an unknown `accent`; a non-dictionary
+// `preferences` passes through for `_strict-merge` to reject.
 #let _fold-accent(overrides) = {
   let prefs = _dict-or-empty(overrides)
-  let colours = prefs.at("colours", default: (:))
-  if "accent" not in prefs or type(colours) != dictionary { overrides } else {
+  if "accent" not in prefs { overrides } else {
+    let colours = prefs.at("colours", default: (:))
+    let folded = if type(colours) == dictionary {
+      _accent-roles(prefs.accent) + colours
+    } else { colours }
     let rest = prefs.pairs().filter(((k, _)) => k != "accent").to-dict()
-    rest + (colours: (accent: prefs.accent) + colours)
+    rest + (colours: folded)
   }
 }
 
 // Runs before the merge over the defaults. #239: the deprecated
-// top-level `accent` becomes `colours.accent` (`_fold-accent`), and the
+// top-level `accent` becomes `colours` (`_fold-accent`), and the
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
 // one table. `projectIcons` and `profileIcons` are lowercased too.
@@ -204,7 +208,7 @@
     }
   }
   // `publicationIcons` is lowercased with its deprecated sources below.
-  let overrides = _icon-tables
+  let overrides = _preference-tables
     .filter(t => t != "publicationIcons")
     .fold(overrides, lowercase-key)
   let icons = if type(overrides) == dictionary {
