@@ -7,7 +7,7 @@
 #import "../context.typ": _body-size-state, _icon-alts-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-text, _fact-line, _icon-fact, _link-if, _preamble,
+  _accent-text, _date-fact, _fact-line, _link-if, _location-fact, _preamble,
 )
 
 // A small line under an entry's heading: a referee's attribution.
@@ -42,7 +42,7 @@
   // an icon, so both sides share it and rows space alike with or
   // without an icon on the right.
   let top(body) = measure(body).height
-  let icon-top = top(_icon-fact("calendar", "X"))
+  let icon-top = top(_date-fact("X"))
   let drop(body, baseline) = block(
     inset: (top: baseline - top(body)),
     body,
@@ -52,20 +52,12 @@
     (
       lead,
       lead-size,
-      _icon-fact(
-        "calendar",
-        _part("date", date),
-        alt: alts.date,
-      ),
+      _date-fact(_part("date", date), alt: alts.date),
     ),
     (
       under,
       body-size,
-      _icon-fact(
-        "location",
-        _part("location", location),
-        alt: alts.location,
-      ),
+      _location-fact(_part("location", location), alt: alts.location),
     ),
   )
     .filter(((left, _, side)) => left != none or side != none)

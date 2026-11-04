@@ -719,6 +719,24 @@ Parts of the CV carry labels that a Typst show rule can target, so you can resty
 
 A rule on a text part overrides any text setting the template gives it: font, size, colour, weight, style or tracking. It doesn't reach the part's icon, except a group title's icon, which takes the title's colour. The two line parts take `set line(...)` instead; a partial stroke keeps the rest of the template's, so `set line(stroke: (paint: gray))` recolours a divider and leaves it dashed.
 
+The marker parts (the date and location icons and the three rating-dot states) can be recoloured or replaced. A replacement keeps the marker's place: an icon's fixed box and alt text, and a dot's centring in its row.
+
+```typst
+#show <alta-date-icon>: set text(fill: gray)  // recolour
+#show <alta-location-icon>: fa-icon("map-pin", solid: true)  // another glyph (@preview/fontawesome)
+#show <alta-rating-full>: [★]  // stars for dots
+#show <alta-rating-half>: [⯪]
+#show <alta-rating-empty>: [☆]
+```
+
+A replacement glyph has to be in one of your fonts. `<alta-rating-full>` and its siblings also take `set circle(fill: ...)`, which recolours the dots and keeps their shape.
+
+The list bullet isn't a label: it's Typst's `list`, so a show-set rule changes it. A plain `#set list(...)` before `#alta(...)` doesn't, because the template's own `set list` is applied inside `alta()` and the innermost setting wins.
+
+```typst
+#show list: set list(marker: [–])
+```
+
 The labels in this table are public API and follow semver: a rename or removal is a breaking change, made only in a major release. Labels prefixed `alta-internal-` are the template's own and may change at any time, so don't target them.
 
 | Label | Part |
@@ -740,6 +758,11 @@ The labels in this table are public API and follow semver: a rename or removal i
 | `<alta-footer>` | The page footer. |
 | `<alta-section-rule>` | The line under a section's heading. |
 | `<alta-divider>` | The dashed line between entries (and `divider()`). |
+| `<alta-date-icon>` | The icon before an entry's date (and in `term()`). |
+| `<alta-location-icon>` | The icon before an entry's location (and in `term()`). |
+| `<alta-rating-full>` | A filled rating dot, in a language row, a skill level or `rating()`. |
+| `<alta-rating-half>` | A half-filled rating dot. |
+| `<alta-rating-empty>` | An empty rating dot. |
 
 The name and headings are also `heading` elements, so `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
 
