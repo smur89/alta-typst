@@ -44,8 +44,26 @@
   )
   let alts = _icon-alts-state.get()
   let rows = (
-    (lead, lead-size, _icon-fact("calendar", date, alt: alts.date)),
-    (under, body-size, _icon-fact("location", location, alt: alts.location)),
+    // Labelled for a user's `show <alta-date>` / `<alta-location>`
+    // rules; their styles are inherited, so the rules override them.
+    (
+      lead,
+      lead-size,
+      _icon-fact(
+        "calendar",
+        if date != none [#date <alta-date>],
+        alt: alts.date,
+      ),
+    ),
+    (
+      under,
+      body-size,
+      _icon-fact(
+        "location",
+        if location != none [#location <alta-location>],
+        alt: alts.location,
+      ),
+    ),
   )
     .filter(((left, _, side)) => left != none or side != none)
     .map(((left, size, side)) => {
