@@ -17,9 +17,9 @@
 // left, right). The alternation reinforces that the portrait is
 // optional — one more knob among many, not the visual anchor.
 //
-// The theme also changes every frame — no two consecutive frames
-// share an accent colour. The six single-accent themes plus one
-// repeat give us seven distinct visual blocks.
+// The theme also changes every frame, one built-in theme each: the
+// `altacv` theme (dark red headings over a gold rule) leads, then the
+// six single-accent themes, no two neighbours alike.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
@@ -33,12 +33,12 @@
 #let ga-labels = toml("labels-ga.toml")
 
 // Baseline preferences the per-frame overrides patch on top of. A
-// richer-than-defaults setup (navy theme, ISO short-date,
+// richer-than-defaults setup (the altacv theme, ISO short-date,
 // OSM maps, auto footer, CEFR-style 6-dot rating) gives the GIF
 // more visual surface to vary — frames flip themes, swap columns,
 // invert layouts on top of this same starting point.
 #let base = (
-  theme: themes.navy,
+  theme: themes.altacv,
   dateFormat: "[day padding:none] [month repr:short] [year]",
   mapsProvider: maps-providers.osm,
   pageFooter: auto,
@@ -67,10 +67,11 @@
 // `base.copy(key = value)`, so each frame reads as a small patch
 // over the baseline.
 #let frames = (
-  // ── Frame 1 ─ navy + no image ───────────────────────────────────
+  // ── Frame 1 ─ altacv + no image ─────────────────────────────────
   // Baseline arrangement: work-heavy left, support sections on the
   // right. The realistic baseline most users ship — portrait
-  // omitted (ATS- / anti-bias-friendly), navy from `base`.
+  // omitted (ATS- / anti-bias-friendly), the altacv theme from
+  // `base`.
   (
     no-image(cv),
     base
@@ -91,8 +92,8 @@
   // ── Frame 2 ─ charcoal + portrait centred above ─────────────────
   // Section arrangement matches frame 1, the portrait reappears
   // stacked above a centred header text block. Paired with frame 1
-  // to isolate the photo-position change; charcoal accent contrasts
-  // the navy baseline so the theme swap is also visible.
+  // to isolate the photo-position change; charcoal contrasts the
+  // dark red baseline so the theme swap is also visible.
   (
     cv,
     base
@@ -215,16 +216,16 @@
     (:),
   ),
 
-  // ── Frame 7 ─ teal + no image + single column ───────────────────
+  // ── Frame 7 ─ navy + no image + single column ───────────────────
   // Single-column layout (`columnRatio: 1`) stacks every section
   // vertically — needs an aggressive section trim to fit one page.
   // Closure-formatted quarterly date labels ("Q3 2024") round out
-  // the frame. Teal completes the no-adjacent-duplicates cycle.
+  // the frame. Navy completes the cycle of built-in themes.
   (
     no-image(cv),
     base
       + (
-        theme: themes.teal,
+        theme: themes.navy,
         columnRatio: 1,
         dateFormat: parts => {
           if parts.month == none { return str(parts.year) }
