@@ -4,7 +4,6 @@
 // custom layouts; underscored helpers are internal.
 
 #import "design/styles.typ": _part, _treat
-#import "design/theme.typ": _conventions
 #import "context.typ": _body-size-state, _theme-state
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": _icon-glyph, icon
@@ -46,10 +45,16 @@
 // parts of a group joined by `separator.items`, the groups by
 // `separator.facts`. Absent parts and emptied groups drop out; `none`
 // when nothing is left.
-#let _fact-line(..groups) = _join-present(
-  groups.pos().map(g => _join-present(g, _conventions.separator.items)),
-  _conventions.separator.facts,
+#let _join-facts(separator, ..groups) = _join-present(
+  groups.pos().map(g => _join-present(g, separator.items)),
+  separator.facts,
 )
+
+// `_join-facts` with the theme's separators. Whether any part is present
+// is decided outside context, so an empty line is still `none`.
+#let _fact-line(..groups) = if groups.pos().flatten().any(_present) {
+  context _join-facts(_theme-state.get().separator, ..groups)
+}
 
 // A summary as a paragraph of prose: the paragraph labelled
 // `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
@@ -63,7 +68,7 @@
 // doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
 #let _preamble(body) = if _present(body) {
-  _prose(body, treatment: _conventions.treatment.preamble)
+  context _prose(body, treatment: _theme-state.get().treatment.preamble)
 }
 
 // The term row's frame: indented text under an entry's heading.
@@ -236,7 +241,10 @@
 /// - dest (str, none): A URL to link it to.
 /// -> content
 #let styled-link(content, dest: none) = context {
-  let accent = _theme-state.get().colours.accent
-  let styled = _treat(_conventions.treatment.link, text(fill: accent, content))
+  let theme = _theme-state.get()
+  let styled = _treat(
+    theme.treatment.link,
+    text(fill: theme.colours.accent, content),
+  )
   _link-if(dest, styled)
 }

@@ -17,7 +17,7 @@
 // be mistaken for a public part.
 #let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
 
-// Applies a named treatment (`_conventions.treatment`, the theme's
+// Applies a named treatment (the theme's `treatment`, or its
 // `section.case`); `"none"` leaves the body as it is.
 // `italic` sets the style where `emph` toggles it: a treatment around a
 // `_part` has to be a plain setting, or a user's `style:` rule on the

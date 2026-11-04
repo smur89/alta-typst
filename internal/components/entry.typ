@@ -3,7 +3,6 @@
 // and the entry's other facts with its location at the right edge.
 
 #import "../design/styles.typ": _part, _subheading-block
-#import "../design/theme.typ": _conventions
 #import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
@@ -146,7 +145,7 @@
   _join-present(
     (
       keywords-lead,
-      _join-present(keywords, _conventions.separator.facts),
+      _fact-line(..keywords.map(k => (k,))),
     ),
     [\ ],
   )

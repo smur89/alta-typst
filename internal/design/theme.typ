@@ -1,5 +1,5 @@
 // The template's look. `_tokens` are the scales (type, colours,
-// spacing, strokes); `_build-theme` maps them onto the roles components
+// separators, treatments, spacing, strokes); `_build-theme` maps them onto the roles components
 // read. A role exists only where components differ by design;
 // otherwise they read tokens. A theme (`presets.typ`) overrides tokens:
 // `_theme-for` merges it and `preferences.colours` over `_tokens` and
@@ -47,6 +47,19 @@
         tagline: rgb("#2E2E2E"),
       )
   ),
+  // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
+  // between groups; `label` after an interest group's name
+  // (`Music: Trad, Jazz`).
+  separator: (facts: " · ", items: ", ", label: ": "),
+  // For a summary, a `styled-link` title, the CV owner among
+  // publication authors, and an interest group's name.
+  treatment: (
+    // A plain setting, not `emph`: the summary is a `_part`.
+    preamble: "italic",
+    link: "emph",
+    owner: "strong",
+    label: "strong",
+  ),
   // CSS's size keywords.
   space: (
     xx-small: 0.15,
@@ -66,6 +79,8 @@
     type: ty,
     font-weight: fw,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
+    separator: tokens.separator,
+    treatment: tokens.treatment,
     // `secondary` (the quietest lines) and `border` (dividers, empty
     // rating dots) derive from `body`.
     colours: (
@@ -165,23 +180,4 @@
 // `preferences.colours`, over `_tokens`.
 #let _theme-for(theme, colours) = _build-theme(
   (theme, (colours: colours)).fold(_tokens, _deep-merge),
-)
-
-// Fixed typographic choices, outside the theme: the ones pure helpers
-// read (`_fact-line`, `_preamble`, the bibliography lines), which
-// return `none` when empty and so can't wait on context.
-#let _conventions = (
-  // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-  // between groups; `label` after an interest group's name
-  // (`Music: Trad, Jazz`).
-  separator: (facts: " · ", items: ", ", label: ": "),
-  // For a summary, a `styled-link` title, the CV owner among
-  // publication authors, and an interest group's name.
-  treatment: (
-    // A plain setting, not `emph`: the summary is a `_part`.
-    preamble: "italic",
-    link: "emph",
-    owner: "strong",
-    label: "strong",
-  ),
 )

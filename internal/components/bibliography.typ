@@ -2,27 +2,27 @@
 // builders for its author and identifier records.
 
 #import "../design/styles.typ": _treat
-#import "../design/theme.typ": _conventions
+#import "../context.typ": _theme-state
 #import "../util/values.typ": _join-present
-#import "../primitives.typ": _link-if, _meta, _preamble, styled-link
+#import "../primitives.typ": (
+  _join-facts, _link-if, _meta, _preamble, styled-link,
+)
 
 // `(name, owner)` records, the owner set apart (`treatment.owner`,
 // bold by default: the academic-CV convention); `none` when there are
-// none.
-#let _author-line(authors) = (
+// none. `theme` is the one the caller read in context.
+#let _author-line(theme, authors) = (
   authors
-    .map(a => if a.owner { _treat(_conventions.treatment.owner, a.name) } else {
+    .map(a => if a.owner { _treat(theme.treatment.owner, a.name) } else {
       a.name
     })
-    .join(_conventions.separator.items)
+    .join(theme.separator.items)
 )
 
 // `(name, id, url)` records as `name id`, the id linked when `url` is
 // set; `none` when there are none.
-#let _identifier-line(refs) = (
-  refs
-    .map(r => [#r.name #_link-if(r.url, r.id)])
-    .join(_conventions.separator.facts)
+#let _identifier-line(theme, refs) = (
+  refs.map(r => [#r.name #_link-if(r.url, r.id)]).join(theme.separator.facts)
 )
 
 // One bibliography list item: the title (linked to `url`), then
@@ -37,15 +37,18 @@
   date: none,
   identifiers: (),
   summary: none,
-) = {
-  let lines = _join-present(
-    (
-      _author-line(authors),
-      _join-present((source, _meta(date)), _conventions.separator.facts),
-      _meta(_identifier-line(identifiers)),
-      _preamble(summary),
-    ),
-    [\ ],
-  )
-  [- #styled-link(title, dest: url). #if lines != none [\ #lines]]
-}
+) = [
+  - #context {
+      let theme = _theme-state.get()
+      let lines = _join-present(
+        (
+          _author-line(theme, authors),
+          _join-facts(theme.separator, (source,), (_meta(date),)),
+          _meta(_identifier-line(theme, identifiers)),
+          _preamble(summary),
+        ),
+        [\ ],
+      )
+      [#styled-link(title, dest: url). #if lines != none [\ #lines]]
+    }
+]

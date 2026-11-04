@@ -53,3 +53,13 @@
   roles((accent: palettes.navy, colours: (heading: red))).heading,
   red,
 )
+
+// Any token a theme overrides reaches the built theme, the separators
+// and treatments included: nothing in the look is outside it.
+#let piped = _theme-for((separator: (facts: " | ")), (:))
+#assert.eq(piped.separator.facts, " | ")
+#assert.eq(piped.separator.items, ", ")
+#assert.eq(
+  _theme-for((treatment: (link: "strong")), (:)).treatment.link,
+  "strong",
+)

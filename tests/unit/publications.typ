@@ -3,6 +3,7 @@
 // internal/components/bibliography.typ.
 
 #import "/internal/components/bibliography.typ": _author-line, _identifier-line
+#import "/internal/design/theme.typ": _default-theme
 #import "/sections/publications.typ": (
   _authors, _citation, _identifier-refs, _identifier-url, _identifiers, _source,
 )
@@ -43,13 +44,13 @@
 
 // _identifier-line: one `name id` per ref, joined with ` · `.
 #assert.eq(
-  plain(_identifier-line((
+  plain(_identifier-line(_default-theme, (
     (name: "DOI", id: "10.1/x", url: "https://doi.org/10.1/x"),
     (name: "hal", id: "hal-1", url: none),
   ))),
   "DOI 10.1/x · hal hal-1",
 )
-#assert.eq(_identifier-line(()), none)
+#assert.eq(_identifier-line(_default-theme, ()), none)
 
 // _citation: journal-style tail, each part optional, page hyphens
 // set as one en dash.
@@ -90,13 +91,13 @@
 
 // _author-line: the owner in bold.
 #assert.eq(
-  plain(_author-line((
+  plain(_author-line(_default-theme, (
     (name: "A. Smith", owner: false),
     (name: "jane doe", owner: true),
   ))),
   "A. Smith, *jane doe*",
 )
-#assert.eq(_author-line(()), none)
+#assert.eq(_author-line(_default-theme, ()), none)
 
 // _source: publisher, then citation; either alone.
 #assert.eq(_source((publisher: "ACM", volume: "12")), "ACM 12")

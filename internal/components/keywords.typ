@@ -3,7 +3,6 @@
 // them; interests' as a line of text.
 
 #import "../design/styles.typ": _treat
-#import "../design/theme.typ": _conventions
 #import "../context.typ": _body-size-state, _theme-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
@@ -48,8 +47,9 @@
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
 #let _label-rows(groups) = context {
-  let (separator, treatment) = _conventions
-  let emphasis = _theme-state.get().colours.emphasis
+  let theme = _theme-state.get()
+  let (separator, treatment) = theme
+  let emphasis = theme.colours.emphasis
   par(
     groups
       .map(((name, keywords, ..)) => [#text(
