@@ -36,6 +36,7 @@
   uppercaseName: true,
   headerTextAlign: "left",
   imageSize: 6em,
+  imageShape: "circle",
   imagePosition: "right",
   imageStackOrder: "above",
   qrCode: none,
