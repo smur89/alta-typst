@@ -115,7 +115,10 @@
 
 // The contact bar's `(channel, glyph, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
-// its channel.
+// its channel. With `printFullUrls`, an unlinked homepage or profile
+// shows its `url`, scheme dropped, so a username on paper still says
+// where to find it; other channels' `url`s (`mailto:`, `tel:`, a maps
+// link) only point at the contact.
 #let _linked-contacts(basics, prefs, location-alt: none) = {
   let link-config = _resolve-link-config(prefs.linkContactInfo)
   _contact-entries(
@@ -123,7 +126,17 @@
     prefs.mapsProvider,
     location-alt: location-alt,
     profile-icons: prefs.profileIcons,
-  ).map(e => e + (url: if link-config.at(e.channel) { e.url }))
+  ).map(e => {
+    let linked = link-config.at(e.channel)
+    let print = (
+      not linked
+        and prefs.printFullUrls
+        and e.channel in ("url", "profiles")
+        and e.url != none
+    )
+    let value = if print { _display-url(e.url) } else { e.value }
+    e + (url: if linked { e.url }, value: value)
+  })
 }
 
 // The contact bar's rows: contact details on one line, profiles on

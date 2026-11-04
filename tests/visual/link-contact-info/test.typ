@@ -9,11 +9,13 @@
 //      channel linked.
 //
 // No reference images: the documents differ only in their links, so
-// `assert-links` checks each document's instead.
+// `assert-links` checks each document's instead. `printFullUrls`,
+// which changes what an unlinked entry shows, is print-full-urls.
 
 #import "/lib.typ": alta
 #import "/tests/visual/_links.typ": assert-links
 
+// Also print-full-urls' data.
 #let cv = (
   basics: (
     name: "Jane Doe",
