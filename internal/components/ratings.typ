@@ -37,18 +37,18 @@
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
   let (radius, gap, ..) = _theme.rating
-  let dot(fill) = box(circle(radius: radius * body-size, fill: fill))
+  // Each dot centred on its own, so a long row can still break between
+  // dots, as the separate dots always could.
+  let dot(fill) = _inline(box(circle(radius: radius * body-size, fill: fill)))
   _label-row(
     label,
-    _inline(
-      range(1, max-rating + 1)
-        .map(i => dot(
-          if value >= i { accent } else if value > i - 1 {
-            _half-fill(accent)
-          } else { _theme.colour.border },
-        ))
-        .join(h(gap * body-size)),
-    ),
+    range(1, max-rating + 1)
+      .map(i => dot(
+        if value >= i { accent } else if value > i - 1 {
+          _half-fill(accent)
+        } else { _theme.colour.border },
+      ))
+      .join(h(gap * body-size)),
   )
 }
 
