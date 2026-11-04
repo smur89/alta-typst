@@ -13,6 +13,9 @@
 //   Style around the part, e.g. `_treat(case, _part(...))`.
 // - No space before the label: one renders as a real space after the
 //   part.
+// Labels the template uses for its own rules (`justify`'s
+// `<alta-internal-prose>`) are prefixed `alta-internal-`, so they can't
+// be mistaken for a public part.
 #let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
 
 // Applies a named treatment from the theme (`_theme.treatment`,
@@ -62,7 +65,7 @@
 // For `show: _content-styles.with(body-size, accent, justify)`.
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
-// the paragraphs labelled `<alta-prose>`, so rows of facts, names or
+// the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
 // pills never stretch; Typst then hyphenates it too
 // (`text.hyphenate` is `auto`).
 #let _content-styles(body-size, accent, justify, body) = {
@@ -70,7 +73,7 @@
   let (type: ty, colour, stroke-width: sw, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   show list: set par(justify: justify)
-  show <alta-prose>: set par(justify: justify)
+  show <alta-internal-prose>: set par(justify: justify)
   set list(
     marker: [•],
     indent: 0pt,
