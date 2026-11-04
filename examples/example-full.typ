@@ -93,6 +93,11 @@
         url: "https://medium.com/@seanomurchu",
       ),
       (
+        network: "ORCID",
+        username: "0000-0002-1825-0097",
+        url: "https://orcid.org/0000-0002-1825-0097",
+      ),
+      (
         network: "Stackoverflow",
         username: "seanomurchu",
         url: "https://stackoverflow.com/u/1",
