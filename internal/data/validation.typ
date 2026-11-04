@@ -127,6 +127,7 @@
     "\"long\", \"short\", \"iso\", a bracketed template "
       + "(e.g. \"[day]/[month]/[year]\"), or a closure",
   ),
+  printFullUrls: _bool-rule,
   mapsProvider: (
     v => v == none or (type(v) == str and "{q}" in v),
     "`none` or a URL template string containing `{q}`",

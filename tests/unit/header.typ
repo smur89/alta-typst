@@ -99,6 +99,20 @@
   _linked-contacts(basics, prefs).map(c => c.url),
   (none, "https://x.io"),
 )
+
+// printFullUrls: an unlinked profile shows its URL, scheme dropped, in
+// place of its username; a linked one, the email (not a web channel)
+// and a profile without a `url` keep their value.
+#let profiles = (
+  (network: "GitHub", username: "jane", url: "https://github.com/jane"),
+  (network: "Link", username: "jane"),
+)
+#let values(link) = _linked-contacts(
+  basics + (profiles: profiles),
+  _merge-options((:), (linkContactInfo: link, printFullUrls: true)).prefs,
+).map(c => c.value)
+#assert.eq(values(false), ("j@x.io", "x.io", "github.com/jane", "jane"))
+#assert.eq(values(true), ("j@x.io", "x.io", "jane", "jane"))
 #assert.eq(_header-image(""), none)
 #assert.eq(_header-image(none), none)
 
