@@ -2,7 +2,10 @@
 // sections/publications.typ and the `_bib-entry` line builders in
 // internal/components/bibliography.typ.
 
-#import "/internal/components/bibliography.typ": _author-line, _identifier-line
+#import "/internal/components/bibliography.typ": (
+  _author-line, _author-names, _identifier-groups,
+)
+#import "/internal/primitives.typ": _join-facts
 #import "/internal/design/theme.typ": _default-theme
 #import "/sections/publications.typ": (
   _authors, _citation, _identifier-refs, _identifier-url, _identifiers, _source,
@@ -42,15 +45,15 @@
   "https://doi.org/10.1/b",
 )
 
-// _identifier-line: one `name id` per ref, joined with ` · `.
+// _identifier-groups: one `name id` group per ref, joined with ` · `.
 #assert.eq(
-  plain(_identifier-line(_default-theme, (
+  plain(_join-facts(_default-theme.separator, .._identifier-groups((
     (name: "DOI", id: "10.1/x", url: "https://doi.org/10.1/x"),
     (name: "hal", id: "hal-1", url: none),
-  ))),
+  )))),
   "DOI 10.1/x · hal hal-1",
 )
-#assert.eq(_identifier-line(_default-theme, ()), none)
+#assert.eq(_identifier-groups(()), ())
 
 // _citation: journal-style tail, each part optional, page hyphens
 // set as one en dash.
@@ -89,15 +92,15 @@
   (true, true, true, false),
 )
 
-// _author-line: the owner in bold.
+// _author-names: the owner in bold; _author-line `none` with no authors.
 #assert.eq(
-  plain(_author-line(_default-theme, (
+  plain(_author-names(_default-theme, (
     (name: "A. Smith", owner: false),
     (name: "jane doe", owner: true),
   ))),
   "A. Smith, *jane doe*",
 )
-#assert.eq(_author-line(_default-theme, ()), none)
+#assert.eq(_author-line(()), none)
 
 // _source: publisher, then citation; either alone.
 #assert.eq(_source((publisher: "ACM", volume: "12")), "ACM 12")

@@ -47,13 +47,11 @@
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
 #let _label-rows(groups) = context {
-  let theme = _theme-state.get()
-  let (separator, treatment) = theme
-  let emphasis = theme.colours.emphasis
+  let (separator, treatment, colours) = _theme-state.get()
   par(
     groups
       .map(((name, keywords, ..)) => [#text(
-          fill: emphasis,
+          fill: colours.emphasis,
           _treat(treatment.label, name),
         )#separator.label#keywords.join(separator.items)])
       .join(linebreak()),

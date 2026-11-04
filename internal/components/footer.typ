@@ -1,8 +1,10 @@
 // The page footers `sections/footer.typ` chooses between: the page
 // counter, which hides itself on single-page documents via the
 // reactive page counter (so it returns on its own when content grows),
-// and the right-aligned "last updated" line, both in body text.
+// and the right-aligned "last updated" line (`Last updated: …`), both
+// in body text.
 
+#import "../context.typ": _theme-state
 #import "../util/values.typ": _fill-template
 
 #let _auto-page-footer(name, page-number) = context {
@@ -19,4 +21,9 @@
   )
 }
 
-#let _updated-footer(body) = align(right, body)
+// `label` and `value` joined by the theme's `separator.label`.
+#let _updated-footer(label, value) = align(right, context {
+  label
+  _theme-state.get().separator.label
+  value
+})

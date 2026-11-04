@@ -1,10 +1,10 @@
 // The template's look. `_tokens` are the scales (type, colours,
-// separators, treatments, spacing, strokes); `_build-theme` maps them onto the roles components
-// read. A role exists only where components differ by design;
-// otherwise they read tokens. A theme (`presets.typ`) overrides tokens:
-// `_theme-for` merges it and `preferences.colours` over `_tokens` and
-// builds, once per render, into the state components read
-// (`_theme-state`).
+// separators, treatments, spacing, strokes); `_build-theme` maps them
+// onto the roles components read. A role exists only where components
+// differ by design; otherwise they read tokens. A theme (`presets.typ`)
+// overrides tokens: `_theme-for` merges it and `preferences.colours`
+// over `_tokens` and builds, once per render, into the state
+// components read (`_theme-state`).
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
