@@ -19,7 +19,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 |---|---|---|---|
 | util | `util/` | generic helpers: presence checks, joins, grouping, a deep merge, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme, document styles, the built-in themes and palettes, icon set | util |
-| data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_format-location`, `_entry-period` in `cv.typ`) | util, design |
+| data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_location-parts`, `_entry-period` in `cv.typ`) | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
 | document | `document.typ` | the document setup shared by `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |

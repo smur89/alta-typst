@@ -100,8 +100,8 @@
   subtitle: "Platform team",
   // The empty role and keyword drop out rather than leave a separator.
   roles: ("", "Lead", "Architect"),
-  period: "Jan 2022 – Present",
-  location: "Dublin, IE",
+  period: ("Jan 2022", "Present"),
+  location: ("Dublin", "IE"),
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
   keywords-lead: "First class",
@@ -112,8 +112,8 @@
 #block(width: 30%, _entry(
   title: "Staff Engineer",
   org: "Acme",
-  period: "Jan 2022 – Present",
-  location: "Dublin, IE",
+  period: ("Jan 2022", "Present"),
+  location: ("Dublin", "IE"),
 ))
 
 == Entry: issuer and details
@@ -122,7 +122,7 @@
   url: "https://example.com",
   org: "CNCF",
   details: ("CKA-123",),
-  period: "Mar 2024 – Mar 2027",
+  period: ("Mar 2024", "Mar 2027"),
   summary: [Cluster administration.],
 ))
 
@@ -131,7 +131,7 @@
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
-  _ => _entry(title: "An item", period: "2024"),
+  _ => _entry(title: "An item", period: ("2024",)),
   separator: none,
 )
 

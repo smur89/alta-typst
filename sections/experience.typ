@@ -4,7 +4,6 @@
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _entry-period, _location-parts
 #import "../internal/components/entry.typ": _entry
-#import "../internal/primitives.typ": _fact-line, _range
 #import "../internal/components/frame.typ": _section
 
 // `key` (`"work"` / `"volunteer"`) names the label; `org-key` holds
@@ -22,8 +21,8 @@
     title: _field(entry, "position"),
     org: _field(entry, org-key),
     org-url: _field(entry, "url"),
-    period: _range(.._entry-period(entry, format-date, labels.present)),
-    location: _fact-line(_location-parts(entry)),
+    period: _entry-period(entry, format-date, labels.present),
+    location: _location-parts(entry),
     summary: _field(entry, "summary"),
     highlights: entry.at("highlights", default: ()),
   ),

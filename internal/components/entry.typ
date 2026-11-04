@@ -7,6 +7,7 @@
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
   _accent-text, _date-fact, _fact-line, _link-if, _location-fact, _preamble,
+  _range,
 )
 
 // A small line under an entry's heading: a referee's attribution.
@@ -106,9 +107,10 @@
 //
 // The facts line under the title joins the organisation (in the
 // accent), the person's `roles` and short `details` (a credential ID)
-// with ` · `; the date and `location` sit at the right edge beside
-// the title and the facts line. Without a title, the facts line
-// leads.
+// with ` · `; the `period` (a range's sides, `_date-span`) and the
+// `location` (its parts) sit at the right edge beside the title and
+// the facts line, each joined with the theme's separator. Without a
+// title, the facts line leads.
 //
 // The `keywords` (a project's stack, education's courses) end the
 // entry as one line joined with ` · `; `keywords-lead` is a line of
@@ -121,8 +123,8 @@
   org-url: none,
   subtitle: none,
   roles: (),
-  period: none,
-  location: none,
+  period: (),
+  location: (),
   details: (),
   summary: none,
   highlights: (),
@@ -136,8 +138,8 @@
   _entry-head(
     if _present(title) { _link-if(url, title) },
     facts,
-    period,
-    location,
+    _range(period),
+    _fact-line(location),
   )
   _subtitle(subtitle)
   _preamble(summary)

@@ -4,7 +4,7 @@
 #import "../internal/util/dates.typ": _date-span
 #import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry
-#import "../internal/primitives.typ": _divider-space, _range
+#import "../internal/primitives.typ": _divider-space
 #import "../internal/components/frame.typ": _section
 
 // No `open-end`: a cert without `expiryDate` doesn't expire, so it
@@ -17,11 +17,11 @@
     url: _field(cert, "url"),
     org: _field(cert, "issuer"),
     details: (_field(cert, "credentialId"),),
-    period: _range(.._date-span(
+    period: _date-span(
       _field(cert, "date"),
       _field(cert, "expiryDate"),
       format-date,
-    )),
+    ),
     summary: _field(cert, "summary"),
   ),
   // Short, uniform rows: the spacing without the rule.

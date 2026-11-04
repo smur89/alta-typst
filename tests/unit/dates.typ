@@ -98,15 +98,18 @@
 
 // _date-span / _entry-period: a range's two sides, an absent one
 // `none`; a missing end of an entry's period reads `labels.present`,
-// and an undated entry has no sides. Joined as `_range` would, a
+// and an undated entry has neither. Joined as `_range` would, a
 // missing side drops out with its dash.
-#let range(sides) = _join-present(sides, _default-theme.separator.range)
-#assert.eq(plain(range(_date-span("2020", "2022", long))), "2020 – 2022")
-#assert.eq(plain(range(_date-span("2020", none, long))), "2020")
+#let join-range(sides) = _join-present(
+  sides,
+  _default-theme.separator.range,
+)
+#assert.eq(plain(join-range(_date-span("2020", "2022", long))), "2020 – 2022")
+#assert.eq(plain(join-range(_date-span("2020", none, long))), "2020")
 #assert.eq(_date-span(none, none, long), (none, none))
-#assert.eq(range(_date-span(none, none, long)), none)
+#assert.eq(join-range(_date-span(none, none, long)), none)
 #assert.eq(
-  plain(range(_entry-period((startDate: "2020"), long, labels.present))),
+  plain(join-range(_entry-period((startDate: "2020"), long, labels.present))),
   "2020 – " + labels.present,
 )
-#assert.eq(_entry-period((:), long, labels.present), ())
+#assert.eq(_entry-period((:), long, labels.present), (none, none))

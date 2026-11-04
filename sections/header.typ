@@ -5,9 +5,7 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
-#import "../internal/data/cv.typ": (
-  _format-location, _location-parts, _profile-glyph,
-)
+#import "../internal/data/cv.typ": _location-parts, _profile-glyph
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/design/icon-set.typ": _icon-glyphs, _network-icons
 #import "../internal/primitives.typ": _fact-line, _portrait
@@ -56,7 +54,7 @@
   let phone = _field(basics, "phone")
   // The display and the maps link's query join the same parts, so
   // they can't drift; only the display takes the theme's separator.
-  let location = _format-location(basics)
+  let location = _location-parts(basics)
   let url = _field(basics, "url")
   let fields = (
     if email != none {
@@ -77,16 +75,16 @@
         url: "tel:" + phone.replace(regex("[\s()\-.]"), ""),
       )
     },
-    if location != none {
+    if location != () {
       (
         channel: "location",
         glyph: _icon-glyphs.location,
         alt: location-alt,
-        value: _fact-line(_location-parts(basics)),
+        value: _fact-line(location),
         url: if maps-provider != none {
           // A plain replace, not `_fill-template`: a provider's other
           // `{…}` text isn't a placeholder.
-          maps-provider.replace("{q}", _url-encode(location))
+          maps-provider.replace("{q}", _url-encode(location.join(", ")))
         },
       )
     },

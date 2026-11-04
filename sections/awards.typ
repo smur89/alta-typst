@@ -13,7 +13,7 @@
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: format-date(_field(award, "date")),
+    period: (format-date(_field(award, "date")),),
     summary: _field(award, "summary"),
   ),
 )

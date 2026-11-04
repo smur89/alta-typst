@@ -5,7 +5,7 @@
 #import "../design/icon-set.typ": _network-aliases
 #import "../util/dates.typ": _date-span
 #import "../util/fields.typ": _dict-or-empty, _field
-#import "../util/values.typ": _join-present, _present, _round-half
+#import "../util/values.typ": _present, _round-half
 
 // A `references[]` entry's flag: only a real boolean counts, so a
 // stray `"yes"` doesn't hide a quote.
@@ -71,17 +71,13 @@
   _location-display-order.map(k => _field(value, k)).filter(_present)
 }
 
-// The location as one plain string, for data rather than display (the
-// maps link's query); `none` when there is none.
-#let _format-location(obj) = _location-parts(obj).join(", ")
-
-// A `startDate` / `endDate` entry's period as `_date-span` sides, for
-// `_range`, a missing end reading `present` (`labels.present`); a
-// fully undated entry has no sides, not a bare "Present".
+// A `startDate` / `endDate` entry's period as `_date-span` sides, a
+// missing end reading `present` (`labels.present`); a fully undated
+// entry has neither side, not a bare "Present".
 #let _entry-period(entry, format-date, present) = {
   let start = _field(entry, "startDate")
   let end = _field(entry, "endDate")
-  if start == none and end == none { return () }
+  if start == none and end == none { return (none, none) }
   _date-span(start, end, format-date, open-end: present)
 }
 

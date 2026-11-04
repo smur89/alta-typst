@@ -6,7 +6,7 @@
 #import "../internal/util/values.typ": _group-by
 #import "../internal/data/cv.typ": _entry-period
 #import "../internal/components/entry.typ": _entry
-#import "../internal/primitives.typ": _icon-heading, _range
+#import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
 
 // The client or company (`entity`) leads the facts line, as an
@@ -16,7 +16,7 @@
   url: _field(project, "url"),
   org: _field(project, "entity"),
   roles: project.at("roles", default: ()),
-  period: _range(.._entry-period(project, format-date, labels.present)),
+  period: _entry-period(project, format-date, labels.present),
   summary: _field(project, "summary"),
   highlights: project.at("highlights", default: ()),
   keywords: project.at("keywords", default: ()),

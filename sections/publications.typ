@@ -7,7 +7,7 @@
 #import "../internal/util/fields.typ": (
   _array-or-empty, _dict-or-empty, _field, _string-at,
 )
-#import "../internal/util/values.typ": _group-by, _join-present, _present-str
+#import "../internal/util/values.typ": _group-by, _present-str
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/frame.typ": _grouped-section
@@ -80,9 +80,11 @@
     url: if url != none { url } else { _identifier-url(refs) },
     authors: _authors(pub, owners),
     publisher: _field(pub, "publisher"),
-    citation: ("volume", "issue", "pages")
-      .map(k => (k, _string-at(pub, k)))
-      .to-dict(),
+    citation: (
+      volume: _string-at(pub, "volume"),
+      issue: _string-at(pub, "issue"),
+      pages: _string-at(pub, "pages"),
+    ),
     date: format-date(_field(pub, "releaseDate")),
     identifiers: refs,
     summary: _field(pub, "summary"),

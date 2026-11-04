@@ -16,11 +16,20 @@
   body,
 )
 
+// `format(theme)` in context when any of `parts` is present, `none`
+// otherwise. Presence is decided here, outside context, so a helper
+// built on it still returns `none` for an empty line, which callers
+// rely on to skip it; only the formatting reads the theme.
+#let _with-theme(parts, format) = if parts.any(_present) {
+  context format(_theme-state.get())
+}
+
 // The quietest lines (publication dates, identifiers); absent bodies
 // render nothing.
-#let _meta(body) = if _present(body) {
-  context text(fill: _theme-state.get().colours.secondary, body)
-}
+#let _meta(body) = _with-theme((body,), t => text(
+  fill: t.colours.secondary,
+  body,
+))
 
 // The gap `tag()` leaves after a pill, from the theme the caller read
 // in context. Takes the CV's body size, not `em`, since `tag()` is
@@ -51,17 +60,17 @@
 )
 
 // A range's sides (`_date-span`) joined by the theme's
-// `separator.range`; an absent side drops out with it, and none left is
-// `none`, decided outside context as `_fact-line` does.
-#let _range(..sides) = if sides.pos().any(_present) {
-  context _join-present(sides.pos(), _theme-state.get().separator.range)
-}
+// `separator.range`; an absent side drops out with it.
+#let _range(sides) = _with-theme(sides, t => _join-present(
+  sides,
+  t.separator.range,
+))
 
-// `_join-facts` with the theme's separators. Whether any part is present
-// is decided outside context, so an empty line is still `none`.
-#let _fact-line(..groups) = if groups.pos().flatten().any(_present) {
-  context _join-facts(_theme-state.get().separator, ..groups)
-}
+// `_join-facts` with the theme's separators.
+#let _fact-line(..groups) = _with-theme(
+  groups.pos().flatten(),
+  t => _join-facts(t.separator, ..groups),
+)
 
 // A summary as a paragraph of prose: the paragraph labelled
 // `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
@@ -74,9 +83,10 @@
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
 // doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
-#let _preamble(body) = if _present(body) {
-  context _prose(body, treatment: _theme-state.get().treatment.preamble)
-}
+#let _preamble(body) = _with-theme((body,), t => _prose(
+  body,
+  treatment: t.treatment.preamble,
+))
 
 // The term row's frame: indented text under an entry's heading.
 #let _term-row(body) = context {

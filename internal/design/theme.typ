@@ -51,10 +51,11 @@
   // parts too), `facts` between groups; `label` after an interest
   // group's name (`Music: Trad, Jazz`) and the footer's "Last
   // updated"; `range` between a period's dates.
-  separator: (facts: " · ", items: ", ", label: ": ", range: [ – ]),
+  separator: (facts: " · ", items: ", ", label: ": ", range: " – "),
   // A publication's citation, `ACM 12(3), 45–67`: the brackets around
   // the issue, before the pages, between the publisher and the rest,
-  // and the dash that replaces hyphens in a page range.
+  // and the dash that replaces hyphens in a page range (unspaced, where
+  // `separator.range` between dates is spaced).
   citation: (issue: ("(", ")"), pages: ", ", source: " ", page-range: "–"),
   // For a summary, a `styled-link` title, the CV owner among
   // publication authors, and an interest group's name.
