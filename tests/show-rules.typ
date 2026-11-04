@@ -15,7 +15,7 @@
 #show <alta-section-title>: set text(fill: rgb("#1f618d"))
 #show <alta-entry-title>: set text(weight: "bold")
 #show <alta-group-title>: set text(fill: rgb("#b03a2e"))
-#show <alta-contact>: set text(font: "New Computer Modern", weight: "regular")
+#show <alta-contact>: set text(font: "DejaVu Sans Mono", weight: "regular")
 #show <alta-date>: set text(fill: rgb("#b03a2e"), style: "italic")
 #show <alta-location>: set text(size: 0.85em)
 #show <alta-org>: set text(fill: rgb("#7d6608"))

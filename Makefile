@@ -8,9 +8,20 @@
 .DELETE_ON_ERROR:
 
 TYPST     ?= typst ## the typst binary
+# When set, Typst searches only these directories (plus the fonts it
+# bundles), never the system's, so a render doesn't depend on what else
+# the machine has installed: a font both bundled and installed (DejaVu
+# Sans Mono on CI's runner) would otherwise resolve differently per
+# machine. The pinned image (`docker-pdfs`) and CI set it; host runs
+# leave it empty and use system fonts.
+FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
 FFMPEG    ?= ffmpeg ## the ffmpeg binary
 ROOT      := .
+ifneq ($(strip $(FONT_PATHS)),)
+export TYPST_IGNORE_SYSTEM_FONTS := true
+export TYPST_FONT_PATHS := $(FONT_PATHS)
+endif
 PPI       ?= 150 ## preview PNG resolution
 # Animated-preview frame rate: 0.4 → 2.5 s per frame.
 PREVIEW_FPS ?= 0.4 ## GIF frame rate
@@ -77,7 +88,8 @@ DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0
 # ("Permission denied" on first download), so the cache lives in the
 # bind mount (`.typst-cache/`, gitignored) and persists across runs.
 DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work \
-  -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache
+  -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
+  -e FONT_PATHS=/usr/share/fonts/lato:/usr/share/fonts/fontawesome
 
 all: pdfs cv test-pdfs thumbnail ## build every example PDF, the cv preview and every fixture PDF
 

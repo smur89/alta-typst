@@ -57,6 +57,13 @@ runs:
         sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
         sudo fc-cache -f
 
+    # Renders see only the pinned fonts (and Typst's own), as in the
+    # pinned image, so a font the runner happens to have can't change
+    # them (the Makefile's FONT_PATHS).
+    - name: Pin the font directories
+      shell: bash
+      run: echo "FONT_PATHS=/usr/share/fonts/truetype/lato:/usr/share/fonts/fontawesome" >> "$GITHUB_ENV"
+
     - name: Install Typst
       shell: bash
       env:
