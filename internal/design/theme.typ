@@ -3,11 +3,8 @@
 // role exists only where components differ by design; otherwise they
 // read tokens. Colours come from `preferences.theme` (`presets.typ`)
 // and `preferences.colours`, resolved per render by `_colour-roles`.
-//
-// A theme sets only colours so far. When it sets fonts and sizes too,
-// `alta()` deep-merges its token overrides (the tokens nest),
-// rebuilds, then merges role overrides. Token values are numbers and strings (widths in pt), so a
-// theme could load from TOML.
+// Token values are numbers and strings (font weights), so a theme
+// could load from TOML.
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
@@ -140,13 +137,16 @@
 
 #let _theme = _build-theme(_tokens)
 
-// A theme's colours with `preferences.colours` over them, plus
+// A theme's colours with `colours` (the preference) over them, plus
 // `secondary` (the quietest lines) and `border` (dividers, empty
 // rating dots), derived from `body`.
-#let _colour-roles(colours) = (
-  colours
-    + (
-      secondary: colours.body.lighten(35%),
-      border: colours.body.lighten(65%),
-    )
-)
+#let _colour-roles(theme, colours) = {
+  let roles = theme.colours + colours
+  (
+    roles
+      + (
+        secondary: roles.body.lighten(35%),
+        border: roles.body.lighten(65%),
+      )
+  )
+}

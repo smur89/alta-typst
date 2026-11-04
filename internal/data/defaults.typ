@@ -66,8 +66,8 @@
   ownerNames: (),
   // Deprecated, removed in the next major (#239). `accent` has no
   // default, as `_canonical-preferences` folds it into `colours`.
-  // `groupCertificates` and `showPronouns` are ignored (JSON Resume dropped
-  // `basics.pronouns` as added by accident,
+  // `groupCertificates` and `showPronouns` are ignored (JSON Resume
+  // dropped `basics.pronouns` as added by accident,
   // https://github.com/jsonresume/jsonresume.org/pull/629),
   // and `_canonical-cv` turns `referencesAvailableOnRequest` into a
   // `references[].availableOnRequest` entry.

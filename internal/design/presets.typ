@@ -14,6 +14,18 @@
   charcoal: rgb("#3B3B3B"),
 )
 
+// The colour roles every theme sets, and `preferences.colours` may.
+#let _colour-role-names = (
+  "accent",
+  "emphasis",
+  "body",
+  "heading",
+  "headingRule",
+  "subheading",
+  "name",
+  "tagline",
+)
+
 // The roles a single-accent theme colours with its accent; the
 // deprecated top-level `accent` sets them too.
 #let _accent-roles(accent) = (
@@ -41,16 +53,13 @@
   palettes.pairs().map(((k, v)) => (k, _accent-theme(v))).to-dict()
     + (
       altacv: (
-        colours: (
-          accent: rgb("#8F0D0D"),
-          emphasis: rgb("#2E2E2E"),
-          body: rgb("#666666"),
-          heading: rgb("#450808"),
-          headingRule: rgb("#E7D192"),
-          subheading: rgb("#8F0D0D"),
-          name: black,
-          tagline: rgb("#8F0D0D"),
-        ),
+        colours: _accent-theme(rgb("#8F0D0D")).colours
+          + (
+            heading: rgb("#450808"),
+            headingRule: rgb("#E7D192"),
+            name: black,
+            tagline: rgb("#8F0D0D"),
+          ),
       ),
     )
 )

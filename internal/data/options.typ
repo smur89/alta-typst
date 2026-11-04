@@ -40,7 +40,5 @@
     tables: _preference-tables,
   )
   _validate-preferences(merged-preferences, _section-specs.keys())
-  // The caller's colours over the theme's, so renderers read one set.
-  let colours = merged-preferences.theme.colours + merged-preferences.colours
-  (labels: merged-labels, prefs: merged-preferences + (colours: colours))
+  (labels: merged-labels, prefs: merged-preferences)
 }

@@ -531,7 +531,7 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | `name` | `basics.name`. |
 | `tagline` | `basics.label`, under the name. |
 
-Any `rgb(...)` value works for a role; the ones that colour text should be dark enough to read on white, as the themes' are. A theme of your own is `(colours: (...))` setting every role, as it replaces the default theme whole: e.g. `(colours: themes.navy.colours + (accent: rgb("#0a4"), name: rgb("#0a4")))`. Themes set only colours so far; fonts and sizes may join them later.
+Any `rgb(...)` value works for a role; the ones that colour text should be dark enough to read on white, as the themes' are. A theme of your own is `(colours: (...))` setting every role, as it replaces the default theme whole: e.g. `(colours: themes.navy.colours + (accent: rgb("#0a4"), name: rgb("#0a4")))`.
 
 #### Publication icons
 

@@ -6,7 +6,7 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 
 `alta()` (`render.typ`, re-exported from `lib.typ`) runs one pipeline. Steps 1 and 2 raise every input error before anything renders; only the public helpers (`rating`, …) still check their own arguments, as users call them directly.
 
-1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them, then sets the caller's `colours` over the theme's.
+1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them.
 2. **CV:** `_read-cv` (`data/read.typ`) rejects unknown top-level keys, has `_canonical-cv` drop `none` fields and rewrite deprecated CV forms, checks `basics` and `objective`, and has `_read-sections` (`data/sections.typ`) shape-check every section, check each entry's field types against its spec's `fields`, keep the entries its spec's `keep` says render, and run its `check` on those.
 3. **Document:** `_pdf-metadata` (`data/metadata.typ`), then `_document` (`document.typ`): the render-time context (`context.typ`), `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
 4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`, laid out by `_columns` (`components/columns.typ`).
@@ -55,7 +55,7 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 ## The look
 
 - **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
-- **`design/presets.typ`**: the built-in `themes`, each `(colours: ...)` setting every colour role, and the deprecated accent `palettes` they're built from. `_colour-roles` (`theme.typ`) adds `secondary` and `border`, derived from `body`, per render.
+- **`design/presets.typ`**: the built-in `themes`, each `(colours: ...)` setting every colour role, and the deprecated accent `palettes` they're built from. `_colour-roles` (`theme.typ`) sets the caller's `colours` over the theme's and derives `secondary` and `border` from `body`, once per render in `_document`.
 - **`context.typ`**: the resolved colours, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
 
 Users style through [preferences](README.md#preferences): `theme` picks a theme (`themes.teal` unless set) and `colours` overrides its roles. A theme sets only colours so far; fonts and sizes join it as `_tokens` overrides, which `alta()` would deep-merge, rebuild, then merge role overrides over.

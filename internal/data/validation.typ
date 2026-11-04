@@ -3,11 +3,12 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/presets.typ": themes
+#import "../design/presets.typ": _colour-role-names
 #import "../design/theme.typ": _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _list-rule, _positive-int-rule, _type-rule,
+  _enum-rule, _list-rule, _positive-int-rule, _prose-list, _quote, _require,
+  _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
@@ -136,8 +137,6 @@
   referencesAvailableOnRequest: _bool-rule,
 )
 
-// The colour roles, each set by every theme.
-#let _colour-role-names = themes.teal.colours.keys()
 // Only a colour supports `lighten` / `darken`; a palette name string
 // is the common slip.
 #let _colour-rule = _type-rule(
@@ -160,9 +159,12 @@
   let theme-colours = theme.at("colours", default: none)
   _check-colours(theme-colours, "theme.colours")
   let missing = _colour-role-names.filter(r => r not in theme-colours)
-  if missing.len() > 0 {
-    panic("theme.colours must set every role; missing: " + repr(missing))
-  }
+  _require(
+    "theme.colours",
+    theme-colours,
+    missing.len() == 0,
+    "a colour for every role, missing " + _prose-list(missing.map(_quote)),
+  )
   _check-colours(colours, "colours")
 }
 

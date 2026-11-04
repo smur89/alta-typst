@@ -9,12 +9,8 @@
 #import "design/theme.typ": _colour-roles
 
 #let _body-size-state = state("alta-body-size", 10pt)
-// The theme's colours with `preferences.colours` over them, resolved
-// (`_colour-roles`).
-#let _colour-state = state(
-  "alta-colours",
-  _colour-roles(themes.teal.colours),
-)
+// The resolved colours.
+#let _colour-state = state("alta-colours", _colour-roles(themes.teal, (:)))
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.maxRating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)

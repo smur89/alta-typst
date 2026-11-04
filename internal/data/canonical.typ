@@ -176,13 +176,14 @@
 // names `colours` rather than an unknown `accent`; a non-dictionary
 // `preferences` passes through for `_strict-merge` to reject.
 #let _fold-accent(overrides) = {
-  let prefs = _dict-or-empty(overrides)
-  if "accent" not in prefs { overrides } else {
-    let colours = prefs.at("colours", default: (:))
+  if type(overrides) != dictionary or "accent" not in overrides {
+    overrides
+  } else {
+    let colours = overrides.at("colours", default: (:))
     let folded = if type(colours) == dictionary {
-      _accent-roles(prefs.accent) + colours
+      _accent-roles(overrides.accent) + colours
     } else { colours }
-    let rest = prefs.pairs().filter(((k, _)) => k != "accent").to-dict()
+    let rest = overrides.pairs().filter(((k, _)) => k != "accent").to-dict()
     rest + (colours: folded)
   }
 }

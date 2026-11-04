@@ -3,16 +3,19 @@
 // `alta()` runs.
 
 #import "/internal/data/options.typ": _merge-options
-#import "/internal/design/presets.typ": palettes, themes
+#import "/internal/design/presets.typ": _colour-role-names, palettes, themes
 #import "/internal/design/theme.typ": _colour-roles
 
-#let roles(prefs) = _colour-roles(_merge-options((:), prefs).prefs.colours)
+#let roles(preferences) = {
+  let prefs = _merge-options((:), preferences).prefs
+  _colour-roles(prefs.theme, prefs.colours)
+}
 
-// Every theme sets every role.
+// Every theme sets every role, and nothing else.
 #for (name, theme) in themes {
   assert.eq(
     theme.colours.keys().sorted(),
-    themes.teal.colours.keys().sorted(),
+    _colour-role-names.sorted(),
     message: name,
   )
 }

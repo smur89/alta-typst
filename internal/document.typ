@@ -14,7 +14,7 @@
 // merged, validated preferences and labels.
 #let _document(prefs, labels, footer: none, body) = {
   let (bodySize: body-size, maxRating: max-rating, ..) = prefs
-  let colours = _colour-roles(prefs.colours)
+  let colours = _colour-roles(prefs.theme, prefs.colours)
   _colour-state.update(colours)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)

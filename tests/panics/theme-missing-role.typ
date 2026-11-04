@@ -1,4 +1,4 @@
-// expect: theme.colours must set every role; missing: ("name",)
+// expect: theme.colours must be a colour for every role, missing "name"
 #import "/lib.typ": alta, themes
 
 #let cv = (basics: (name: "Jane Doe"))
