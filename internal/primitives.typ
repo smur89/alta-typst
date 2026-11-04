@@ -1,178 +1,267 @@
-// Low-level rendering primitives shared by every section renderer.
-// `name`, `term`, `tag`, `divider` are re-exported as public surface
-// from `lib.typ` for callers composing custom layouts; the leading-
-// underscore helpers are used internally by the section renderers.
+// Low-level rendering pieces shared across sections: the text styles,
+// the term row, pills and tag rows, the divider and icon headings.
+// `name`, `term`, `tag`, `divider`, `styled-link` are re-exported from `lib.typ` for
+// custom layouts; underscored helpers are internal.
 
-#import "state.typ": (
-  _accent_state, _body_colour, _body_size_state, _divider_colour,
-)
-#import "icons.typ": icon
-#import "text.typ": _present, _present_str
-#import "dates.typ": _format_date_range
-#import "location.typ": _format_location
+#import "design/styles.typ": _part, _treat
+#import "context.typ": _body-size-state, _theme-state
+#import "util/values.typ": _join-present, _present
+#import "icons.typ": _icon-glyph, icon
 
-// Shared by `divider()` and `_labelled_divider()` so the plain and
-// labelled rules can't drift apart visually.
-#let _divider_stroke = (
-  paint: _divider_colour,
-  thickness: 0.6pt,
-  dash: "dashed",
+// The accent text `name()` sets on its own line, for inline use (an
+// entry's organisation on its facts line). Regular weight, so the
+// title above it leads.
+#let _accent-text(body) = context text(
+  fill: _theme-state.get().colours.accent,
+  body,
 )
 
-// Bold accent-coloured line — designed for the company / institution
-// row beneath a role or education entry.
+// `format(theme)` in context when any of `parts` is present, `none`
+// otherwise. Presence is decided here, outside context, so a helper
+// built on it still returns `none` for an empty line, which callers
+// rely on to skip it; only the formatting reads the theme.
+#let _with-theme(parts, format) = if parts.any(_present) {
+  context format(_theme-state.get())
+}
+
+// The quietest lines (publication dates, identifiers); absent bodies
+// render nothing.
+#let _meta(body) = _with-theme((body,), t => text(
+  fill: t.colours.secondary,
+  body,
+))
+
+// The gap `tag()` leaves after a pill, from the theme the caller read
+// in context. Takes the CV's body size, not `em`, since `tag()` is
+// public and may sit outside `alta()`'s text.
+#let _tag-gap(theme, body-size) = h(theme.tag.gap * body-size)
+
+/// An accent-coloured line, for an organisation on a line of its own in
+/// a custom layout.
+///
+/// - body (content): The text.
+/// -> content
 #let name(body) = context {
-  let body-size = _body_size_state.get()
-  let accent = _accent_state.get()
+  let body-size = _body-size-state.get()
   block(
     above: 0pt,
-    below: 0.6 * body-size,
-    text(weight: "bold", fill: accent, body),
+    below: _theme-state.get().entry.name-below * body-size,
+    _accent-text(body),
   )
 }
 
-// An entry's italic prose preamble (`summary`). Softer than `name()`
-// (the bold accent line) so it doesn't compete with the headings or
-// the bullets around it. Absent values render nothing.
-#let _preamble(body) = if _present(body) { emph(body) }
-
-// Either side may be `none` — the box is skipped, so undated /
-// unlocated entries don't emit a stray icon.
-#let term(period, location: none) = context {
-  if period == none and location == none { return }
-  let body-size = _body_size_state.get()
-  block(
-    above: 0pt,
-    below: 0.8 * body-size,
-    inset: (left: 0.3 * body-size),
-    text(0.9 * body-size, {
-      if period != none {
-        box(width: 50%, {
-          icon("calendar")
-          period
-        })
-      }
-      if location != none {
-        box(width: 50%, {
-          icon("location")
-          location
-        })
-      }
-    }),
-  )
-}
-
-// The date + location term row of a dated entry. `location` is a
-// string or JSON Resume's structured dict; `key` names the section in
-// panic messages (e.g. "education" → "education[].location").
-#let _entry_term(entry, key, prefs, labels) = term(
-  _format_date_range(entry, prefs, labels),
-  location: _format_location(
-    entry.at("location", default: none),
-    key + "[].location",
-  ),
+// Groups of facts on one line (`Manager, Pied Piper · 2024`): the
+// parts of a group joined by `separator.items`, the groups by
+// `separator.facts`. Absent parts and emptied groups drop out; `none`
+// when nothing is left.
+#let _join-facts(separator, ..groups) = _join-present(
+  groups.pos().map(g => _join-present(g, separator.items)),
+  separator.facts,
 )
 
-// `label: true` is the category-heading variant (darker fill, bold
-// text) — used to distinguish a group's leading pill from the item
-// pills that follow it on the same row. `trailing: false` suppresses
-// the inter-tag gap that would otherwise sit after the pill; callers
-// composing a row of tags pass `false` on the final one so the row
-// doesn't end on dead horizontal space.
-#let tag(body, label: false, trailing: true) = context {
-  let body-size = _body_size_state.get()
-  let accent = _accent_state.get()
-  let fill-colour = if label { accent.lighten(70%) } else {
-    accent.lighten(85%)
-  }
-  let text-weight = if label { "bold" } else { "regular" }
-  box(
-    fill: fill-colour,
-    stroke: 0.5pt + accent,
-    radius: 2.5pt,
-    inset: (x: 0.4 * body-size, y: 0.15 * body-size),
-    outset: (y: 0.15 * body-size),
-    text(0.85 * body-size, fill: accent.darken(15%), weight: text-weight, body),
+// A range's sides (`_date-span`) joined by the theme's
+// `separator.range`; an absent side drops out with it.
+#let _range(sides) = _with-theme(sides, t => _join-present(
+  sides,
+  t.separator.range,
+))
+
+// `_join-facts` with the theme's separators.
+#let _fact-line(..groups) = _with-theme(
+  groups.pos().flatten(),
+  t => _join-facts(t.separator, ..groups),
+)
+
+// A summary as a paragraph of prose: the paragraph labelled
+// `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
+// public `<alta-summary>` part.
+#let _prose(body, treatment: "none") = [#par(_treat(
+  treatment,
+  _part("summary", body),
+))<alta-internal-prose>]
+
+// Set apart (`treatment.preamble`, italic by default) so a `summary`
+// doesn't compete with the facts line above it. Its own paragraph, so
+// whatever follows starts on a new line.
+#let _preamble(body) = _with-theme((body,), t => _prose(
+  body,
+  treatment: t.treatment.preamble,
+))
+
+// The term row's frame: indented text under an entry's heading.
+#let _term-row(body) = context {
+  let body-size = _body-size-state.get()
+  let (below, inset) = _theme-state.get().term
+  block(
+    above: 0pt,
+    below: below * body-size,
+    inset: (left: inset * body-size),
+    text(body-size, body),
   )
-  if trailing { h(0.25 * body-size) }
 }
 
-// Inter-entry dashed rule. Suppressed when it would render near the
-// top of a page — Typst has no "stick to previous block" attribute, so
-// when an entry overflows onto a new page the divider that preceded
-// it would otherwise orphan above the first item on that page. The
-// `2cm` threshold covers the default `margin.y` (1.5cm) plus a small
-// buffer for any section heading that immediately follows; callers
-// running tighter margins still see the divider only between
-// in-flow neighbours.
-#let divider() = context {
-  let body-size = _body_size_state.get()
-  if here().position().y < 2cm { return }
-  v(0.3 * body-size)
-  line(length: 100%, stroke: _divider_stroke)
-  v(0.3 * body-size)
+// `body` led by its icon, kept on one line; absent bodies render
+// nothing, so no stray icon. `part` labels the icon (`_glyph`).
+#let _icon-fact(icon-name, part, body, alt: none) = if _present(body) {
+  box({
+    _icon-glyph(icon-name, alt: alt, part: part)
+    body
+  })
 }
 
-// Like `divider()` but with a leading label that sits slightly indented
-// from the left edge, followed by the dashed segment running to the
-// right margin. Used to announce a sub-grouping (e.g. the certificates'
-// issuer above its row of cert pills). The label borrows the section-
-// heading register (uppercase, tracked) at a smaller scale and in body
-// colour so it reads as a quiet sub-heading rather than competing with
-// the parent section title.
-#let _labelled_divider(label) = context {
-  let body-size = _body_size_state.get()
-  v(0.3 * body-size)
-  pad(left: 0.6 * body-size, grid(
-    columns: (1.3em, auto, 1fr),
-    column-gutter: 0.5 * body-size,
-    align: horizon,
-    line(length: 100%, stroke: _divider_stroke),
+// A date and a location, each led by its labelled icon: the facts
+// every entry and `term()` show.
+#let _date-fact = _icon-fact.with("calendar", "date-icon")
+#let _location-fact = _icon-fact.with("location", "location-icon")
+
+// Half the row each, so a period lines up with a location column.
+#let _term-part(fact, body) = if _present(body) {
+  box(width: 50%, fact(body))
+}
+
+/// A date and an optional location on one row, each led by its icon.
+/// An absent side is left out, icon included; with neither, nothing
+/// renders.
+///
+/// - period (content, str, none): The date or date range.
+/// - location (content, str, none): The place.
+/// -> content
+#let term(period, location: none) = {
+  if not (_present(period) or _present(location)) { return }
+  _term-row({
+    _term-part(_date-fact, period)
+    _term-part(_location-fact, location)
+  })
+}
+
+/// A pill-style tag.
+///
+/// - body (content): The pill's text.
+/// - label (bool): The darker, bold category pill (a skill group's
+///   label).
+/// - trailing (bool): Leave the gap after the pill; `false` on a row's
+///   last pill, so the row doesn't end on a gap.
+/// -> content
+#let tag(body, label: false, trailing: true) = context {
+  let body-size = _body-size-state.get()
+  let theme = _theme-state.get()
+  let accent = theme.colours.accent
+  let (
+    fill,
+    label-fill,
+    text-darken,
+    radius,
+    inset,
+    outset-y,
+    weight,
+    label-weight,
+    ..,
+  ) = theme.tag
+  let text-weight = if label { label-weight } else { weight }
+  box(
+    fill: accent.lighten(if label { label-fill } else { fill }),
+    stroke: theme.stroke-width.thin + accent,
+    radius: radius,
+    inset: (x: inset.x * body-size, y: inset.y * body-size),
+    outset: (y: outset-y * body-size),
+    // The box's look is the theme's; only its text is a `_part`.
     text(
-      0.7 * body-size,
-      fill: _body_colour.lighten(15%),
-      label,
+      body-size,
+      fill: accent.darken(text-darken),
+      weight: text-weight,
+      _part(if label { "pill-label" } else { "pill" }, body),
     ),
-    line(length: 100%, stroke: _divider_stroke),
-  ))
-  v(0.3 * body-size)
+  )
+  if trailing { _tag-gap(theme, body-size) }
 }
 
-// Buckets `items` under `key-of(item)` in first-occurrence order
-// (Typst dicts preserve insertion order). Keys must be strings.
-#let _group_by(items, key-of) = items.fold((:), (acc, item) => {
-  let key = key-of(item)
-  acc + ((key): acc.at(key, default: ()) + (item,))
-})
-
-// Rules between neighbours only, so sections don't end on a stray rule.
-#let _join_with_dividers(items, render) = items.map(render).join(divider())
-
-// Buckets by `item.type` when it's a non-empty string, else under
-// `fallback` — the optional JSON Resume `type` field drives the
-// `====` subheadings in projects and publications. A non-string
-// `type` (a number, a dict) pools under `fallback` rather than
-// crashing as a dict key.
-#let _group_by_type(items, fallback) = _group_by(items, item => {
-  let raw = item.at("type", default: none)
-  if _present_str(raw) { raw } else { fallback }
-})
-
-// The common section skeleton: level-2 heading, then one unbreakable
-// block per entry joined by dividers. Empty `entries` renders nothing
-// — not even the heading — so callers filter out unusable entries
-// first and the "no orphan heading" rule holds by construction.
-#let _section(heading, entries, render-entry) = if entries.len() > 0 {
-  [== #heading]
-  _join_with_dividers(entries, e => block(breakable: false, render-entry(e)))
-}
-
-// Suppresses the inter-tag gap on the final pill so rows don't end
-// in dead horizontal space. `label` forwards to `tag` so a caller can
-// render the whole row in the darker category variant (e.g. project
-// roles, set apart from the lighter keyword pills).
-#let _tag_row(items, label: false) = {
-  for (i, item) in items.enumerate() {
-    tag(item, label: label, trailing: i < items.len() - 1)
+// The page's top margin as an absolute length. Typst's `auto` margin is
+// 2.5/21 of the shorter page side.
+#let _top-margin() = {
+  let margin = page.margin
+  let top = if type(margin) == dictionary { margin.top } else { margin }
+  if top == auto { calc.min(page.width, page.height) * 2.5 / 21 } else {
+    let rel = top + 0% // a plain length or ratio, as a relative
+    rel.length.to-absolute() + rel.ratio * page.height
   }
+}
+
+// Typst has no keep-with-previous, so a divider before an entry that
+// moved to a new page would orphan at its top. Suppress it within
+// `clearance` of the top margin (headroom for a following heading), so
+// it tracks `preferences.margin`. `rule: false` keeps the spacing
+// without the line (`_divider-space`).
+#let _divider(rule) = context {
+  let body-size = _body-size-state.get()
+  let theme = _theme-state.get()
+  let (gap, dash, clearance) = theme.divider
+  if here().position().y < _top-margin() + clearance { return }
+  v(gap * body-size)
+  if rule {
+    // The stroke is `set` around the `divider` part, so a user's
+    // `show <alta-divider>: set line(...)` overrides it.
+    set line(stroke: (
+      paint: theme.colours.border,
+      thickness: theme.stroke-width.thin,
+      dash: dash,
+    ))
+    _part("divider", line(length: 100%))
+  }
+  v(gap * body-size)
+}
+
+/// The dashed grey rule altacv draws between entries.
+/// -> content
+#let divider() = _divider(true)
+#let _divider-space() = _divider(false)
+
+// A row of `tag()` pills, with no gap after the last.
+#let _tag-row(items) = {
+  for (i, item) in items.enumerate() {
+    tag(item, trailing: i < items.len() - 1)
+  }
+}
+
+// A `====` subheading led by an icon at the subheading's size. Read in
+// context: `em` inside the heading is already scaled.
+#let _icon-heading(icon-name, body) = [#context icon(
+    icon-name,
+    size: _theme-state.get().type.title.size * _body-size-state.get(),
+    // The heading's own colour (`styles.typ`), not the icon's default.
+    fill: text.fill,
+  ) #body]
+
+// The portrait, clipped to a square with the theme's corner radius for
+// `shape` (a `preferences.imageShape`). `image()` resolves a bare string path from
+// the file that calls it, so this stays in `internal/`, where a bare
+// `basics.image` has always resolved; `path` and `bytes` sources let
+// callers anchor resolution at their own .typ instead. `alt` becomes
+// the image's `/Alt` in tagged PDF output.
+#let _portrait(source, size, alt, shape: "circle") = context box(
+  width: size,
+  height: size,
+  clip: true,
+  radius: _theme-state.get().header.portrait-radius.at(shape),
+  image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
+)
+
+// `body` linked to `dest` when it's present, so an empty `url` never
+// becomes a dead link.
+#let _link-if(dest, body) = if _present(dest) { link(dest, body) } else {
+  body
+}
+
+/// Text in altacv's entry-title style (the accent, italic), linked when
+/// `dest` is set; it looks the same either way.
+///
+/// - content (content): The title.
+/// - dest (str, none): A URL to link it to.
+/// -> content
+#let styled-link(content, dest: none) = context {
+  let theme = _theme-state.get()
+  let styled = _treat(
+    theme.treatment.link,
+    text(fill: theme.colours.accent, content),
+  )
+  _link-if(dest, styled)
 }

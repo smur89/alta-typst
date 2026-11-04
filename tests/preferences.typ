@@ -1,13 +1,20 @@
-// Preference overrides: custom accent + ungrouped certificates +
-// localised labels. Exercises _strict_merge for both `labels` and
+// Preference overrides: custom accent colour + ungrouped certificates +
+// localised labels. Exercises _strict-merge for both `labels` and
 // `preferences`. Labels are translated to Gaeilge (Irish) to
 // demonstrate the localisation path with a non-English language.
+// Also sets the deprecated `groupCertificates: false` and
+// `showPronouns: true`, which have no effect: `basics.pronouns` is
+// ignored, as JSON Resume dropped it (https://github.com/jsonresume/jsonresume.org/pull/629).
 
 #import "../lib.typ": alta
 
 #alta(
   (
-    basics: (name: "Oisín Mac Cárthaigh", email: "oisin@example.com"),
+    basics: (
+      name: "Oisín Mac Cárthaigh",
+      pronouns: "he/him",
+      email: "oisin@example.com",
+    ),
     work: (
       (
         name: "Forge Liffey",
@@ -23,8 +30,9 @@
     ),
   ),
   preferences: (
-    accent: rgb("#1976D2"),
+    colours: (accent: rgb("#1976D2")),
     groupCertificates: false,
+    showPronouns: true,
   ),
   labels: (
     work: "Taithí Oibre",

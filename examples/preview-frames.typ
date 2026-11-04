@@ -17,14 +17,14 @@
 // left, right). The alternation reinforces that the portrait is
 // optional — one more knob among many, not the visual anchor.
 //
-// Accent palette also changes every frame — no two consecutive
-// frames share an accent colour. The six built-in palettes plus
-// one repeat give us seven distinct visual blocks.
+// The theme also changes every frame, one built-in theme each: the
+// `altacv` theme (dark red headings over a gold rule) leads, then the
+// six single-accent themes, no two neighbours alike.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
-#import "../lib.typ": alta, maps-providers, palettes
+#import "../lib.typ": alta, maps-providers, themes
 #import "_cv.typ": cv, no-image
 
 // Irish-language label overrides used by one of the frames to
@@ -33,15 +33,15 @@
 #let ga-labels = toml("labels-ga.toml")
 
 // Baseline preferences the per-frame overrides patch on top of. A
-// richer-than-defaults setup (navy palette, ISO short-date,
+// richer-than-defaults setup (the altacv theme, ISO short-date,
 // OSM maps, auto footer, CEFR-style 6-dot rating) gives the GIF
-// more visual surface to vary — frames flip palettes, swap columns,
+// more visual surface to vary — frames flip themes, swap columns,
 // invert layouts on top of this same starting point.
 #let base = (
-  accent: palettes.navy,
+  theme: themes.altacv,
   dateFormat: "[day padding:none] [month repr:short] [year]",
   mapsProvider: maps-providers.osm,
-  pageFooter: "auto",
+  pageFooter: auto,
   maxRating: 6,
   leftColumnSections: (
     "work",
@@ -67,10 +67,11 @@
 // `base.copy(key = value)`, so each frame reads as a small patch
 // over the baseline.
 #let frames = (
-  // ── Frame 1 ─ navy + no image ───────────────────────────────────
+  // ── Frame 1 ─ altacv + no image ─────────────────────────────────
   // Baseline arrangement: work-heavy left, support sections on the
   // right. The realistic baseline most users ship — portrait
-  // omitted (ATS- / anti-bias-friendly), navy from `base`.
+  // omitted (ATS- / anti-bias-friendly), the altacv theme from
+  // `base`.
   (
     no-image(cv),
     base
@@ -91,15 +92,13 @@
   // ── Frame 2 ─ charcoal + portrait centred above ─────────────────
   // Section arrangement matches frame 1, the portrait reappears
   // stacked above a centred header text block. Paired with frame 1
-  // to isolate the photo-position change; charcoal accent contrasts
-  // the navy baseline so the palette swap is also visible. Pronouns
-  // shown (`showPronouns`), centred with the name.
+  // to isolate the photo-position change; charcoal contrasts the
+  // dark red baseline so the theme swap is also visible.
   (
     cv,
     base
       + (
-        accent: palettes.charcoal,
-        showPronouns: true,
+        theme: themes.charcoal,
         imagePosition: "center",
         imageStackOrder: "above",
         headerTextAlign: "center",
@@ -124,7 +123,7 @@
     no-image(cv),
     base
       + (
-        accent: palettes.teal,
+        theme: themes.teal,
         uppercaseName: false,
         columnRatio: 0.35,
         leftColumnSections: (
@@ -151,7 +150,7 @@
     cv,
     base
       + (
-        accent: palettes.crimson,
+        theme: themes.crimson,
         imagePosition: "left",
         qrCode: auto,
         leftColumnSections: (
@@ -171,16 +170,13 @@
   // Header text aligned right; certificates ungrouped (flat pill
   // strip). Volunteer + interests pulled up alongside work in the
   // left column. Drops publications + awards to fit on one page —
-  // the volunteer arrangement is the distinctive shape here. Pronouns
-  // shown after the right-aligned name.
+  // the volunteer arrangement is the distinctive shape here.
   (
     no-image(cv),
     base
       + (
-        accent: palettes.forest,
-        showPronouns: true,
+        theme: themes.forest,
         headerTextAlign: "right",
-        groupCertificates: false,
         leftColumnSections: ("work", "volunteer", "interests"),
         rightColumnSections: (
           "focusAreas",
@@ -204,7 +200,7 @@
     cv,
     base
       + (
-        accent: palettes.plum,
+        theme: themes.plum,
         qrCode: auto,
         dateFormat: "[day]/[month]/[year]",
         leftColumnSections: ("work", "education", "certificates"),
@@ -220,16 +216,16 @@
     (:),
   ),
 
-  // ── Frame 7 ─ teal + no image + single column ───────────────────
+  // ── Frame 7 ─ navy + no image + single column ───────────────────
   // Single-column layout (`columnRatio: 1`) stacks every section
   // vertically — needs an aggressive section trim to fit one page.
   // Closure-formatted quarterly date labels ("Q3 2024") round out
-  // the frame. Teal completes the no-adjacent-duplicates cycle.
+  // the frame. Navy completes the cycle of built-in themes.
   (
     no-image(cv),
     base
       + (
-        accent: palettes.teal,
+        theme: themes.navy,
         columnRatio: 1,
         dateFormat: parts => {
           if parts.month == none { return str(parts.year) }
@@ -237,12 +233,7 @@
           "Q" + str(quarter) + " " + str(parts.year)
         },
         leftColumnSections: ("work",),
-        rightColumnSections: (
-          "skills",
-          "languages",
-          "education",
-          "certificates",
-        ),
+        rightColumnSections: ("skills", "languages", "education"),
       ),
     (:),
   ),

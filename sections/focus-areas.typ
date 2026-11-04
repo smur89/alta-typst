@@ -1,11 +1,13 @@
-// Prose-style "Areas of Focus" — a top-level array of content items
-// rendered as a bulleted list. This is an altacv extension; JSON
-// Resume's `interests` carries the `{name, keywords}` shape that the
-// `skills` section uses. `prefs` is unused; it's accepted so every
-// renderer shares the `(entries, labels, prefs)` dispatch signature.
+// "Areas of Focus", an altacv extension read from
+// `custom.altacv.focusAreas` (the `read` hook in
+// `data/sections.typ`); JSON Resume's `interests` has the `{name, keywords}`
+// shape that `skills` renders.
 
-#let _focus_areas(items, labels, prefs) = if items.len() > 0 [
-  == #labels.focusAreas
+#import "../internal/components/frame.typ": _section-frame
 
-  #for item in items [- #item]
-]
+// One list, not an entry per item, so the bullets keep list spacing.
+#let _focus-areas(items, (labels, ..)) = _section-frame(
+  labels.focusAreas,
+  items,
+  list(..items),
+)

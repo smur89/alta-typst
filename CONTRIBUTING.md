@@ -13,18 +13,27 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 
 ## Project layout
 
+[ARCHITECTURE.md](ARCHITECTURE.md) explains the layers, what each may import, and how a render flows; keep new code to it.
+
 ```text
-lib.typ           # public entry — re-exports + `alta()`
-internal/         # shared infrastructure, one concern per file
-sections/         # one renderer per dispatched CV section
+lib.typ           # public entry — re-exports only (`alta()` is in internal/render.typ)
+internal/         # wiring (the registry, render-time context) and the shared primitives and icons
+internal/util/    # generic helpers: field reads, joins, checks, date formatting
+internal/data/    # reading and checking the CV, labels and preferences, and their defaults
+internal/design/  # the theme, document-wide styles, built-in themes and palettes, the icon set
+internal/components/ # the layout components sections map onto
+sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
+tests/components.typ # the component gallery: each component, each variant
+tests/panics/     # must-fail fixtures — each names the error it expects
+tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fields, header, …)
 ```
 
-Each `internal/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ` for a quick directory.
+Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ sections/*.typ` for a quick directory.
 
-Modules under `internal/` are leading-underscore private; only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). Cross-file imports use relative paths (`#import "../internal/state.typ": ...` from `sections/`).
+Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); JSON Resume and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `themes`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Development loop
 
@@ -37,25 +46,25 @@ brew install typst
 brew install --cask font-lato font-fontawesome
 ```
 
-Linux / Windows / manual install paths: see the [Fonts section in the README](README.md#fonts). Run `typst fonts` to confirm both are visible to Typst.
+Linux / Windows / manual install paths: see the [Requirements section in the README](README.md#requirements). Run `typst fonts` to confirm both are visible to Typst.
 
-Most everyday tasks go through the `Makefile`:
+Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
 ```sh
-make             # build every example PDF + cv preview + per-fixture PDFs
-make cv          # build examples/cv.pdf + examples/cv.png from template/cv.typ
-make example-full # build examples/example_full.pdf + per-page gallery PNGs
-make thumbnail   # build thumbnail.png (Universe package-card image)
-make test        # compile every example + fixture + template/cv.typ (same shape as CI lint)
-make test-template # compile-check just template/cv.typ (the `typst init` starter)
-make fmt         # format every tracked .typ in place (typstyle)
-make fmt-check   # check formatting without writing (the CI gate)
-make check       # test + fmt-check in one go
-make clean       # remove generated PDFs and PNGs
-make help        # summarise the available targets
+make check        # test + fmt-check
+make fmt          # format every tracked .typ in place (typstyle)
+make docker-pdfs  # regenerate the committed renders in the pinned image (see below)
 ```
 
-`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too. `make` (default) regenerates `examples/cv.png` at 150 DPI; pass `PPI=300` for a higher-resolution render.
+`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too.
+
+### Helper unit tests
+
+Helpers that only compute a value are checked with `assert.eq` under `tests/unit/`, one file per module; `make test-unit` (part of `make test`) runs them. That's quicker and more precise than a PDF fixture. For helpers that return content, `tests/unit/_plain.typ` flattens it to text.
+
+### Error-path tests
+
+Every panic a user can hit has a fixture under `tests/panics/` whose first line is `// expect: <part of the message>`. `make test-panics` (part of `make test`) compiles each one and fails if it compiles, or fails without that text. Adding a validator? Add a fixture for it.
 
 ### Formatting
 
@@ -70,12 +79,12 @@ make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and run
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`) and — once the follow-up PR adds `container:` to `build.yml` — must also be kept in sync there.
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION` and `FA_VERSION` must match it: CI's lint job re-renders the fixtures on its runner and compares them byte for byte.
 
 If you'd rather drive Typst directly, the manual incantations are:
 
 ```sh
-typst compile --root . examples/example_full.typ examples/example_full.pdf
+typst compile --root . examples/example-full.typ examples/example_full.pdf
 for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
 ```
 
@@ -94,22 +103,39 @@ The repo uses [release-please](https://github.com/googleapis/release-please) to 
 | `feat!:` or `BREAKING CHANGE:` footer | major | API change that existing users would need to migrate |
 | `chore:`, `docs:`, `ci:`, `refactor:`, `test:` | none | Internal changes that shouldn't trigger a release |
 
-PRs squash-merge with the PR title as the commit subject, so just make the **PR title** a conventional commit. The body of the squash commit comes from the PR description.
+PRs squash-merge with the PR title as the commit subject, so make the **PR title** a conventional commit. The squash commit's body is the PR's commit messages, one per line.
+
+**No issue or PR number in a commit subject.** GitHub appends the PR's number to the squash subject, and release-please reads the commit messages in the body too, so a subject like `feat: add ORCID (#302)` lists the change twice in the release notes, once as `#302` and once as the PR. Reference the issue in the body instead: `Closes #302`.
+
+**Fixing a merged PR's release notes.** If a squash still produces a wrong or duplicate entry, add a block to the merged PR's description with one conventional line per entry, including the PR number. Then re-run the `release-please` job of the latest `main` push:
+
+```
+BEGIN_COMMIT_OVERRIDE
+feat: add ORCID as a profile network (#313)
+END_COMMIT_OVERRIDE
+```
+
+A `chore:` line drops a PR from the notes entirely.
+
+## Merging
+
+- **Merge only when the PR is up to date with `main`.** Two PRs can each pass CI and still break `main` together, for example when one changes a render the other's new fixture captured. Update the branch, let CI run on the combination, then merge.
+- **Merge a stack bottom-up, each PR against `main`.** A PR stacked on another branch merges into that branch, not `main`. Retarget it to `main` once the PR below it lands, merge `main` into it (force-pushing is blocked), and check CI before merging.
 
 ## Adding a profile-network icon
 
-This is the most common shape of contribution. Two changes:
+This is the most common shape of contribution. A user can already draw any network with `preferences.profileIcons`; a built-in entry saves everyone the mapping. Two changes:
 
-1. Add a row to `_network_icons` in `internal/icons.typ`. Use the lowercase key (the lookup runs through `lower(profile.network)`) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
+1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (`_profile-network` in `internal/data/cv.typ` lowercases the network before the lookup) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
 
-`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid_names` in `internal/icons.typ` so `fa-icon` is called with `solid: true`.
+`feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid-names` in `internal/design/icon-set.typ` so `fa-icon` is called with `solid: true`.
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, register it in `_sections` in `internal/layout.typ` (column + renderer; every renderer takes `(entries, labels, prefs)`, where `entries` is `cv.at(key, default: ())`), and add the heading to `_default_labels` in `internal/defaults.typ`. For a **new preference**: add it to `_default_preferences` in `internal/layout.typ`, validate it inside `alta()` in `lib.typ`, and thread it through to the consumer. Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication_types.typ` is a small self-contained example.
+For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `fields`, a type rule per field its renderer draws; `keep`, when some entries shouldn't render; `check`, for checks that need more than a type, in `internal/data/cv-checks.typ`) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` are the checked entries `keep` let through and `ctx` is `(labels, prefs, format-date, owner)`, usually destructured as `(labels, format-date, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication-types.typ` is a small self-contained example.
 
-The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make test-pdfs` locally and commit the updated PDFs alongside your source change.
+The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make docker-pdfs` (see [Regenerating PDF fixtures](#regenerating-pdf-fixtures-docker)) and commit the updated PDFs alongside your source change.
 
 ## Security
 

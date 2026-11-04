@@ -1,50 +1,32 @@
-// `_skills` and `_interests` consume the same JSON Resume
-// `{name, keywords}` shape and render identically (a row of pill
-// tags led by a "label" pill). The shared layout lives in
-// `_name_keywords_section`; the two public renderers differ only in
-// which `labels.*` heading they pass. Neither reads `prefs`; it's
-// accepted so every renderer shares the `(entries, labels, prefs)`
-// dispatch signature.
+// `_skills` and `_interests` share the JSON Resume `{name, keywords}`
+// shape, differing in heading and in weight: skills as pills, the
+// keywords a reader looks for; interests as plain text.
 
-#import "../internal/state.typ": _body_size_state
-#import "../internal/primitives.typ": _tag_row, tag
+#import "../internal/util/fields.typ": _field
+#import "../internal/data/cv.typ": _skill-levels, _term-rating
+#import "../internal/components/frame.typ": _section-frame
+#import "../internal/components/keywords.typ": _keyword-rows, _label-rows
+#import "../internal/components/ratings.typ": _rating-dots
 
-// `text("-")` (not `[-]`) — markup-bracketed `-` parses as a list-item
-// bullet. The trailing `h(...)` after the dash mirrors the gap that
-// `tag()` already emits to its left, keeping the label pill visually
-// centred between its two whitespace gutters.
-#let _name_keywords_section(groups, heading) = {
-  // Filter empty-keywords groups up front so we can also skip the
-  // section heading: rendering a bare "Skills" with nothing underneath
-  // (every group had an empty `keywords:`) reads worse than skipping
-  // the section entirely.
-  let visible = groups.filter(g => g.at("keywords", default: ()).len() > 0)
-  if visible.len() == 0 { return }
-  context {
-    let body-size = _body_size_state.get()
-    let row-gap = 0.7 * body-size
-    [== #heading]
-    for group in visible {
-      block(above: 0pt, below: row-gap, par(
-        hanging-indent: 1em,
-        leading: row-gap,
-        {
-          tag(group.name, label: true)
-          text("-")
-          h(0.25 * body-size)
-          _tag_row(group.keywords)
-        },
-      ))
-    }
+// A group's `level` after its label, per `skillLevelDisplay`: dots
+// where it has a rating (`auto`, `"rating"`), else its text.
+#let _level-mark(group, prefs) = {
+  let value = if prefs.skillLevelDisplay != "text" {
+    _term-rating(group, "level", _skill-levels, prefs.maxRating)
+  }
+  if value != none { _rating-dots(value, prefs.maxRating) } else {
+    _field(group, "level")
   }
 }
 
-#let _skills(groups, labels, prefs) = _name_keywords_section(
-  groups,
+#let _skills(groups, (labels, prefs, ..)) = _section-frame(
   labels.skills,
+  groups,
+  _keyword-rows(groups.map(g => g + (mark: _level-mark(g, prefs)))),
 )
 
-#let _interests(groups, labels, prefs) = _name_keywords_section(
-  groups,
+#let _interests(groups, (labels, ..)) = _section-frame(
   labels.interests,
+  groups,
+  _label-rows(groups),
 )

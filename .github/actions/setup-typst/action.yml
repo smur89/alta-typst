@@ -1,9 +1,8 @@
 # Installs the toolchain every CI job that compiles the package needs:
 # the Typst binary, the Lato body font, and the FontAwesome desktop
 # OTFs that resolve glyphs for `@preview/fontawesome`. Extracted into
-# a composite action so the three jobs that build PDFs (lint, build,
-# attach-release-artifacts) share a single source of truth instead of
-# duplicating the install block.
+# a composite action so every job that builds PDFs shares a single
+# source of truth instead of duplicating the install block.
 #
 # The FA zip is restored from cache when available — keyed on the
 # version input, so bumping `FA_VERSION` in the workflow invalidates
@@ -13,7 +12,7 @@ description: Install Typst, Lato, and FontAwesome desktop OTFs on the runner.
 
 inputs:
   typst-version:
-    description: Typst release tag (e.g. v0.14.2).
+    description: Typst release tag (e.g. v0.15.1).
     required: true
   fa-version:
     description: FontAwesome desktop release version (e.g. 7.0.0).
@@ -57,6 +56,13 @@ runs:
         sudo mkdir -p /usr/share/fonts/fontawesome
         sudo cp "/tmp/fa/fontawesome-free-${FA_VERSION}-desktop/otfs/"*.otf /usr/share/fonts/fontawesome/
         sudo fc-cache -f
+
+    # Renders see only the pinned fonts (and Typst's own), as in the
+    # pinned image, so a font the runner happens to have can't change
+    # them (the Makefile's FONT_PATHS).
+    - name: Pin the font directories
+      shell: bash
+      run: echo "FONT_PATHS=/usr/share/fonts/truetype/lato:/usr/share/fonts/fontawesome" >> "$GITHUB_ENV"
 
     - name: Install Typst
       shell: bash

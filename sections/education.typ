@@ -1,43 +1,31 @@
-// Education entries — qualification heading, accent-coloured
-// institution (optionally linked), date range and location, italic
-// summary, score, and pill-tagged courses. Falls back to `area` when
-// `studyType` is missing.
+// Education. The heading is `studyType`, or `area` when that's
+// absent; otherwise `area` leads the score line (`Engineering ·
+// Distinction`). `courses` end the entry as one line, under it.
 
-#import "../internal/text.typ": _entry_summary, _present
-#import "../internal/primitives.typ": (
-  _entry_term, _preamble, _section, name, tag,
-)
+#import "../internal/util/fields.typ": _field
+#import "../internal/data/cv.typ": _entry-period, _location-parts
+#import "../internal/components/entry.typ": _entry
+#import "../internal/components/frame.typ": _section
 
-#let _education(entries, labels, prefs) = _section(
+#let _education(entries, (labels, format-date, ..)) = _section(
   labels.education,
   entries,
-  edu => [
-    #let title = edu.at("studyType", default: edu.at("area", default: ""))
-    #if _present(title) [=== #title]
-    #let institution = edu.at("institution", default: "")
-    #let url = edu.at("url", default: none)
-    #let body = name[#institution]
-    // `link()` wraps the `name()` block as-is, so the accent-bold
-    // treatment is preserved — the only visible change is that the
-    // institution becomes clickable. `_present` (rather than
-    // `!= none`) so a missing JSON field — present-but-`none` or
-    // present-but-empty — doesn't render a dead link.
-    #if _present(url) and _present(institution) { link(url, body) } else {
-      body
-    }
-    #_entry_term(edu, "education", prefs, labels)
-
-    // Own paragraph, so the score below starts on a new line.
-    #_preamble(_entry_summary(edu))
-
-    #let score = edu.at("score", default: none)
-    #if _present(score) [#score]
-    // Courses render as pill tags — same treatment as `skills[].keywords`
-    // and `projects[].keywords`, which are the other array-of-strings
-    // surfaces in the template. Empty arrays skip silently.
-    #let courses = edu.at("courses", default: ())
-    #if courses.len() > 0 [
-      #for course in courses [#tag(course)]
-    ]
-  ],
+  edu => {
+    // An empty `studyType` falls through to `area`, as a missing one does.
+    let study-type = _field(edu, "studyType")
+    let area = _field(edu, "area")
+    _entry(
+      title: if study-type != none { study-type } else { area },
+      org: _field(edu, "institution"),
+      org-url: _field(edu, "url"),
+      period: _entry-period(edu, format-date, labels.present),
+      location: _location-parts(edu),
+      summary: _field(edu, "summary"),
+      keywords-lead: (
+        (if study-type != none { area },),
+        (_field(edu, "score"),),
+      ),
+      keywords: edu.at("courses", default: ()),
+    )
+  },
 )

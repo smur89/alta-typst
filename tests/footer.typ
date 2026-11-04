@@ -1,6 +1,6 @@
 // `preferences.pageFooter` — two documents covering the API surface:
 //
-//   1. `"auto"` on a multi-page CV — emits name + "Page N / M" on
+//   1. `auto` on a multi-page CV — emits name + "Page N / M" on
 //      every page. The auto renderer reactively reads the final page
 //      counter, so growth in the body propagates without any caller
 //      change.
@@ -26,7 +26,7 @@
   highlights: highlights,
 )
 
-// Multi-page with "auto" footer.
+// Multi-page with the `auto` footer.
 #alta(
   (
     basics: (
@@ -152,7 +152,7 @@
       (name: "Hashicorp Terraform Associate", issuer: "Hashicorp"),
     ),
   ),
-  preferences: (pageFooter: "auto"),
+  preferences: (pageFooter: auto),
 )
 
 #pagebreak()

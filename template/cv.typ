@@ -12,13 +12,11 @@
 // behind every frame of `examples/preview.gif` (via
 // `examples/_cv.typ`).
 
-#import "@preview/altacv:1.7.0": alta, avatar-placeholder // x-release-please-version
+#import "@preview/altacv:1.8.0": alta, avatar-placeholder // x-release-please-version
 
 #let cv = (
   basics: (
     name: "Seán Ó Murchú",
-    // Shown after the name only with `preferences.showPronouns: true`.
-    pronouns: "they/them",
     label: "Senior Software Engineer",
     summary: [
       Backend engineer with eight years of experience designing
@@ -47,8 +45,12 @@
     ),
   ),
 
-  focusAreas: (
-    [Distributed systems and functional programming.],
+  custom: (
+    altacv: (
+      focusAreas: (
+        [Distributed systems and functional programming.],
+      ),
+    ),
   ),
 
   work: (
@@ -73,16 +75,6 @@
       highlights: (
         [Shipped the first version of a SaaS product alongside a two-person team.],
         [Built the CI/CD pipeline that scaled the engineering org from 3 to 15.],
-      ),
-    ),
-    (
-      name: "Grand Canal Systems",
-      position: "Software Engineer",
-      location: "Dublin, Ireland",
-      startDate: "2017-09",
-      endDate: "2019-06",
-      highlights: (
-        [Led the migration of services from VMs to Kubernetes.],
       ),
     ),
   ),
@@ -114,12 +106,6 @@
       date: "2023-09",
       url: "https://www.cncf.io/training/certification/cka/",
     ),
-    (
-      name: "Certified Kubernetes Application Developer",
-      issuer: "CNCF",
-      date: "2024-04",
-      url: "https://www.cncf.io/training/certification/ckad/",
-    ),
   ),
 
   awards: (
@@ -127,7 +113,7 @@
       title: "Best Paper — Distributed Systems Track",
       awarder: "EuroSys",
       date: "2024-09",
-      url: "https://example.com/eurosys",
+      custom: (altacv: (url: "https://example.com/eurosys")),
     ),
   ),
 
@@ -144,7 +130,7 @@
     (
       name: "open-source: kafka-idempotent",
       url: "https://example.com/projects/kafka-idempotent",
-      description: "Small Scala library for idempotent consumers.",
+      summary: "Small Scala library for idempotent consumers.",
       startDate: "2023-04",
       keywords: ("Scala", "Kafka", "OSS"),
       highlights: (

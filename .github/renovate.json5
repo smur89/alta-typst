@@ -11,11 +11,40 @@
     'helpers:pinGitHubActionDigests',
   ],
 
-  // Only these two. The typst toolchain version is held in lockstep by hand
+  // Only these three. The typst toolchain version is held in lockstep by hand
   // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
   // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
-  // just one of them and break the pinned-image PDF drift gate.
-  enabledManagers: ['github-actions', 'typst'],
+  // just one of them and break the pinned-image PDF drift gate. The
+  // typstyle, package-check and tytanic pins are tracked by
+  // `custom.regex` below.
+  enabledManagers: ['github-actions', 'typst', 'custom.regex'],
+
+  customManagers: [
+    {
+      description: "build.yml's TYPSTYLE_VERSION, from typstyle's GitHub releases.",
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.github/workflows/build\\.yml$/'],
+      matchStrings: ['TYPSTYLE_VERSION: (?<currentValue>v\\S+)'],
+      depNameTemplate: 'Enter-tainer/typstyle',
+      datasourceTemplate: 'github-releases',
+    },
+    {
+      description: "build.yml's PCHECK_IMAGE, the typst/packages checker image.",
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.github/workflows/build\\.yml$/'],
+      matchStrings: ['PCHECK_IMAGE: (?<depName>ghcr\\.io/typst/package-check):(?<currentValue>\\S+)'],
+      datasourceTemplate: 'docker',
+    },
+    {
+      description: "The Dockerfile's TYTANIC_VERSION, from tytanic's GitHub releases.",
+      customType: 'regex',
+      managerFilePatterns: ['/^Dockerfile$/'],
+      matchStrings: ['ARG TYTANIC_VERSION=(?<currentValue>\\S+)'],
+      depNameTemplate: 'typst-community/tytanic',
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v(?<version>.+)$',
+    },
+  ],
 
   // Dependabot ran Sunday 22:00. Renovate schedules are windows (hour
   // granularity, and the hosted app runs roughly hourly), so open Sunday
@@ -47,6 +76,27 @@
       description: 'Typst package bumps change shipped code: release them as fixes.',
       matchManagers: ['typst'],
       semanticCommitType: 'fix',
+    },
+    {
+      // CI-only, so nothing ships. A typstyle release that formats
+      // differently fails the typstyle job on the bump PR: run `make fmt`
+      // with the new version on that branch and commit the result (see
+      // CONTRIBUTING). A package-check release that flags new issues fails
+      // the package-check job the same way.
+      description: 'typstyle and package-check bumps are CI changes.',
+      matchDepNames: ['Enter-tainer/typstyle', 'ghcr.io/typst/package-check'],
+      semanticCommitType: 'ci',
+      semanticCommitScope: null,
+    },
+    {
+      // CI-only, like typstyle. Renovate can't recompute TYTANIC_SHA256, so
+      // the image build fails its checksum check on the bump PR until the
+      // new release's SHA-256 is set by hand. Each release bundles a Typst
+      // version: hold the bump if it isn't the Dockerfile's.
+      description: 'tytanic bumps are CI changes; the checksum is updated by hand.',
+      matchDepNames: ['typst-community/tytanic'],
+      semanticCommitType: 'ci',
+      semanticCommitScope: null,
     },
     {
       // template/cv.typ imports this package itself; its version is owned by

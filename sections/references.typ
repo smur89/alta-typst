@@ -1,35 +1,41 @@
-// References — referee `name` as a level-3 heading with the
-// `reference` quote in italic beneath, joined by the standard divider
-// rule. An entry with JSON Resume's `availableOnRequest: true` shows
-// `labels.referencesAvailableOnRequest` in place of its quote; when
-// every entry is on request, the section is that one line, with no
-// names. Entries with neither a quote nor the flag are skipped (no
-// orphan heading); entries lacking `name` render anonymously.
+// References. `availableOnRequest: true` shows
+// `labels.referencesAvailableOnRequest` instead of a quote; when every
+// entry is on request the section is that one line, with no names.
+// Nameless entries render anonymously. Contact details stay out, as
+// JSON Resume intends.
 
-#import "../internal/text.typ": _present
-#import "../internal/primitives.typ": _section
+#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/data/cv.typ": _on-request
+#import "../internal/primitives.typ": _preamble
+#import "../internal/components/entry.typ": _entry
+#import "../internal/components/frame.typ": _section, _section-frame
 
-#let _references(entries, labels, prefs) = {
-  // Only a real boolean counts, so a stray `"yes"` doesn't hide a quote.
-  let on-request(r) = r.at("availableOnRequest", default: false) == true
-  let valid = entries.filter(r => (
-    on-request(r) or _present(r.at("reference", default: none))
-  ))
-  // `all` holds on an empty list, so this branch also covers "no
-  // usable entries", which renders nothing unless the deprecated
-  // preference asks for the line (#239: drop the `or` clause).
-  if valid.all(on-request) {
-    if valid != () or prefs.referencesAvailableOnRequest {
-      [== #labels.references]
-      emph(labels.referencesAvailableOnRequest)
-    }
+// Who, then when, each part optional, as the entry's `subtitle` fact
+// groups: "Manager, Pied Piper · 2024".
+#let _attribution(entry, format-date) = {
+  let date = _string-at(entry, "date")
+  (
+    ("relationship", "organization").map(k => _string-at(entry, k)),
+    (if date != none { format-date(date) },),
+  )
+}
+
+#let _references(entries, (labels, format-date, ..)) = {
+  // `all` holds on an empty list, which `_section-frame` then renders
+  // as nothing.
+  if entries.all(_on-request) {
+    _section-frame(labels.references, entries, _preamble(
+      labels.referencesAvailableOnRequest,
+    ))
   } else {
-    _section(labels.references, valid, entry => {
-      let name = entry.at("name", default: none)
-      if _present(name) [=== #name]
-      emph(if on-request(entry) { labels.referencesAvailableOnRequest } else {
+    _section(labels.references, entries, entry => _entry(
+      title: _field(entry, "name"),
+      subtitle: _attribution(entry, format-date),
+      summary: if _on-request(entry) {
+        labels.referencesAvailableOnRequest
+      } else {
         entry.reference
-      })
-    })
+      },
+    ))
   }
 }
