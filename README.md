@@ -417,6 +417,7 @@ Override any subset of the keys below.
 | Key | Default | Effect |
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
+| `headingFont` | `auto` | Font family (or fallback array) for the name and section headings; `auto` uses `font`. Entry titles stay in `font`. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
 | `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
