@@ -27,6 +27,8 @@
   // Must be installed on the build host (CI installs it: apt in
   // setup-typst, apk in the pinned image).
   font: "Lato",
+  // `auto`: `font`.
+  headingFont: auto,
   bodySize: 10pt,
   accent: palettes.teal,
   publicationIcons: _publication-icons,
@@ -57,6 +59,7 @@
   linkContactInfo: true,
   mapsProvider: maps-providers.google,
   maxRating: 5,
+  skillLevelDisplay: auto,
   ownerNames: (),
   // Deprecated, removed in the next major (#239). `groupCertificates`
   // and `showPronouns` are ignored (JSON Resume dropped

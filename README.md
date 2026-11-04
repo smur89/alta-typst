@@ -164,7 +164,7 @@ Fields typed "string or content" also accept Typst markup (`[Led the *platform* 
 
 ### Extensions
 
-Three optional fields layered on top of JSON Resume. They have no spec field, so they live in JSON Resume's [`custom`](https://jsonresume.org/schema) object (root, `basics` and every section entry; added in 1.4.0) under altacv's own `altacv` namespace:
+Four optional fields layered on top of JSON Resume. They have no spec field, so they live in JSON Resume's [`custom`](https://jsonresume.org/schema) object (root, `basics` and every section entry; added in 1.4.0) under altacv's own `altacv` namespace:
 
 ```typst
 (
@@ -176,6 +176,7 @@ Three optional fields layered on top of JSON Resume. They have no spec field, so
 
 - **`custom.altacv.focusAreas`** (root) — array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported). The section key in `leftColumnSections` / `rightColumnSections` and `labels.focusAreas` stay `focusAreas`.
 - **`languages[].custom.altacv.rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying a rating enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Without a rating, LinkedIn's `fluency` terms (matched case-insensitively: `Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Native` fills every dot). Other `fluency` strings render as text in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits. An entry with neither a rating nor `fluency` panics.
+- **`skills[].custom.altacv.rating`** — numeric 0–`preferences.maxRating`, in 0.5 increments: a skill group's exact level, which wins over its `level` (see [Skills](#skills)).
 - **`awards[].custom.altacv.url`** — links the award title (see [Awards](#awards)).
 
 JSON Resume says themes are "not expected to render" `custom`; altacv reads only its own `altacv` namespace and ignores every other key under `custom`.
@@ -357,6 +358,24 @@ The date sits at the title's right edge; the issuer and credential ID share the 
 | `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given. |
 | `summary` | string or content | What the certificate covers. |
 
+#### Skills
+
+A `{name, keywords}` group per entry: the name as a label pill, then the keywords as pills.
+
+| Field | Type | Effect |
+|---|---|---|
+| `name` | string | The group's label. |
+| `keywords` | array of strings | The skills, as pills. Groups with an empty `keywords` array are skipped. |
+| `level` | string | After the label, as dots or as text, per `preferences.skillLevelDisplay`. The common terms (matched case-insensitively: `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert`, `Master`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Master` fills every dot, `Intermediate` three of five); other strings show as text. `custom.altacv.rating` overrides it with an exact value. |
+
+```typst
+skills: (
+  (name: "Backend", level: "Master", keywords: ("Scala", "Kafka")),
+  (name: "Frontend", custom: (altacv: (rating: 2.5)), keywords: ("React",)),
+  (name: "Data", level: "Comfortable", keywords: ("SQL",)),  // shows "Comfortable"
+)
+```
+
 #### Interests
 
 A `{name, keywords}` category per entry, shown as a line of text: the category in bold, then its keywords (`Music: Trad, Jazz`). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
@@ -417,6 +436,7 @@ Override any subset of the keys below.
 | Key | Default | Effect |
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
+| `headingFont` | `auto` | Font family (or fallback array) for the name and section headings; `auto` uses `font`. Entry titles stay in `font`. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
 | `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
@@ -463,6 +483,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
 | `maxRating` | `5` | Number of dots on the language scale. Positive integer. Set `6` for a CEFR-style scale, `4` for ILR-style, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half. |
+| `skillLevelDisplay` | `auto` | How `skills[].level` shows. `auto`: dots where the level maps to a rating (or `custom.altacv.rating` is set), its text otherwise. `"rating"`: always dots; a level that can't be mapped panics, naming the terms that can. `"text"`: always the level's text. |
 | `ownerNames` | `()` | Other spellings of `basics.name` that also mark the CV owner among `publications[].authors`, matched the same way: e.g. `("J. Doe", "Jane Smith")` for initials or a former name. |
 
 #### Deprecated preferences
