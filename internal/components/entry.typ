@@ -10,10 +10,13 @@
   _range,
 )
 
-// A small line under an entry's heading: a referee's attribution.
-// Absent bodies render nothing.
-#let _subtitle(body) = if _present(body) {
-  context block(below: _theme-state.get().entry.subtitle-below, body)
+// A small line under an entry's heading, a referee's attribution, from
+// fact groups; nothing when none of their parts is present.
+#let _subtitle(groups) = {
+  let line = _fact-line(..groups)
+  if line != none {
+    context block(below: _theme-state.get().entry.subtitle-below, line)
+  }
 }
 
 // An entry's first lines as one grid: the title (or, without one,
@@ -106,29 +109,34 @@
 // plain heading style whether or not it links.
 //
 // The facts line under the title joins the organisation (in the
-// accent), the person's `roles` and short `details` (a credential ID)
-// with ` · `; the `period` (a range's sides, `_date-span`) and the
-// `location` (its parts) sit at the right edge beside the title and
-// the facts line, each joined with the theme's separator. Without a
-// title, the facts line leads.
+// accent), the person's `roles` and short `details` (a credential
+// ID); the `period` and the `location` sit at the right edge beside
+// the title and the facts line. Without a title, the facts line
+// leads. The `keywords` (a project's stack, education's courses) end
+// the entry as one line; `keywords-lead` is a line of its own above
+// them (education's area and score), so it doesn't read as one of
+// them.
 //
-// The `keywords` (a project's stack, education's courses) end the
-// entry as one line joined with ` · `; `keywords-lead` is a line of
-// its own above them (education's area and score), so it doesn't read as one
-// of them.
+// Every fact is data, which the entry joins with the theme's
+// separators. Each slot's shape, `()` when absent:
+// - `roles`, `details`, `keywords`: items, each a fact of its own.
+// - `period`: a range's two sides (`_date-span`), joined by `range`.
+// - `location`: one place's parts, joined by `items`.
+// - `subtitle`, `keywords-lead`: fact groups, as `_fact-line` takes:
+//   an array of arrays, `items` within a group and `facts` between.
 #let _entry(
   title: none,
   url: none,
   org: none,
   org-url: none,
-  subtitle: none,
+  subtitle: (),
   roles: (),
   period: (),
   location: (),
   details: (),
   summary: none,
   highlights: (),
-  keywords-lead: none,
+  keywords-lead: (),
   keywords: (),
 ) = {
   let org = if _present(org) {
@@ -146,7 +154,7 @@
   for bullet in highlights [- #bullet]
   _join-present(
     (
-      keywords-lead,
+      _fact-line(..keywords-lead),
       _fact-line(..keywords.map(k => (k,))),
     ),
     [\ ],
