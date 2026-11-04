@@ -18,4 +18,12 @@
   s
 }
 
+/// Validates a `resume.json` against the JSON Resume schema (plus
+/// altacv's extensions) and returns the CV dictionary `alta` takes.
+/// Panics on an invalid document, naming the field.
+///
+/// - data (path, str, dictionary): The `resume.json`, as
+///   `path("resume.json")`, a path string from the project root
+///   (`"/resume.json"`), or an already-decoded dictionary.
+/// -> dictionary
 #let from-json-resume(data) = _parse(data, schema: _altacv-schema)

@@ -9,7 +9,9 @@
 
 #let _default-labels = toml("labels-en.toml")
 
-// `{q}` becomes the URL-encoded `basics.location`.
+/// Map deep-link URL templates for `preferences.mapsProvider`; `{q}`
+/// becomes the URL-encoded `basics.location`.
+/// -> dictionary
 #let maps-providers = (
   google: "https://www.google.com/maps?q={q}",
   apple: "https://maps.apple.com/?q={q}",

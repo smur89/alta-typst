@@ -24,6 +24,8 @@
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
 
-// Generic silhouette, exposed as bytes so the `typst init` template
-// (and any consumer) gets a working `basics.image` without its own SVG.
+/// A generic silhouette (SVG bytes) for `basics.image`, so a CV (the
+/// `typst init` starter's, say) compiles before its own portrait is
+/// added.
+/// -> bytes
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)
