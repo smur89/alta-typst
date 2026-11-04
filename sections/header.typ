@@ -37,6 +37,8 @@
     default: _display-url(profile.at("url", default: "")),
   ),
   url: profile.at("url", default: none),
+  // What `printFullUrls` prints when unlinked.
+  ..if "url" in profile { (printed: _display-url(profile.url)) },
 )
 
 // The contact bar's entries in display order, one
@@ -95,6 +97,7 @@
         glyph: _icon-glyphs.link,
         value: _display-url(url),
         url: url,
+        printed: _display-url(url),
       )
     },
   ).filter(e => e != none)
@@ -115,7 +118,9 @@
 
 // The contact bar's `(channel, glyph, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
-// its channel.
+// its channel. With `printFullUrls`, an unlinked entry shows its
+// `printed` URL where it has one (the homepage and profiles), so a
+// username on paper still says where to find it.
 #let _linked-contacts(basics, prefs, location-alt: none) = {
   let link-config = _resolve-link-config(prefs.linkContactInfo)
   _contact-entries(
@@ -123,7 +128,14 @@
     prefs.mapsProvider,
     location-alt: location-alt,
     profile-icons: prefs.profileIcons,
-  ).map(e => e + (url: if link-config.at(e.channel) { e.url }))
+  ).map(e => {
+    let linked = link-config.at(e.channel)
+    let print = not linked and prefs.printFullUrls
+    let value = if print { e.at("printed", default: e.value) } else {
+      e.value
+    }
+    e + (url: if linked { e.url }, value: value)
+  })
 }
 
 // The contact bar's rows: contact details on one line, profiles on

@@ -58,6 +58,7 @@
   justify: false,
   dateFormat: "long",
   linkContactInfo: true,
+  printFullUrls: false,
   mapsProvider: maps-providers.google,
   maxRating: 5,
   skillLevelDisplay: auto,
