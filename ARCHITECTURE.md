@@ -29,7 +29,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
 
-Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page.
+Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
 
 ## Sections and components
 
