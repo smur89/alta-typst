@@ -23,6 +23,7 @@
   set text(
     body-size,
     font: theme.font,
+    weight: theme.type.body.weight,
     fill: theme.colours.body,
     lang: labels.lang,
   )

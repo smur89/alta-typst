@@ -101,3 +101,16 @@
 #assert.eq(valid((separator: (items: sym.bullet))).separator.items, sym.bullet)
 #assert.eq(valid((type: (title: (weight: 600)))).type.title.weight, 600)
 #assert.eq(valid((space: (xx-small: 0))).space.xx-small, 0)
+
+// A font may be a fallback array of names and `(name, covers)` entries;
+// a theme's body weight is the body text's (`_document`).
+#assert.eq(
+  valid((font: ("Lato", (name: "Noto Sans CJK SC", covers: "latin-in-cjk"))))
+    .font
+    .len(),
+  2,
+)
+#assert.eq(
+  built((theme: (type: (body: (weight: "medium"))))).type.body.weight,
+  "medium",
+)

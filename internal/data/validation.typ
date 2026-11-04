@@ -46,8 +46,19 @@
 } else { _is-margin-side(v) }
 
 // A family name, or a fallback list of names / `(name, covers)` dicts.
+// A dictionary entry is Typst's `(name: …, covers: …)`; a stray key,
+// or a missing or non-string `name`, would otherwise fail only at
+// `set text`.
+#let _is-font-entry(f) = (
+  type(f) == str
+    or (
+      type(f) == dictionary
+        and type(f.at("name", default: none)) == str
+        and f.keys().all(k => k in ("name", "covers"))
+    )
+)
 #let _is-font-list(v) = (
-  type(v) == array and v.len() > 0 and v.all(f => type(f) in (str, dictionary))
+  type(v) == array and v.len() > 0 and v.all(_is-font-entry)
 )
 #let _is-font(v) = type(v) == str or _is-font-list(v)
 

@@ -35,7 +35,8 @@
     display: (size: 2.5, weight: "bold"),
     headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
-    // No size: `bodySize` is the body's.
+    // No size: `bodySize` is the body's. The weight is the body text's
+    // (`_document`) and the pills'.
     body: (weight: "regular"),
   ),
   // To embolden within a role.
