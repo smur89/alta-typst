@@ -3,8 +3,12 @@
 // headings) in a serif over the sans body, and a rule for every label
 // in the README's Restyling parts table, lines included. The labels
 // override the template's own settings, colour included, which a rule
-// on `heading` can't. Icons keep the theme's colour.
+// on `heading` can't. Icons keep the theme's colour, except the date
+// and location icons, and the rating dots, which a rule can recolour
+// or replace. The list bullet is a dash, through
+// `show list: set list(...)`.
 
+#import "@preview/fontawesome:0.6.2": fa-icon
 #import "../lib.typ": alta
 
 #show heading.where(level: 1).or(heading.where(level: 2)): set text(
@@ -27,6 +31,12 @@
 #show <alta-footer>: set text(fill: rgb("#b03a2e"))
 #show <alta-section-rule>: set line(stroke: 2pt + rgb("#7d6608"))
 #show <alta-divider>: set line(stroke: (paint: rgb("#b03a2e")))
+#show list: set list(marker: [–])
+#show <alta-date-icon>: set text(fill: rgb("#b03a2e"))
+#show <alta-location-icon>: fa-icon("map-pin", solid: true)
+#show <alta-rating-full>: set circle(fill: rgb("#7d6608"))
+#show <alta-rating-half>: [#text(font: "DejaVu Sans Mono")[◐]]
+#show <alta-rating-empty>: [#text(font: "DejaVu Sans Mono")[○]]
 
 #alta(
   (
@@ -49,7 +59,11 @@
       (name: "Liffey Labs", position: "Engineer", startDate: "2019-06"),
     ),
     skills: ((name: "Languages", keywords: ("Scala", "Haskell")),),
-    languages: ((language: "English", fluency: "Native"),),
+    languages: (
+      (language: "English", fluency: "Native"),
+      // 3.5: full, half and empty dots.
+      (language: "Spanish", custom: (altacv: (rating: 3.5))),
+    ),
     publications: (
       (
         name: "Event Sourcing in Practice",

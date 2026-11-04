@@ -7,7 +7,7 @@
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
-#import "design/styles.typ": _inline
+#import "design/styles.typ": _inline, _part
 #import "design/theme.typ": _theme
 #import "context.typ": _body-size-state
 
@@ -35,7 +35,10 @@
 // from the icon set, the contact bar from `preferences.profileIcons`
 // (checked against `_fa-glyphs` as the options merge). `solid` puts
 // the Free Solid font first; a brand glyph it lacks falls through to
-// Brands, so `solid: true` draws either kind.
+// Brands, so `solid: true` draws either kind. `part` labels the glyph
+// inside its fixed box (`_part`), its fill `set` around it, so a
+// user's rule can recolour or replace it and keep the box, the
+// centring and the alt text.
 #let _glyph(
   glyph,
   solid: true,
@@ -43,6 +46,7 @@
   shift: 0pt,
   fill: auto,
   alt: none,
+  part: none,
 ) = context {
   let body-size = _body-size-state.get()
   let resolved-size = if size == auto { body-size } else { size }
@@ -50,21 +54,29 @@
   let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,
-    align(
-      center + horizon,
-      fa-icon(
+    align(center + horizon, {
+      set text(fill: resolved-fill)
+      let drawn = fa-icon(
         glyph,
         solid: solid,
         size: _theme.icon.glyph * resolved-size,
-        fill: resolved-fill,
-      ),
-    ),
+      )
+      if part == none { drawn } else { _part(part, drawn) }
+    }),
   )))
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))
   }
   h(_theme.icon.gap * body-size)
 }
+
+// An icon-set key's glyph, unchecked, with `_glyph`'s other arguments:
+// for internal callers, whose names are known.
+#let _icon-glyph(name, ..args) = _glyph(
+  _icon-glyphs.at(name),
+  solid: name in _solid-names,
+  ..args,
+)
 
 /// A FontAwesome glyph from altacv's icon set, standing on the text's
 /// baseline. Decorative in tagged PDF unless `alt` is given.
@@ -82,12 +94,5 @@
   if name not in _icon-glyphs {
     _check("icon() name", name, _enum-rule(_icon-glyphs.keys()))
   }
-  _glyph(
-    _icon-glyphs.at(name),
-    solid: name in _solid-names,
-    size: size,
-    shift: shift,
-    fill: fill,
-    alt: alt,
-  )
+  _icon-glyph(name, size: size, shift: shift, fill: fill, alt: alt)
 }

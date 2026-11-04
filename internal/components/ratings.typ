@@ -30,18 +30,27 @@
 
 // `value` as `max` dots: filled, half-filled, then empty. Each dot is
 // centred on its own (`_inline`), so a long row can still break
-// between dots. Unchecked: `rating` checks its arguments, and
-// `_read-cv` the CV's ratings.
+// between dots. Each is a `_part` by its state (see `_glyph`).
+// Unchecked: `rating` checks its arguments, and `_read-cv` the CV's
+// ratings.
 #let _rating-dots(value, max) = context {
   let body-size = _body-size-state.get()
   let accent = _accent-state.get()
   let (radius, gap, ..) = _theme.rating
-  let dot(fill) = _inline(box(circle(radius: radius * body-size, fill: fill)))
+  let fills = (
+    full: accent,
+    half: _half-fill(accent),
+    empty: _theme.colour.border,
+  )
+  let dot(state) = _inline(box({
+    set circle(fill: fills.at(state))
+    _part("rating-" + state, circle(radius: radius * body-size))
+  }))
   range(1, max + 1)
     .map(i => dot(
-      if value >= i { accent } else if value > i - 1 {
-        _half-fill(accent)
-      } else { _theme.colour.border },
+      if value >= i { "full" } else if value > i - 1 { "half" } else {
+        "empty"
+      },
     ))
     .join(h(gap * body-size))
 }

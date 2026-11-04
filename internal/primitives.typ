@@ -7,7 +7,7 @@
 #import "design/theme.typ": _theme
 #import "context.typ": _accent-state, _body-size-state
 #import "util/values.typ": _join-present, _present
-#import "icons.typ": icon
+#import "icons.typ": _icon-glyph, icon
 
 // The accent text `name()` sets on its own line, for inline use (an
 // entry's organisation on its facts line). Regular weight, so the
@@ -75,17 +75,22 @@
 }
 
 // `body` led by its icon, kept on one line; absent bodies render
-// nothing, so no stray icon.
-#let _icon-fact(icon-name, body, alt: none) = if _present(body) {
+// nothing, so no stray icon. `part` labels the icon (`_glyph`).
+#let _icon-fact(icon-name, part, body, alt: none) = if _present(body) {
   box({
-    icon(icon-name, alt: alt)
+    _icon-glyph(icon-name, alt: alt, part: part)
     body
   })
 }
 
+// A date and a location, each led by its labelled icon: the facts
+// every entry and `term()` show.
+#let _date-fact = _icon-fact.with("calendar", "date-icon")
+#let _location-fact = _icon-fact.with("location", "location-icon")
+
 // Half the row each, so a period lines up with a location column.
-#let _term-part(icon-name, body) = if _present(body) {
-  box(width: 50%, _icon-fact(icon-name, body))
+#let _term-part(fact, body) = if _present(body) {
+  box(width: 50%, fact(body))
 }
 
 /// A date and an optional location on one row, each led by its icon.
@@ -98,8 +103,8 @@
 #let term(period, location: none) = {
   if not (_present(period) or _present(location)) { return }
   _term-row({
-    _term-part("calendar", period)
-    _term-part("location", location)
+    _term-part(_date-fact, period)
+    _term-part(_location-fact, location)
   })
 }
 
