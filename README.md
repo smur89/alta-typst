@@ -24,6 +24,7 @@
 - [Data schema](#data-schema)
 - [Configuration](#configuration)
 - [Header QR code](#header-qr-code-preferencesqrcode)
+- [Restyling parts](#restyling-parts)
 - [PDF metadata](#pdf-metadata)
 - [PDF/A](#pdfa)
 - [Helpers](#helpers)
@@ -694,6 +695,26 @@ Printed CVs lose the clickability of digital PDFs. A QR matrix in the header res
 The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` puts the QR on the left). With `imagePosition: "center"`, the QR pins the header's top-left corner, riding the photo row when the photo is on top and the text row otherwise. The matrix inherits `preferences.accent`, renders at roughly `3.5em`, and is wrapped in `link()` so digital readers can click through.
 
 QR generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra).
+
+## Restyling parts
+
+Parts of the CV carry labels that a Typst show rule can target, so you can restyle one part without touching the rest. Put the rules before `#alta(...)`:
+
+```typst
+#show <alta-contact>: set text(font: "IBM Plex Mono", weight: "regular")
+#show <alta-date>: set text(style: "italic")
+#alta(cv)
+```
+
+A rule overrides any text setting the template gives that part: font, size, colour, weight, style or tracking. It doesn't reach a part's icon or other graphics.
+
+| Label | Part |
+|---|---|
+| `<alta-contact>` | Each contact-bar entry: email, phone, location, URL, profiles. |
+| `<alta-date>` | An entry's date or date range. |
+| `<alta-location>` | An entry's location (the header's location is a contact entry). |
+
+The name and headings are Typst elements, so `title` and `heading` reach them too (see [Heading fonts](#heading-fonts)). Labels for the other parts are tracked in [#327](https://github.com/smur89/alta-typst/issues/327).
 
 ## PDF metadata
 

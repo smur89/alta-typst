@@ -110,7 +110,9 @@
 // `contacts` are rows, each its own line, of `(icon, value, url)`
 // records with an optional `alt`, linked where `url` is set. A `box`
 // per entry, so a long row wraps between entries, never between an
-// icon and its text.
+// icon and its text. The bar's text styles are `set` around the
+// entries and each value is labelled `<alta-contact>`, so a user's
+// `show <alta-contact>: set text(...)` overrides them.
 #let _contact-bar(contacts, body-size, accent) = {
   let contact-gap = _theme.header.contact-gap
   let size = _theme.header.contact-size * body-size
@@ -120,7 +122,7 @@
     .map(row => row
       .map(entry => box({
         bar-icon(entry.icon, alt: entry.at("alt", default: none))
-        _link-if(entry.url, [#entry.value])
+        _link-if(entry.url, [#entry.value <alta-contact>])
       }))
       .join(h(contact-gap * body-size)))
     .join(linebreak())
