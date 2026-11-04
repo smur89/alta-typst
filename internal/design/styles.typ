@@ -9,6 +9,23 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
+// Places an inline graphic on the surrounding text by one rule:
+// glyphs stand on the baseline (`to: "baseline"`: `body` as it is, as
+// a FontAwesome glyph is drawn to, #211), drawn shapes centre on the
+// x-height, measured in context so they line up whatever the font,
+// size or neighbours.
+#let _inline(body, to: "x-height") = if to == "baseline" { body } else {
+  context {
+    let height = measure(body).height
+    let reference = measure(text(
+      top-edge: to,
+      bottom-edge: "baseline",
+      "x",
+    )).height
+    box(baseline: (height - reference) / 2, body)
+  }
+}
+
 // The block a `===` / `====` heading sits in: its `subheading` role's
 // spacing, kept with what follows. An entry's first lines
 // (`_entry-head`) sit in the same block, so the two can't drift.

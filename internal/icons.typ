@@ -7,6 +7,7 @@
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
+#import "design/styles.typ": _inline
 #import "design/theme.typ": _theme
 #import "context.typ": _body-size-state
 
@@ -42,8 +43,7 @@
   }
   let glyph = _icon-glyphs.at(name)
   let solid = name in _solid-names
-  let mark = box(
-    baseline: shift,
+  let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,
     align(
@@ -55,7 +55,7 @@
         fill: resolved-fill,
       ),
     ),
-  )
+  )))
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))
   }

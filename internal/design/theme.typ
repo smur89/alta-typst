@@ -138,8 +138,9 @@
       gap: sp.x-small,
       below: sp.x-small,
     ),
-    // `radius` and `baseline` are geometry.
-    rating: (radius: 0.45, baseline: -0.25, gap: sp.x-small),
+    // `radius` and `row-height` (every rating row's, dots or text) are
+    // geometry.
+    rating: (radius: 0.45, gap: sp.x-small, row-height: 1.14),
     // `glyph`: the glyph's share of its box.
     icon: (glyph: 0.9, gap: sp.x-small),
   )

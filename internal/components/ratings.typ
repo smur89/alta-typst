@@ -4,6 +4,7 @@
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
+#import "../design/styles.typ": _inline
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
@@ -16,9 +17,11 @@
 )
 
 // A label with `trailing` pushed to the right edge, then a line
-// break: the row every language renders, dots or not, so mixed rows
-// align.
+// break: the row every language renders, dots or not. A strut of
+// `rating.row-height`, centred as the dots are, gives every row the
+// same height, so mixed rows align.
 #let _label-row(label, trailing) = {
+  _inline(box(height: _theme.rating.row-height * 1em))
   text(label)
   h(1fr)
   trailing
@@ -33,11 +36,10 @@
   // The state is validated as `maxRating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  let (radius, baseline, gap) = _theme.rating
-  let dot(fill) = box(
-    baseline: baseline * body-size,
-    circle(radius: radius * body-size, fill: fill),
-  )
+  let (radius, gap, ..) = _theme.rating
+  // Each dot centred on its own, so a long row can still break between
+  // dots, as the separate dots always could.
+  let dot(fill) = _inline(box(circle(radius: radius * body-size, fill: fill)))
   _label-row(
     label,
     range(1, max-rating + 1)
