@@ -159,15 +159,15 @@ Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons 
 
 ### Heading fonts
 
-The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is a `title` element, the section headings are level-2 `heading`s and the entry titles are deeper `heading`s, so each rule picks its own scope:
+The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is the level-1 `heading`, the section headings are level 2, and the group and entry titles are deeper, so each rule picks its own scope:
 
 ```typst
 // A slab-serif name and section headings over a sans body:
-#show selector.or(title, heading.where(level: 2)): set text(font: "Roboto Slab")
+#show heading.where(level: 1).or(heading.where(level: 2)): set text(font: "Roboto Slab")
 #alta(cv, preferences: (font: "Source Sans 3"))
 ```
 
-`selector.or(title, heading)` reaches the entry titles too. The body font can't be set the same way: `alta()` sets the document's font, size, colour and language itself (from `preferences.font`, `preferences.bodySize`, the theme and `labels.lang`), and those win over a `set text(...)` outside it. Every other text setting you make outside `alta()` (tracking, number styles, OpenType features) still applies. Like any font, these must be installed.
+A plain `show heading: …` reaches the group and entry titles too. The body font can't be set the same way: `alta()` sets the document's font, size, colour and language itself (from `preferences.font`, `preferences.bodySize`, the theme and `labels.lang`), and those win over a `set text(...)` outside it. Every other text setting you make outside `alta()` (tracking, number styles, OpenType features) still applies. Like any font, these must be installed.
 
 ## Data schema
 
@@ -728,7 +728,7 @@ The labels in this table are public API and follow semver: a rename or removal i
 | `<alta-rating-label>` | A language's name beside its rating. |
 | `<alta-footer>` | The page footer. |
 
-The name is also a `title` element and the headings `heading` elements, so `show title` / `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
+The name and headings are also `heading` elements, so `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
 
 ## PDF metadata
 
@@ -760,7 +760,9 @@ Some application portals and archives ask for PDF/A, the archival form of PDF. T
 typst compile --pdf-standard a-2b cv.typ
 ```
 
-`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
+`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time.
+
+For an accessible PDF, add PDF/UA-1, the accessibility standard: `--pdf-standard a-2b,ua-1`. altacv's output is built for it: a tagged structure, headings nested name → section → group → entry, a document title (`labels.documentTitle`), alt text for the portrait and for icons that carry meaning, and the document language from `labels.lang`. altacv's compile checks (`make test`, and the examples and starter in CI) run as `a-2b,ua-1`.
 
 ## Helpers
 

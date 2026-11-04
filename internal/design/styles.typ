@@ -84,7 +84,11 @@
   // Each heading's body is a `_part` labelled inside the rule: a user's
   // rule on `heading` itself can't override what this transform sets,
   // as it runs inside the heading.
-  show heading.where(level: 2): it => block(sticky: true)[
+  // Matched by role (an internal label), not level: a heading's level
+  // is its outline depth (`components/frame.typ`). The name is the one
+  // level-1 heading, drawn as it is (`components/header.typ`).
+  show <alta-internal-name>: it => it.body
+  show <alta-internal-section>: it => block(sticky: true)[
     #v(above * body-size)
     #{
       set text(
@@ -107,13 +111,13 @@
       _part(part, it.body)
     },
   )
-  show heading.where(level: 3): sub-heading(
+  show <alta-internal-entry>: sub-heading(
     subheading.entry,
     colour.emphasis,
     "entry-title",
   )
   // In the accent, so a group reads apart from the entries under it.
-  show heading.where(level: 4): sub-heading(
+  show <alta-internal-group>: sub-heading(
     subheading.group,
     accent,
     "group-title",

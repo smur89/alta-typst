@@ -29,7 +29,12 @@
   let body-size = _body-size-state.get()
   let (side-gap, side-max, facts-below, row-gap) = _theme.entry
   let (lead, lead-size, under) = if title != none {
-    ([=== #title], _theme.type.title.size * body-size, facts)
+    (
+      // Level 3, or 4 under a group (`components/frame.typ`).
+      [#heading(depth: 3, title)<alta-internal-entry>],
+      _theme.type.title.size * body-size,
+      facts,
+    )
   } else { (facts, body-size, none) }
   // A line's height runs from its top edge (the cap height, or an
   // icon's top when taller) to its baseline. Every row sets its
