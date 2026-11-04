@@ -1,9 +1,9 @@
 // A user's show rules, written before `alta()`, restyling one part at
 // a time: the name (the level-1 heading) and section headings (level-2
 // headings) in a serif over the sans body, and a rule for every label
-// in the README's Restyling parts table. The labels override the
-// template's own text settings, colour included, which a rule on
-// `heading` can't. Icons keep the theme's colour.
+// in the README's Restyling parts table, lines included. The labels
+// override the template's own settings, colour included, which a rule
+// on `heading` can't. Icons keep the theme's colour.
 
 #import "../lib.typ": alta
 
@@ -25,6 +25,8 @@
 #show <alta-pill-label>: set text(fill: rgb("#b03a2e"))
 #show <alta-rating-label>: set text(weight: "bold")
 #show <alta-footer>: set text(fill: rgb("#b03a2e"))
+#show <alta-section-rule>: set line(stroke: 2pt + rgb("#7d6608"))
+#show <alta-divider>: set line(stroke: (paint: rgb("#b03a2e")))
 
 #alta(
   (
@@ -44,6 +46,7 @@
         startDate: "2022-01",
         highlights: ("Led the platform team.",),
       ),
+      (name: "Liffey Labs", position: "Engineer", startDate: "2019-06"),
     ),
     skills: ((name: "Languages", keywords: ("Scala", "Haskell")),),
     languages: ((language: "English", fluency: "Native"),),
