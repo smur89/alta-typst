@@ -17,7 +17,19 @@
 
 // Applies a named treatment from the theme (`_theme.treatment`,
 // `section.case`); `"none"` leaves the body as it is.
-#let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
+// `italic` sets the style where `emph` toggles it: a treatment around a
+// `_part` has to be a plain setting, or a user's `style:` rule on the
+// part would be flipped (`emph` turns their "normal" italic).
+#let _treatments = (
+  emph: emph,
+  italic: b => {
+    set text(style: "italic")
+    b
+  },
+  strong: strong,
+  upper: upper,
+  "none": b => b,
+)
 #let _treat(name, body) = _treatments.at(name)(body)
 
 // Places an inline graphic on the surrounding text by one rule:

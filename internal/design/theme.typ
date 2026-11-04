@@ -62,7 +62,8 @@
     // For a summary, a `styled-link` title, the CV owner among
     // publication authors, and an interest group's name.
     treatment: (
-      preamble: "emph",
+      // A plain setting, not `emph`: the summary is a `_part`.
+      preamble: "italic",
       link: "emph",
       owner: "strong",
       label: "strong",
