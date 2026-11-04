@@ -446,7 +446,7 @@ Override any subset of the keys below.
 
 | Key | Default | Effect |
 |---|---|---|
-| `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
+| `uppercaseName` | `true` | When `true`, `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `imageSize` | `6em` | Width and height of the portrait (its diameter when circular). Ignored when no `basics.image`. |
 | `imageShape` | `"circle"` | How the portrait is clipped: `"circle"`, `"rounded"` (a square with rounded corners) or `"square"`, for a logo or a photo framed square. Ignored when no `basics.image`. |
@@ -714,7 +714,7 @@ Some application portals and archives ask for PDF/A, the archival form of PDF. T
 typst compile --pdf-standard a-2b cv.typ
 ```
 
-`a-2b` is the usual choice; `a-1b` (what LaTeX AltaCV produces) and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
+`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
 
 ## Helpers
 
