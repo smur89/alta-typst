@@ -30,6 +30,8 @@
   // setup-typst, apk in the pinned image).
   font: "Lato",
   bodySize: 10pt,
+  // `_tokens`' colours, as the theme state's default is
+  // (`tests/unit/colours.typ` checks).
   theme: themes.teal,
   colours: (:),
   publicationIcons: _publication-icons,

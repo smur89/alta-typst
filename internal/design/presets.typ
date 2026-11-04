@@ -1,7 +1,8 @@
 // The colour themes and the deprecated accent palettes, re-exported
-// from `lib.typ`. Each theme overrides `_tokens` (`theme.typ`).
+// from `lib.typ`. A theme is `_tokens` overrides (`theme.typ`); for
+// now validation lets it set the colours only, every role of them.
 
-#import "theme.typ": _tokens
+#import "theme.typ": _accent-roles, _tokens
 
 // Each dark enough to stay legible beside the grey body text and to
 // survive a B&W photocopy as a distinct mid-tone.
@@ -14,16 +15,6 @@
   forest: rgb("#2E5E3A"),
   plum: rgb("#5F2A6E"),
   charcoal: rgb("#3B3B3B"),
-)
-
-// The roles a single-accent theme colours with its accent; the
-// deprecated top-level `accent` sets them too.
-#let _accent-roles(accent) = (
-  accent: accent,
-  heading: accent,
-  headingRule: accent,
-  subheading: accent,
-  name: accent,
 )
 
 // A theme from one accent over the default grey text.

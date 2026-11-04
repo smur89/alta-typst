@@ -4,7 +4,8 @@
 
 #import "/internal/data/options.typ": _merge-options
 #import "/internal/design/presets.typ": palettes, themes
-#import "/internal/design/theme.typ": _colour-role-names, _theme-for
+#import "/internal/data/defaults.typ": _default-preferences
+#import "/internal/design/theme.typ": _colour-role-names, _theme-for, _tokens
 
 #let roles(preferences) = {
   let prefs = _merge-options((:), preferences).prefs
@@ -19,6 +20,11 @@
     message: name,
   )
 }
+
+// The default theme preference is `_tokens`' own colours, which the
+// theme state starts from outside `alta()` (`context.typ` can't read
+// the preferences), so the two can't drift apart.
+#assert.eq(_default-preferences.theme, (colours: _tokens.colours))
 
 // The default is the teal theme; a single-accent theme colours the
 // headings, their rules, the group titles and the name with its accent.

@@ -13,6 +13,16 @@
 
 #import "../util/values.typ": _deep-merge
 
+// The roles a single-accent theme colours with its accent; the
+// deprecated top-level `accent` sets them too.
+#let _accent-roles(accent) = (
+  accent: accent,
+  heading: accent,
+  headingRule: accent,
+  subheading: accent,
+  name: accent,
+)
+
 #let _tokens = (
   // Material Design 3's type roles: `display` the name, `headline` a
   // section title, `title` a heading, `body` the rest (quieter lines
@@ -30,14 +40,12 @@
   // text, the default theme. `emphasis` and `body` follow Bootstrap's
   // roles.
   colours: (
-    accent: rgb("#00796B"),
-    emphasis: rgb("#2E2E2E"),
-    body: rgb("#666666"),
-    heading: rgb("#00796B"),
-    headingRule: rgb("#00796B"),
-    subheading: rgb("#00796B"),
-    name: rgb("#00796B"),
-    tagline: rgb("#2E2E2E"),
+    _accent-roles(rgb("#00796B"))
+      + (
+        emphasis: rgb("#2E2E2E"),
+        body: rgb("#666666"),
+        tagline: rgb("#2E2E2E"),
+      )
   ),
   // CSS's size keywords.
   space: (
