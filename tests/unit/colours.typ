@@ -93,3 +93,11 @@
   built((theme: (font: "Libertinus Serif"), font: "Lato")).font,
   "Lato",
 )
+
+// A separator may be content or a symbol, as it's joined into content;
+// a weight a name or a number; a space zero.
+#let valid(theme) = _merge-options((:), (theme: theme)).prefs.theme
+#assert.eq(valid((separator: (facts: [ | ]))).separator.facts, [ | ])
+#assert.eq(valid((separator: (items: sym.bullet))).separator.items, sym.bullet)
+#assert.eq(valid((type: (title: (weight: 600)))).type.title.weight, 600)
+#assert.eq(valid((space: (xx-small: 0))).space.xx-small, 0)

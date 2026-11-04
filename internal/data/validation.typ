@@ -8,8 +8,7 @@
 )
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-keys, _check-rules, _check-type,
-  _check-unknown-keys, _enum-rule, _list-rule, _number-rule, _positive-int-rule,
-  _type-rule,
+  _check-unknown-keys, _enum-rule, _list-rule, _positive-int-rule, _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
@@ -85,7 +84,8 @@
 
 // The single-value preferences, in `_default-preferences`' order. The
 // rest are checked in `_validate-preferences` (`font` and `colours`
-// with the theme's tokens), or for the icon tables in `_merge-options`; `groupCertificates` and `showPronouns` are
+// with the theme's tokens), or for the icon tables in
+// `_merge-options`; `groupCertificates` and `showPronouns` are
 // ignored, so they aren't checked.
 #let _preference-rules = (
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
@@ -144,9 +144,37 @@
 )
 
 #let _font-rule = (_is-font, "a font family name or a non-empty array of them")
-#let _weight-rule = _type-rule(
-  (str, int),
-  "a font weight (e.g. \"bold\" or 600)",
+// Typst's weight names, or a number from 100 to 900, as `text` takes.
+#let _weight-names = (
+  "thin",
+  "extralight",
+  "light",
+  "regular",
+  "medium",
+  "semibold",
+  "bold",
+  "extrabold",
+  "black",
+)
+#let _weight-rule = (
+  v => v in _weight-names or (type(v) == int and v >= 100 and v <= 900),
+  "a font weight (\"regular\", \"bold\", … or 100 to 900)",
+)
+// The scales: sizes, leading and strokes must be positive; a space may
+// be zero.
+#let _positive-number-rule = (
+  v => type(v) in (int, float) and v > 0,
+  "a positive number",
+)
+#let _space-rule = (
+  v => type(v) in (int, float) and v >= 0,
+  "a number, zero or more",
+)
+// Joined into content, so a separator may be content or a symbol too
+// (`[ | ]`, `sym.bullet`).
+#let _separator-rule = _type-rule(
+  (str, content, symbol),
+  "a string, content or a symbol",
 )
 
 // Tokens whose rule isn't their default's kind, by the first segment
@@ -154,15 +182,17 @@
 #let _token-rules = (
   font: _font-rule,
   treatment: _enum-rule(_treatment-names),
+  separator: _separator-rule,
   font-weight: _weight-rule,
   weight: _weight-rule,
+  space: _space-rule,
 )
 
-// A token of `default`'s kind: a colour, a number, strings as many as
-// its own (the citation's issue brackets), or a string.
+// A token of `default`'s kind: a colour, a positive number, strings as
+// many as its own (the citation's issue brackets), or a string.
 #let _kind-rule(default) = if type(default) == color { _colour-rule } else if (
   type(default) in (int, float)
-) { _number-rule } else if type(default) == array {
+) { _positive-number-rule } else if type(default) == array {
   let (is-strings, _) = _list-rule((str,), "")
   (
     v => is-strings(v) and v.len() == default.len(),
@@ -180,7 +210,10 @@
 // has one, and each value by `_token-rule`. `prefix` leads the path in
 // messages (`theme.type.title.size`).
 #let _check-tokens(value, defaults, prefix, path: ()) = {
-  let name(at) = ((prefix,) + at).filter(s => s != "").join(".")
+  let name(at) = {
+    let parts = ((prefix,) + at).filter(s => s != "")
+    if parts == () { "preferences" } else { parts.join(".") }
+  }
   _check-keys(name(path), value, defaults.keys())
   for (key, v) in value {
     let at = path + (key,)

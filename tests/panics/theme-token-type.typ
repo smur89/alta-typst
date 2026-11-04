@@ -1,4 +1,4 @@
-// expect: theme.type.headline.size must be a number
+// expect: theme.type.headline.size must be a positive number
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
