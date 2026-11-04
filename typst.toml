@@ -30,3 +30,8 @@ thumbnail = "thumbnail.png"
 # tytanic's tests (`make test-visual`).
 [tool.tytanic]
 tests = "tests/visual"
+
+# 72 ppi: half the size of tytanic's 144 and, measured, as sensitive
+# (a 0.1pt shift fails the same tests).
+[tool.tytanic.default]
+ppi = 72

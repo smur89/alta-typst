@@ -36,14 +36,10 @@
       datasourceTemplate: 'docker',
     },
     {
-      description: "tytanic's pins, in one PR: the Dockerfile's TYTANIC_VERSION, the Makefile's DOCKER_IMAGE tag naming it, and build.yml's TYTANIC_VERSION.",
+      description: "build.yml's TYTANIC_VERSION, from tytanic's GitHub releases.",
       customType: 'regex',
-      managerFilePatterns: ['/^Dockerfile$/', '/^Makefile$/', '/^\\.github/workflows/build\\.yml$/'],
-      matchStrings: [
-        'ARG TYTANIC_VERSION=(?<currentValue>\\S+)',
-        'TYTANIC_VERSION: (?<currentValue>\\S+)',
-        'DOCKER_IMAGE \\?= \\S+-tt-(?<currentValue>[0-9.]+)',
-      ],
+      managerFilePatterns: ['/^\\.github/workflows/build\\.yml$/'],
+      matchStrings: ['TYTANIC_VERSION: (?<currentValue>\\S+)'],
       depNameTemplate: 'typst-community/tytanic',
       datasourceTemplate: 'github-releases',
       extractVersionTemplate: '^v(?<version>.+)$',
@@ -94,10 +90,10 @@
     },
     {
       // CI-only, like typstyle. Renovate can't recompute TYTANIC_SHA256, so
-      // the image build and the lint job fail their checksum checks on the
-      // bump PR until the new release's SHA-256 is set by hand, in the
-      // Dockerfile and build.yml. Each release bundles a Typst
-      // version: hold the bump if it isn't the Dockerfile's.
+      // the lint job fails its checksum check on the bump PR until the new
+      // release's SHA-256 is set by hand. Each release bundles a Typst
+      // version, which renders the references: hold the bump if it isn't
+      // TYPST_VERSION, and run `make test-refs` on the branch.
       description: 'tytanic bumps are CI changes; the checksum is updated by hand.',
       matchDepNames: ['typst-community/tytanic'],
       semanticCommitType: 'ci',

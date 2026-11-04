@@ -14,13 +14,12 @@ concurrency:
 env:
   # Typst version for every job that installs it via setup-typst. Keep
   # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
-  # and the Makefile's DOCKER_IMAGE tag: the visual tests' references
-  # are made in that image (`make docker-pdfs`) and the lint job
-  # compares against them on its runner.
+  # and the Makefile's DOCKER_IMAGE tag: the example renders are
+  # committed from that image (`make docker-pdfs`).
   TYPST_VERSION: v0.15.1
-  # The Dockerfile's TYTANIC_VERSION + TYTANIC_SHA256, for the same
-  # reason. Each release bundles its own Typst, which must be
-  # TYPST_VERSION.
+  # The tytanic that renders the visual tests' references, so
+  # contributors pin the same one. Each release bundles its own Typst,
+  # which must be TYPST_VERSION.
   TYTANIC_VERSION: 0.4.1
   TYTANIC_SHA256: cf262206b2c89f4d74690b5c825d5ffce1f633eb2900948b50cc006dccebe32c
   # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
@@ -62,23 +61,37 @@ jobs:
           tytanic-version: ${{ env.TYTANIC_VERSION }}
           tytanic-sha256: ${{ env.TYTANIC_SHA256 }}
 
-      # On the runner, not in DOCKER_IMAGE: a PR that bumps the image
-      # names a tag only published once it merges. setup-typst's
-      # FONT_PATHS pins the fonts the references were made with. The
-      # next step's `!cancelled()` reports its failures in the same run.
+      # Against tests/fonts/, the fonts the references were made with.
+      # The next step's `!cancelled()` reports its failures in the same
+      # run.
       - name: Run visual tests
+        id: visual
         run: make test-visual
 
       # tytanic writes each failing page's render and its difference
       # from the reference beside the test.
       - name: Upload visual test diffs
-        if: failure()
+        if: failure() && steps.visual.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: visual-test-diffs
           path: |
             tests/visual/*/out/
             tests/visual/*/diff/
+          retention-days: 14
+
+      # The references `make test-refs` would write, so an intended
+      # change can be reviewed and committed from the artifact.
+      - name: Update the failing references
+        if: failure() && steps.visual.outcome == 'failure'
+        run: make test-refs
+
+      - name: Upload updated references
+        if: failure() && steps.visual.outcome == 'failure'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-test-refs
+          path: tests/visual/*/ref/
           retention-days: 14
 
       - name: Compile examples, fixtures + template, run panic and unit checks

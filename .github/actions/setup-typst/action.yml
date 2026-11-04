@@ -85,7 +85,7 @@ runs:
           -C /usr/local/bin \
           typst-x86_64-unknown-linux-musl/typst
 
-    # Checked against its SHA-256, as the pinned image installs it.
+    # Checked against its SHA-256, like the FontAwesome zip.
     - name: Install tytanic
       if: inputs.tytanic-version != ''
       shell: bash

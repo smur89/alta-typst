@@ -1,5 +1,4 @@
-# Builds `ghcr.io/smur89/alta-typst-ci` (Typst + Lato + FontAwesome +
-# tytanic).
+# Builds `ghcr.io/smur89/alta-typst-ci` (Typst + Lato + FontAwesome).
 # Pushes on main; PRs build only. The tag encodes every render-critical
 # version, so a bump yields a new immutable tag — update the Makefile's
 # DOCKER_IMAGE to match.
@@ -49,12 +48,11 @@ jobs:
           fa_version=$(grep -oE '^ARG FA_VERSION=[0-9.]+' Dockerfile | cut -d= -f2)
           # apk versions look like `2.015-r0`.
           lato_version=$(grep -oE '^ARG LATO_APK_VERSION=[0-9A-Za-z._-]+' Dockerfile | cut -d= -f2)
-          tytanic_version=$(grep -oE '^ARG TYTANIC_VERSION=[0-9.]+' Dockerfile | cut -d= -f2)
-          if [ -z "$typst_version" ] || [ -z "$fa_version" ] || [ -z "$lato_version" ] || [ -z "$tytanic_version" ]; then
-            echo "::error::Could not extract Typst, FA, Lato or tytanic version from Dockerfile"
+          if [ -z "$typst_version" ] || [ -z "$fa_version" ] || [ -z "$lato_version" ]; then
+            echo "::error::Could not extract Typst, FA, or Lato version from Dockerfile"
             exit 1
           fi
-          tag="typst-${typst_version}-fa-${fa_version}-lato-${lato_version}-tt-${tytanic_version}"
+          tag="typst-${typst_version}-fa-${fa_version}-lato-${lato_version}"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "full=${IMAGE_NAME}:${tag}" >> "$GITHUB_OUTPUT"
           echo "Image will be tagged as ${IMAGE_NAME}:${tag}"

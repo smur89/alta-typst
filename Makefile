@@ -75,12 +75,12 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-test-visual docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome / Lato / tytanic versions
+# bump the tag here when bumping Typst / FontAwesome / Lato versions
 # in the Dockerfile (image.yml derives the same tag and pushes it).
-DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0-tt-0.4.1 ## the pinned CI image
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0 ## the pinned CI image
 
 # `--platform linux/amd64` keeps renders identical on any
 # host (Apple Silicon emulates: slow but reproducible).
@@ -193,9 +193,9 @@ done; \
 exit $$status
 endef
 
-# Every check CI's lint job runs except `test-visual`, whose references
-# only match the pinned fonts: run `make docker-test-visual` for it.
-test: test-compile test-fixtures test-panics test-unit ## compile examples, fixtures and template; run panic and unit checks
+# Every check CI's lint job runs, so a green `make test` locally means
+# it will pass too.
+test: test-compile test-fixtures test-panics test-unit test-visual ## compile examples, fixtures and template; run panic, unit and visual tests
 
 # The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
 # template/cv.typ's `@preview/altacv` import won't resolve locally — a
@@ -244,17 +244,20 @@ test-template: $(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 
 # tytanic compares each tests/visual/<name>/ render against its
 # committed ref/*.png, and compile-checks the template as `@template`,
-# its `@preview/altacv` import resolved to this tree. It reads only
-# FONT_PATHS' fonts, never the system's: the references match only the
-# pinned Lato and FontAwesome builds, so run these in the image
-# (`docker-test-visual`, `docker-pdfs`) unless FONT_PATHS has them.
+# its `@preview/altacv` import resolved to this tree. The references
+# match only the pinned Lato and FontAwesome builds, so it reads the
+# copies in tests/fonts/ and nothing else; tytanic bundles its own
+# Typst, so any host then renders as CI does.
+TT_RUN = TYPST_IGNORE_SYSTEM_FONTS=true TYPST_FONT_PATHS=$(TEST_FONTS) $(TT)
+TEST_FONTS := tests/fonts/lato:tests/fonts/fontawesome
+
 test-visual: ## compare tests/visual/ renders with their reference PNGs (tytanic)
-	$(TT) run --no-fail-fast
+	$(TT_RUN) run --no-fail-fast
 
 # Rewrites only the references whose render changed, so an unchanged
 # page keeps its bytes.
 test-refs: ## update the tests/visual/ reference PNGs (tytanic)
-	$(TT) update
+	$(TT_RUN) update
 
 # Fail if any tracked render under DRIFT_PATHS differs from HEAD. The
 # CI drift gates run this right after regenerating with `make -B` (see
@@ -317,18 +320,13 @@ help: ## list these targets and the variables you can override
 	@echo 'Overrides (make VAR=value):'
 	@awk -F' *[?]= *| *## ' '/^[A-Z_]+ *[?]=.*## /{printf "  %-22s %s (default %s)\n", $$1, $$3, $$2}' $(MAKEFILE_LIST)
 
-# Regenerate every committed render, the visual tests' references
-# included, inside the pinned CI image. Use before committing any
-# change that affects rendering (icon glyphs, lib.typ, sections/*.typ,
-# font setup) — CI's visual tests fail otherwise. `-B` because
-# a merge or checkout gives tracked outputs fresh mtimes, so make
-# would skip them and commit stale bytes.
-docker-pdfs: ## regenerate every committed render and test reference in the pinned CI image
-	$(DOCKER_MAKE) -B all test-refs
-
-# The visual tests against the pinned fonts, from any host.
-docker-test-visual: ## run the visual tests in the pinned CI image
-	$(DOCKER_MAKE) test-visual
+# Regenerate the committed example renders inside the pinned CI image,
+# which pins Typst as well as the fonts. The visual tests' references
+# need no image: `make test-refs`. `-B` because a merge or checkout
+# gives tracked outputs fresh mtimes, so make would skip them and
+# commit stale bytes.
+docker-pdfs: ## regenerate the committed example renders in the pinned CI image
+	$(DOCKER_MAKE) -B all
 
 # Just the two tracked preview PNGs. Raster output is
 # environment-sensitive, so the pinned image
