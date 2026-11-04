@@ -25,6 +25,7 @@
 - [Configuration](#configuration)
 - [Header QR code](#header-qr-code-preferencesqrcode)
 - [PDF metadata](#pdf-metadata)
+- [PDF/A](#pdfa)
 - [Helpers](#helpers)
 - [Building the examples](#building-the-examples)
 - [Credits](#credits)
@@ -676,6 +677,16 @@ meta: (
   version: "v1.0.0",                         // → PDF Keywords + optional footer suffix (footerVersion)
 )
 ```
+
+## PDF/A
+
+Some application portals and archives ask for PDF/A, the archival form of PDF. Typst produces it at compile time, so the template needs no setting for it:
+
+```sh
+typst compile --pdf-standard a-2b cv.typ
+```
+
+`a-2b` is the usual choice; `a-1b` (what LaTeX AltaCV produces) and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
 
 ## Helpers
 
