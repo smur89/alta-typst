@@ -88,10 +88,9 @@
   box(width: 50%, _icon-fact(icon-name, body))
 }
 
-// An absent side is skipped, so undated or unlocated entries don't
-// emit a stray icon.
 /// A date and an optional location on one row, each led by its icon.
-/// Renders nothing when both are absent.
+/// An absent side is left out, icon included; with neither, nothing
+/// renders.
 ///
 /// - period (content, str, none): The date or date range.
 /// - location (content, str, none): The place.
@@ -104,15 +103,13 @@
   })
 }
 
-// `label: true` is the darker, bold category pill. Pass
-// `trailing: false` on a row's last pill so it doesn't end on a gap.
-/// A pill, as altacv draws a skill.
+/// A pill-style tag.
 ///
 /// - body (content): The pill's text.
 /// - label (bool): The darker, bold category pill (a skill group's
 ///   label).
 /// - trailing (bool): Leave the gap after the pill; `false` on a row's
-///   last pill, so the next line doesn't start indented.
+///   last pill, so the row doesn't end on a gap.
 /// -> content
 #let tag(body, label: false, trailing: true) = context {
   let body-size = _body-size-state.get()
@@ -218,9 +215,8 @@
   body
 }
 
-// Entry titles look the same linked or not.
 /// Text in altacv's entry-title style (the accent, italic), linked when
-/// `dest` is set.
+/// `dest` is set; it looks the same either way.
 ///
 /// - content (content): The title.
 /// - dest (str, none): A URL to link it to.

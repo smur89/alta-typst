@@ -220,8 +220,9 @@ test-fixtures: ## compile every tests/*.typ fixture, output discarded
 	$(call compile-check,$(TESTS))
 
 # A failed `assert` fails the compile.
-test-unit: ## run the helper checks under tests/unit/
+test-unit: ## run the helper checks under tests/unit/, and check every export has a doc comment
 	$(call compile-check,$(UNIT_TESTS),a-2b)
+	@tests/doc-comments.sh
 
 # Every tests/panics/*.typ must FAIL to compile, and its error output
 # must contain the text after the file's leading `// expect: ` line —
