@@ -6,7 +6,9 @@
 
 #import "design/styles.typ": _content-styles
 #import "design/theme.typ": _theme
-#import "context.typ": _accent-state, _body-size-state, _max-rating-state
+#import "context.typ": (
+  _accent-state, _body-size-state, _icon-alts-state, _max-rating-state,
+)
 
 // For `show: _document.with(prefs, labels, footer: ...)`, with the
 // merged, validated preferences and labels.
@@ -15,6 +17,7 @@
   _accent-state.update(accent)
   _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
+  _icon-alts-state.update((date: labels.date, location: labels.location))
   // Before `set page`, so the footer inherits the font and language.
   set text(
     body-size,

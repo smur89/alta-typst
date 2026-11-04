@@ -584,6 +584,8 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `referencesAvailableOnRequest` | `"References available upon request."` |
 | `articles` | `"Articles"` (deprecated: use `publicationTypes.article`; still honoured when set, removed in [#239](https://github.com/smur89/alta-typst/issues/239)) |
 | `present` | `"Present"` |
+| `date` | `"Date"` |
+| `location` | `"Location"` |
 | `lastModified` | `"Last updated"` |
 | `pageNumber` | `"Page {current} / {total}"` |
 | `documentTitle` | `"{name} — CV"` |
@@ -594,6 +596,8 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 `labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: auto` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
 
 `labels.lang` is the document language, an ISO 639 code (two or three lowercase letters: `"de"`, `"ga"`). It drives hyphenation and smart quotes, and is written to the PDF as its language tag, which screen readers use to pick a voice. Set it alongside any full translation; anything other than a lowercase 2–3 letter code panics.
+
+`labels.date` and `labels.location` are the alt text of the calendar and location icons beside an entry's date and location (`location` also labels the contact bar's location). They aren't printed: a screen reader reads them before the value, so it says which is which. The icons of a `term()` in your own layout stay decorative.
 
 `labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
 

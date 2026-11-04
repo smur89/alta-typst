@@ -38,6 +38,10 @@ otherProjects = "Other"
 # Rendered in date ranges when `endDate` is empty.
 present = "Present"
 
+# Icon alt text for an entry's date and location; not printed.
+date     = "Date"
+location = "Location"
+
 # Footer label when `preferences.lastModifiedFooter` is true.
 lastModified = "Last updated"
 
