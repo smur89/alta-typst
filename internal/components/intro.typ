@@ -27,7 +27,7 @@
               _preamble(objective),
             )
           },
-          if summary != none { par(summary) },
+          if summary != none { [#par(summary) <alta-prose>] },
         ),
         v(gap * body-size),
       )

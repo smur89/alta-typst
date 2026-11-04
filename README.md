@@ -458,6 +458,7 @@ Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"f
 
 | Key | Default | Effect |
 |---|---|---|
+| `justify` | `false` | When `true`, running text (summaries, highlights, focus areas, quotes) is justified and hyphenated by `labels.lang`, which evens out the ragged right edge in narrow columns. Everything else, such as headings, the header, facts lines, author lists and pill rows, stays ragged. |
 | `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
 | `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
 | `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |

@@ -52,6 +52,7 @@
   // Rides the `lastModifiedFooter` line; no-op without it.
   footerVersion: false,
   // Formatting and links.
+  justify: false,
   dateFormat: "long",
   linkContactInfo: true,
   mapsProvider: maps-providers.google,
