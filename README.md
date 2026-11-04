@@ -716,10 +716,17 @@ A rule overrides any text setting the template gives that part: font, size, colo
 | `<alta-entry-title>` | An entry's title: a role, qualification, project or award. |
 | `<alta-group-title>` | A group's heading within a section: a publication type, a project type. |
 | `<alta-contact>` | Each contact-bar entry: email, phone, location, URL, profiles. |
+| `<alta-org>` | An entry's organisation: an employer, institution, issuer or awarder. |
+| `<alta-facts>` | The line under an entry's title: the organisation with its roles and details. The organisation keeps its own colour; `<alta-org>` changes it. |
 | `<alta-date>` | An entry's date or date range. |
 | `<alta-location>` | An entry's location (the header's location is a contact entry). |
+| `<alta-summary>` | A summary: the CV's, the objective, or an entry's. |
+| `<alta-pill>` | A skill pill. |
+| `<alta-pill-label>` | A skill group's label pill. |
+| `<alta-rating-label>` | A language's name beside its rating. |
+| `<alta-footer>` | The page footer. |
 
-The name is also a `title` element and the headings `heading` elements, so `show title` / `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. Labels for the remaining parts are tracked in [#327](https://github.com/smur89/alta-typst/issues/327).
+The name is also a `title` element and the headings `heading` elements, so `show title` / `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
 
 ## PDF metadata
 

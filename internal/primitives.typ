@@ -3,7 +3,7 @@
 // `name`, `term`, `tag`, `divider`, `styled-link` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
-#import "design/styles.typ": _treat
+#import "design/styles.typ": _part, _treat
 #import "design/theme.typ": _theme
 #import "context.typ": _accent-state, _body-size-state
 #import "util/values.typ": _join-present, _present
@@ -42,12 +42,19 @@
   _theme.separator.facts,
 )
 
+// A summary as a paragraph of prose: the paragraph labelled
+// `<alta-prose>` for `justify` (`design/styles.typ`), its text the
+// public `<alta-summary>` part.
+#let _prose(body, treatment: "none") = [#par(_treat(
+  treatment,
+  _part("summary", body),
+))<alta-prose>]
+
 // Set apart (`treatment.preamble`, italic by default) so a `summary`
 // doesn't compete with the facts line above it. Its own paragraph, so
 // whatever follows starts on a new line.
-// Prose, so `<alta-prose>` (`design/styles.typ`).
 #let _preamble(body) = if _present(body) {
-  [#par(_treat(_theme.treatment.preamble, body)) <alta-prose>]
+  _prose(body, treatment: _theme.treatment.preamble)
 }
 
 // The term row's frame: indented text under an entry's heading.
@@ -109,11 +116,12 @@
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
     outset: (y: outset-y * body-size),
+    // The box's look is the theme's; only its text is a `_part`.
     text(
       body-size,
       fill: accent.darken(text-darken),
       weight: text-weight,
-      body,
+      _part(if label { "pill-label" } else { "pill" }, body),
     ),
   )
   if trailing { _tag-gap(body-size) }

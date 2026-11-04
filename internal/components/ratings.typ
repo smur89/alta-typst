@@ -4,7 +4,7 @@
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
-#import "../design/styles.typ": _inline
+#import "../design/styles.typ": _inline, _part
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
@@ -22,7 +22,7 @@
 // same height, so mixed rows align.
 #let _label-row(label, trailing) = {
   _inline(box(height: _theme.rating.row-height * 1em))
-  text(label)
+  _part("rating-label", label)
   h(1fr)
   trailing
   [\ ]
