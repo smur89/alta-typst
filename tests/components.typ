@@ -23,6 +23,8 @@
 
 // The merged defaults, as `alta()` resolves them.
 #let (labels, prefs) = _merge-options((:), (:))
+// PDF/UA requires a title; `alta()` sets one from the CV.
+#set document(title: "altacv component gallery")
 #show: _document.with(
   prefs,
   labels,

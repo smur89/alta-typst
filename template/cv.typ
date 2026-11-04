@@ -157,14 +157,31 @@
 )
 
 // Visual preferences for this starter. The portrait stacks above a
-// centred header; the rest takes the template's shipped defaults
-// (teal accent, two-column layout, long-form dates). Edit any
+// centred header, and Interests ends the left column, where this CV
+// has room, so it fits on one page; the rest takes the template's
+// shipped defaults (teal accent, long-form dates). Edit any
 // preference you like — `alta(cv, preferences: (...))` accepts any
 // subset, with unknown keys panicking so typos surface immediately.
 #let preferences = (
   imagePosition: "center",
   imageStackOrder: "above",
   headerTextAlign: "center",
+  leftColumnSections: (
+    "work",
+    "volunteer",
+    "projects",
+    "publications",
+    "interests",
+  ),
+  rightColumnSections: (
+    "focusAreas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+    "awards",
+    "references",
+  ),
 )
 
 #alta(cv, preferences: preferences)

@@ -18,6 +18,7 @@ FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besi
 TYPSTYLE  ?= typstyle ## the typstyle binary
 FFMPEG    ?= ffmpeg ## the ffmpeg binary
 ROOT      := .
+PDF_STANDARDS := a-2b,ua-1
 ifneq ($(strip $(FONT_PATHS)),)
 export TYPST_IGNORE_SYSTEM_FONTS := true
 export TYPST_FONT_PATHS := $(FONT_PATHS)
@@ -178,18 +179,20 @@ examples/preview.gif: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) example
 
 # Compile each listed file to /dev/null, carrying on past failures so
 # one run reports every broken file:
-#   $(call compile-check,<files>)
+#   $(call compile-check,<files>[,<pdf standards>])
 # On GitHub Actions it adds log groups and `::error file=` annotations.
 # `$(TEMPLATE_SRC)` is reported as template/cv.typ, the file people edit.
-# As PDF/A-2b, which backs the README's PDF/A section; the output is
-# discarded, so the committed renders are unaffected.
+# Checked against `$(2)`, the PDF standards (default `PDF_STANDARDS`:
+# PDF/A-2b and PDF/UA-1, which back the README's PDF/A and
+# accessibility notes); the output is discarded, so the committed
+# renders are unaffected.
 define compile-check
 @status=0; \
 for f in $(1); do \
   name=$$f; [ "$$f" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
   if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
   else printf '  %s\n' "$$name"; fi; \
-  if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard a-2b "$$f" /dev/null; then \
+  if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$$f" /dev/null; then \
     if [ -n "$$GITHUB_ACTIONS" ]; then \
       printf '::error file=%s::compile failed\n' "$$name"; \
     fi; \
@@ -218,7 +221,7 @@ test-fixtures: ## compile every tests/*.typ fixture, output discarded
 
 # A failed `assert` fails the compile.
 test-unit: ## run the helper checks under tests/unit/
-	$(call compile-check,$(UNIT_TESTS))
+	$(call compile-check,$(UNIT_TESTS),a-2b)
 
 # Every tests/panics/*.typ must FAIL to compile, and its error output
 # must contain the text after the file's leading `// expect: ` line —

@@ -5,10 +5,10 @@
 <</Type/Pages/Count 1/Kids[77 0 R]>>
 endobj
 2 0 obj
-<</Parent 3 0 R/Title( Articles)/Dest 62 0 R>>
+<</Parent 3 0 R/Title( Articles)/Dest 63 0 R>>
 endobj
 3 0 obj
-<</Parent 4 0 R/First 2 0 R/Last 2 0 R/Count -1/Title(Publications)/Dest 63 0 R>>
+<</Parent 4 0 R/First 2 0 R/Last 2 0 R/Count -1/Title(Publications)/Dest 62 0 R>>
 endobj
 4 0 obj
 <</Type/Outlines/First 3 0 R/Last 3 0 R/Count 1>>
@@ -32,10 +32,10 @@ endobj
 <</Type/StructElem/S/P/P 11 0 R/K[2]/Pg 77 0 R>>
 endobj
 11 0 obj
-<</Type/StructElem/S/H2/P 47 0 R/T(Publications)/K[10 0 R]>>
+<</Type/StructElem/S/H1/P 47 0 R/T(Publications)/K[10 0 R]>>
 endobj
 12 0 obj
-<</Type/StructElem/S/H4/P 47 0 R/T( Articles)/K[3]/Pg 77 0 R>>
+<</Type/StructElem/S/H2/P 47 0 R/T( Articles)/K[3]/Pg 77 0 R>>
 endobj
 13 0 obj
 <</Type/StructElem/S/Lbl/P 19 0 R/K[4]/Pg 77 0 R>>
@@ -155,40 +155,40 @@ endobj
 <</Type/Annot/Subtype/Link/Rect[37.51181 758.2701 114.637314 769.7271]/Border[0 0 0]/A<</Type/Action/S/URI/URI(mailto:jane@example.com)>>/F 4/StructParent 0/Contents(Email jane@example.com)>>
 endobj
 52 0 obj
-<</Type/Annot/Subtype/Link/Rect[34.31181 693.8581 188.02681 706.5231]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/182)>>/F 4/StructParent 1/Contents(https://doi.org/10.1000/182)>>
+<</Type/Annot/Subtype/Link/Rect[34.31181 690.25806 188.02681 702.9231]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/182)>>/F 4/StructParent 1/Contents(https://doi.org/10.1000/182)>>
 endobj
 53 0 obj
-<</Type/Annot/Subtype/Link/Rect[55.28181 668.5281 114.36181 681.1931]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/182)>>/F 4/StructParent 2/Contents(https://doi.org/10.1000/182)>>
+<</Type/Annot/Subtype/Link/Rect[55.28181 664.9281 114.36181 677.5931]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/182)>>/F 4/StructParent 2/Contents(https://doi.org/10.1000/182)>>
 endobj
 54 0 obj
-<</Type/Annot/Subtype/Link/Rect[146.5368 668.5281 201.09682 681.1931]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2101.00001)>>/F 4/StructParent 3/Contents(https://arxiv.org/abs/2101.00001)>>
+<</Type/Annot/Subtype/Link/Rect[146.5368 664.9281 201.09682 677.5931]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2101.00001)>>/F 4/StructParent 3/Contents(https://arxiv.org/abs/2101.00001)>>
 endobj
 55 0 obj
-<</Type/Annot/Subtype/Link/Rect[34.31181 653.3631 75.99681 666.0281]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2312.00002)>>/F 4/StructParent 4/Contents(https://arxiv.org/abs/2312.00002)>>
+<</Type/Annot/Subtype/Link/Rect[34.31181 649.76306 75.99681 662.4281]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2312.00002)>>/F 4/StructParent 4/Contents(https://arxiv.org/abs/2312.00002)>>
 endobj
 56 0 obj
-<</Type/Annot/Subtype/Link/Rect[58.76681 640.6981 113.32681 653.3631]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2312.00002)>>/F 4/StructParent 5/Contents(https://arxiv.org/abs/2312.00002)>>
+<</Type/Annot/Subtype/Link/Rect[58.76681 637.0981 113.32681 649.76306]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://arxiv.org/abs/2312.00002)>>/F 4/StructParent 5/Contents(https://arxiv.org/abs/2312.00002)>>
 endobj
 57 0 obj
-<</Type/Annot/Subtype/Link/Rect[34.31181 625.5331 105.22182 638.1981]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://example.com/paper)>>/F 4/StructParent 6/Contents(https://example.com/paper)>>
+<</Type/Annot/Subtype/Link/Rect[34.31181 621.9331 105.22182 634.5981]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://example.com/paper)>>/F 4/StructParent 6/Contents(https://example.com/paper)>>
 endobj
 58 0 obj
-<</Type/Annot/Subtype/Link/Rect[55.28181 612.8681 114.36181 625.5331]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/999)>>/F 4/StructParent 7/Contents(https://doi.org/10.1000/999)>>
+<</Type/Annot/Subtype/Link/Rect[55.28181 609.26807 114.36181 621.9331]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://doi.org/10.1000/999)>>/F 4/StructParent 7/Contents(https://doi.org/10.1000/999)>>
 endobj
 59 0 obj
-<</Type/Annot/Subtype/Link/Rect[34.31181 597.70306 63.716812 610.3681]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://pubmed.ncbi.nlm.nih.gov/12345678)>>/F 4/StructParent 8/Contents(https://pubmed.ncbi.nlm.nih.gov/12345678)>>
+<</Type/Annot/Subtype/Link/Rect[34.31181 594.1031 63.716812 606.76807]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://pubmed.ncbi.nlm.nih.gov/12345678)>>/F 4/StructParent 8/Contents(https://pubmed.ncbi.nlm.nih.gov/12345678)>>
 endobj
 60 0 obj
-<</Type/Annot/Subtype/Link/Rect[185.43181 585.0381 231.83182 597.70306]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://pubmed.ncbi.nlm.nih.gov/12345678)>>/F 4/StructParent 9/Contents(https://pubmed.ncbi.nlm.nih.gov/12345678)>>
+<</Type/Annot/Subtype/Link/Rect[185.43181 581.4381 231.83182 594.1031]/Border[0 0 0]/A<</Type/Action/S/URI/URI(https://pubmed.ncbi.nlm.nih.gov/12345678)>>/F 4/StructParent 9/Contents(https://pubmed.ncbi.nlm.nih.gov/12345678)>>
 endobj
 61 0 obj
 [/ICCBased 91 0 R]
 endobj
 62 0 obj
-[77 0 R/XYZ 25.51181 730.7731 0]
+[77 0 R/XYZ 25.51181 762.2951 0]
 endobj
 63 0 obj
-[77 0 R/XYZ 25.51181 762.2951 0]
+[77 0 R/XYZ 25.51181 727.1731 0]
 endobj
 64 0 obj
 <</ProcSet[/PDF/Text/ImageC/ImageB]/ColorSpace<</c0 61 0 R>>/Font<</f0 65 0 R/f1 68 0 R/f2 71 0 R/f3 74 0 R>>>>
@@ -408,14 +408,13 @@ jùÔwâÓKı±I °ü ²~şû¾û|ß„÷·E3=c(÷ÏõÙ¨Bßék® –w‚	ÍƒšMª]-hòC“ªª^Ú¨e
 endstream
 endobj
 90 0 obj
-<</Length 1067/Filter/FlateDecode>>
+<</Length 1066/Filter/FlateDecode>>
 stream
-xœÍXËÛ6İû+8m¡ïƒ/ƒ '‹™ Åx×t11â¢EÇMw‘¿/<&%J9±taQ´(éû8çRóÛ/w›««ùÍâ—7^¿¾~³˜}(@€x…‚Œ2ˆ…ó¨¨1(V÷óˆÕ·ı
-¥6Ğøı6œ7âÛj3»^
-Ëí|‚ŒX®»çí‡åıo—à# JÄxNaä0ê0š0Ú0ºx]ş¾|7{»œı:{{³˜ÿ¼İı¹¾[íÄõÍAcÑ#
-gA9ıT(¼Â„å_©71ó&»èÍÜ¥ÛßÀ…MÙƒŸ»‡ãæ`ü·3é”9,Ş&‹ƒ;1¸“ w;†‘d R¸„¶ïù3U2ˆBÇOÎ Ô•"-_iˆ“Nl:qÉ„!`2’Ñ]ÀTº	ÒÇ§Ëx<+¯®æËï_>Ïßß}ÿçß]ÅIÔ(×9iq[rÒíâƒĞâæá÷‚õ>ËÙyâïÙíc%aŞâ'‡‚ò•’ bIp†\CDş,[@ ÕÆHæ6 @2²váÀ.DãeÀ•\×å0ÚÆ*ş˜ú&ğ,z1ó÷w›?.?odÎ3ZqÉ#œÊã&¥¬­fí–>À%dXşIÚöbÊdM4›0İ€İÚ·şİJ¾ì-ës]J–€Nú@‹ığm×ºŸ‘£MåÜ°YLĞ{dÏšåBs•œğ¬Í'¼¾Mn^Tk“İI<BC°IC	XÑÉ>éÒ¶Ò":«İèÙó`oZÊMs,ci*s¨ÈùI°´¼e_?îvÌÛDcùÉm5}·FîşŸv°.„]cŞ¼!jÅvjÃìï—ƒ4Ô5(88‚YR$æj ó.µU†­Ÿ›+,’Æ@„‹£©`ãŠ*›}ãs
-óÑôëcd97ätY&’Œ17Q¹~Zõi,åŠŸMÏÕ4ö¬~.ÚŠ{5+­§Éá3Wb®ÓÆ+gíÄ(b%Æ68V`üÿØJ¬R¨¯T"yE~âJl©ÄÜ3Tb×õZÏın•\^…”–,3'
-W«Q¤cô`ĞşöJ¼²IÏÁ(¢ó†¦\¼„•ˆ Q*û?évˆ*İÎ”¶ØíÄm7V0ÖD@iÃ`§¬U:J5G,™F6¥nc9øìØC‘k¢eåĞz¤sú±RXU4Ş)ç'JÖşF8&alµ9MF‘ÒØEªDíåÆ¶Pé6\ŒuõÉ½c­ôûÃ‹¾Ñ‘ª,5î7›<¹gMA±±EúSÏ§#‚Ì¨<£§I1Œâe{hul7ö:AXAÖ”ùË8R–Ì”üÅpYr:1I|½Š,Æ’ºµ-Áá—ÏHp½OfZ+Ó/3åp.é)¯Ï‚õı¶)
+xœÍXËn7İë+è¾`.Bİ_j%‹qÂÚ5]8BT´¨ÕTQùûB9"‡CZ¶5@5œ™{îãœË™ß~¾Û\]Ío?½ğúõõ›ÅìˆW(È(ƒèQ8Š:ƒbu?_X}Ù¯PÚißŸagÁy#¾¬6³ë¥ ±ÜÎ× Èˆåúø¼ı°¼ÿõò | @‰Ï)ŒFFFF¯Ëß–ïfo—³_fooó·»?Öw«¸¾"è,zDá,(§Ÿ
+…W8‚áaùçÑŠÔ›Xx“]ôfiŠÒıoàÂ®îÁÇİÃqs0ş[Ç™tÊo“Å€ÁÜIİ„a$Ù¨.¡Í=Ÿb¦F±SèøÉ„º‘A¤å+qbÒ‰M'.™0¤L&@’!º˜j7Aú8àtgåÕÕ|ùõó§ùû»¯ÿ»k8‰lê¤ÅmÍI·‹Ÿ…7¸¬÷YÎÎÍn+	«ğğ60Ê=9$(”o”UK‚ä"ògÙ©E0F2÷’‘m8°v!/näº®‡Ñv¬ <Ø
+œÂ³øÅÌßßm~¿ü´‘%ÑhÅUCNp+Û”ò¶>™·{—ĞıaùGiû‹)—I4Ç°Ù„ëüÖ¿íğïVòe¶,g»”.ô%úáÛ"®u‘£Mõì°EPĞ{dÏ›õZs¬ğ XgµöÄ×÷™À½Ç«‚m’¨;‰*C,b6i
+«zÙ ½QÚÖ@ZDgµ={ìí@N¹"«qu,]#`Ö)ëü$Xzê‹Ê¯w;–¢1Šüä¶šÜ­‘|†ÿ£¬á@×ÀXöoˆZ±ä0ûó²b†=Jà#`–™¹À²QCm•aë§Åæ*‹¤1ĞáêhØ¸!Ì{ß!O+Ì¨OQæK^®ÌD’1fÇ#B—'VNd©.7<m
+|Î¨®³çõt]ãĞ6Ìòzš4>s1–Rm¼rÖNŒ"cl†cÆÿO-Æ&‹úF1’VÖ¿¤9¡»Sj±4ä¥xl²ös¿g%W–!¥5KFÆÌ‰ÚÕAÔé=´ÀY7¶ê¥†#EtŞĞÔ‹—°$èÁı_:¢FÇ3©±/lyâ÷86@6”ÓtVy3m±Ò)Â9bÈ4ºÉ(İpSûÈÁÇÇD)Š–•Cë‘ÎèÅF]5DÑx­ĞOÔœç{qà˜±Ùæ4EÊb©]ô—¿ÛD]¤;q1Ö×_$÷5ÓßîßåFGNhr@©Ó¸ßnòä5ÁÆé÷™OFô˜QyFO“bÄı¡—±İØgèaY× /Û) iÉ‹áò*y9y1I|¾ŠÆ’ıi_€ÃŸ‘İ²of»Y+Ó/3õ p©ç)¯Ï€Œ÷ş5¡¡
 endstream
 endobj
 91 0 obj
@@ -432,11 +431,11 @@ endobj
 93 0 obj
 <</Length 1158/Type/Metadata/Subtype/XML>>
 stream
-<?xpacket begin="ï»¿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="xmp-writer"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"  xmlns:xmp="http://ns.adobe.com/xap/1.0/"  xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"  xmlns:xmpTPg="http://ns.adobe.com/xap/1.0/t/pg/"  xmlns:pdf="http://ns.adobe.com/pdf/1.3/" ><dc:title><rdf:Alt><rdf:li xml:lang="x-default">Jane Doe â€” CV</rdf:li></rdf:Alt></dc:title><dc:creator><rdf:Seq><rdf:li>Jane Doe</rdf:li></rdf:Seq></dc:creator><xmp:CreatorTool>Typst 0.15.1</xmp:CreatorTool><dc:language><rdf:Bag><rdf:li>en</rdf:li></rdf:Bag></dc:language><xmp:ModifyDate>1970-01-01T00:00:00+00:00</xmp:ModifyDate><xmp:CreateDate>1970-01-01T00:00:00+00:00</xmp:CreateDate><xmpTPg:NPages>1</xmpTPg:NPages><dc:format>application/pdf</dc:format><xmpMM:InstanceID>6P6F+rnK+mVbSHDOwAo3Vw==</xmpMM:InstanceID><xmpMM:DocumentID>OjNpno95A7pDh4S1WYED1A==</xmpMM:DocumentID><xmpMM:RenditionClass>proof</xmpMM:RenditionClass><pdf:PDFVersion>1.7</pdf:PDFVersion></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="r"?>
+<?xpacket begin="ï»¿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="xmp-writer"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"  xmlns:xmp="http://ns.adobe.com/xap/1.0/"  xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"  xmlns:xmpTPg="http://ns.adobe.com/xap/1.0/t/pg/"  xmlns:pdf="http://ns.adobe.com/pdf/1.3/" ><dc:title><rdf:Alt><rdf:li xml:lang="x-default">Jane Doe â€” CV</rdf:li></rdf:Alt></dc:title><dc:creator><rdf:Seq><rdf:li>Jane Doe</rdf:li></rdf:Seq></dc:creator><xmp:CreatorTool>Typst 0.15.1</xmp:CreatorTool><dc:language><rdf:Bag><rdf:li>en</rdf:li></rdf:Bag></dc:language><xmp:ModifyDate>1970-01-01T00:00:00+00:00</xmp:ModifyDate><xmp:CreateDate>1970-01-01T00:00:00+00:00</xmp:CreateDate><xmpTPg:NPages>1</xmpTPg:NPages><dc:format>application/pdf</dc:format><xmpMM:InstanceID>NgI6eDSOEg7PUM+BiK/fNw==</xmpMM:InstanceID><xmpMM:DocumentID>OjNpno95A7pDh4S1WYED1A==</xmpMM:DocumentID><xmpMM:RenditionClass>proof</xmpMM:RenditionClass><pdf:PDFVersion>1.7</pdf:PDFVersion></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="r"?>
 endstream
 endobj
 94 0 obj
-<</Type/Catalog/Pages 1 0 R/Metadata 93 0 R/Lang(en)/StructTreeRoot 5 0 R/MarkInfo<</Marked true/Suspects false>>/ViewerPreferences<</Direction/L2R>>/Outlines 4 0 R>>
+<</Type/Catalog/Pages 1 0 R/Metadata 93 0 R/Lang(en)/StructTreeRoot 5 0 R/MarkInfo<</Marked true/Suspects false>>/ViewerPreferences<</Direction/L2R>>/Outlines 4 0 R/Names<</Dests<</Names[(alta-internal-group)63 0 R(alta-internal-section)62 0 R]>>>>>>
 endobj
 xref
 0 95
@@ -493,50 +492,50 @@ xref
 0000004308 00000 n
 0000004386 00000 n
 0000004594 00000 n
-0000004810 00000 n
-0000005026 00000 n
-0000005252 00000 n
-0000005477 00000 n
-0000005703 00000 n
-0000005915 00000 n
-0000006131 00000 n
-0000006374 00000 n
-0000006618 00000 n
-0000006653 00000 n
-0000006702 00000 n
-0000006751 00000 n
-0000006879 00000 n
-0000007011 00000 n
-0000007538 00000 n
-0000007744 00000 n
-0000007900 00000 n
-0000008104 00000 n
-0000008323 00000 n
-0000008458 00000 n
-0000009020 00000 n
-0000009229 00000 n
-0000009363 00000 n
-0000009880 00000 n
-0000010092 00000 n
-0000010303 00000 n
-0000010384 00000 n
-0000010955 00000 n
-0000017599 00000 n
-0000017675 00000 n
-0000018110 00000 n
-0000018724 00000 n
-0000018805 00000 n
-0000019413 00000 n
-0000026746 00000 n
-0000026827 00000 n
-0000027395 00000 n
-0000034019 00000 n
-0000035156 00000 n
-0000035562 00000 n
-0000035745 00000 n
-0000036980 00000 n
+0000004811 00000 n
+0000005027 00000 n
+0000005253 00000 n
+0000005479 00000 n
+0000005706 00000 n
+0000005918 00000 n
+0000006135 00000 n
+0000006378 00000 n
+0000006621 00000 n
+0000006656 00000 n
+0000006705 00000 n
+0000006754 00000 n
+0000006882 00000 n
+0000007014 00000 n
+0000007541 00000 n
+0000007747 00000 n
+0000007903 00000 n
+0000008107 00000 n
+0000008326 00000 n
+0000008461 00000 n
+0000009023 00000 n
+0000009232 00000 n
+0000009366 00000 n
+0000009883 00000 n
+0000010095 00000 n
+0000010306 00000 n
+0000010387 00000 n
+0000010958 00000 n
+0000017602 00000 n
+0000017678 00000 n
+0000018113 00000 n
+0000018727 00000 n
+0000018808 00000 n
+0000019416 00000 n
+0000026749 00000 n
+0000026830 00000 n
+0000027398 00000 n
+0000034022 00000 n
+0000035158 00000 n
+0000035564 00000 n
+0000035747 00000 n
+0000036982 00000 n
 trailer
-<</Size 95/Root 94 0 R/Info 92 0 R/ID[(OjNpno95A7pDh4S1WYED1A==)(6P6F+rnK+mVbSHDOwAo3Vw==)]>>
+<</Size 95/Root 94 0 R/Info 92 0 R/ID[(OjNpno95A7pDh4S1WYED1A==)(NgI6eDSOEg7PUM+BiK/fNw==)]>>
 startxref
-37163
+37249
 %%EOF

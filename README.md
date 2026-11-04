@@ -159,11 +159,11 @@ Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons 
 
 ### Heading fonts
 
-The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is a `title` element, the section headings are level-2 `heading`s and the entry titles are deeper `heading`s, so each rule picks its own scope:
+The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is a `title` element, the section headings are level-1 `heading`s and the entry titles are deeper `heading`s, so each rule picks its own scope:
 
 ```typst
 // A slab-serif name and section headings over a sans body:
-#show selector.or(title, heading.where(level: 2)): set text(font: "Roboto Slab")
+#show selector.or(title, heading.where(level: 1)): set text(font: "Roboto Slab")
 #alta(cv, preferences: (font: "Source Sans 3"))
 ```
 
@@ -760,7 +760,9 @@ Some application portals and archives ask for PDF/A, the archival form of PDF. T
 typst compile --pdf-standard a-2b cv.typ
 ```
 
-`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time. altacv's compile checks (`make test`, and the examples and starter in CI) all run as `a-2b`.
+`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time.
+
+For an accessible PDF, add PDF/UA-1, the accessibility standard: `--pdf-standard a-2b,ua-1`. altacv's output is built for it: a tagged structure, headings nested section → group → entry, the name as the document title, alt text for the portrait and for icons that carry meaning, and the document language from `labels.lang`. altacv's compile checks (`make test`, and the examples and starter in CI) run as `a-2b,ua-1`.
 
 ## Helpers
 

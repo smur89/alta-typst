@@ -79,7 +79,7 @@
       case: "upper",
       tracking: 0.04em,
     ),
-    // `===` entries and `====` groups.
+    // Entry and group headings.
     subheading: (
       entry: (above: sp.medium, below: sp.medium, weight: ty.title.weight),
       group: (above: sp.small, below: sp.small, weight: fw.bold),

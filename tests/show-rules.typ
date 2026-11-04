@@ -1,5 +1,5 @@
 // A user's show rules, written before `alta()`, restyling one part at
-// a time: the name (a `title`) and section headings (level-2
+// a time: the name (a `title`) and section headings (level-1
 // headings) in a serif over the sans body, and a rule for every label
 // in the README's Restyling parts table. The labels override the
 // template's own text settings, colour included, which a rule on
@@ -7,7 +7,7 @@
 
 #import "../lib.typ": alta
 
-#show selector.or(title, heading.where(level: 2)): set text(
+#show selector.or(title, heading.where(level: 1)): set text(
   font: "Libertinus Serif",
 )
 #show <alta-name>: set text(tracking: 0.08em)
