@@ -70,11 +70,11 @@
     ),
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
-    // `==` headings. `rule-gap` pulls the rule up (geometry).
+    // Section headings. `rule-gap`: between the title and its rule.
     // `tracking` opens up the capitals.
     section: (
       above: sp.small,
-      rule-gap: -0.7,
+      rule-gap: 0.4,
       below: sp.xx-small,
       case: "upper",
       tracking: 0.04em,

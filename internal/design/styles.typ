@@ -88,17 +88,22 @@
   // is its outline depth (`components/frame.typ`).
   show <alta-internal-section>: it => block(sticky: true)[
     #v(above * body-size)
-    #{
-      set text(
-        ty.headline.size * body-size,
-        fill: accent,
-        weight: ty.headline.weight,
-        tracking: tracking,
-      )
-      _treat(case, _part("section-title", it.body))
-    }
-    #v(rule-gap * body-size)
-    #line(length: 100%, stroke: sw.thick + accent)
+    // The title and its rule as one stack, so the gap between them is
+    // `rule-gap` alone, not paragraph spacing that would follow the
+    // heading's level.
+    #stack(
+      spacing: rule-gap * body-size,
+      {
+        set text(
+          ty.headline.size * body-size,
+          fill: accent,
+          weight: ty.headline.weight,
+          tracking: tracking,
+        )
+        _treat(case, _part("section-title", it.body))
+      },
+      line(length: 100%, stroke: sw.thick + accent),
+    )
     #v(below * body-size)
   ]
   let sub-heading(role, fill, part) = it => _subheading-block(
