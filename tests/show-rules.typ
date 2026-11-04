@@ -11,7 +11,7 @@
 #show selector.or(title, heading.where(level: 2)): set text(
   font: "Libertinus Serif",
 )
-#show <alta-contact>: set text(font: "DejaVu Sans Mono", weight: "regular")
+#show <alta-contact>: set text(font: "New Computer Modern", weight: "regular")
 #show <alta-date>: set text(fill: rgb("#b03a2e"), style: "italic")
 #show <alta-location>: set text(size: 0.85em)
 
