@@ -14,10 +14,14 @@ concurrency:
 env:
   # Typst version for every job that installs it via setup-typst. Keep
   # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
-  # and the Makefile's DOCKER_IMAGE tag: the fixtures are committed
-  # from that image (`make docker-pdfs`) and the lint job re-renders
-  # them on its runner, so a mismatch shows up as drift.
+  # and the Makefile's DOCKER_IMAGE tag: the visual tests' references
+  # are made in that image (`make docker-pdfs`) and the lint job
+  # compares against them on its runner.
   TYPST_VERSION: v0.15.1
+  # The Dockerfile's TYTANIC_VERSION + TYTANIC_SHA256; it bundles its
+  # own Typst, which must be TYPST_VERSION.
+  TYTANIC_VERSION: 0.4.1
+  TYTANIC_SHA256: cf262206b2c89f4d74690b5c825d5ffce1f633eb2900948b50cc006dccebe32c
   # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
   # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
   # every CI job that compiles the package downloads v7 from upstream.
@@ -55,20 +59,35 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Rendering the fixtures is also their compile check, standing in
-      # for `make test`'s `test-fixtures`. `-B`: tracked PDFs get
-      # checkout-order mtimes, so make could skip them and the gate
-      # would compare the committed files to themselves. `-k` and the
-      # next step's `!cancelled()` report every failure in one run.
-      - name: Render test fixtures
-        run: make -k -B test-pdfs
+      - name: Install tytanic
+        run: |
+          curl -sSfL -o /tmp/tt.tar.xz \
+            "https://github.com/typst-community/tytanic/releases/download/v${TYTANIC_VERSION}/tytanic-x86_64-unknown-linux-musl.tar.xz"
+          echo "${TYTANIC_SHA256}  /tmp/tt.tar.xz" | sha256sum -c -
+          sudo tar -xJf /tmp/tt.tar.xz -C /usr/local/bin --strip-components=1 tytanic-x86_64-unknown-linux-musl/tt
+          tt --version
 
-      - name: Compile examples + template, run panic and unit checks
+      # setup-typst's FONT_PATHS pins the fonts the references were
+      # made with. The next step's `!cancelled()` reports its failures
+      # in the same run.
+      - name: Run visual tests
+        run: make test-visual
+
+      # tytanic writes each failing page's render and its difference
+      # from the reference beside the test.
+      - name: Upload visual test diffs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-test-diffs
+          path: |
+            tests/visual/*/out/
+            tests/visual/*/diff/
+          retention-days: 14
+
+      - name: Compile examples, fixtures + template, run panic and unit checks
         if: ${{ !cancelled() }}
-        run: make test-compile test-panics test-unit
-
-      - name: Verify examples/tests/*.pdf are in sync
-        run: make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'
+        run: make test-compile test-fixtures test-panics test-unit
 
   # typstyle parses source only, so no setup-typst or fonts needed.
   format:

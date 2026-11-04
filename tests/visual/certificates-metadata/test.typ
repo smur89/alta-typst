@@ -1,0 +1,75 @@
+// Certificates with optional `date` and `url`. The name links to
+// `url` when present, and the calendar-icon term row appears when
+// `date` is supplied. Covers: full entry, url-only, date-only,
+// name-only, and several certs from one issuer (mixed metadata). The
+// deprecated `groupCertificates: false` is checked by
+// group-certificates-deprecated.
+
+#import "/lib.typ": alta
+
+// Also group-certificates-deprecated's data.
+#let cv = (
+  basics: (name: "Jane Doe", email: "jane@example.com"),
+  certificates: (
+    // Full entry — pill is linked, date row follows.
+    (
+      name: "Certified Kubernetes Administrator",
+      issuer: "CNCF",
+      date: "Aug 2023",
+      url: "https://example.com/cka",
+    ),
+    // Same issuer as the entry above. Mixes a dated + linked cert
+    // with one that has neither, exercising each optional part.
+    (
+      name: "Certified Kubernetes Application Developer",
+      issuer: "CNCF",
+    ),
+    // Url-only — link wraps the pill, no date line.
+    (
+      name: "AWS Solutions Architect — Associate",
+      issuer: "AWS",
+      url: "https://example.com/aws-saa",
+    ),
+    // Date-only — plain pill plus the calendar-icon date line.
+    (
+      name: "Terraform Associate",
+      issuer: "HashiCorp",
+      date: "May 2022",
+    ),
+  ),
+)
+
+#alta(cv)
+
+#pagebreak()
+
+// Empty-string `date` / `url` are treated as absent — no orphan
+// calendar icon, no link to "". `none` is handled the same way.
+// The trailing dateless entry in a dated group must not emit a
+// stray linebreak before the divider.
+#alta((
+  basics: (name: "Jane Doe", email: "jane@example.com"),
+  certificates: (
+    (
+      name: "Empty strings are absent",
+      issuer: "Acme",
+      date: "",
+      url: "",
+    ),
+    (
+      name: "Explicit none is absent",
+      issuer: "Acme",
+      date: none,
+      url: none,
+    ),
+    (
+      name: "Dated cert (first)",
+      issuer: "Globex",
+      date: "Jan 2024",
+    ),
+    (
+      name: "Trailing dateless cert (last in group)",
+      issuer: "Globex",
+    ),
+  ),
+))

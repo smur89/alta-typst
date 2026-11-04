@@ -25,8 +25,8 @@ internal/components/ # the layout components sections map onto
 sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
-tests/            # fixtures — CI renders each into examples/tests/*.pdf
-tests/components.typ # the component gallery: each component, each variant
+tests/visual/     # fixtures, one tytanic test per directory: `test.typ` + `ref/` page PNGs
+tests/visual/components/ # the component gallery: each component, each variant
 tests/panics/     # must-fail fixtures — each names the error it expects
 tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fields, header, …)
 ```
@@ -53,14 +53,15 @@ Most everyday tasks go through the `Makefile`; `make help` lists every target. T
 ```sh
 make check        # test + fmt-check
 make fmt          # format every tracked .typ in place (typstyle)
-make docker-pdfs  # regenerate the committed renders in the pinned image (see below)
+make docker-pdfs  # regenerate the committed renders and test references in the pinned image (see below)
+make docker-test-visual # run the visual tests against the pinned fonts
 ```
 
-`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too.
+`make check` is the local equivalent of the CI lint + `typstyle` jobs, except for the visual tests: green here plus `make docker-test-visual` means both will pass too.
 
 ### Helper unit tests
 
-Helpers that only compute a value are checked with `assert.eq` under `tests/unit/`, one file per module; `make test-unit` (part of `make test`) runs them. That's quicker and more precise than a PDF fixture. For helpers that return content, `tests/unit/_plain.typ` flattens it to text.
+Helpers that only compute a value are checked with `assert.eq` under `tests/unit/`, one file per module; `make test-unit` (part of `make test`) runs them. That's quicker and more precise than a visual test. For helpers that return content, `tests/unit/_plain.typ` flattens it to text.
 
 ### Error-path tests
 
@@ -70,22 +71,33 @@ Every panic a user can hit has a fixture under `tests/panics/` whose first line 
 
 Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typstyle). CI runs `make fmt-check` and fails on any unformatted file, so run `make fmt` before committing (or wire it into your editor). Pin the same version CI uses — `TYPSTYLE_VERSION` in [`.github/workflows/build.yml`](.github/workflows/build.yml) — since formatter output can shift between releases; `brew install typstyle` on macOS. Formatting is purely mechanical and never changes rendered output.
 
-### Regenerating PDF fixtures (Docker)
+### Visual tests (tytanic)
 
-CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make -B test-pdfs` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
+Each directory under `tests/visual/` is a [tytanic](https://typst-community.github.io/tytanic/) test: a `test.typ` fixture and, in `ref/`, a PNG per page it should render. `make test-visual` renders every fixture and fails on any page that differs from its reference, writing the render to `out/` and the difference to `diff/` beside it (both untracked; CI uploads them as the `visual-test-diffs` artifact). It also compile-checks `template/cv.typ`, its `@preview/altacv` import resolved to the working tree. `make test-fixtures` compiles the same fixtures under PDF/A-2b and PDF/UA-1, which tytanic doesn't check.
+
+Pick the test kind by what the fixture checks:
+
+- **Persistent** (a `ref/` directory): how something looks. Keep these few pages each — every page is a committed image.
+- **Ephemeral** (a `ref.typ` instead of `ref/`): that one input renders the same as another, such as a deprecated form and its replacement. tytanic renders both and compares, so nothing is committed (`tests/visual/custom-altacv-deprecated`).
+- **Compile-only** (neither): behaviour a render can't show. A linked and a plain entry look the same, so `assert-links` (`tests/visual/_links.typ`) pins each page's link destinations (`tests/visual/link-contact-info`). Formatting that a helper computes belongs in `tests/unit/`.
+
+References only reproduce with the pinned Lato and FontAwesome builds; a host with other versions fails on the icons. So any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the references regenerated inside the pinned CI image:
 
 ```sh
-make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all` (full rebuild)
+make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all` (full rebuild; `tt update` rewrites only the references whose render changed)
+make docker-test-visual # the visual tests, in the same image
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION` and `FA_VERSION` must match it: CI's lint job re-renders the fixtures on its runner and compares them byte for byte.
+A new persistent test needs an empty `ref/` directory before `make docker-pdfs` fills it; without one, tytanic treats it as compile-only.
+
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION`, `FA_VERSION` and `TYTANIC_VERSION` must match it: CI's lint job runs the visual tests on its runner against the references made in the image.
 
 If you'd rather drive Typst directly, the manual incantations are:
 
 ```sh
 typst compile --root . examples/example-full.typ examples/example_full.pdf
-for f in tests/*.typ; do typst compile --root . --format pdf "$f" /dev/null; done
+for f in tests/visual/*/test.typ; do typst compile --root . --format pdf "$f" /dev/null; done
 ```
 
 `--format pdf` is required when the output path is `/dev/null` — Typst cannot infer the format from a path with no extension.
@@ -133,9 +145,7 @@ This is the most common shape of contribution. A user can already draw any netwo
 
 ## Adding a section, preference, or label
 
-For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `fields`, a type rule per field its renderer draws; `keep`, when some entries shouldn't render; `check`, for checks that need more than a type, in `internal/data/cv-checks.typ`) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` are the checked entries `keep` let through and `ctx` is `(labels, prefs, format-date, owner)`, usually destructured as `(labels, format-date, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/publication-types.typ` is a small self-contained example.
-
-The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make docker-pdfs` (see [Regenerating PDF fixtures](#regenerating-pdf-fixtures-docker)) and commit the updated PDFs alongside your source change.
+For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `fields`, a type rule per field its renderer draws; `keep`, when some entries shouldn't render; `check`, for checks that need more than a type, in `internal/data/cv-checks.typ`) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` are the checked entries `keep` let through and `ctx` is `(labels, prefs, format-date, owner)`, usually destructured as `(labels, format-date, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/visual/components/test.typ`). Any change to the data shape or the rendered surface should also add a visual test exercising it — `tests/visual/publication-types/` is a small self-contained example. After a change that intentionally affects output, run `make docker-pdfs` (see [Visual tests](#visual-tests-tytanic)) and commit the updated references alongside your source change.
 
 ## Security
 
