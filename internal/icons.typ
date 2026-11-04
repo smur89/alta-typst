@@ -43,9 +43,7 @@
   }
   let glyph = _icon-glyphs.at(name)
   let solid = name in _solid-names
-  // Placed by `_inline` (a glyph: on the baseline), then moved by
-  // `shift`.
-  let mark = box(baseline: shift, _inline(to: _theme.inline.icon, box(
+  let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,
     align(

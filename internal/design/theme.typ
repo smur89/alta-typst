@@ -138,14 +138,11 @@
       gap: sp.x-small,
       below: sp.x-small,
     ),
-    // `radius` and `baseline` are geometry.
-    // `row-pad`: above and below a language row's dots.
+    // `radius` is geometry; `row-pad` pads a language row's dots
+    // evenly, so the centred dots keep the row its height.
     rating: (radius: 0.45, gap: sp.x-small, row-pad: 0.12),
     // `glyph`: the glyph's share of its box.
     icon: (glyph: 0.9, gap: sp.x-small),
-    // `_inline`'s rule: glyphs stand on the baseline, drawn shapes
-    // centre on the x-height.
-    inline: (mark: "x-height", icon: "baseline"),
   )
 }
 

@@ -9,13 +9,12 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
-// `body`, an inline graphic, placed on the surrounding text by one
-// rule (the theme's `inline`): glyphs stand on the baseline, drawn
-// shapes centre on the x-height. `to: "baseline"` stands `body` on
-// the baseline, as a FontAwesome glyph is drawn to (#211); any other
-// text edge centres it between the baseline and that edge, measured
-// in context, so it lines up whatever the font, size or neighbours.
-#let _inline(body, to: "x-height") = if to == "baseline" { box(body) } else {
+// Places an inline graphic on the surrounding text by one rule:
+// glyphs stand on the baseline (`to: "baseline"`: `body` as it is, as
+// a FontAwesome glyph is drawn to, #211), drawn shapes centre on the
+// x-height, measured in context so they line up whatever the font,
+// size or neighbours.
+#let _inline(body, to: "x-height") = if to == "baseline" { body } else {
   context {
     let height = measure(body).height
     let reference = measure(text(

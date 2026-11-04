@@ -38,9 +38,7 @@
   let dot(fill) = box(circle(radius: radius * body-size, fill: fill))
   _label-row(
     label,
-    // Padded evenly, so the centred dots keep the row its height.
     box(inset: (y: row-pad * body-size), _inline(
-      to: _theme.inline.mark,
       range(1, max-rating + 1)
         .map(i => dot(
           if value >= i { accent } else if value > i - 1 {
