@@ -2,7 +2,7 @@
 // the heading with its date at the right edge, then the organisation
 // and the entry's other facts with its location at the right edge.
 
-#import "../design/styles.typ": _subheading-block
+#import "../design/styles.typ": _part, _subheading-block
 #import "../design/theme.typ": _theme
 #import "../context.typ": _body-size-state, _icon-alts-state
 #import "../util/values.typ": _join-present, _present
@@ -44,14 +44,12 @@
   )
   let alts = _icon-alts-state.get()
   let rows = (
-    // Labelled for a user's `show <alta-date>` / `<alta-location>`
-    // rules; their styles are inherited, so the rules override them.
     (
       lead,
       lead-size,
       _icon-fact(
         "calendar",
-        if date != none [#date<alta-date>],
+        _part("date", date),
         alt: alts.date,
       ),
     ),
@@ -60,7 +58,7 @@
       body-size,
       _icon-fact(
         "location",
-        if location != none [#location<alta-location>],
+        _part("location", location),
         alt: alts.location,
       ),
     ),
@@ -134,17 +132,13 @@
   keywords-lead: none,
   keywords: (),
 ) = {
-  // Labelled inside their styles, for a user's `show <alta-org>` /
-  // `<alta-facts>` rules (#327).
   let org = if _present(org) {
-    _accent-text(_link-if(org-url, [#org<alta-org>]))
+    _accent-text(_link-if(org-url, _part("org", org)))
   }
+  let facts = _part("facts", _fact-line((org,), roles, details))
   _entry-head(
     if _present(title) { _link-if(url, title) },
-    {
-      let facts = _fact-line((org,), roles, details)
-      if facts != none [#facts<alta-facts>]
-    },
+    facts,
     period,
     location,
   )

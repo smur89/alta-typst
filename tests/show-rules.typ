@@ -1,12 +1,9 @@
 // A user's show rules, written before `alta()`, restyling one part at
-// a time: the name (a `title`) and the section headings (level-2
-// headings) in a serif over the sans body, and the labelled parts
-// (#327). The labels override the template's own text settings,
-// colour included, which a rule on `heading` or `title` can't: the
-// headline, the section, entry and group titles, the contact bar's
-// entries, an entry's organisation, facts line, date, location and
-// summary, the skill pills and their group label, the rating labels
-// and the footer. Icons keep the theme's colour.
+// a time: the name (a `title`) and section headings (level-2
+// headings) in a serif over the sans body, and a rule for every label
+// in the README's Restyling parts table. The labels override the
+// template's own text settings, colour included, which a rule on
+// `heading` or `title` can't. Icons keep the theme's colour.
 
 #import "../lib.typ": alta
 

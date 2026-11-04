@@ -5,7 +5,7 @@
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state
 #import "../util/values.typ": _join-present
-#import "../primitives.typ": _preamble
+#import "../primitives.typ": _preamble, _prose
 
 // The objective (a forward-looking goal), then the summary
 // (background); either alone keeps the summary's spacing. The
@@ -27,7 +27,7 @@
               _preamble(objective),
             )
           },
-          if summary != none { [#par(summary)<alta-summary>] },
+          if summary != none { _prose(summary) },
         ),
         v(gap * body-size),
       )

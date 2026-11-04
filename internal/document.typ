@@ -4,7 +4,7 @@
 // component gallery (`tests/components.typ`), so the gallery shows
 // components exactly as a CV does.
 
-#import "design/styles.typ": _content-styles
+#import "design/styles.typ": _content-styles, _part
 #import "design/theme.typ": _theme
 #import "context.typ": (
   _accent-state, _body-size-state, _icon-alts-state, _max-rating-state,
@@ -25,11 +25,10 @@
     fill: _theme.colour.body,
     lang: labels.lang,
   )
-  // Labelled for a user's `show <alta-footer>` rule (#327).
   set page(
     paper: prefs.paper,
     margin: prefs.margin,
-    footer: if footer != none [#footer<alta-footer>],
+    footer: _part("footer", footer),
   )
   show: _content-styles.with(body-size, accent, prefs.justify)
   body

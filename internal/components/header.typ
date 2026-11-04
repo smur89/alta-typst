@@ -2,6 +2,7 @@
 // the CV and preferences onto: the name line, headline and contact bar,
 // with an optional portrait and QR around them.
 
+#import "../design/styles.typ": _part
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state
 #import "../icons.typ": icon
@@ -82,9 +83,8 @@
 
 // A `title` element, so a user's `show title: set text(...)` restyles
 // it (its font, say) as `show heading` does the headings, and tagged
-// PDF reads it as the document's title. Its styles are `set` around the
-// name, labelled `<alta-name>`, so a user's `show <alta-name>` rule
-// overrides any of them (#327); the headline likewise.
+// PDF reads it as the document's title. Its styles are `set` around
+// `name`, which arrives labelled (`_page-header`).
 #let _name-line(name, body-size, accent) = block(
   spacing: 0pt,
   below: _theme.header.name-below * body-size,
@@ -105,7 +105,7 @@
       fill: _theme.colour.emphasis,
       weight: _theme.font-weight.bold,
     )
-    [#headline<alta-headline>]
+    _part("headline", headline)
   })
 }
 
@@ -113,8 +113,7 @@
 // records with an optional `alt`, linked where `url` is set. A `box`
 // per entry, so a long row wraps between entries, never between an
 // icon and its text. The bar's text styles are `set` around the
-// entries and each value is labelled `<alta-contact>`, so a user's
-// `show <alta-contact>: set text(...)` overrides them.
+// entries, each a `_part`.
 #let _contact-bar(contacts, body-size, accent) = {
   let contact-gap = _theme.header.contact-gap
   let size = _theme.header.contact-size * body-size
@@ -124,7 +123,7 @@
     .map(row => row
       .map(entry => box({
         bar-icon(entry.icon, alt: entry.at("alt", default: none))
-        _link-if(entry.url, [#entry.value<alta-contact>])
+        _link-if(entry.url, _part("contact", entry.value))
       }))
       .join(h(contact-gap * body-size)))
     .join(linebreak())
@@ -153,9 +152,7 @@
   let qr-size = _theme.header.qr * body-size
   _header-layout(
     align(text-align, {
-      // Labelled before the uppercasing, so the label stays on the
-      // text rather than on the styled result.
-      let name = [#name<alta-name>]
+      let name = _part("name", name)
       _name-line(if uppercase { upper(name) } else { name }, body-size, accent)
       _headline(headline, body-size)
       _contact-bar(contacts, body-size, accent)

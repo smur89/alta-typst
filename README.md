@@ -717,7 +717,7 @@ A rule overrides any text setting the template gives that part: font, size, colo
 | `<alta-group-title>` | A group's heading within a section: a publication type, a project type. |
 | `<alta-contact>` | Each contact-bar entry: email, phone, location, URL, profiles. |
 | `<alta-org>` | An entry's organisation: an employer, institution, issuer or awarder. |
-| `<alta-facts>` | The line under an entry's title: the organisation with its roles and details. |
+| `<alta-facts>` | The line under an entry's title: the organisation with its roles and details. The organisation keeps its own colour; `<alta-org>` changes it. |
 | `<alta-date>` | An entry's date or date range. |
 | `<alta-location>` | An entry's location (the header's location is a contact entry). |
 | `<alta-summary>` | A summary: the CV's, the objective, or an entry's. |

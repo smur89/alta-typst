@@ -4,6 +4,17 @@
 
 #import "theme.typ": _theme
 
+// A part of the CV a user can restyle (#327): `body` labelled
+// `<alta-{name}>`, for `show <alta-{name}>: set text(...)` rules before
+// `alta()`. `none` stays `none`. Every part is labelled through here, so
+// two rules hold everywhere:
+// - The label sits on the raw value, before any styling (`upper()`,
+//   a treatment): a label on styled content doesn't take the rule.
+//   Style around the part, e.g. `_treat(case, _part(...))`.
+// - No space before the label: one renders as a real space after the
+//   part.
+#let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
+
 // Applies a named treatment from the theme (`_theme.treatment`,
 // `section.case`); `"none"` leaves the body as it is.
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
@@ -39,7 +50,7 @@
 // For `show: _content-styles.with(body-size, accent, justify)`.
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
-// the paragraphs labelled `<alta-summary>`, so rows of facts, names or
+// the paragraphs labelled `<alta-prose>`, so rows of facts, names or
 // pills never stretch; Typst then hyphenates it too
 // (`text.hyphenate` is `auto`).
 #let _content-styles(body-size, accent, justify, body) = {
@@ -47,7 +58,7 @@
   let (type: ty, colour, stroke-width: sw, ..) = _theme
   set par(leading: p.leading, spacing: p.spacing)
   show list: set par(justify: justify)
-  show <alta-summary>: set par(justify: justify)
+  show <alta-prose>: set par(justify: justify)
   set list(
     marker: [•],
     indent: 0pt,
@@ -55,11 +66,9 @@
     spacing: l.spacing,
   )
   let (above, rule-gap, below, case, tracking) = section
-  // Each heading's styles are `set` around its body, labelled inside
-  // the rule (`<alta-section-title>`, `<alta-entry-title>`,
-  // `<alta-group-title>`), so a user's `show <label>` rule overrides
-  // any of them: a rule on `heading` itself can't, as this transform
-  // runs inside it (#327).
+  // Each heading's body is a `_part` labelled inside the rule: a user's
+  // rule on `heading` itself can't override what this transform sets,
+  // as it runs inside the heading.
   show heading.where(level: 2): it => block(sticky: true)[
     #v(above * body-size)
     #{
@@ -69,30 +78,30 @@
         weight: ty.headline.weight,
         tracking: tracking,
       )
-      _treat(case, [#it.body<alta-section-title>])
+      _treat(case, _part("section-title", it.body))
     }
     #v(rule-gap * body-size)
     #line(length: 100%, stroke: sw.thick + accent)
     #v(below * body-size)
   ]
-  let sub-heading(role, fill, label) = it => _subheading-block(
+  let sub-heading(role, fill, part) = it => _subheading-block(
     role,
     body-size,
     {
       set text(ty.title.size * body-size, fill: fill, weight: role.weight)
-      [#it.body#label]
+      _part(part, it.body)
     },
   )
   show heading.where(level: 3): sub-heading(
     subheading.entry,
     colour.emphasis,
-    <alta-entry-title>,
+    "entry-title",
   )
   // In the accent, so a group reads apart from the entries under it.
   show heading.where(level: 4): sub-heading(
     subheading.group,
     accent,
-    <alta-group-title>,
+    "group-title",
   )
   body
 }
