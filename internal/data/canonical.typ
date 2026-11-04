@@ -5,7 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
-#import "../design/presets.typ": _accent-roles
+#import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,

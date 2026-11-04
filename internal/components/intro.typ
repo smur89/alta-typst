@@ -2,8 +2,7 @@
 // the slots `sections/intro.typ` maps `objective` and
 // `basics.summary` onto.
 
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state, _colour-state
+#import "../context.typ": _body-size-state, _theme-state
 #import "../util/values.typ": _join-present
 #import "../primitives.typ": _preamble, _prose
 
@@ -16,15 +15,14 @@
   if objective != none or summary != none {
     context {
       let body-size = _body-size-state.get()
-      let (above, inset, gap, below) = _theme.intro
+      let theme = _theme-state.get()
+      let (above, inset, gap, below) = theme.intro
       v(above * body-size)
       _join-present(
         (
           if objective != none {
             block(
-              stroke: (
-                left: _theme.stroke-width.thick + _colour-state.get().accent,
-              ),
+              stroke: (left: theme.stroke-width.thick + theme.colours.accent),
               inset: (left: inset.left * body-size, y: inset.y * body-size),
               _preamble(objective),
             )

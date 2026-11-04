@@ -2,7 +2,7 @@
 // section label and organisation key, so both use `_entry-section`.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/data/cv.typ": _entry-period, _format-location
+#import "../internal/data/cv.typ": _entry-period, _location-parts
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
@@ -22,7 +22,7 @@
     org: _field(entry, org-key),
     org-url: _field(entry, "url"),
     period: _entry-period(entry, format-date, labels.present),
-    location: _format-location(entry),
+    location: _location-parts(entry),
     summary: _field(entry, "summary"),
     highlights: entry.at("highlights", default: ()),
   ),

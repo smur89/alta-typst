@@ -1,8 +1,7 @@
 // The paragraph, list and heading rules for everything `alta()`
-// renders, from `theme.typ`, and `_treat`, which applies the theme's
-// named treatments. `set text` is `_document`'s (`document.typ`).
-
-#import "theme.typ": _theme
+// renders, from the theme `_document` builds, and `_treat`, which
+// applies a named treatment. `set text` is `_document`'s
+// (`document.typ`).
 
 // A part of the CV a user can restyle (#327): `body` labelled
 // `<alta-{name}>`, for `show <alta-{name}>: set text(...)` rules before
@@ -18,7 +17,7 @@
 // be mistaken for a public part.
 #let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
 
-// Applies a named treatment from the theme (`_theme.treatment`,
+// Applies a named treatment (the theme's `treatment`, or its
 // `section.case`); `"none"` leaves the body as it is.
 // `italic` sets the style where `emph` toggles it: a treatment around a
 // `_part` has to be a plain setting, or a user's `style:` rule on the
@@ -62,16 +61,24 @@
   body,
 )
 
-// For `show: _content-styles.with(body-size, colours, justify)`, with
-// the resolved colours (`_colour-roles`).
+// For `show: _content-styles.with(body-size, theme, justify)`, with
+// the built theme (`_theme-for`).
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
 // the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
 // pills never stretch; Typst then hyphenates it too
 // (`text.hyphenate` is `auto`).
-#let _content-styles(body-size, colours, justify, body) = {
-  let (par: p, list: l, section, subheading, ..) = _theme
-  let (type: ty, stroke-width: sw, ..) = _theme
+#let _content-styles(body-size, theme, justify, body) = {
+  let (
+    par: p,
+    list: l,
+    section,
+    subheading,
+    type: ty,
+    stroke-width: sw,
+    colours,
+    ..,
+  ) = theme
   set par(leading: p.leading, spacing: p.spacing)
   show list: set par(justify: justify)
   show <alta-internal-prose>: set par(justify: justify)

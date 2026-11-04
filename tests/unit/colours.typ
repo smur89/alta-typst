@@ -1,14 +1,15 @@
 // Unit checks for how `preferences.theme` and `preferences.colours`
-// resolve, through `_merge-options` and `_colour-roles`, the sequence
+// resolve, through `_merge-options` and `_theme-for`, the sequence
 // `alta()` runs.
 
 #import "/internal/data/options.typ": _merge-options
-#import "/internal/design/presets.typ": _colour-role-names, palettes, themes
-#import "/internal/design/theme.typ": _colour-roles
+#import "/internal/design/presets.typ": palettes, themes
+#import "/internal/data/defaults.typ": _default-preferences
+#import "/internal/design/theme.typ": _colour-role-names, _theme-for, _tokens
 
 #let roles(preferences) = {
   let prefs = _merge-options((:), preferences).prefs
-  _colour-roles(prefs.theme, prefs.colours)
+  _theme-for(prefs.theme, prefs.colours).colours
 }
 
 // Every theme sets every role, and nothing else.
@@ -19,6 +20,11 @@
     message: name,
   )
 }
+
+// The default theme preference is `_tokens`' own colours, which the
+// theme state starts from outside `alta()` (`context.typ` can't read
+// the preferences), so the two can't drift apart.
+#assert.eq(_default-preferences.theme, (colours: _tokens.colours))
 
 // The default is the teal theme; a single-accent theme colours the
 // headings, their rules, the group titles and the name with its accent.
@@ -46,4 +52,14 @@
 #assert.eq(
   roles((accent: palettes.navy, colours: (heading: red))).heading,
   red,
+)
+
+// Any token a theme overrides reaches the built theme, the separators
+// and treatments included: nothing in the look is outside it.
+#let piped = _theme-for((separator: (facts: " | ")), (:))
+#assert.eq(piped.separator.facts, " | ")
+#assert.eq(piped.separator.items, ", ")
+#assert.eq(
+  _theme-for((treatment: (link: "strong")), (:)).treatment.link,
+  "strong",
 )

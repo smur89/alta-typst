@@ -3,8 +3,7 @@
 // them; interests' as a line of text.
 
 #import "../design/styles.typ": _treat
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state, _colour-state
+#import "../context.typ": _body-size-state, _theme-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
@@ -16,7 +15,8 @@
 // optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
   let body-size = _body-size-state.get()
-  let (gap, dash, indent-max) = _theme.keyword-row
+  let theme = _theme-state.get()
+  let (gap, dash, indent-max) = theme.keyword-row
   let row-gap = gap * body-size
   layout(size => for (name, keywords, ..group) in groups {
     let mark = group.at("mark", default: none)
@@ -24,10 +24,10 @@
       tag(name, label: true)
       if mark != none {
         mark
-        _tag-gap(body-size)
+        _tag-gap(theme, body-size)
       }
       text(dash)
-      _tag-gap(body-size)
+      _tag-gap(theme, body-size)
     }
     let indent = measure(label).width
     block(above: 0pt, below: row-gap, par(
@@ -47,12 +47,11 @@
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
 #let _label-rows(groups) = context {
-  let (separator, treatment, ..) = _theme
-  let emphasis = _colour-state.get().emphasis
+  let (separator, treatment, colours) = _theme-state.get()
   par(
     groups
       .map(((name, keywords, ..)) => [#text(
-          fill: emphasis,
+          fill: colours.emphasis,
           _treat(treatment.label, name),
         )#separator.label#keywords.join(separator.items)])
       .join(linebreak()),

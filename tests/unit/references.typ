@@ -2,12 +2,18 @@
 // sections/references.typ.
 
 #import "/internal/data/defaults.typ": _default-labels
+#import "/internal/design/theme.typ": _default-theme
+#import "/internal/primitives.typ": _join-facts
 #import "/internal/util/dates.typ": _format-date
 #import "/sections/references.typ": _attribution
 
-#let attribution(entry, format: "long") = _attribution(
-  entry,
-  v => _format-date(v, format, _default-labels.months),
+// Joined as `_fact-line` would, with the default separators.
+#let attribution(entry, format: "long") = _join-facts(
+  _default-theme.separator,
+  .._attribution(
+    entry,
+    v => _format-date(v, format, _default-labels.months),
+  ),
 )
 
 #assert.eq(

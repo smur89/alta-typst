@@ -4,7 +4,7 @@
 
 #import "/internal/design/styles.typ": _treat
 #import "/internal/util/fields.typ": _field
-#import "/internal/data/cv.typ": _format-location
+#import "/internal/data/cv.typ": _location-parts
 #import "/internal/util/values.typ": (
   _fill-template, _join-present, _present, _present-str,
 )
@@ -33,11 +33,12 @@
 )
 #assert.eq(_fill-template("{name} — CV", (name: "{total}")), "{total} — CV")
 
-// _format-location: strings pass through, dicts collapse in
-// city / region / countryCode order, absent values drop out.
-#assert.eq(_format-location((location: "Cork, Ireland")), "Cork, Ireland")
+// _location-parts: strings pass through whole, dicts give their
+// city / region / countryCode parts in that order, absent values drop
+// out.
+#assert.eq(_location-parts((location: "Cork, Ireland")), ("Cork, Ireland",))
 #assert.eq(
-  _format-location((
+  _location-parts((
     location: (
       city: "Cork",
       region: "Munster",
@@ -45,14 +46,15 @@
       address: "1 Main St",
     ),
   )),
-  "Cork, Munster, IE",
+  ("Cork", "Munster", "IE"),
 )
-#assert.eq(_format-location((location: (city: "", countryCode: "IE"))), "IE")
-#assert.eq(_format-location((location: (postalCode: "T12"))), none)
-#assert.eq(_format-location((location: "")), none)
-#assert.eq(_format-location((:)), none)
+#assert.eq(_location-parts((location: (city: "", countryCode: "IE"))), ("IE",))
+#assert.eq(_location-parts((location: (postalCode: "T12"))), ())
+#assert.eq(_location-parts((location: "")), ())
+#assert.eq(_location-parts((:)), ())
 
 // _treat: a named treatment applies its function; "none" is identity.
 #assert.eq(_treat("upper", "ab"), "AB")
 #assert.eq(_treat("none", "ab"), "ab")
 #assert.eq(_treat("emph", "ab").func(), emph)
+

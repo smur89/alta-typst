@@ -1,7 +1,7 @@
 // Certificates: the date at the title's right edge, then the issuer
 // and credential ID on one line, so several certs stay short.
 
-#import "../internal/util/dates.typ": _format-date-span
+#import "../internal/util/dates.typ": _date-span
 #import "../internal/util/fields.typ": _field
 #import "../internal/components/entry.typ": _entry
 #import "../internal/primitives.typ": _divider-space
@@ -17,7 +17,7 @@
     url: _field(cert, "url"),
     org: _field(cert, "issuer"),
     details: (_field(cert, "credentialId"),),
-    period: _format-date-span(
+    period: _date-span(
       _field(cert, "date"),
       _field(cert, "expiryDate"),
       format-date,
