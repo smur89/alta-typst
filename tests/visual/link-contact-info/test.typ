@@ -8,30 +8,12 @@
 //   3. Bool `true` (default behaviour, asserted explicitly) — every
 //      channel linked.
 //
-// No reference images: the documents differ only in their links, so
-// `assert-links` checks each document's instead. `printFullUrls`,
-// which changes what an unlinked entry shows, is print-full-urls.
+// `printFullUrls`, which changes what an unlinked entry shows, is
+// print-full-urls.
 
 #import "/lib.typ": alta
 #import "/tests/visual/_links.typ": assert-links
-
-// Also print-full-urls' data.
-#let cv = (
-  basics: (
-    name: "Jane Doe",
-    label: "Software Engineer",
-    email: "jane@example.com",
-    phone: "+353 1 555 0100",
-    location: "Dublin, Ireland",
-    profiles: (
-      (
-        network: "GitHub",
-        username: "janedoe",
-        url: "https://github.com/janedoe",
-      ),
-    ),
-  ),
-)
+#import "/tests/fixtures/contacts.typ": cv
 
 #alta(cv, preferences: (linkContactInfo: false))
 #assert-links(())

@@ -11,9 +11,6 @@
 //   7.   Custom (non-built-in) URL template — Yandex Maps,
 //        demonstrates that the template doesn't have to come from
 //        `maps-providers`.
-//
-// No reference images: the documents differ only in their links, so
-// `assert-links` checks each document's instead.
 
 #import "/internal/data/defaults.typ": maps-providers
 #import "/lib.typ": alta

@@ -3,6 +3,6 @@
 // email, phone and location keep their values.
 
 #import "/lib.typ": alta
-#import "/tests/visual/link-contact-info/test.typ": cv
+#import "/tests/fixtures/contacts.typ": cv
 
 #alta(cv, preferences: (linkContactInfo: false, printFullUrls: true))

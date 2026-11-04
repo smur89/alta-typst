@@ -48,8 +48,6 @@ render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1
 # consumer) skip the page-1 PNG sweep.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
 EXAMPLES_PNG  := $(filter-out examples/example-full.typ examples/preview-frames.typ,$(EXAMPLES))
-# Each tests/visual/<name>/ is a tytanic test: `test.typ` and its
-# `ref/` page PNGs.
 TESTS         := $(wildcard tests/visual/*/test.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 # `assert`-based checks of the side-effect-free helpers; underscore files are
@@ -80,11 +78,11 @@ PACKAGE_FILES := \
 .PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-test-visual docker-preview-images docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome / Lato versions
+# bump the tag here when bumping Typst / FontAwesome / Lato / tytanic versions
 # in the Dockerfile (image.yml derives the same tag and pushes it).
 DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0-tt-0.4.1 ## the pinned CI image
 
-# `--platform linux/amd64` keeps output byte-identical to CI on any
+# `--platform linux/amd64` keeps renders identical on any
 # host (Apple Silicon emulates: slow but reproducible).
 #
 # The image bakes no @preview cache and `-u` leaves HOME unwritable

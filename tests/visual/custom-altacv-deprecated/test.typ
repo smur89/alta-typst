@@ -1,12 +1,12 @@
 // altacv's non-spec fields in their deprecated top-level forms
 // (`focusAreas`, `languages[].rating`, `awards[].url`) render exactly
-// as their `custom.altacv` forms do (ref.typ, from custom-altacv). A
+// as their `custom.altacv` forms do (ref.typ). A
 // render can't show the award's link, so `assert-links` checks it.
 
 #import "/lib.typ": alta
 #import "/tests/visual/_links.typ": assert-links
+#import "/tests/fixtures/custom-altacv.typ": basics
 
-#let basics = (name: "Jane Doe", email: "jane@example.com")
 #alta((
   basics: basics,
   focusAreas: (

@@ -10,9 +10,6 @@
 //   3. `basics.url` alongside a `basics.profiles` "Website" entry —
 //      both render (the template doesn't dedupe; semantically distinct
 //      "my homepage" vs "a Website profile entry").
-//
-// No reference images: the documents differ only in their links, so
-// `assert-links` checks each document's instead.
 
 #import "/lib.typ": alta
 #import "/tests/visual/_links.typ": assert-links
