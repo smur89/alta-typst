@@ -9,10 +9,10 @@
 //      channel linked.
 //
 // No reference images: the documents differ only in their links, so
-// `assert-links` checks each page's instead.
+// `assert-links` checks each document's instead.
 
 #import "/lib.typ": alta
-#import "../_links.typ": assert-links
+#import "/tests/visual/_links.typ": assert-links
 
 #let cv = (
   basics: (
@@ -32,7 +32,7 @@
 )
 
 #alta(cv, preferences: (linkContactInfo: false))
-#assert-links(1, ())
+#assert-links(())
 
 #pagebreak()
 
@@ -41,12 +41,12 @@
   // stay linked. Omitted channels default to true.
   linkContactInfo: (phone: false, location: false),
 ))
-#assert-links(2, ("mailto:jane@example.com", "https://github.com/janedoe"))
+#assert-links(("mailto:jane@example.com", "https://github.com/janedoe"))
 
 #pagebreak()
 
 #alta(cv, preferences: (linkContactInfo: true))
-#assert-links(3, (
+#assert-links((
   "mailto:jane@example.com",
   "tel:+35315550100",
   "https://www.google.com/maps?q=Dublin%2C%20Ireland",

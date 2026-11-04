@@ -1,14 +1,15 @@
 # Installs the toolchain every CI job that compiles the package needs:
 # the Typst binary, the Lato body font, and the FontAwesome desktop
-# OTFs that resolve glyphs for `@preview/fontawesome`. Extracted into
-# a composite action so every job that builds PDFs shares a single
-# source of truth instead of duplicating the install block.
+# OTFs that resolve glyphs for `@preview/fontawesome`, plus tytanic for
+# a job that runs the visual tests. Extracted into a composite action so
+# every job that builds PDFs shares a single source of truth instead of
+# duplicating the install block.
 #
 # The FA zip is restored from cache when available — keyed on the
 # version input, so bumping `FA_VERSION` in the workflow invalidates
 # the cache automatically.
 name: Setup Typst environment
-description: Install Typst, Lato, and FontAwesome desktop OTFs on the runner.
+description: Install Typst, Lato, FontAwesome desktop OTFs and optionally tytanic on the runner.
 
 inputs:
   typst-version:
@@ -17,6 +18,14 @@ inputs:
   fa-version:
     description: FontAwesome desktop release version (e.g. 7.0.0).
     required: true
+  tytanic-version:
+    description: tytanic release version (e.g. 0.4.1); empty skips the install.
+    required: false
+    default: ''
+  tytanic-sha256:
+    description: SHA-256 of that release's x86_64 Linux tarball.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -75,3 +84,16 @@ runs:
           --strip-components=1 \
           -C /usr/local/bin \
           typst-x86_64-unknown-linux-musl/typst
+
+    # Checked against its SHA-256, as the pinned image installs it.
+    - name: Install tytanic
+      if: inputs.tytanic-version != ''
+      shell: bash
+      env:
+        TYTANIC_VERSION: ${{ inputs.tytanic-version }}
+        TYTANIC_SHA256: ${{ inputs.tytanic-sha256 }}
+      run: |
+        curl -sSfL -o /tmp/tt.tar.xz \
+          "https://github.com/typst-community/tytanic/releases/download/v${TYTANIC_VERSION}/tytanic-x86_64-unknown-linux-musl.tar.xz"
+        echo "${TYTANIC_SHA256}  /tmp/tt.tar.xz" | sha256sum -c -
+        sudo tar -xJf /tmp/tt.tar.xz -C /usr/local/bin --strip-components=1 tytanic-x86_64-unknown-linux-musl/tt

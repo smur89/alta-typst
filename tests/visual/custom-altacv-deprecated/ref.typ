@@ -1,4 +1,4 @@
 #import "/lib.typ": alta
-#import "../custom-altacv/test.typ": namespaced
+#import "/tests/visual/custom-altacv/test.typ": namespaced
 
 #alta(namespaced)

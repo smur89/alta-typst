@@ -18,8 +18,9 @@ env:
   # are made in that image (`make docker-pdfs`) and the lint job
   # compares against them on its runner.
   TYPST_VERSION: v0.15.1
-  # The Dockerfile's TYTANIC_VERSION + TYTANIC_SHA256; it bundles its
-  # own Typst, which must be TYPST_VERSION.
+  # The Dockerfile's TYTANIC_VERSION + TYTANIC_SHA256, for the same
+  # reason. Each release bundles its own Typst, which must be
+  # TYPST_VERSION.
   TYTANIC_VERSION: 0.4.1
   TYTANIC_SHA256: cf262206b2c89f4d74690b5c825d5ffce1f633eb2900948b50cc006dccebe32c
   # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
@@ -58,18 +59,13 @@ jobs:
         with:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
+          tytanic-version: ${{ env.TYTANIC_VERSION }}
+          tytanic-sha256: ${{ env.TYTANIC_SHA256 }}
 
-      - name: Install tytanic
-        run: |
-          curl -sSfL -o /tmp/tt.tar.xz \
-            "https://github.com/typst-community/tytanic/releases/download/v${TYTANIC_VERSION}/tytanic-x86_64-unknown-linux-musl.tar.xz"
-          echo "${TYTANIC_SHA256}  /tmp/tt.tar.xz" | sha256sum -c -
-          sudo tar -xJf /tmp/tt.tar.xz -C /usr/local/bin --strip-components=1 tytanic-x86_64-unknown-linux-musl/tt
-          tt --version
-
-      # setup-typst's FONT_PATHS pins the fonts the references were
-      # made with. The next step's `!cancelled()` reports its failures
-      # in the same run.
+      # On the runner, not in DOCKER_IMAGE: a PR that bumps the image
+      # names a tag only published once it merges. setup-typst's
+      # FONT_PATHS pins the fonts the references were made with. The
+      # next step's `!cancelled()` reports its failures in the same run.
       - name: Run visual tests
         run: make test-visual
 
@@ -210,8 +206,8 @@ jobs:
             ${PCHECK_IMAGE} \
             check @preview/${PACKAGE_NAME}:${PKG_VERSION}
 
-  # Raster output only reproduces inside the pinned image (unlike the
-  # fixture PDFs), so the tracked preview PNGs are checked there.
+  # Raster output only reproduces with the pinned fonts, so the
+  # tracked preview PNGs are checked in the pinned image.
   # Add `preview-images-in-sync` to branch protection to make it
   # blocking.
   preview-image-drift:

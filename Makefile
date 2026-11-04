@@ -94,7 +94,11 @@ DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /wor
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
   -e FONT_PATHS=/usr/share/fonts/lato:/usr/share/fonts/fontawesome
 
-all: pdfs cv test-refs thumbnail ## build every example PDF, the cv preview and the visual tests' references
+# `make` in the image. `-u` keeps outputs owned by the host user rather
+# than root on Linux.
+DOCKER_MAKE = $(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make
+
+all: pdfs cv thumbnail ## build every example PDF and the cv preview
 
 preview-gif: examples/preview.gif ## build the animated README hero (needs ffmpeg)
 
@@ -242,20 +246,17 @@ test-template: $(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 
 # tytanic compares each tests/visual/<name>/ render against its
 # committed ref/*.png, and compile-checks the template as `@template`,
-# its `@preview/altacv` import resolved to this tree. Pixels only: a
-# change to links, tags or metadata alone passes, so those are pinned
-# by `test-unit`. tytanic skips system fonts by default, so with
-# FONT_PATHS unset it opts back in; the references only match the
-# pinned Lato and FontAwesome builds, though.
-TT_FONTS = $(if $(strip $(FONT_PATHS)),,--use-system-fonts)
-
+# its `@preview/altacv` import resolved to this tree. It reads only
+# FONT_PATHS' fonts, never the system's: the references match only the
+# pinned Lato and FontAwesome builds, so run these in the image
+# (`docker-test-visual`, `docker-pdfs`) unless FONT_PATHS has them.
 test-visual: ## compare tests/visual/ renders with their reference PNGs (tytanic)
-	$(TT) run --no-fail-fast $(TT_FONTS)
+	$(TT) run --no-fail-fast
 
 # Rewrites only the references whose render changed, so an unchanged
 # page keeps its bytes.
 test-refs: ## update the tests/visual/ reference PNGs (tytanic)
-	$(TT) update $(TT_FONTS)
+	$(TT) update
 
 # Fail if any tracked render under DRIFT_PATHS differs from HEAD. The
 # CI drift gates run this right after regenerating with `make -B` (see
@@ -308,8 +309,8 @@ package-tarball: ## build the release tarball from the staged package
 	@test -n "$(PACKAGE_TARBALL)" || { echo "package-tarball: PACKAGE_TARBALL=/path.tar.gz required" >&2; exit 2; }
 	tar czf "$(PACKAGE_TARBALL)" $(PACKAGE_FILES)
 
-# Also removes tracked renders (examples/cv.png, thumbnail.png, the
-# fixture PDFs, …); `git checkout` restores them.
+# Also removes tracked renders (examples/cv.png, thumbnail.png, …);
+# `git checkout` restores them.
 clean: ## remove generated PDFs and PNGs
 	rm -f $(PDFS) $(PNGS) examples/cv.pdf examples/cv.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
@@ -323,21 +324,20 @@ help: ## list these targets and the variables you can override
 # change that affects rendering (icon glyphs, lib.typ, sections/*.typ,
 # font setup) — CI's visual tests fail otherwise. `-B` because
 # a merge or checkout gives tracked outputs fresh mtimes, so make
-# would skip them and the stale bytes surface later as CI drift.
-# `-u` keeps outputs owned by the host user rather than root on Linux.
-docker-pdfs: ## regenerate every committed render in the pinned CI image
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B all
+# would skip them and commit stale bytes.
+docker-pdfs: ## regenerate every committed render and test reference in the pinned CI image
+	$(DOCKER_MAKE) -B all test-refs
 
 # The visual tests against the pinned fonts, from any host.
 docker-test-visual: ## run the visual tests in the pinned CI image
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make test-visual
+	$(DOCKER_MAKE) test-visual
 
 # Just the two tracked preview PNGs. Raster output is
-# environment-sensitive (unlike the fixture PDFs), so the pinned image
+# environment-sensitive, so the pinned image
 # is their only canonical source; the `preview-images-in-sync` CI gate
 # runs this same target. `-B` for the same mtime reason as above.
 docker-preview-images: ## regenerate cv.png + thumbnail.png in the pinned image
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B cv thumbnail
+	$(DOCKER_MAKE) -B cv thumbnail
 
 # Interactive shell in the CI image. Runs as root (no `-u`) so you can
 # `apk add` debugging tools.

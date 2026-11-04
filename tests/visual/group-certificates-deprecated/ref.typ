@@ -1,4 +1,4 @@
 #import "/lib.typ": alta
-#import "../certificates-metadata/test.typ": cv
+#import "/tests/visual/certificates-metadata/test.typ": cv
 
 #alta(cv)

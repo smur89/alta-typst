@@ -13,11 +13,11 @@
 //        `maps-providers`.
 //
 // No reference images: the documents differ only in their links, so
-// `assert-links` checks each page's instead.
+// `assert-links` checks each document's instead.
 
 #import "/internal/data/defaults.typ": maps-providers
 #import "/lib.typ": alta
-#import "../_links.typ": assert-links
+#import "/tests/visual/_links.typ": assert-links
 
 #alta(
   (
@@ -29,7 +29,7 @@
     ),
   ),
 )
-#assert-links(1, (
+#assert-links((
   "mailto:default@example.com",
   "https://www.google.com/maps?q=Berlin%2C%20Germany",
 ))
@@ -47,7 +47,7 @@
   ),
   preferences: (mapsProvider: maps-providers.apple),
 )
-#assert-links(2, (
+#assert-links((
   "mailto:apple@example.com",
   "https://maps.apple.com/?q=Cupertino%2C%20California",
 ))
@@ -65,7 +65,7 @@
   ),
   preferences: (mapsProvider: maps-providers.bing),
 )
-#assert-links(3, (
+#assert-links((
   "mailto:bing@example.com",
   "https://www.bing.com/maps?q=Redmond%2C%20Washington",
 ))
@@ -83,7 +83,7 @@
   ),
   preferences: (mapsProvider: maps-providers.duckduckgo),
 )
-#assert-links(4, (
+#assert-links((
   "mailto:ddg@example.com",
   "https://duckduckgo.com/?q=Paoli%2C%20Pennsylvania&iaxm=maps",
 ))
@@ -101,7 +101,7 @@
   ),
   preferences: (mapsProvider: maps-providers.osm),
 )
-#assert-links(5, (
+#assert-links((
   "mailto:osm@example.com",
   "https://www.openstreetmap.org/search?query=Dublin%2C%20Ireland",
 ))
@@ -119,7 +119,7 @@
   ),
   preferences: (mapsProvider: none),
 )
-#assert-links(6, ("mailto:nolink@example.com",))
+#assert-links(("mailto:nolink@example.com",))
 
 #pagebreak()
 
@@ -134,7 +134,7 @@
   ),
   preferences: (mapsProvider: "https://yandex.com/maps/?text={q}"),
 )
-#assert-links(7, (
+#assert-links((
   "mailto:custom@example.com",
   "https://yandex.com/maps/?text=Yerevan%2C%20Armenia",
 ))

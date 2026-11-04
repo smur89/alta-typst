@@ -27,7 +27,6 @@ path = "template"
 entrypoint = "cv.typ"
 thumbnail = "thumbnail.png"
 
-# Visual regression tests (tytanic, `make test-visual`): one directory
-# per test under `tests` with a `test.typ` and its `ref/` page PNGs.
+# tytanic's tests (`make test-visual`).
 [tool.tytanic]
 tests = "tests/visual"

@@ -21,7 +21,7 @@
 // the displayed value, shows each case reaching the contact bar.
 
 #import "/lib.typ": alta
-#import "../_links.typ": assert-links
+#import "/tests/visual/_links.typ": assert-links
 
 #alta((
   basics: (
@@ -31,7 +31,7 @@
     location: "Dublin, Ireland",
   ),
 ))
-#assert-links(1, (
+#assert-links((
   "mailto:string@example.com",
   "https://www.google.com/maps?q=Dublin%2C%20Ireland",
 ))
@@ -46,7 +46,7 @@
     location: (city: "Dublin", region: "Leinster", countryCode: "IE"),
   ),
 ))
-#assert-links(2, (
+#assert-links((
   "mailto:full@example.com",
   "https://www.google.com/maps?q=Dublin%2C%20Leinster%2C%20IE",
 ))
@@ -61,7 +61,7 @@
     location: (city: "Zürich", countryCode: "CH"),
   ),
 ))
-#assert-links(3, (
+#assert-links((
   "mailto:partial@example.com",
   "https://www.google.com/maps?q=Z%C3%BCrich%2C%20CH",
 ))
@@ -76,7 +76,7 @@
     location: (city: "Tokyo"),
   ),
 ))
-#assert-links(4, (
+#assert-links((
   "mailto:city@example.com",
   "https://www.google.com/maps?q=Tokyo",
 ))
@@ -97,7 +97,7 @@
     ),
   ),
 ))
-#assert-links(5, (
+#assert-links((
   "mailto:postal@example.com",
   "https://www.google.com/maps?q=Dublin%2C%20Leinster%2C%20IE",
 ))
@@ -112,4 +112,4 @@
     location: (city: "", region: "", countryCode: ""),
   ),
 ))
-#assert-links(6, ("mailto:empty@example.com",))
+#assert-links(("mailto:empty@example.com",))

@@ -79,19 +79,18 @@ Pick the test kind by what the fixture checks:
 
 - **Persistent** (a `ref/` directory): how something looks. Keep these few pages each — every page is a committed image.
 - **Ephemeral** (a `ref.typ` instead of `ref/`): that one input renders the same as another, such as a deprecated form and its replacement. tytanic renders both and compares, so nothing is committed (`tests/visual/custom-altacv-deprecated`).
-- **Compile-only** (neither): behaviour a render can't show. A linked and a plain entry look the same, so `assert-links` (`tests/visual/_links.typ`) pins each page's link destinations (`tests/visual/link-contact-info`). Formatting that a helper computes belongs in `tests/unit/`.
+- **Compile-only** (neither): behaviour a render can't show. A linked and a plain entry look the same, so `assert-links` (`tests/visual/_links.typ`) pins each document's link destinations (`tests/visual/link-contact-info`). Formatting that a helper computes belongs in `tests/unit/`.
 
 References only reproduce with the pinned Lato and FontAwesome builds; a host with other versions fails on the icons. So any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the references regenerated inside the pinned CI image:
 
 ```sh
-make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all` (full rebuild; `tt update` rewrites only the references whose render changed)
-make docker-test-visual # the visual tests, in the same image
+make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all test-refs` (a full rebuild; `tt update` rewrites only the references whose render changed)
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-A new persistent test needs an empty `ref/` directory before `make docker-pdfs` fills it; without one, tytanic treats it as compile-only.
+Create a test with `tt new <name>`, which `make docker-shell` has (`--type ephemeral` or `--type compile-only` for the others), then replace its `test.typ` and run `make docker-pdfs` for the references.
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION`, `FA_VERSION` and `TYTANIC_VERSION` must match it: CI's lint job runs the visual tests on its runner against the references made in the image.
+`--platform linux/amd64` is forced so the renders are identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION`, `FA_VERSION` and `TYTANIC_VERSION` must match it: CI's lint job runs the visual tests on its runner against the references made in the image.
 
 If you'd rather drive Typst directly, the manual incantations are:
 

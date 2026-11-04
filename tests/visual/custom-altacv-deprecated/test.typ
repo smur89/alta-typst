@@ -4,7 +4,7 @@
 // render can't show the award's link, so `assert-links` checks it.
 
 #import "/lib.typ": alta
-#import "../_links.typ": assert-links
+#import "/tests/visual/_links.typ": assert-links
 
 #let basics = (name: "Jane Doe", email: "jane@example.com")
 #alta((
@@ -27,4 +27,4 @@
   ),
 ))
 
-#assert-links(1, ("mailto:jane@example.com", "https://example.com/best-paper"))
+#assert-links(("mailto:jane@example.com", "https://example.com/best-paper"))
