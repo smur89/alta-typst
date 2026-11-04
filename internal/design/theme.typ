@@ -138,9 +138,9 @@
       gap: sp.x-small,
       below: sp.x-small,
     ),
-    // `radius` is geometry; `row-pad` pads a language row's dots
-    // evenly, so the centred dots keep the row its height.
-    rating: (radius: 0.45, gap: sp.x-small, row-pad: 0.12),
+    // `radius` and `row-height` (every rating row's, dots or text) are
+    // geometry.
+    rating: (radius: 0.45, gap: sp.x-small, row-height: 1.14),
     // `glyph`: the glyph's share of its box.
     icon: (glyph: 0.9, gap: sp.x-small),
   )

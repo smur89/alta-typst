@@ -17,9 +17,11 @@
 )
 
 // A label with `trailing` pushed to the right edge, then a line
-// break: the row every language renders, dots or not, so mixed rows
-// align.
+// break: the row every language renders, dots or not. A strut of
+// `rating.row-height`, centred as the dots are, gives every row the
+// same height, so mixed rows align.
 #let _label-row(label, trailing) = {
+  _inline(box(height: _theme.rating.row-height * 1em))
   text(label)
   h(1fr)
   trailing
@@ -34,11 +36,11 @@
   // The state is validated as `maxRating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  let (radius, gap, row-pad) = _theme.rating
+  let (radius, gap, ..) = _theme.rating
   let dot(fill) = box(circle(radius: radius * body-size, fill: fill))
   _label-row(
     label,
-    box(inset: (y: row-pad * body-size), _inline(
+    _inline(
       range(1, max-rating + 1)
         .map(i => dot(
           if value >= i { accent } else if value > i - 1 {
@@ -46,7 +48,7 @@
           } else { _theme.colour.border },
         ))
         .join(h(gap * body-size)),
-    )),
+    ),
   )
 }
 
