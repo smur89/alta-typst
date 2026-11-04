@@ -40,7 +40,7 @@
 // into the resolved `linkContactInfo` config. Pure data, no `context`.
 // An empty string counts as absent, so it never renders a bare icon
 // behind a dead `mailto:` / `tel:` link.
-#let _contact-entries(basics, maps-provider) = {
+#let _contact-entries(basics, maps-provider, location-alt: none) = {
   let email = _field(basics, "email")
   let phone = _field(basics, "phone")
   // One collapsed value feeds both display and maps link, so they
@@ -65,6 +65,7 @@
       (
         channel: "location",
         icon: "location",
+        alt: location-alt,
         value: location,
         url: if maps-provider != none {
           // A plain replace, not `_fill-template`: a provider's other
@@ -94,11 +95,13 @@
 // The contact bar's `(channel, icon, value, url)` entries (plus `alt`
 // for profiles), each with a `url` only where `linkContactInfo` links
 // its channel.
-#let _linked-contacts(basics, prefs) = {
+#let _linked-contacts(basics, prefs, location-alt: none) = {
   let link-config = _resolve-link-config(prefs.linkContactInfo)
-  _contact-entries(basics, prefs.mapsProvider).map(e => (
-    e + (url: if link-config.at(e.channel) { e.url })
-  ))
+  _contact-entries(basics, prefs.mapsProvider, location-alt: location-alt).map(
+    e => (
+      e + (url: if link-config.at(e.channel) { e.url })
+    ),
+  )
 }
 
 // The contact bar's rows: contact details on one line, profiles on
@@ -108,13 +111,15 @@
   c => if c.channel == "profiles" { "profiles" } else { "details" },
 ).values()
 
-#let _header(cv, (prefs, ..)) = {
+#let _header(cv, (labels, prefs, ..)) = {
   let basics = cv.basics
   let image = _header-image(basics.at("image", default: none))
   _page-header(
     name: basics.name,
     headline: _field(basics, "label"),
-    contacts: _contact-rows(_linked-contacts(basics, prefs)),
+    contacts: _contact-rows(
+      _linked-contacts(basics, prefs, location-alt: labels.location),
+    ),
     text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.

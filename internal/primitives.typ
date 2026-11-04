@@ -63,9 +63,9 @@
 
 // `body` led by its icon, kept on one line; absent bodies render
 // nothing, so no stray icon.
-#let _icon-fact(icon-name, body) = if _present(body) {
+#let _icon-fact(icon-name, body, alt: none) = if _present(body) {
   box({
-    icon(icon-name)
+    icon(icon-name, alt: alt)
     body
   })
 }

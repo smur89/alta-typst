@@ -46,6 +46,12 @@
   _contact-entries((location: "Cork"), none).first().url,
   none,
 )
+#assert.eq(
+  _contact-entries((location: "Cork"), none, location-alt: "Location")
+    .first()
+    .alt,
+  "Location",
+)
 
 // _profile-entry: aliases resolve, `alt` keeps the user's spelling,
 // a profile without `url` shows the username unlinked, one without a
