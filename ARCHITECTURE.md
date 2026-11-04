@@ -44,13 +44,13 @@ A section reads fields and fills a component's slots:
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: format-date(_field(award, "date")),
+    period: (format-date(_field(award, "date")),),
     summary: _field(award, "summary"),
   ),
 )
 ```
 
-Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`), the CV `owner` and `owners` (every spelling of the owner's name, normalised). A section doesn't check or filter its input: step 2 checked every field it draws and dropped the entries that don't render, so it only maps values onto slots. A few fields are read leniently instead, by design; the `_section-specs` comment lists them. Column sections are registered twice: their spec (field, default column, accepted entries, field types, which entries render, other checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly, with the same `(cv, ctx)`. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`), the CV `owner` and `owners` (every spelling of the owner's name, normalised). A section doesn't check or filter its input: step 2 checked every field it draws and dropped the entries that don't render, so it only maps values onto slots. A few fields are read leniently instead, by design; the `_section-specs` comment lists them. Column sections are registered twice: their spec (field, default column, accepted entries, field types, which entries render, other checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly, with the same `(cv, ctx)`. Facts reach the entry components as data, not joined lines: `_entry` takes its organisation as a value and its roles, details, period, location, subtitle, keywords-lead and keywords as parts or fact groups, `_bib-entry` its authors, citation and identifiers as records, and each does every join with the theme's separators. A section may still build styled leaf content from primitives to pass as a slot, e.g. the header's portrait and contact values (the location joined there) and the references' on-request note.
 
 ## The look
 

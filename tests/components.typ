@@ -97,14 +97,14 @@
   url: "https://example.com",
   org: "Acme",
   org-url: "https://acme.example.com",
-  subtitle: "Platform team",
+  subtitle: (("Platform team",),),
   // The empty role and keyword drop out rather than leave a separator.
   roles: ("", "Lead", "Architect"),
   period: ("Jan 2022", "Present"),
   location: ("Dublin", "IE"),
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
-  keywords-lead: "First class",
+  keywords-lead: (("First class",),),
   keywords: ("Scala", "", "Kafka"),
 ))
 

@@ -107,28 +107,29 @@
 //
 // The facts line under the title joins the organisation (in the
 // accent), the person's `roles` and short `details` (a credential ID)
-// with ` · `; the `period` (a range's sides, `_date-span`) and the
+// with the theme's separators; the `period` (a range's sides, `_date-span`) and the
 // `location` (its parts) sit at the right edge beside the title and
 // the facts line, each joined with the theme's separator. Without a
 // title, the facts line leads.
 //
 // The `keywords` (a project's stack, education's courses) end the
-// entry as one line joined with ` · `; `keywords-lead` is a line of
-// its own above them (education's area and score), so it doesn't read as one
-// of them.
+// entry as one line; `keywords-lead` is a line of its own above them
+// (education's area and score), so it doesn't read as one of them.
+// `subtitle` and `keywords-lead` take fact groups, as `_fact-line`
+// does.
 #let _entry(
   title: none,
   url: none,
   org: none,
   org-url: none,
-  subtitle: none,
+  subtitle: (),
   roles: (),
   period: (),
   location: (),
   details: (),
   summary: none,
   highlights: (),
-  keywords-lead: none,
+  keywords-lead: (),
   keywords: (),
 ) = {
   let org = if _present(org) {
@@ -141,12 +142,12 @@
     _range(period),
     _fact-line(location),
   )
-  _subtitle(subtitle)
+  _subtitle(_fact-line(..subtitle))
   _preamble(summary)
   for bullet in highlights [- #bullet]
   _join-present(
     (
-      keywords-lead,
+      _fact-line(..keywords-lead),
       _fact-line(..keywords.map(k => (k,))),
     ),
     [\ ],

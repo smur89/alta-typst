@@ -4,7 +4,6 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _entry-period, _location-parts
-#import "../internal/primitives.typ": _fact-line
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
@@ -22,7 +21,7 @@
       period: _entry-period(edu, format-date, labels.present),
       location: _location-parts(edu),
       summary: _field(edu, "summary"),
-      keywords-lead: _fact-line(
+      keywords-lead: (
         (if study-type != none { area },),
         (_field(edu, "score"),),
       ),
