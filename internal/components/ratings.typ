@@ -4,6 +4,7 @@
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
+#import "../design/styles.typ": _inline
 #import "../design/theme.typ": _theme
 #import "../context.typ": _accent-state, _body-size-state, _max-rating-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
@@ -33,20 +34,19 @@
   // The state is validated as `maxRating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  let (radius, baseline, gap) = _theme.rating
-  let dot(fill) = box(
-    baseline: baseline * body-size,
-    circle(radius: radius * body-size, fill: fill),
-  )
+  let (radius, gap) = _theme.rating
+  let dot(fill) = box(circle(radius: radius * body-size, fill: fill))
   _label-row(
     label,
-    range(1, max-rating + 1)
-      .map(i => dot(
-        if value >= i { accent } else if value > i - 1 {
-          _half-fill(accent)
-        } else { _theme.colour.border },
-      ))
-      .join(h(gap * body-size)),
+    _inline(
+      range(1, max-rating + 1)
+        .map(i => dot(
+          if value >= i { accent } else if value > i - 1 {
+            _half-fill(accent)
+          } else { _theme.colour.border },
+        ))
+        .join(h(gap * body-size)),
+    ),
   )
 }
 

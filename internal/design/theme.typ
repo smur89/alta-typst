@@ -139,7 +139,7 @@
       below: sp.x-small,
     ),
     // `radius` and `baseline` are geometry.
-    rating: (radius: 0.45, baseline: -0.25, gap: sp.x-small),
+    rating: (radius: 0.45, gap: sp.x-small),
     // `glyph`: the glyph's share of its box.
     icon: (glyph: 0.9, gap: sp.x-small),
   )

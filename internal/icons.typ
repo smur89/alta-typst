@@ -7,6 +7,7 @@
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
+#import "design/styles.typ": _inline
 #import "design/theme.typ": _theme
 #import "context.typ": _body-size-state
 
@@ -42,20 +43,22 @@
   }
   let glyph = _icon-glyphs.at(name)
   let solid = name in _solid-names
-  let mark = box(
-    baseline: shift,
+  // Laid out by its ink (`bounds`), not the icon font's metrics, so
+  // `_inline` centres what's drawn on the cap height; then moved by
+  // `shift`.
+  let mark = box(baseline: shift, _inline(to: "cap-height", box(
     width: resolved-size,
     height: resolved-size,
-    align(
-      center + horizon,
+    align(center + horizon, {
+      set text(top-edge: "bounds", bottom-edge: "bounds")
       fa-icon(
         glyph,
         solid: solid,
         size: _theme.icon.glyph * resolved-size,
         fill: resolved-fill,
-      ),
-    ),
-  )
+      )
+    }),
+  )))
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))
   }

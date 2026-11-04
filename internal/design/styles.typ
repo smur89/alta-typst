@@ -9,6 +9,21 @@
 #let _treatments = (emph: emph, strong: strong, upper: upper, "none": b => b)
 #let _treat(name, body) = _treatments.at(name)(body)
 
+// `body`, an inline graphic, centred on the surrounding text, so it
+// lines up whatever the font, size or neighbours: on the x-height for
+// geometric marks (rating dots), on the cap height (`to:
+// "cap-height"`) for glyph icons, which are drawn to sit with
+// capitals. Measured in context, so no per-site offset is needed.
+#let _inline(body, to: "x-height") = context {
+  let height = measure(body).height
+  let reference = measure(text(
+    top-edge: to,
+    bottom-edge: "baseline",
+    "x",
+  )).height
+  box(baseline: (height - reference) / 2, body)
+}
+
 // The block a `===` / `====` heading sits in: its `subheading` role's
 // spacing, kept with what follows. An entry's first lines
 // (`_entry-head`) sit in the same block, so the two can't drift.
