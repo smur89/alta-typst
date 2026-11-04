@@ -41,7 +41,6 @@
 #let variant(body) = block(breakable: false, below: 2.5em, body)
 #let header = _page-header.with(
   name: "Jane Doe",
-  pronouns: "she/her",
   headline: "Staff Engineer",
   contacts: (contacts.slice(0, 2), contacts.slice(2)),
   uppercase: true,

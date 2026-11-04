@@ -202,7 +202,7 @@ ISO 8601 strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume cano
 
 ### `basics`
 
-`basics.pronouns` (JSON Resume 1.4.0, e.g. `"she/her"`, `"they/them"`) renders after the name in parentheses — `JANE DOE (she/her)` — when `preferences.showPronouns` is `true`. It's opt-in, so a shared `resume.json` that carries pronouns doesn't show them unless the CV asks. Pronouns are not part of the name, so `preferences.uppercaseName` leaves them as written, and they stay out of the PDF Author metadata. Empty or missing pronouns render nothing.
+`basics.pronouns` is accepted and ignored. JSON Resume 1.4.0 shipped it by accident and [removes it](https://github.com/jsonresume/jsonresume.org/pull/629) after 1.7.0, so altacv no longer renders it; a `resume.json` that still carries it compiles unchanged.
 
 `basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with a generic `link` icon, shown without its scheme (`https://jane.dev/` reads `jane.dev`) but linking the full URL, alongside `email`, `phone`, `location`, and `profiles`. It is distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
 
@@ -426,7 +426,6 @@ Override any subset of the keys below.
 | Key | Default | Effect |
 |---|---|---|
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
-| `showPronouns` | `false` | When `true`, renders `basics.pronouns` after the name — see [`basics`](#basics). |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
 | `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
@@ -469,6 +468,7 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | Key | Default | Effect |
 |---|---|---|
 | `groupCertificates` | `true` | Ignored: certificates render as entries, each showing its own issuer. |
+| `showPronouns` | `false` | Ignored: `basics.pronouns` is no longer rendered — see [`basics`](#basics). |
 | `referencesAvailableOnRequest` | `false` | Use [`references[].availableOnRequest`](#references) instead. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
 
 #### Publication icons

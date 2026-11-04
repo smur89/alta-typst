@@ -112,7 +112,6 @@
   let image = _header-image(basics.at("image", default: none))
   _page-header(
     name: basics.name,
-    pronouns: if prefs.showPronouns { _field(basics, "pronouns") },
     headline: _field(basics, "label"),
     contacts: _contact-rows(_linked-contacts(basics, prefs)),
     text-align: _text-aligns.at(prefs.headerTextAlign),

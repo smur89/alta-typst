@@ -80,23 +80,16 @@
   }
 }
 
-// The name, then any pronouns. The `box` keeps "(they/them)" whole
-// when a long name wraps.
-#let _name-line(name, pronouns, body-size, accent) = {
-  let (name-below, pronouns-gap, ..) = _theme.header
-  block(spacing: 0pt, below: name-below * body-size, {
-    text(
-      _theme.type.display.size * body-size,
-      fill: accent,
-      weight: _theme.type.display.weight,
-      name,
-    )
-    if pronouns != none {
-      h(pronouns-gap * body-size)
-      box[(#pronouns)]
-    }
-  })
-}
+#let _name-line(name, body-size, accent) = block(
+  spacing: 0pt,
+  below: _theme.header.name-below * body-size,
+  text(
+    _theme.type.display.size * body-size,
+    fill: accent,
+    weight: _theme.type.display.weight,
+    name,
+  ),
+)
 
 #let _headline(headline, body-size) = if headline != none {
   block(
@@ -137,7 +130,6 @@
 // centred `"above"` / `"below"` it.
 #let _page-header(
   name: none,
-  pronouns: none,
   headline: none,
   contacts: (),
   text-align: left,
@@ -154,13 +146,7 @@
   let qr-size = _theme.header.qr * body-size
   _header-layout(
     align(text-align, {
-      // Pronouns stay outside the uppercasing: they aren't the name.
-      _name-line(
-        if uppercase { upper(name) } else { name },
-        pronouns,
-        body-size,
-        accent,
-      )
+      _name-line(if uppercase { upper(name) } else { name }, body-size, accent)
       _headline(headline, body-size)
       _contact-bar(contacts, body-size, accent)
     }),
