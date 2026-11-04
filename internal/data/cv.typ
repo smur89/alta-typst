@@ -5,7 +5,7 @@
 #import "../design/icon-set.typ": _network-aliases
 #import "../util/dates.typ": _format-date-span
 #import "../util/fields.typ": _dict-or-empty, _field
-#import "../util/values.typ": _join-present, _present
+#import "../util/values.typ": _join-present, _present, _round-half
 
 // A `references[]` entry's flag: only a real boolean counts, so a
 // stray `"yes"` doesn't hide a quote.
@@ -68,4 +68,37 @@
   let end = _field(entry, "endDate")
   if start == none and end == none { return none }
   _format-date-span(start, end, format-date, open-end: present)
+}
+
+// Rating terms as fractions of the full scale, matched
+// case-insensitively: LinkedIn's `languages[].fluency` and the common
+// `skills[].level` words.
+#let _fluency-terms = (
+  "Native": 1.0,
+  "Bilingual": 1.0,
+  "Full Professional": 0.8,
+  "Professional Working": 0.6,
+  "Limited Working": 0.4,
+  "Elementary": 0.2,
+)
+#let _skill-levels = (
+  "Beginner": 0.2,
+  "Novice": 0.2,
+  "Intermediate": 0.6,
+  "Advanced": 0.8,
+  "Expert": 1.0,
+  "Master": 1.0,
+)
+
+// An entry's rating on a scale of `max`: its `custom.altacv.rating`,
+// else its `field` (one of `terms`) scaled and rounded to the half,
+// else `none`.
+#let _term-rating(entry, field, terms, max) = {
+  let value = _altacv(entry, "rating")
+  if value != none { return value }
+  let term = _field(entry, field)
+  if type(term) != str { return none }
+  let key = lower(term.trim())
+  let match = terms.pairs().find(((t, _)) => lower(t) == key)
+  if match != none { _round-half(match.last() * max) }
 }

@@ -120,6 +120,10 @@
     "`none` or a URL template string containing `{q}`",
   ),
   maxRating: _positive-int-rule,
+  skillLevelDisplay: (
+    v => v == auto or v in ("rating", "text"),
+    "`auto`, \"rating\" or \"text\"",
+  ),
   ownerNames: _list-rule((str,), "an array of strings"),
   referencesAvailableOnRequest: _bool-rule,
 )
