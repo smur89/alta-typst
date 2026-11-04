@@ -126,6 +126,8 @@
       contact-gap: sp.large,
       ornament-gutter: sp.medium * 1em,
       photo-gap: sp.medium,
+      // The corner radius per `preferences.imageShape`.
+      portrait-radius: (circle: 50%, rounded: 15%, square: 0%),
       // The QR code's side.
       qr: 3.5,
     ),

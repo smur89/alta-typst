@@ -168,16 +168,17 @@
     fill: text.fill,
   ) #body]
 
-// The circular portrait. `image()` resolves a bare string path from
+// The portrait, clipped to a square with corner `radius` (`50%`, a
+// circle, by default). `image()` resolves a bare string path from
 // the file that calls it, so this stays in `internal/`, where a bare
 // `basics.image` has always resolved; `path` and `bytes` sources let
 // callers anchor resolution at their own .typ instead. `alt` becomes
 // the image's `/Alt` in tagged PDF output.
-#let _portrait(source, size, alt) = box(
+#let _portrait(source, size, alt, radius: 50%) = box(
   width: size,
   height: size,
   clip: true,
-  radius: 50%,
+  radius: radius,
   image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
 )
 

@@ -3,6 +3,7 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _icon-glyphs
+#import "../design/theme.typ": _theme
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
   _enum-rule, _positive-int-rule, _type-rule,
@@ -80,6 +81,7 @@
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
+  imageShape: _enum-rule(_theme.header.portrait-radius.keys()),
   imagePosition: _enum-rule(("left", "right", "center")),
   // Checked even when unused, so a typo surfaces before it matters.
   imageStackOrder: _enum-rule(("above", "below")),

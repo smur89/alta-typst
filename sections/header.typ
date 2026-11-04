@@ -7,6 +7,7 @@
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
 #import "../internal/data/cv.typ": _format-location, _profile-network
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
+#import "../internal/design/theme.typ": _theme
 #import "../internal/primitives.typ": _portrait
 #import "../internal/components/header.typ": _page-header
 
@@ -117,7 +118,10 @@
     text-align: _text-aligns.at(prefs.headerTextAlign),
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
-    photo: if image != none { _portrait(image, prefs.imageSize, basics.name) },
+    photo: if image != none {
+      let radius = _theme.header.portrait-radius.at(prefs.imageShape)
+      _portrait(image, prefs.imageSize, basics.name, radius: radius)
+    },
     photo-at: if prefs.imagePosition == "center" {
       prefs.imageStackOrder
     } else { prefs.imagePosition },

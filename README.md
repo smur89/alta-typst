@@ -241,7 +241,7 @@ basics: (
 
 JSON Resume's spec calls for a URL here, but Typst does not fetch remote URLs at compile time — vendor the asset locally.
 
-Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the two-column header, or `"center"` to stack it above/below the text block via `preferences.imageStackOrder`). Size via `preferences.imageSize` (default `6em`); the image is fit with `cover` and clipped to a circle, so rectangular sources crop centred rather than distort.
+Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the two-column header, or `"center"` to stack it above/below the text block via `preferences.imageStackOrder`). Size via `preferences.imageSize` (default `6em`); the image is fit with `cover` and clipped to `preferences.imageShape` (default a circle), so rectangular sources crop centred rather than distort.
 
 ### Section reference
 
@@ -427,7 +427,8 @@ Override any subset of the keys below.
 |---|---|---|
 | `uppercaseName` | `true` | When `true` (matching AltaCV's visual ancestor), `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
 | `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
-| `imageSize` | `6em` | Diameter of the circular portrait. Ignored when no `basics.image`. |
+| `imageSize` | `6em` | Width and height of the portrait (its diameter when circular). Ignored when no `basics.image`. |
+| `imageShape` | `"circle"` | How the portrait is clipped: `"circle"`, `"rounded"` (a square with rounded corners) or `"square"`, for a logo or a photo framed square. Ignored when no `basics.image`. |
 | `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
 | `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
 | `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |

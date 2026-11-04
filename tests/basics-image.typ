@@ -1,6 +1,7 @@
 // Pages exercise each accepted source form (bytes, `path()`,
 // root-relative string), an imageSize override, flipped/mirrored
-// layouts, and centred header on a no-image CV.
+// layouts, centred header on a no-image CV, and the rounded and
+// square `imageShape`s.
 
 #import "../lib.typ": alta
 
@@ -100,3 +101,18 @@
   ),
   preferences: (headerTextAlign: "center"),
 )
+
+#for shape in ("rounded", "square") {
+  pagebreak()
+  alta(
+    (
+      basics: (
+        name: "Shaped Photo",
+        label: "imageShape: " + repr(shape),
+        email: "shape@example.com",
+        image: read("../assets/avatar-placeholder.svg", encoding: none),
+      ),
+    ),
+    preferences: (imageShape: shape),
+  )
+}
