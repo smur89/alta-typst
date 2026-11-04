@@ -47,10 +47,11 @@
         tagline: rgb("#2E2E2E"),
       )
   ),
-  // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-  // between groups; `label` after an interest group's name
-  // (`Music: Trad, Jazz`).
-  separator: (facts: " · ", items: ", ", label: ": "),
+  // `Manager, Pied Piper · 2024`: `items` within a group (a location's
+  // parts too), `facts` between groups; `label` after an interest
+  // group's name (`Music: Trad, Jazz`) and the footer's "Last
+  // updated"; `range` between a period's dates.
+  separator: (facts: " · ", items: ", ", label: ": ", range: [ – ]),
   // For a summary, a `styled-link` title, the CV owner among
   // publication authors, and an interest group's name.
   treatment: (

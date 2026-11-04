@@ -3,11 +3,13 @@
 // with the entry period reader in internal/data/cv.typ.
 
 #import "/internal/util/dates.typ": (
-  _apply-date-template, _format-date, _format-date-span, _iso-datetime,
+  _apply-date-template, _date-span, _format-date, _iso-datetime,
   _parse-iso-date,
 )
 #import "/internal/data/cv.typ": _entry-period
 #import "/internal/data/defaults.typ": _default-labels
+#import "/internal/design/theme.typ": _default-theme
+#import "/internal/util/values.typ": _join-present
 #import "/tests/unit/_plain.typ": plain
 
 #let labels = _default-labels
@@ -94,19 +96,17 @@
 #assert.eq(_format-date("Jan 2022", "long", months), "Jan 2022")
 #assert.eq(_format-date("", "long", months), "")
 
-// _format-date-span / _entry-period: a missing side drops out with its
-// dash; a missing end of an entry's period reads `labels.present`.
+// _date-span / _entry-period: a range's two sides, an absent one
+// `none`; a missing end of an entry's period reads `labels.present`,
+// and an undated entry has no sides. Joined as `_range` would, a
+// missing side drops out with its dash.
+#let range(sides) = _join-present(sides, _default-theme.separator.range)
+#assert.eq(plain(range(_date-span("2020", "2022", long))), "2020 – 2022")
+#assert.eq(plain(range(_date-span("2020", none, long))), "2020")
+#assert.eq(_date-span(none, none, long), (none, none))
+#assert.eq(range(_date-span(none, none, long)), none)
 #assert.eq(
-  plain(_format-date-span("2020", "2022", long)),
-  "2020 – 2022",
-)
-#assert.eq(
-  plain(_format-date-span("2020", none, long)),
-  "2020",
-)
-#assert.eq(_format-date-span(none, none, long), none)
-#assert.eq(
-  plain(_entry-period((startDate: "2020"), long, labels.present)),
+  plain(range(_entry-period((startDate: "2020"), long, labels.present))),
   "2020 – " + labels.present,
 )
-#assert.eq(_entry-period((:), long, labels.present), none)
+#assert.eq(_entry-period((:), long, labels.present), ())

@@ -4,7 +4,7 @@
 
 #import "/internal/design/styles.typ": _treat
 #import "/internal/util/fields.typ": _field
-#import "/internal/data/cv.typ": _format-location
+#import "/internal/data/cv.typ": _format-location, _location-parts
 #import "/internal/util/values.typ": (
   _fill-template, _join-present, _present, _present-str,
 )
@@ -56,3 +56,11 @@
 #assert.eq(_treat("upper", "ab"), "AB")
 #assert.eq(_treat("none", "ab"), "ab")
 #assert.eq(_treat("emph", "ab").func(), emph)
+
+// _location-parts: the same parts, unjoined, for `_fact-line`.
+#assert.eq(
+  _location-parts((location: (city: "Cork", countryCode: "IE"))),
+  ("Cork", "IE"),
+)
+#assert.eq(_location-parts((location: "Cork, Ireland")), ("Cork, Ireland",))
+#assert.eq(_location-parts((:)), ())

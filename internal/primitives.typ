@@ -50,6 +50,13 @@
   separator.facts,
 )
 
+// A range's sides (`_date-span`) joined by the theme's
+// `separator.range`; an absent side drops out with it, and none left is
+// `none`, decided outside context as `_fact-line` does.
+#let _range(..sides) = if sides.pos().any(_present) {
+  context _join-present(sides.pos(), _theme-state.get().separator.range)
+}
+
 // `_join-facts` with the theme's separators. Whether any part is present
 // is decided outside context, so an empty line is still `none`.
 #let _fact-line(..groups) = if groups.pos().flatten().any(_present) {

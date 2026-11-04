@@ -3,7 +3,7 @@
 // `custom.altacv` namespace.
 
 #import "../design/icon-set.typ": _network-aliases
-#import "../util/dates.typ": _format-date-span
+#import "../util/dates.typ": _date-span
 #import "../util/fields.typ": _dict-or-empty, _field
 #import "../util/values.typ": _join-present, _present, _round-half
 
@@ -61,26 +61,28 @@
   "region",
 )
 #let _location-display-order = ("city", "region", "countryCode")
-// `obj`'s `location` (an entry's or `basics`'), which has passed
-// `_check-location` (`cv-checks.typ`).
-#let _format-location(obj) = {
+// `obj`'s `location` (an entry's or `basics`') as its present parts,
+// for `_fact-line` to join with the theme's separator; `()` when
+// there are none. It has passed `_check-location` (`cv-checks.typ`).
+#let _location-parts(obj) = {
   let value = obj.at("location", default: none)
-  if not _present(value) { return none }
-  if type(value) == str { return value }
-  _join-present(
-    _location-display-order.map(k => _field(value, k)),
-    ", ",
-  )
+  if not _present(value) { return () }
+  if type(value) == str { return (value,) }
+  _location-display-order.map(k => _field(value, k)).filter(_present)
 }
 
-// A `startDate` / `endDate` entry's period through `format-date`, a
-// missing end reading `present` (`labels.present`); a fully undated
-// entry stays `none`, not a bare "Present".
+// The location as one plain string, for data rather than display (the
+// maps link's query); `none` when there is none.
+#let _format-location(obj) = _location-parts(obj).join(", ")
+
+// A `startDate` / `endDate` entry's period as `_date-span` sides, for
+// `_range`, a missing end reading `present` (`labels.present`); a
+// fully undated entry has no sides, not a bare "Present".
 #let _entry-period(entry, format-date, present) = {
   let start = _field(entry, "startDate")
   let end = _field(entry, "endDate")
-  if start == none and end == none { return none }
-  _format-date-span(start, end, format-date, open-end: present)
+  if start == none and end == none { return () }
+  _date-span(start, end, format-date, open-end: present)
 }
 
 // Rating terms as fractions of the full scale, matched
