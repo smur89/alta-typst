@@ -1,8 +1,7 @@
-// altacv — a two-column CV template for Typst. Visually descended from
-// LianTze Lim's AltaCV LaTeX class (https://github.com/liantze/AltaCV,
-// LPPL); forked from George Honeywood's alta-typst
-// (https://github.com/GeorgeHoneywood/alta-typst, MIT, © 2023 George
-// Honeywood) and rewritten around a JSON Resume-style data dict.
+// altacv — a two-column CV template for Typst. Forked from George
+// Honeywood's alta-typst (https://github.com/GeorgeHoneywood/alta-typst,
+// MIT, © 2023 George Honeywood) and rewritten around a JSON
+// Resume-style data dict. The README credits its inspirations.
 //
 // Public entry: `alta(cv, ...)` plus the helpers in the README.
 // `sections/` has one renderer per CV part, mapping it onto
