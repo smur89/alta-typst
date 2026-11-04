@@ -292,12 +292,12 @@ Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#s
 
 | Field | Type | Effect |
 |---|---|---|
-| `studyType` | string | Qualification (e.g. "M.Sc. in Computer Science"); the entry's title. Falls back to `area` if absent. |
-| `area` | string | Field of study. The title only when `studyType` is missing. |
+| `studyType` | string | Qualification (e.g. "Bachelor", "M.Sc."); the entry's title. Falls back to `area` if absent. |
+| `area` | string | Field of study (e.g. "Engineering"). Leads the score line, `Engineering · Distinction`, or is the title when `studyType` is missing. |
 | `institution` | string | School name; the organisation. |
 | `url` | string | Links the institution. |
 | `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, on its own line above the `courses`. |
+| `score` | string | Grade / classification, after `area` on its own line above the `courses`. |
 
 #### Projects
 

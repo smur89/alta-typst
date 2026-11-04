@@ -99,7 +99,7 @@
 //
 // The `keywords` (a project's stack, education's courses) end the
 // entry as one line joined with ` · `; `keywords-lead` is a line of
-// its own above them (education's score), so it doesn't read as one
+// its own above them (education's area and score), so it doesn't read as one
 // of them.
 #let _entry(
   title: none,
