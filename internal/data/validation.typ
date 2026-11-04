@@ -71,10 +71,6 @@
 // ignored, so they aren't checked.
 #let _preference-rules = (
   font: (_is-font, "a font family name or a non-empty array of them"),
-  headingFont: (
-    v => v == auto or _is-font(v),
-    "`auto`, a font family name or a non-empty array of them",
-  ),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   // Only a colour supports `lighten` / `darken`; a palette name string
   // is the common slip.

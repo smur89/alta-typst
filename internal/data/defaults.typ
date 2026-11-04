@@ -27,8 +27,6 @@
   // Must be installed on the build host (CI installs it: apt in
   // setup-typst, apk in the pinned image).
   font: "Lato",
-  // `auto`: `font`.
-  headingFont: auto,
   bodySize: 10pt,
   accent: palettes.teal,
   publicationIcons: _publication-icons,

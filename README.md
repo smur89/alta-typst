@@ -156,6 +156,18 @@ On other platforms, install Lato from [Google Fonts](https://fonts.google.com/sp
 
 Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons render as tofu. Any other body font works: `#alta(cv, preferences: (font: "Inter"))`.
 
+### Heading fonts
+
+The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is a `title` element, the section headings are level-2 `heading`s and the entry titles are deeper `heading`s, so each rule picks its own scope:
+
+```typst
+// A slab-serif name and section headings over a sans body:
+#show selector.or(title, heading.where(level: 2)): set text(font: "Roboto Slab")
+#alta(cv, preferences: (font: "Source Sans 3"))
+```
+
+`selector.or(title, heading)` reaches the entry titles too. The body font can't be set the same way: `alta()` sets the document's font, size, colour and language itself (from `preferences.font`, `preferences.bodySize`, the theme and `labels.lang`), and those win over a `set text(...)` outside it. Every other text setting you make outside `alta()` (tracking, number styles, OpenType features) still applies. Like any font, these must be installed.
+
 ## Data schema
 
 The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or missing `endDate` renders as `Present` (localisable via `labels.present`). Sections with empty input are skipped — no orphan headings. Unknown top-level keys panic.
@@ -436,7 +448,6 @@ Override any subset of the keys below.
 | Key | Default | Effect |
 |---|---|---|
 | `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
-| `headingFont` | `auto` | Font family (or fallback array) for the name and section headings; `auto` uses `font`. Entry titles stay in `font`. Must be installed. |
 | `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
 | `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
 | `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
