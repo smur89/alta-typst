@@ -4,14 +4,16 @@
 // canonical demo that drives `examples/cv.png` and `thumbnail.png`).
 //
 // What this renders:
-//   • Header: name (uppercase), label, objective, summary, a contact
-//     bar with a structured `basics.location`, `basics.url` and three
-//     profile networks, and a QR code to the homepage.
+//   • Header: portrait, name (uppercase), label, objective, summary, a
+//     contact bar with email, phone, a structured `basics.location`,
+//     `basics.url` and three profile networks, and a QR code to the
+//     homepage.
 //   • `meta` populates the PDF metadata date / keywords / description.
 //   • Work: open-ended + closed roles, `summary` preamble, highlights,
 //     keywords.
 //   • Volunteer: distinct organisation/position shape.
-//   • Skills: two pill groups, each with a `level` shown as dots.
+//   • Areas of focus: `custom.altacv.focusAreas`, a short list.
+//   • Skills: two pill groups.
 //   • Languages: a `fluency` string, and integer and fractional
 //     half-dot `custom.altacv.rating`.
 //   • Education: `studyType` + `score` + `courses`, plus the `area`
@@ -29,9 +31,9 @@
 //   • Interests: structured `{name, keywords}` form.
 //   • References: a populated entry plus an anonymous (no `name`)
 //     quote.
-//   • Preferences override: a theme, short dates, custom maps
-//     provider, page footer, QR code, a non-default `maxRating`, and
-//     custom publication and project icons.
+//   • Preferences: a theme, short dates, custom maps provider, page
+//     footer, QR code, `ownerNames`, a non-default `maxRating`, custom
+//     publication and project icons, and the column layout.
 
 #import "../lib.typ": alta, avatar-placeholder, maps-providers, themes
 #import "_dates.typ": ago, today
@@ -155,16 +157,9 @@
   ),
 
   skills: (
-    // A `level` from `Beginner` to `Master` shows as dots after the
-    // group's label.
-    (
-      name: "Languages",
-      level: "Expert",
-      keywords: ("Scala", "Haskell", "Python", "Go", "Rust"),
-    ),
+    (name: "Languages", keywords: ("Scala", "Haskell", "Python", "Go", "Rust")),
     (
       name: "Infra",
-      level: "Advanced",
       keywords: ("Kafka", "AWS", "Terraform", "Docker", "Kubernetes"),
     ),
   ),
@@ -324,11 +319,7 @@
   ),
 )
 
-// Preferences override exercising a meaningful slice of the API
-// surface — theme swap, short dates, OSM maps provider, auto page
-// footer (renders on multi-page output), a QR code to the homepage,
-// another spelling of the owner's name among publication authors, and
-// a non-default `maxRating: 6` for a CEFR-style scale.
+// The preferences listed in the header comment.
 //
 // `interests` is moved into the left column to fill space below the
 // long-form blocks; the rest of the layout takes the shipped defaults.
