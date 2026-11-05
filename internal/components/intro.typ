@@ -7,10 +7,9 @@
 
 #let _intro-block(summary: none) = if summary != none {
   context {
-    let body-size = text.size
     let (above, below) = _theme-state.get().intro
-    v(above * body-size)
+    v(above * text.size)
     _prose(summary)
-    v(below * body-size)
+    v(below * text.size)
   }
 }

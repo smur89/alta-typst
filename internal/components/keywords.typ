@@ -13,20 +13,19 @@
 // column hangs nothing, so its keywords keep room to wrap. A group's
 // optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
-  let body-size = text.size
   let theme = _theme-state.get()
   let (gap, dash, indent-max) = theme.keyword-row
-  let row-gap = gap * body-size
+  let row-gap = gap * text.size
   layout(size => for (name, keywords, ..group) in groups {
     let mark = group.at("mark", default: none)
     let label = {
       tag(name, label: true)
       if mark != none {
         mark
-        _tag-gap(theme, body-size)
+        _tag-gap(theme, text.size)
       }
       text(dash)
-      _tag-gap(theme, body-size)
+      _tag-gap(theme, text.size)
     }
     let indent = measure(label).width
     block(above: 0pt, below: row-gap, par(

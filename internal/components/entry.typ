@@ -29,17 +29,16 @@
 // entry heading's block, so it keeps that spacing and stays with its
 // entry; after a facts line, `entry.facts-below`.
 #let _entry-head(title, facts, date, location, alts) = context {
-  let body-size = text.size
   let theme = _theme-state.get()
   let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
     (
       // Level 3, or 4 under a group (`components/frame.typ`).
       [#heading(depth: 3, title)<alta-internal-entry>],
-      theme.type.title.size * body-size,
+      theme.type.title.size * text.size,
       facts,
     )
-  } else { (facts, body-size, none) }
+  } else { (facts, text.size, none) }
   // A line's height runs from its top edge (the cap height, or an
   // icon's top when taller) to its baseline. Every row sets its
   // baseline that far down from the taller of its text's capitals and
@@ -59,7 +58,7 @@
     ),
     (
       under,
-      body-size,
+      text.size,
       _location-fact(_part("location", location), alt: alts.location),
     ),
   )
@@ -83,7 +82,7 @@
   }
   _subheading-block(
     theme.subheading.entry + (below: below),
-    body-size,
+    text.size,
     layout(size => {
       // Stacked, each side takes its own line, undropped.
       let own-line = rows.any(row => row.width > side-max * size.width)
@@ -95,7 +94,7 @@
       grid(
         columns: if own-line { 1fr } else { (1fr, auto) },
         column-gutter: side-gap,
-        row-gutter: row-gap * body-size,
+        row-gutter: row-gap * text.size,
         ..cells.flatten(),
       )
     }),

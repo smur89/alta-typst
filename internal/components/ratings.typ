@@ -34,7 +34,6 @@
 // Unchecked: `rating` checks its arguments, and `_read-cv` the CV's
 // ratings.
 #let _rating-dots(value, max) = context {
-  let body-size = text.size
   let theme = _theme-state.get()
   let (accent, border, ..) = theme.colours
   let (radius, gap, ..) = theme.rating
@@ -49,7 +48,7 @@
   let dot(state) = _inline(box({
     set circle(fill: fills.at(state))
     set text(fill: if state == "empty" { border } else { accent })
-    _part("rating-" + state, circle(radius: radius * body-size))
+    _part("rating-" + state, circle(radius: radius * text.size))
   }))
   range(1, max + 1)
     .map(i => dot(
@@ -57,7 +56,7 @@
         "empty"
       },
     ))
-    .join(h(gap * body-size))
+    .join(h(gap * text.size))
 }
 
 /// A label with a row of rating dots at the right edge: filled,
