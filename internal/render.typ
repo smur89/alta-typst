@@ -92,7 +92,11 @@
 /// -> content
 #let altacv(theme: themes.teal, body) = {
   let theme = _checked-theme(theme)
-  show: _document.with(_theme-for(theme, (:)), _default-preferences.margin)
+  show: _document.with(
+    _theme-for(theme, (:)),
+    _default-preferences.body-size,
+    _default-preferences.margin,
+  )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
   show <alta-internal-cv>: it => _alta-content(

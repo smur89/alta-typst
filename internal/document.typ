@@ -7,15 +7,16 @@
 #import "design/theme.typ": _theme-for, _token-prefs
 #import "context.typ": _theme-state
 
-// With the built theme: the theme state, the default text and margins,
-// and the paragraph, list and heading rules: what a user's rules after
-// `altacv` override. A `scoped` template's theme ends with its body;
+// The theme state, the default text and margins, and the paragraph,
+// list and heading rules, from the built theme and the body size and
+// margins `data/` resolves: what a user's rules after `altacv`
+// override. A `scoped` template's theme ends with its body;
 // standalone `alta()`'s stays set for the content after it, as the
 // public helpers (`tag`, `rating`, …) there read it.
-#let _document(theme, margin, body, scoped: true) = {
+#let _document(theme, size, margin, body, scoped: true) = {
   _theme-state.update(themes => themes + (theme,))
   set text(
-    10pt,
+    size,
     font: theme.font,
     weight: theme.type.body.weight,
     fill: theme.colours.body,
@@ -32,12 +33,13 @@
 #let _standalone(prefs, labels, footer, body) = {
   show: _document.with(
     _theme-for(prefs.theme, _token-prefs(prefs)),
+    prefs.body-size,
     prefs.margin,
     scoped: false,
   )
   // `text.lang` unless the deprecated `labels.lang` is set; drop with
   // it (#239). Before `set page`, so the footer inherits it.
-  set text(prefs.body-size, lang: labels.lang)
+  set text(lang: labels.lang)
   set page(paper: prefs.paper, footer: _part("footer", footer))
   body
 }

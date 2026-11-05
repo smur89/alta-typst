@@ -9,7 +9,7 @@
 # these; add one to `_translations` (`defaults.typ`).
 
 # Deprecated (#239): use `set text(lang: ..)`. Drop with the `lang:`
-# in `_document`'s `set text`.
+# in `_standalone`'s `set text`.
 lang = "en"
 
 # Section headings.
