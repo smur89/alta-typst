@@ -57,7 +57,7 @@ The default look is opinionated (only skills are pills). A new alternative look 
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
+Install Typst at the version CI uses — the `FROM ghcr.io/typst/typst:<version>` line in the `Dockerfile`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
 
 On macOS, one block sets up everything Homebrew can provide:
 
@@ -94,14 +94,14 @@ Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typs
 
 ### Regenerating PDF fixtures (Docker)
 
-CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make -B test-pdfs` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
+CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make in-image TARGETS='-B test-pdfs'` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
 
 ```sh
 make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B all` (full rebuild)
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION` and `FA_VERSION` must match it: CI's lint job re-renders the fixtures on its runner and compares them byte for byte.
+`--platform linux/amd64` is forced so the output is byte-identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). CI's render jobs run in the same image (`make in-image`), so the lint job's re-rendered fixtures compare byte for byte with the committed ones.
 
 If you'd rather drive Typst directly, the manual incantations are:
 

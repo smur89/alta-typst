@@ -12,16 +12,6 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  # Typst version for every job that installs it via setup-typst. Keep
-  # in lockstep with the Dockerfile's `FROM ghcr.io/typst/typst:<ver>`
-  # and the Makefile's DOCKER_IMAGE tag: the fixtures are committed
-  # from that image (`make docker-pdfs`) and the lint job re-renders
-  # them on its runner, so a mismatch shows up as drift.
-  TYPST_VERSION: v0.15.1
-  # FontAwesome 7 Free desktop release — `@preview/fontawesome`:0.6.2
-  # defaults to v7 font names; apt's `fonts-font-awesome` ships v6, so
-  # every CI job that compiles the package downloads v7 from upstream.
-  FA_VERSION: 7.0.0
   # Must match typst.toml's `package.name`; tarball, branch and PR
   # names all derive from it.
   PACKAGE_NAME: altacv
@@ -49,28 +39,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Typst environment
-        uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
-
-      # Rendering the fixtures is also their compile check, standing in
-      # for `make test`'s `test-fixtures`. `-B`: tracked PDFs get
-      # checkout-order mtimes, so make could skip them and the gate
-      # would compare the committed files to themselves. `-k` and the
-      # next step's `!cancelled()` report every failure in one run.
-      - name: Render test fixtures
-        run: make -k -B test-pdfs
-
-      - name: Compile examples + template, run panic and unit checks
-        if: ${{ !cancelled() }}
-        run: make test-compile test-panics test-unit
+      # In the image the fixtures are committed from, so the drift check
+      # compares like with like. Rendering the fixtures doubles as their
+      # compile check (`test-fixtures`). `-B`: checkout mtimes could make
+      # the tracked PDFs look fresh. `-k`: report every failure. `-j4
+      # -O`: four cores, each check's log kept together.
+      - name: Render test fixtures, compile examples + template, run panic and unit checks
+        run: make in-image TARGETS='-k -B -j4 -O test-pdfs test-compile test-panics test-unit'
 
       - name: Verify examples/tests/*.pdf are in sync
         run: make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'
 
-  # typstyle parses source only, so no setup-typst or fonts needed.
+  # typstyle parses source only, so no Typst or fonts needed.
   format:
     name: typstyle
     runs-on: ubuntu-latest
@@ -83,15 +63,24 @@ jobs:
         with:
           persist-credentials: false
 
+      # Cached per version: saves a download, and a 504 on it.
+      - name: Restore typstyle
+        id: typstyle-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local/bin/typstyle
+          key: typstyle-${{ env.TYPSTYLE_VERSION }}
+
       - name: Install typstyle
+        if: steps.typstyle-cache.outputs.cache-hit != 'true'
         run: |
-          curl -sSfL -o /usr/local/bin/typstyle \
+          mkdir -p ~/.local/bin
+          curl -sSfL -o ~/.local/bin/typstyle \
             "https://github.com/Enter-tainer/typstyle/releases/download/${TYPSTYLE_VERSION}/typstyle-x86_64-unknown-linux-gnu"
-          chmod +x /usr/local/bin/typstyle
-          typstyle --version
+          chmod +x ~/.local/bin/typstyle
 
       - name: Check formatting
-        run: make fmt-check
+        run: make fmt-check TYPSTYLE="$HOME/.local/bin/typstyle"
 
   # Rendered output as workflow artifacts for reviewers.
   build:
@@ -105,18 +94,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Typst environment
-        uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
-
-      # Not byte-compared: raster output varies under setup-typst; the
-      # `preview-images-in-sync` job checks drift in the pinned image.
-      # Separate uploads so a reviewer downloads one small, named file
-      # rather than a bundled zip.
+      # In the pinned image, so the thumbnail can be drift-checked.
+      # Separate uploads, so a reviewer downloads one small named file.
       - name: Build cv.pdf + cv.png + example_full.pdf + thumbnail.png
-        run: make release-artifacts
+        run: make docker-release-artifacts
+
+      - name: Verify thumbnail.png is in sync
+        if: github.event_name == 'pull_request'
+        run: make check-drift DRIFT_PATHS='thumbnail.png' DRIFT_FIX='make docker-preview-images'
 
       - name: Upload cv.pdf
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -160,17 +145,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Typst environment
-        uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
-
-      # The release artifacts, the tarball's renders among them. Also
-      # fills ~/.cache/typst with @preview deps, which the validate step
-      # mounts into the check container.
+      # Also fills .typst-cache with the @preview deps the validate step
+      # mounts.
       - name: Render the release artifacts
-        run: make release-artifacts
+        run: make docker-release-artifacts
 
       # Stage at typst.toml's version so the template's self-import
       # resolves to the staged directory.
@@ -183,38 +161,15 @@ jobs:
 
       - name: Validate package
         # The tool must run from the `packages` subdir. The image has
-        # HOME=/, so its Typst looks for the package cache at /.cache/typst.
+        # HOME=/, so its Typst looks for the package cache at
+        # /.cache/typst/packages.
         run: |
           docker run --rm \
             -v /tmp/pkg-check:/data \
-            -v "$HOME/.cache/typst":/.cache/typst:ro \
+            -v "$PWD/.typst-cache":/.cache/typst/packages:ro \
             --workdir /data/packages \
             ${PCHECK_IMAGE} \
             check @preview/${PACKAGE_NAME}:${PKG_VERSION}
-
-  # Raster output only reproduces inside the pinned image (unlike the
-  # fixture PDFs), so the tracked preview PNGs are checked there.
-  # Add `preview-images-in-sync` to branch protection to make it
-  # blocking.
-  preview-image-drift:
-    name: preview-images-in-sync
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      # The image ships Typst + fonts, so no setup-typst step.
-      - name: Regenerate preview PNGs in the pinned image
-        run: make docker-preview-images
-
-      - name: Verify thumbnail.png is in sync
-        run: make check-drift DRIFT_PATHS='thumbnail.png' DRIFT_FIX='make docker-preview-images'
 
   # release-please-config.json bumps typst.toml's `package.version`
   # as an extra-file, keeping it in lockstep with the tag.
@@ -251,14 +206,8 @@ jobs:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - name: Setup Typst environment
-        uses: ./.github/actions/setup-typst
-        with:
-          typst-version: ${{ env.TYPST_VERSION }}
-          fa-version: ${{ env.FA_VERSION }}
-
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
-        run: make release-artifacts
+        run: make docker-release-artifacts
 
       # File list: the Makefile's PACKAGE_FILES. The `examples/*`
       # entries ship only so README links resolve on Universe (typst.toml

@@ -37,8 +37,7 @@
 
 #let _tokens = (
   // The family, or a fallback array of them. Must be installed on the
-  // build host (CI installs it: apt in setup-typst, apk in the pinned
-  // image).
+  // build host (the pinned image installs it from apk).
   font: "Lato",
   // Material Design 3's type roles: `display` the name, `headline` a
   // section title, `title` a heading, `body` the rest (quieter lines

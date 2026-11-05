@@ -12,11 +12,10 @@
   ],
 
   // Only these three. The typst toolchain version is held in lockstep by hand
-  // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
-  // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
-  // just one of them and break the pinned-image PDF drift gate. The
-  // typstyle, package-check and tytanic pins are tracked by
-  // `custom.regex` below.
+  // across the Dockerfile base image and the Makefile's DOCKER_IMAGE tag; the
+  // dockerfile manager would bump just one of them and break the
+  // pinned-image PDF drift gate. The typstyle, package-check and tytanic
+  // pins are tracked by `custom.regex` below.
   enabledManagers: ['github-actions', 'typst', 'custom.regex'],
 
   customManagers: [
