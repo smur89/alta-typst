@@ -58,9 +58,14 @@
 
 // One level-1 title, so the captions (level 2) nest under it and the
 // components' own headings keep a valid outline for PDF/UA.
-= altacv component gallery
+// The captions take explicit levels, which the offset leaves alone; the
+// components' headings sit one level deeper, as standalone `alta()`'s do.
+#set heading(offset: 1)
+#heading(level: 1)[altacv component gallery]
 
-== Page header: each photo placement, and centred with left text
+#heading(
+  level: 2,
+)[Page header: each photo placement, and centred with left text]
 #let portrait = _portrait(
   avatar-placeholder,
   prefs.image-size,
@@ -78,7 +83,7 @@
 
 #pagebreak()
 
-== Page header: a QR code, and a contact bar that wraps
+#heading(level: 2)[Page header: a QR code, and a contact bar that wraps]
 #variant(header(qr-url: "https://example.com"))
 // The objective under the headline.
 #variant(header(
@@ -89,14 +94,14 @@
 
 #pagebreak()
 
-== Intro
+#heading(level: 2)[Intro]
 #_intro-block(
   summary: [Backend engineer with eight years of distributed systems.],
 )
 
 #pagebreak()
 
-== Section of entries: full, with roles and keywords
+#heading(level: 2)[Section of entries: full, with roles and keywords]
 #_section("Entries", (1, 2), _ => _entry(
   labels,
   title: "Staff Engineer",
@@ -114,7 +119,9 @@
   keywords: ("Scala", "", "Kafka"),
 ))
 
-== Entry: in a narrow column, the date and location on lines of their own
+#heading(
+  level: 2,
+)[Entry: in a narrow column, the date and location on lines of their own]
 #block(width: 30%, _entry(
   labels,
   title: "Staff Engineer",
@@ -123,7 +130,7 @@
   location: ("Dublin", "IE"),
 ))
 
-== Entry: issuer and details
+#heading(level: 2)[Entry: issuer and details]
 #_section("Compact", (1,), _ => _entry(
   labels,
   title: "Certified Kubernetes Administrator",
@@ -134,7 +141,7 @@
   summary: [Cluster administration.],
 ))
 
-== Grouped section, without separators
+#heading(level: 2)[Grouped section, without separators]
 #_grouped-section(
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
@@ -143,7 +150,7 @@
   separator: none,
 )
 
-== Bibliography item
+#heading(level: 2)[Bibliography item]
 #_bib-entry(
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
@@ -157,7 +164,9 @@
   summary: [What the paper is about.],
 )
 
-== Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing
+#heading(
+  level: 2,
+)[Keyword rows, the second wrapping under its first keyword, the third's long label hanging nothing]
 #block(width: 60%, _keyword-rows((
   (name: "Languages", keywords: ("Scala", "Haskell", "Go")),
   (
@@ -170,18 +179,18 @@
   ),
 )))
 
-== Label rows
+#heading(level: 2)[Label rows]
 #_label-rows((
   (name: "Music", keywords: ("Trad", "Jazz")),
   (name: "Sport", keywords: ("Hurling", "Climbing")),
 ))
 
-== Rating rows: dots, a half dot, and the text fallback
+#heading(level: 2)[Rating rows: dots, a half dot, and the text fallback]
 #_rating-row("English", 5)
 #_rating-row("Irish", 3.5)
 #_rating-row("German", none, fallback: "Conversational")
 
-== Primitives
+#heading(level: 2)[Primitives]
 #name[Acme]
 #term("2022 – 2024", location: "Remote")
 #tag[Scala] #tag(label: true)[Label] #tag(trailing: false)[Last]

@@ -93,6 +93,8 @@
   let (cv, sections, ctx, details) = prepared
   set document(.._pdf-metadata(cv, sections, ctx.labels))
   show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
+  // Standalone keeps today's levels: the sections one below the name.
+  set heading(offset: 1)
   _cv-content(prepared)
 }
 

@@ -34,7 +34,7 @@
   let (lead, lead-size, under) = if title != none {
     (
       // Level 3, or 4 under a group (`components/frame.typ`).
-      [#heading(depth: 3, title)<alta-internal-entry>],
+      [#heading(depth: 2, title)<alta-internal-entry>],
       theme.type.title.size * text.size,
       facts,
     )
