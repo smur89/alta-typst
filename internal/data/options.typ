@@ -9,7 +9,8 @@
 #import "defaults.typ": _default-labels, _default-preferences, _translations
 #import "sections.typ": _section-specs
 #import "validation.typ": (
-  _check-icon-names, _strict-merge, _validate-labels, _validate-preferences,
+  _check-icon-names, _check-theme, _strict-merge, _validate-labels,
+  _validate-preferences,
 )
 
 // The caller's `labels` and `preferences`, each canonicalised before
@@ -62,12 +63,21 @@
   (labels: merged-labels, prefs: merged-preferences)
 }
 
+// `altacv`'s `theme`, read, rewritten and checked as
+// `preferences.theme` is, without the rest of the preferences.
+#let _checked-theme(theme) = {
+  let (_, prefs) = _kebab-options((:), (theme: theme))
+  let theme = _canonical-preferences(prefs, (:)).theme
+  _check-theme(theme)
+  theme
+}
+
 // Inside the `altacv` template, what each document-level preference
 // is instead: a template argument or a `set` rule after the show line.
 #let _template-replacements = (
   theme: "`altacv.with(theme: ..)`",
   accent: "`altacv.with(theme: ..)` (the deprecated `accent` is a theme colour)",
-  colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: ..))`",
+  colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: (..themes.teal.colours, accent: ..)))`",
   font: "`set text(font: ..)`",
   body-size: "`set text(size: ..)`",
   paper: "`set page(paper: ..)`",

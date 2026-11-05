@@ -7,6 +7,7 @@
 
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _standalone
+#import "../internal/render.typ": _cv-styles
 #import "../internal/data/options.typ": _merge-options
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
@@ -30,6 +31,7 @@
   labels,
   _auto-page-footer("Jane Doe", labels.page-number),
 )
+#show: _cv-styles.with(prefs)
 
 #let contacts = (
   (

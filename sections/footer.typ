@@ -26,10 +26,10 @@
   if version and v != none { " (" + v + ")" }
 }
 
-// `page-footer` takes precedence; `last-modified-footer` is sugar that
-// applies only when `page-footer` is `none`.
-#let _footer(cv, (labels, prefs, ..)) = {
-  let details = _cv-details(cv, labels)
+// From the CV's `_cv-details`. `page-footer` takes precedence;
+// `last-modified-footer` is sugar that applies only when `page-footer`
+// is `none`.
+#let _footer(details, prefs) = {
   let page-footer = prefs.page-footer
   if page-footer != none {
     if page-footer == auto {
@@ -52,7 +52,9 @@
 // `none` with no CV placed.
 #let _placed-cv() = {
   let before = query(selector(<alta-cv>).before(here()))
-  before.at(-1, default: query(<alta-cv>).at(0, default: none))
+  if before != () { before.last() } else {
+    query(<alta-cv>).at(0, default: none)
+  }
 }
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:

@@ -8,8 +8,9 @@
 #import "design/theme.typ": _default-theme
 
 // The built themes (`_theme-for`) of the templates the content sits
-// in, innermost last: `_document` pushes its theme and pops it after
-// its body, so content after a nested template reads the outer one.
+// in, innermost last: `_document` pushes its theme and, for `altacv`,
+// pops it after its body, so content after a nested template reads the
+// outer one. Standalone `alta()`'s stays pushed.
 #let _theme-state = state("alta-theme", (_default-theme,))
 // The theme in effect where it's read (in `context`).
 #let _theme() = _theme-state.get().last()

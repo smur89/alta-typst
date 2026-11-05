@@ -3,7 +3,9 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
-#import "data/options.typ": _check-template-preferences, _merge-options
+#import "data/options.typ": (
+  _check-template-preferences, _checked-theme, _merge-options,
+)
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
@@ -24,7 +26,9 @@
 // `format-date` formats a date per the preferences and labels; `owner`
 // is the CV owner's name, and `owners` every spelling of it
 // (`preferences.owner-names` too), trimmed and lowercased, to bold among
-// publication authors.
+// publication authors. `details` is what a footer prints of the CV
+// (`sections/footer.typ`), for the `<alta-cv>` marker and the
+// standalone footer alike.
 #let _prepare(cv, labels, preferences) = {
   let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
   let (cv, sections) = _read-cv(cv, prefs)
@@ -35,15 +39,29 @@
     owner: cv.basics.name,
     owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
   )
-  (cv: cv, sections: sections, ctx: ctx)
+  (
+    cv: cv,
+    sections: sections,
+    ctx: ctx,
+    details: _cv-details(cv, labels),
+  )
+}
+
+// For `show: _cv-styles.with(prefs)`: the CV preferences that style
+// what renders after them, the public `rating()`'s scale and
+// justification. Shared with the component gallery
+// (`tests/components.typ`), so it shows components as a CV does.
+#let _cv-styles(prefs, body) = {
+  _max-rating-state.update(prefs.max-rating)
+  show: _justify.with(prefs.justify)
+  body
 }
 
 // The CV itself, from `_prepare`, in both of `alta()`'s forms.
-#let _cv-content((cv, sections, ctx)) = {
-  _max-rating-state.update(ctx.prefs.max-rating)
-  // What the footer helpers print (`sections/footer.typ`).
-  [#metadata(_cv-details(cv, ctx.labels))<alta-cv>]
-  show: _justify.with(ctx.prefs.justify)
+#let _cv-content((cv, sections, ctx, details)) = {
+  show: _cv-styles.with(ctx.prefs)
+  // What the footer helpers print.
+  [#metadata(details)<alta-cv>]
   _header(cv, ctx)
   _intro(cv, ctx)
   // Renderers are width-agnostic, so any section fits either column.
@@ -72,9 +90,9 @@
 // the footer among them, around the CV.
 #let _alta-standalone(cv, labels: (:), preferences: (:)) = context {
   let prepared = _prepare(cv, labels, preferences)
-  let (cv, sections, ctx) = prepared
+  let (cv, sections, ctx, details) = prepared
   set document(.._pdf-metadata(cv, sections, ctx.labels))
-  show: _standalone.with(ctx.prefs, ctx.labels, _footer(cv, ctx))
+  show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
   _cv-content(prepared)
 }
 
@@ -89,9 +107,12 @@
 /// - body (content): The document.
 /// -> content
 #let altacv(theme: themes.teal, body) = {
-  // Checked and canonicalised as `preferences.theme` is.
-  let theme = _merge-options((:), (theme: theme)).prefs.theme
-  show: _document.with(_theme-for(theme, (:)), _default-preferences.margin)
+  let theme = _checked-theme(theme)
+  show: _document.with(
+    _theme-for(theme, (:)),
+    _default-preferences.body-size,
+    _default-preferences.margin,
+  )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
   show <alta-internal-cv>: it => _alta-content(
