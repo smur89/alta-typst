@@ -67,7 +67,7 @@
 #let _template-replacements = (
   theme: "`altacv.with(theme: ..)`",
   accent: "`altacv.with(theme: ..)` (the deprecated `accent` is a theme colour)",
-  colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: ..))`",
+  colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: (..themes.teal.colours, accent: ..)))`",
   font: "`set text(font: ..)`",
   body-size: "`set text(size: ..)`",
   paper: "`set page(paper: ..)`",

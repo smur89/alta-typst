@@ -530,7 +530,7 @@ Inside `#show: altacv.with(..)`, the document-level preferences are the template
 | Standalone preference | In the template |
 |---|---|
 | `theme` | `altacv.with(theme: ..)` |
-| `colours` | Theme tokens: `altacv.with(theme: themes.teal + (colours: ..))` |
+| `colours` | Theme tokens: `altacv.with(theme: themes.teal + (colours: (..themes.teal.colours, accent: ..)))` |
 | `font` | `set text(font: ..)` |
 | `body-size` | `set text(size: ..)` |
 | `paper` | `set page(paper: ..)` |
