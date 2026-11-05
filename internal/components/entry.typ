@@ -162,6 +162,10 @@
   keywords: (),
   level: auto,
 ) = {
+  // Marks every entry, titled or not, `alta()`'s and markup's alike: a
+  // markup `entry` (`blocks.typ`) counts these to know whether one
+  // precedes it in its section, so it draws the divider.
+  [#metadata(none)<alta-internal-entry-mark>]
   let org = if _present(org) {
     _accent-text(_link-if(org-url, _part("org", org)))
   }
