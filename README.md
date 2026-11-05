@@ -152,11 +152,12 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, maps-providers, themes
+#import "@preview/altacv:1.8.0": alta, altacv, maps-providers, themes
+
+#show: altacv.with(theme: themes.navy)
+#set page(paper: "us-letter")
 
 #alta(cv, preferences: (
-  theme: themes.navy,
-  paper: "us-letter",
   date-format: "short",              // 06/2024
   image-position: left,
   link-contact-info: (phone: false),  // everything linked but the phone
@@ -166,17 +167,19 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 ```
 <!-- x-release-please-end -->
 
-Settings layer in order. Standalone: the theme, then `preferences.colours` and `preferences.font`, then any [show rules](#restyling-parts), which win over both. In the template: the theme, then your `set` and `show` rules after the show line.
+Settings layer in order: the theme, then your `set` and `show` rules after the show line, which win over it. Standalone `alta()` takes the theme, font, paper and footer as preferences instead ([In the template](#in-the-template) maps each).
 
 ### Themes and colours
 
-`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
+The template's `theme` picks the look (`preferences.theme` standalone). The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
 
-`preferences.colours` then recolours any role over the theme's:
+To recolour a role, set it over the theme's colours:
 
 ```typst
-#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))
+#show: altacv.with(theme: themes.altacv + (colours: (..themes.altacv.colours, body: black)))
 ```
+
+Standalone, `preferences.colours` does the same: `#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))`.
 
 | Role | Colours |
 |---|---|
@@ -194,28 +197,30 @@ Any `rgb(...)` value works; roles that colour text should stay dark enough to re
 A theme can also set the font, the type sizes and weights, the spacing and the separators. A theme of your own sets only what it changes; the rest comes from the default theme:
 
 ```typst
-#alta(cv, preferences: (theme: (
+#show: altacv.with(theme: (
   font: "Libertinus Serif",
   type: (headline: (size: 1.2)),  // section titles
   separator: (facts: " | "),
-)))
+))
 ```
 
-To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")`. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours; set a few roles with `preferences.colours` instead. Every token is listed under [Theme tokens](#theme-tokens).
+To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")`. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours; spread them to change a few, `(colours: (..themes.navy.colours, accent: …))`. Every token is listed under [Theme tokens](#theme-tokens).
 
 ### Fonts
 
-`preferences.font` sets the font family (or a fallback array), over the theme's: `#alta(cv, preferences: (font: "Inter"))`. Inside the template, use `#set text(font: "Inter")` after the show line. Any installed font works.
+Set the font family (or a fallback array) with `#set text(font: "Inter")` after the show line, over the theme's (`preferences.font` standalone). Any installed font works.
 
-To set the name or headings in a different face, add a show rule before `#alta(...)`. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
+To set the name or headings in a different face, add a show rule after the show line. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
 
 ```typst
 // A slab-serif name and section headings over a sans body:
+#show: altacv.with()
+#set text(font: "Source Sans 3")
 #show heading.where(level: 1).or(heading.where(level: 2)): set text(font: "Roboto Slab")
-#alta(cv, preferences: (font: "Source Sans 3"))
+#alta(cv)
 ```
 
-A plain `show heading: …` reaches group and entry titles too. Inside the template, a `set text(font: …)` after the show line changes the body. Standalone, a `set text(font: …)` outside `alta()` doesn't: `alta()` sets the body's font, size, colour and language itself. Other text settings (tracking, number styles, OpenType features) still apply.
+A plain `show heading: …` reaches group and entry titles too. Standalone, a `set text(font: …)` outside `alta()` doesn't change the body, as `alta()` sets the body's font, size, colour and language itself; other text settings (tracking, number styles, OpenType features) still apply.
 
 ### Layout
 
@@ -241,7 +246,7 @@ Invert the layout, side panel on the narrow left:
 ))
 ```
 
-Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `page-footer: auto`; for the last-modified line, `last-modified-footer: true`, with `footer-version: true` to add the version. Inside the template these are set rules: see [In the template](#in-the-template).
+Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: alta-footer())`; for the last-modified line, `alta-updated-footer()`, with `version: true` to add the version; or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
 
 ### Portrait, contact bar and QR code
 
@@ -315,11 +320,12 @@ An entry's keywords (a project's stack, education's courses) are a line of text.
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, tag
+#import "@preview/altacv:1.8.0": alta, altacv, tag
 
+#show: altacv.with(theme: (separator: (keywords: "")))
 #show <alta-keyword>: it => tag(it)
 #show <alta-keywords>: set par(leading: 0.8em, spacing: 0.8em)
-#alta(cv, preferences: (theme: (separator: (keywords: ""))))
+#alta(cv)
 ```
 <!-- x-release-please-end -->
 
@@ -529,7 +535,7 @@ Inside `#show: altacv.with(..)`, the document-level preferences are the template
 | `body-size` | `set text(size: ..)` |
 | `paper` | `set page(paper: ..)` |
 | `margin` | `set page(margin: ..)` |
-| `page-footer` | `set page(footer: alta-footer())` |
+| `page-footer` | `auto`: `set page(footer: alta-footer())`. Your own content: `set page(footer: [..])`. |
 | `last-modified-footer` | `set page(footer: alta-updated-footer())` |
 | `footer-version` | `set page(footer: alta-updated-footer(version: true))` |
 | `accent` (deprecated) | `altacv.with(theme: ..)`: a theme colour |
@@ -637,7 +643,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 |---|---|
 | `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules. |
 | `alta(cv, labels:, preferences:)` | Renders the CV. |
-| `alta-footer()` | Page-footer content: the name and page numbers on documents of more than one page. Use as `#set page(footer: alta-footer())`. |
+| `alta-footer()` | Page-footer content: the name and page numbers on documents of more than one page, counted by Typst's page counter (a `counter(page).update(..)` restart changes the count). Use as `#set page(footer: alta-footer())`. |
 | `alta-updated-footer(version: false)` | Page-footer content: the last-modified line, with the version when `version` is `true`. |
 | `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
 | `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |

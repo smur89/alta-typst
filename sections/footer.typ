@@ -57,7 +57,9 @@
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:
 /// your name on the left, the page number (`labels.page-number`) on the
-/// right, on documents of more than one page.
+/// right, on documents of more than one page. It counts pages with
+/// Typst's page counter, so a `counter(page).update(..)` that restarts
+/// it changes what counts as one page.
 /// -> content
 #let alta-footer() = context {
   let cv = _placed-cv()
