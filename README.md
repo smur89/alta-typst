@@ -30,7 +30,7 @@ The full example, every section in use, over two pages ([source](https://github.
 
 | Page 1 | Page 2 |
 | :---: | :---: |
-| ![Alta CV page 1: header, experience, side-panel sections.](examples/example_full-1.png) | ![Alta CV page 2: projects, publications grouped by type, certificates, awards.](examples/example_full-2.png) |
+| ![Alta CV page 1: header, experience, side-panel sections.](examples/example_full-1.png) | ![Alta CV page 2: publications grouped by type, interests, certificates, awards, references.](examples/example_full-2.png) |
 
 ## Contents
 

@@ -1,37 +1,39 @@
-// Multi-page demonstration of every documented feature surface. Free
-// to spill onto a second or third page — this is the reference for a
-// fully-populated CV, distinct from `template/cv.typ` (the one-page
+// The reference for a fully populated CV: every section, and as many
+// features as fit, with two or three entries a section rather than
+// every permutation. Distinct from `template/cv.typ` (the one-page
 // canonical demo that drives `examples/cv.png` and `thumbnail.png`).
 //
 // What this renders:
-//   • Header: name (uppercase), label, summary, contact bar covering
-//     every channel — email, phone, structured `basics.location`,
-//     `basics.url`, and every built-in profile network.
+//   • Header: portrait, name (uppercase), label, objective, summary, a
+//     contact bar with email, phone, a structured `basics.location`,
+//     `basics.url` and three profile networks, and a QR code to the
+//     homepage.
 //   • `meta` populates the PDF metadata date / keywords / description.
-//   • Work: open-ended + closed roles, `summary` preamble, highlights.
+//   • Work: open-ended + closed roles, `summary` preamble, highlights,
+//     keywords.
 //   • Volunteer: distinct organisation/position shape.
-//   • Skills: two pill-tag groups, exercises tag overflow.
-//   • Languages: every input form — `fluency` strings, integer and
-//     fractional half-dot `custom.altacv.rating`.
-//   • Education: `studyType` + `score` + `courses` pills, plus the
-//     `area` fallback for entries missing `studyType`.
-//   • Certificates: multi-issuer grouping with inline date + linked
-//     pill (per-cert `date` and `url`), plus an issuer-less cert that
-//     pools into the trailing unlabelled group.
+//   • Areas of focus: `custom.altacv.focusAreas`, a short list.
+//   • Skills: two pill groups.
+//   • Languages: a `fluency` string, and integer and fractional
+//     half-dot `custom.altacv.rating`.
+//   • Education: `studyType` + `score` + `courses`, plus the `area`
+//     fallback for an entry missing `studyType`.
+//   • Certificates: a full entry (link, credential ID, expiry), a dated
+//     one and an issuer-only one.
 //   • Awards: full entry with a `custom.altacv.url` link, plus a
 //     title-only minimal entry.
-//   • Projects: complete + ongoing + minimal + summary-only.
+//   • Projects: grouped by `type`, each group with its icon, plus an
+//     untyped minimal entry under "Other".
 //   • Publications: grouped by `type` code (`article`, `paper`,
-//     `talk`, `book`) — each subheading carries its own icon; `paper`
-//     gets its heading and icon at the `alta()` call — plus an untyped
-//     entry that joins `article`.
+//     `talk`); `paper` gets its heading and icon at the `alta()` call.
+//     The paper lists `authors`, the owner set apart via `ownerNames`,
+//     and a DOI.
 //   • Interests: structured `{name, keywords}` form.
 //   • References: a populated entry plus an anonymous (no `name`)
-//     quote — exercises the divider rule and the level-3 heading
-//     above the italic quote.
-//   • Preferences override: bundled tweaks demonstrating a theme,
-//     ISO-date formatting, custom maps provider, page footer,
-//     and a non-default `maxRating` for the language scale.
+//     quote.
+//   • Preferences: a theme, short dates, custom maps provider, page
+//     footer, QR code, `ownerNames`, a non-default `maxRating`, custom
+//     publication and project icons, and the column layout.
 
 #import "../lib.typ": alta, avatar-placeholder, maps-providers, themes
 #import "_dates.typ": ago, today
@@ -59,61 +61,29 @@
     ),
     url: "https://seanomurchu.dev",
     image: avatar-placeholder,
-    // Every built-in profile network so the icon set gets a full
-    // visual sweep. `Link` is the generic-URL fallback.
     profiles: (
-      (
-        network: "LinkedIn",
-        username: "seanomurchu",
-        url: "https://linkedin.com/in/seanomurchu",
-      ),
       (
         network: "GitHub",
         username: "seanomurchu",
         url: "https://github.com/seanomurchu",
       ),
       (
-        network: "GitLab",
+        network: "LinkedIn",
         username: "seanomurchu",
-        url: "https://gitlab.com/seanomurchu",
-      ),
-      (
-        network: "Bluesky",
-        username: "@seanomurchu",
-        url: "https://bsky.app/profile/seanomurchu",
-      ),
-      (
-        network: "Mastodon",
-        username: "@sean@fosstodon.org",
-        url: "https://fosstodon.org/@sean",
-      ),
-      (
-        network: "Medium",
-        username: "@seanomurchu",
-        url: "https://medium.com/@seanomurchu",
+        url: "https://linkedin.com/in/seanomurchu",
       ),
       (
         network: "ORCID",
         username: "0000-0002-1825-0097",
         url: "https://orcid.org/0000-0002-1825-0097",
       ),
-      (
-        network: "Stackoverflow",
-        username: "seanomurchu",
-        url: "https://stackoverflow.com/u/1",
-      ),
-      (
-        network: "X",
-        username: "@seanomurchu",
-        url: "https://x.com/seanomurchu",
-      ),
-      (
-        network: "Link",
-        username: "talk recording",
-        url: "https://example.com/talk",
-      ),
     ),
   ),
+
+  // A short career goal, set off as a pull quote above the summary.
+  objective: [
+    Lead a platform team building reliable, event-driven systems.
+  ],
 
   // PDF document metadata. `lastModified` accepts a bare ISO date or
   // a full timestamp; only the calendar part is used for `set
@@ -133,7 +103,6 @@
         [Distributed systems: Kafka, CDC, idempotent consumers, event sourcing.],
         [Functional programming and type-driven design in Scala and Haskell.],
         [Developer experience: tooling, CI/CD, observability.],
-        [Engineering culture: ADRs, RFCs, mentoring.],
       ),
     ),
   ),
@@ -195,12 +164,11 @@
     ),
   ),
 
-  // Languages exercise every supported input: named `fluency` strings
+  // Languages exercise every supported input: a named `fluency` string
   // and numeric `custom.altacv.rating` (with fractional half-dot
   // precision).
   languages: (
     (language: "English", fluency: "Native"),
-    (language: "Irish", fluency: "Professional Working"),
     (language: "French", custom: (altacv: (rating: 4))),
     (language: "Portuguese", custom: (altacv: (rating: 2.5))),
   ),
@@ -225,23 +193,16 @@
     ),
   ),
 
-  // Multi-issuer grouping: two 2-cert issuer clusters (CNCF, AWS) get
-  // their own labelled dashed divider; three singleton certs from
-  // distinct issuers (Hashicorp, Linux Foundation, Google Cloud) pool
-  // into a trailing unlabelled group. Each entry carries `date` + `url`
-  // so the inline-date pill + linked pill features render.
+  // A full entry (link, credential ID, expiry, so the date is a
+  // range), a dated entry, and an issuer-only one.
   certificates: (
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
       date: ago(months: 34),
+      expiryDate: ago(months: -2),
+      credentialId: "LF-1A2B3C4D5E",
       url: "https://www.cncf.io/training/certification/cka/",
-    ),
-    (
-      name: "Certified Kubernetes Application Developer",
-      issuer: "CNCF",
-      date: ago(months: 29),
-      url: "https://www.cncf.io/training/certification/ckad/",
     ),
     (
       name: "AWS Solutions Architect — Professional",
@@ -249,28 +210,8 @@
       date: ago(months: 38),
     ),
     (
-      name: "AWS DevOps Engineer — Professional",
-      issuer: "AWS",
-      date: ago(months: 21),
-    ),
-    (
-      // Singleton — pools into the trailing unlabelled group.
       name: "Hashicorp Terraform Associate",
       issuer: "Hashicorp",
-      date: ago(months: 43),
-    ),
-    (
-      // Second singleton, distinct issuer — joins the same trailing
-      // group, demonstrating that the pool collects across issuers.
-      name: "Certified Kubernetes Security Specialist",
-      issuer: "Linux Foundation",
-      date: ago(months: 27),
-    ),
-    (
-      // Third singleton.
-      name: "Google Cloud Professional Architect",
-      issuer: "Google Cloud",
-      date: ago(months: 31),
     ),
   ),
 
@@ -289,8 +230,8 @@
     ),
   ),
 
-  // Every documented field combination: complete + ongoing + minimal
-  // + summary-only.
+  // Two typed groups, each under its icon, and an untyped minimal
+  // entry under "Other".
   projects: (
     (
       name: "Hyperion",
@@ -306,16 +247,6 @@
         [Handled 10k tasks/s on a single node.],
         [Designed an idempotent retry protocol.],
       ),
-    ),
-    (
-      // Ongoing — `endDate` omitted, renders as "Present". Shares the
-      // "Application" `type` with Hyperion, so the two cluster together.
-      name: "Crucible",
-      type: "Application",
-      summary: "Migration tool for legacy databases",
-      startDate: ago(months: 21),
-      roles: ("Maintainer",),
-      highlights: ([Schema diffing across PostgreSQL and MySQL.],),
     ),
     (
       // Distinct `type` → its own "Library" subheading.
@@ -337,7 +268,6 @@
   interests: (
     (name: "Music", keywords: ("Trad", "Jazz")),
     (name: "Sport", keywords: ("Hurling", "Climbing")),
-    (name: "Travel", keywords: ("Japan", "Iceland")),
   ),
 
   // Populated entry + an anonymous (no `name`) quote — exercises both
@@ -356,13 +286,11 @@
     ),
   ),
 
-  // Four groups by `type` code: `article`, `paper`, `talk`, `book`,
-  // plus one untyped entry that joins `article`. `paper` isn't a
-  // built-in code, so the `alta()` call below names its heading
+  // Three groups by `type` code: `article`, `paper`, `talk`. `paper`
+  // isn't a built-in code, so the `alta()` call below names its heading
   // (`labels.publicationTypes`) and icon (`preferences.publicationIcons`).
-  // Each subheading carries its type's icon (newspaper / newspaper /
-  // microphone / book) — see `publicationIcons` in the README's
-  // Preferences.
+  // The paper lists its `authors`, the owner's entry set apart by
+  // matching `preferences.ownerNames`, and a DOI.
   publications: (
     (
       name: "Event Sourcing in Practice",
@@ -378,7 +306,8 @@
       type: "paper",
       publisher: "EuroSys",
       releaseDate: ago(months: 26),
-      url: "https://example.com/eurosys",
+      authors: ("A. Lovelace", "S. Ó Murchú", "G. Hopper"),
+      identifiers: (doi: "10.1000/182"),
     ),
     (
       name: "Designing for Failure",
@@ -387,25 +316,10 @@
       releaseDate: ago(months: 33),
       url: "https://example.com/talks/failure",
     ),
-    (
-      name: "Functional Domain Modelling",
-      type: "book",
-      publisher: "Self-published",
-      releaseDate: ago(years: 4, precision: "year"),
-    ),
-    (
-      // No `type` → joins the `article` group.
-      name: "Untyped Note",
-      releaseDate: ago(months: 29),
-      url: "https://example.com/untyped",
-    ),
   ),
 )
 
-// Preferences override exercising a meaningful slice of the API
-// surface — theme swap, ISO-date short formatter, OSM maps
-// provider, auto page footer (renders on multi-page output), and a
-// non-default `maxRating: 6` for a CEFR-style language scale.
+// The preferences listed in the header comment.
 //
 // `interests` is moved into the left column to fill space below the
 // long-form blocks; the rest of the layout takes the shipped defaults.
@@ -419,6 +333,8 @@
     dateFormat: "[day padding:none] [month repr:short] [year]",
     mapsProvider: maps-providers.osm,
     pageFooter: auto,
+    qrCode: auto,
+    ownerNames: ("S. Ó Murchú",),
     maxRating: 6,
     leftColumnSections: (
       "work",
