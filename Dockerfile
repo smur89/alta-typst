@@ -6,7 +6,7 @@
 # Bumping a version (FROM tag, FA_VERSION + FA_SHA256, LATO_APK_VERSION,
 # TYTANIC_VERSION + TYTANIC_SHA256, PNGQUANT_APK_VERSION):
 # also update the Makefile's DOCKER_IMAGE (image.yml derives the tag
-# from these lines) and TYPST_VERSION / FA_VERSION in build.yml.
+# from these lines).
 FROM ghcr.io/typst/typst:0.15.1
 
 ARG FA_VERSION=7.0.0
@@ -30,11 +30,11 @@ ARG TYTANIC_SHA256=cf262206b2c89f4d74690b5c825d5ffce1f633eb2900948b50cc006dccebe
 ARG PNGQUANT_APK_VERSION=3.0.3-r0
 
 # Upstream runs as `typst`; install as root. No USER is set back, so
-# callers choose (`make docker-pdfs` passes `-u`).
+# callers choose (`make in-image` passes `-u`).
 USER root
 
-# `bash` is `make docker-shell`'s shell; with `git` it also lets a GHA
-# `container:` job run inside the image. The rest installs Lato and FA.
+# `bash` is `make docker-shell`'s shell, and `git` lets `make fmt` and
+# the drift checks run there too. The rest installs Lato and FA.
 RUN apk add --no-cache \
       bash \
       ca-certificates \
@@ -53,7 +53,7 @@ RUN apk add --no-cache \
 
 # FontAwesome 7 desktop OTFs, as `@preview/fontawesome` expects.
 # `safe.directory '*'`: a bind-mounted workspace owned by another uid
-# (e.g. a GHA `container:` job running as root) otherwise trips git's
+# (e.g. `make docker-shell`, which runs as root) otherwise trips git's
 # "dubious ownership" check.
 RUN curl -sSfL -o /tmp/fa.zip \
       "https://github.com/FortAwesome/Font-Awesome/releases/download/${FA_VERSION}/fontawesome-free-${FA_VERSION}-desktop.zip" \
