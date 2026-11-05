@@ -6,8 +6,8 @@
 #import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
 #import "../util/values.typ": _join-present, _present
 #import "../primitives.typ": (
-  _accent-text, _date-fact, _fact-line, _link-if, _location-fact, _preamble,
-  _range,
+  _accent-text, _date-fact, _fact-line, _joined, _link-if, _location-fact,
+  _preamble, _range,
 )
 
 // A small line under an entry's heading, a referee's attribution, from
@@ -155,7 +155,9 @@
   _join-present(
     (
       _fact-line(..keywords-lead),
-      _fact-line(..keywords.map(k => (k,))),
+      // Each a part, so a show rule can draw pills. Filtered first: a
+      // labelled `""` counts as present.
+      _joined("keywords", keywords.filter(_present).map(_part.with("keyword"))),
     ),
     [\ ],
   )
