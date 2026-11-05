@@ -51,7 +51,8 @@ The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec 
 
 The default look is opinionated (only skills are pills). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences that exist (`skillLevelDisplay`, `imageShape`, `uppercaseName`, `justify`, …) predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, the paper, `dateFormat`, `mapsProvider`, `ownerNames`.
 
-- **A part per element a user may restyle or replace**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)). Parts are public API, listed in the README's [Part labels](README.md#part-labels).
+- **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the README's [Part labels](README.md#part-labels).
+- **A replacement rule's `it` is opaque.** The README promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
 - **A theme token for any value the default fixes**: a separator, size or named treatment (`separator.keywords`, `treatment.link: "emph"`). A token holds a value, never a choice of component: not `keywords: "pills"`.
 
 ## Development loop

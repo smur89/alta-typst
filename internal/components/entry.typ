@@ -4,7 +4,7 @@
 
 #import "../design/styles.typ": _part, _subheading-block
 #import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
-#import "../util/values.typ": _join-present, _present
+#import "../util/values.typ": _present
 #import "../primitives.typ": (
   _accent-text, _date-fact, _fact-line, _joined, _link-if, _location-fact,
   _preamble, _range,
@@ -103,6 +103,15 @@
   )
 }
 
+// An entry's closing lines, the keywords lead then the keywords, as
+// paragraphs a line's leading apart. The keyword line is the
+// `<alta-keywords>` part, so a show rule can set its paragraph.
+#let _entry-keywords(lead, line) = context {
+  set par(spacing: par.leading)
+  if lead != none { par(lead) }
+  if line != none { _part("keywords", par(line)) }
+}
+
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
@@ -152,13 +161,9 @@
   _subtitle(subtitle)
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present(
-    (
-      _fact-line(..keywords-lead),
-      // Each a part, so a show rule can draw pills. Filtered first: a
-      // labelled `""` counts as present.
-      _joined("keywords", keywords.filter(_present).map(_part.with("keyword"))),
-    ),
-    [\ ],
+  _entry-keywords(
+    _fact-line(..keywords-lead),
+    // Filtered first: a labelled `""` counts as present.
+    _joined("keywords", keywords.filter(_present).map(_part.with("keyword"))),
   )
 }
