@@ -18,8 +18,9 @@
 // optional — one more knob among many, not the visual anchor.
 //
 // The theme also changes every frame, one built-in theme each: the
-// `altacv` theme (dark red headings over a gold rule) leads, then the
-// others.
+// `altacv` theme (dark red headings over a gold rule) leads, and the
+// bolder themes (odd frames) alternate with the single-hue ones (even
+// frames), so neighbouring frames differ in character, not just hue.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
@@ -115,7 +116,7 @@
     (:),
   ),
 
-  // ── Frame 3 ─ teal + no image + inverted columns ────────────────
+  // ── Frame 3 ─ rust + no image + inverted columns ────────────────
   // Narrow side-panel layout (`columnRatio: 0.35`) — compact
   // sections lead the narrow left column; work + projects +
   // publications take the wide right side. Name cased naturally.
@@ -123,7 +124,7 @@
     no-image(cv),
     base
       + (
-        theme: themes.teal,
+        theme: themes.rust,
         uppercaseName: false,
         columnRatio: 0.35,
         leftColumnSections: (
@@ -166,7 +167,7 @@
     ga-labels,
   ),
 
-  // ── Frame 5 ─ forest + no image + right-aligned + volunteer up ──
+  // ── Frame 5 ─ bauhaus + no image + right-aligned + volunteer up ──
   // Header text aligned right; certificates ungrouped (flat pill
   // strip). Volunteer + interests pulled up alongside work in the
   // left column. Drops publications + awards to fit on one page —
@@ -175,7 +176,7 @@
     no-image(cv),
     base
       + (
-        theme: themes.forest,
+        theme: themes.bauhaus,
         headerTextAlign: "right",
         leftColumnSections: ("work", "volunteer", "interests"),
         rightColumnSections: (
@@ -216,7 +217,7 @@
     (:),
   ),
 
-  // ── Frame 7 ─ navy + no image + single column ───────────────────
+  // ── Frame 7 ─ riso + no image + single column ───────────────────
   // Single-column layout (`columnRatio: 1`) stacks every section
   // vertically — needs an aggressive section trim to fit one page.
   // Closure-formatted quarterly date labels ("Q3 2024") round out
@@ -225,7 +226,7 @@
     no-image(cv),
     base
       + (
-        theme: themes.navy,
+        theme: themes.riso,
         columnRatio: 1,
         dateFormat: parts => {
           if parts.month == none { return str(parts.year) }
@@ -238,14 +239,14 @@
     (:),
   ),
 
-  // ── Frame 8 ─ rust + rounded portrait left + justified ──────────
+  // ── Frame 8 ─ teal + rounded portrait left + justified ──────────
   // The portrait on the left with rounded corners, and body text
   // justified to both edges.
   (
     cv,
     base
       + (
-        theme: themes.rust,
+        theme: themes.teal,
         imagePosition: "left",
         imageShape: "rounded",
         justify: true,
@@ -253,14 +254,14 @@
     (:),
   ),
 
-  // ── Frame 9 ─ bauhaus + no image + centred + equal columns ──────
+  // ── Frame 9 ─ catppuccin + no image + centred + equal columns ──────
   // A centred header over two columns of equal width
   // (`columnRatio: 0.5`), work and projects on the left.
   (
     no-image(cv),
     base
       + (
-        theme: themes.bauhaus,
+        theme: themes.catppuccin,
         headerTextAlign: "center",
         columnRatio: 0.5,
         leftColumnSections: ("work", "projects"),
@@ -275,14 +276,14 @@
     (:),
   ),
 
-  // ── Frame 10 ─ riso + square portrait right + wide main column ──
+  // ── Frame 10 ─ forest + square portrait right + wide main column ──
   // A square-cropped portrait, and a wider main column
   // (`columnRatio: 0.7`) for work and volunteer.
   (
     cv,
     base
       + (
-        theme: themes.riso,
+        theme: themes.forest,
         imageShape: "square",
         columnRatio: 0.7,
         leftColumnSections: ("work", "volunteer", "projects"),
@@ -291,41 +292,57 @@
     (:),
   ),
 
-  // ── Frame 11 ─ phosphor + no image + ISO dates ──────────────────
-  // ISO 8601 dates (`2024-03`), suiting the terminal look.
+  // ── Frame 11 ─ phosphor + no image + dense + ISO dates ──────────
+  // A dense page: a smaller body size (`bodySize: 9pt`) fits every
+  // section, with ISO 8601 dates (`2024-03`) suiting the terminal
+  // look.
   (
     no-image(cv),
     base
       + (
         theme: themes.phosphor,
+        bodySize: 9pt,
         dateFormat: "[year]-[month]",
-        leftColumnSections: ("work", "projects", "publications"),
+        leftColumnSections: (
+          "work",
+          "volunteer",
+          "projects",
+          "publications",
+        ),
         rightColumnSections: (
           "focusAreas",
           "skills",
           "languages",
           "education",
           "certificates",
+          "awards",
           "interests",
         ),
       ),
     (:),
   ),
 
-  // ── Frame 12 ─ catppuccin + large portrait right + full URLs ───
-  // A larger portrait (`imageSize: 8em`) on the right, and the
-  // contact bar set up for paper: unlinked, profiles printed as URLs
-  // (`github.com/…`) in place of usernames.
+  // ── Frame 12 ─ navy + large portrait right + full URLs ──────────
+  // A larger portrait (`imageSize: 8em`) on the right, the contact
+  // bar set up for paper (unlinked, profiles printed as URLs,
+  // `github.com/…`, in place of usernames), and education and awards
+  // in the main column.
   (
     cv,
     base
       + (
-        theme: themes.catppuccin,
+        theme: themes.navy,
         imageSize: 8em,
         linkContactInfo: false,
         printFullUrls: true,
-        leftColumnSections: ("work", "volunteer", "projects"),
-        rightColumnSections: ("focusAreas", "skills", "languages", "education"),
+        leftColumnSections: ("work", "education", "awards"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "certificates",
+          "interests",
+        ),
       ),
     (:),
   ),
