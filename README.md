@@ -113,7 +113,7 @@ The file is validated against the JSON Resume schema first, so a vanilla `resume
       location: "Dublin, Ireland",
       startDate: "2022-01",             // no endDate: "Present"
       highlights: ([Led the migration…], [Designed the platform…]),
-      keywords: ("Python", "Go", "Rust"), // optional
+      keywords: ("Python", "Go", "Rust"),
     ),
   ),
   skills: (
