@@ -1,8 +1,8 @@
 // The page header, laid out from the slots `sections/header.typ` maps
-// the CV and preferences onto: the name line, headline and contact bar,
-// with an optional portrait and QR around them.
+// the CV and preferences onto: the name line, headline, objective and
+// contact bar, with an optional portrait and QR around them.
 
-#import "../design/styles.typ": _part
+#import "../design/styles.typ": _part, _treat
 #import "../context.typ": _body-size-state, _theme-state
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
@@ -99,15 +99,38 @@
   })<alta-internal-name>],
 )
 
-#let _headline(headline, theme, body-size) = if headline != none {
-  block(spacing: 0pt, below: theme.header.headline-below * body-size, {
-    set text(
-      theme.type.title.size * body-size,
-      fill: theme.colours.tagline,
-      weight: theme.font-weight.bold,
+// A line of the header's text, `below` apart from the next.
+#let _header-line(below, body) = block(spacing: 0pt, below: below, body)
+
+// The headline, then the objective (a forward-looking goal) close
+// under it, so the two read as one unit: who, then what next. The
+// objective is set apart as a summary's preamble is
+// (`treatment.preamble`, italic by default). It is `<alta-objective>`
+// inside `<alta-summary>`, the part it was until it moved into the
+// header, so a rule on either reaches it.
+#let _headline(headline, objective, theme, body-size) = {
+  let (headline-below, objective-gap, ..) = theme.header
+  if headline != none {
+    _header-line(
+      if objective != none { objective-gap } else { headline-below }
+        * body-size,
+      {
+        set text(
+          theme.type.title.size * body-size,
+          fill: theme.colours.tagline,
+          weight: theme.font-weight.bold,
+        )
+        _part("headline", headline)
+      },
     )
-    _part("headline", headline)
-  })
+  }
+  if objective != none {
+    _header-line(headline-below * body-size, _treat(
+      theme.treatment.preamble,
+      // `#[]` gives the outer label an element of its own.
+      _part("summary", [#_part("objective", objective)#[]]),
+    ))
+  }
 }
 
 // `contacts` are rows, each its own line, of `(glyph, value, url)`
@@ -139,6 +162,7 @@
 #let _page-header(
   name: none,
   headline: none,
+  objective: none,
   contacts: (),
   text-align: left,
   uppercase: false,
@@ -160,7 +184,7 @@
         theme,
         body-size,
       )
-      _headline(headline, theme, body-size)
+      _headline(headline, objective, theme, body-size)
       _contact-bar(contacts, theme, body-size)
     }),
     qr-size,

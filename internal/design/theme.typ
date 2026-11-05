@@ -175,6 +175,8 @@
     header: (
       name-below: sp.large,
       headline-below: sp.medium,
+      // Between the headline and the objective under it.
+      objective-gap: sp.small,
       // The contact bar's text and icons, below body so they don't
       // compete with the name.
       contact-size: 0.9,
@@ -186,13 +188,8 @@
       // The QR code's side.
       qr: 3.5,
     ),
-    // Around the intro and the objective's pull-quote.
-    intro: (
-      above: sp.medium,
-      inset: (left: sp.medium, y: sp.xx-small),
-      gap: sp.x-small,
-      below: sp.x-small,
-    ),
+    // Around the intro (the summary).
+    intro: (above: sp.medium, below: sp.x-small),
     // `radius` and `row-height` (every rating row's, dots or text) are
     // geometry.
     rating: (radius: 0.45, gap: sp.x-small, row-height: 1.14),
