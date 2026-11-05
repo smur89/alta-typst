@@ -202,7 +202,10 @@ examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) $(LIB_
 # (default `PDF_STANDARDS`: PDF/A-2b and PDF/UA-1, which back the
 # README's PDF/A and accessibility notes). A warning fails it too:
 # Typst only warns when a document doesn't converge, and renders it
-# anyway (tests/markup-long.typ).
+# anyway (tests/markup-long.typ). The output's ANSI colour codes are
+# stripped before matching, so a `TYPST='typst --color always'` can't
+# hide a warning from the anchored match; the escape comes from
+# `printf`, as BSD sed has no `\x1b`.
 #   $(call compile-one,<file>[,<pdf standards>])
 define compile-one
 @name=$(1); [ "$(1)" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
@@ -211,7 +214,7 @@ else printf '  %s\n' "$$name"; fi; \
 status=0; msg=; \
 if ! out=$$($(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$(1)" /dev/null 2>&1); then \
   msg='compile failed'; \
-elif printf '%s\n' "$$out" | grep -q '^warning'; then \
+elif printf '%s\n' "$$out" | sed "s/$$(printf '\033')\[[0-9;]*m//g" | grep -q '^warning'; then \
   msg='compiled with warnings'; \
 fi; \
 [ -z "$$out" ] || printf '%s\n' "$$out" >&2; \
