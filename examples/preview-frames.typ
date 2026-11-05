@@ -29,7 +29,7 @@
 #import "../lib.typ": alta, maps-providers, tag, themes
 #import "_cv.typ": cv, no-image
 
-// Irish-language label overrides used by one of the frames to
+// Irish-language label overrides used by frames 4, 8 and 12 to
 // demonstrate localisation. Loaded once at parse time — the same
 // dict is passed to `alta(..., labels: ga-labels)`.
 #let ga-labels = toml("labels-ga.toml")
@@ -286,6 +286,7 @@
   // A second single column (`columnRatio: 1`), this one under a
   // rounded portrait on the left, with body text justified to both
   // edges.
+  // Headings, months and the footer in Irish (`labels-ga.toml`).
   (
     cv: cv,
     prefs: base
@@ -298,6 +299,7 @@
         leftColumnSections: ("work", "projects"),
         rightColumnSections: ("skills", "languages", "education", "awards"),
       ),
+    labels: ga-labels,
   ),
 
   // ── Frame 9 ─ catppuccin + no image + right-aligned ───────────────
@@ -388,6 +390,7 @@
   // bar set up for paper (unlinked, profiles printed as URLs,
   // `github.com/…`, in place of usernames), at `bodySize: 11pt`, with
   // education, awards and publications in the main column.
+  // Headings, months and the footer in Irish (`labels-ga.toml`).
   (
     cv: cv,
     prefs: base
@@ -413,6 +416,7 @@
           "interests",
         ),
       ),
+    labels: ga-labels,
   ),
 )
 
