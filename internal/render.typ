@@ -64,7 +64,7 @@
   preferences: (:),
 ) = context {
   let in-template = _template-state.get()
-  if in-template { _check-template-preferences(preferences) }
+  if in-template { _check-template-preferences(labels, preferences) }
   let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
   let (cv, sections) = _read-cv(cv, prefs)
   // What every renderer takes with its data. `format-date` formats a

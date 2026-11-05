@@ -66,6 +66,7 @@
 // is instead: a template argument or a `set` rule after the show line.
 #let _template-replacements = (
   theme: "`altacv.with(theme: ..)`",
+  accent: "`altacv.with(theme: ..)` (the deprecated `accent` is a theme colour)",
   colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: ..))`",
   font: "`set text(font: ..)`",
   body-size: "`set text(size: ..)`",
@@ -77,9 +78,16 @@
 )
 
 // Panics on a document-level preference passed to `alta()` inside the
-// template, naming what replaces it. camelCase names count (#389).
-#let _check-template-preferences(preferences) = {
-  let (_, prefs) = _kebab-options((:), preferences)
+// template, naming what replaces it, and on the deprecated `labels.lang`,
+// which the document's `text.lang` replaces. camelCase names count
+// (#389).
+#let _check-template-preferences(labels, preferences) = {
+  let (labels, prefs) = _kebab-options(labels, preferences)
+  if "lang" in _dict-or-empty(labels) {
+    panic(
+      "labels.lang isn't an alta() label inside the altacv template: use `set text(lang: ..)` after `#show: altacv.with(..)`.",
+    )
+  }
   for key in _dict-or-empty(prefs).keys() {
     if key in _template-replacements {
       panic(
