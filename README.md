@@ -12,14 +12,14 @@
 
 <!-- Relative path so the GIF tracks the codebase: GitHub renders the README from main, Universe from the package version's snapshot. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml). -->
 <p align="center">
-  <img alt="Animated preview: one CV in each of the seven built-in themes, each with a different layout" src="examples/preview.gif">
+  <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.gif">
 </p>
-<p align="center"><sub>One CV, seven built-in themes, each frame with a different layout: columns, portrait position, header alignment, date format, QR code, single column.</sub></p>
+<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column.</sub></p>
 
 ## Highlights
 
 - **Data, not layout.** Your CV is a [JSON Resume](https://jsonresume.org/schema/) dict, inline in Typst or loaded from a `resume.json`. Empty sections disappear, and a misspelt key or a wrong type stops the build with a message naming it.
-- **Seven themes**, every colour role overridable, plus theme tokens for the font, type scale, spacing and separators.
+- **Built-in themes**, every colour role overridable, plus theme tokens for the font, type scale, spacing and separators.
 - **Any layout.** Two columns at any ratio, any section in either column, the side panel left or right, or a single column for applicant-tracking systems (ATS).
 - **A rich header.** Portrait (circle, rounded or square; left, right or centred), contact bar with icons for common networks, and an optional QR code to your homepage for printed copies.
 - **Ratings as dots.** Language fluency and skill levels from LinkedIn-style terms (`Native`, `Expert`) or exact numbers, in half-dot steps.
@@ -162,7 +162,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 
 ### Themes and colours
 
-`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal` and `altacv`.
+`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
 
 `preferences.colours` then recolours any role over the theme's:
 
@@ -611,7 +611,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `palettes` | Deprecated: the built-in themes' heading colours. Use `themes`. |
+| `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -626,6 +626,7 @@ Bug reports and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md
 ## Credits
 
 - **[LianTze Lim — AltaCV](https://github.com/liantze/AltaCV)** (LPPL). The visual ancestor: the two-column layout, accent palette, and section structure originate in LianTze's LaTeX class.
+- **[Catppuccin](https://github.com/catppuccin/catppuccin)** (MIT). `themes.catppuccin` uses the Latte flavour's colours.
 - **[George Honeywood — alta-typst](https://github.com/GeorgeHoneywood/alta-typst)** (MIT, © 2023). Prior Typst implementation; the grid layout, pill tags, and half-fill skill dots originate there.
 
 ## License

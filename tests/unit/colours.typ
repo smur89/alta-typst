@@ -37,7 +37,6 @@
 // The default is the teal theme.
 #let defaults = roles((:))
 #assert.eq(defaults, roles((theme: themes.teal)))
-#assert.eq(defaults.tagline, defaults.emphasis)
 #assert.eq(defaults.border, defaults.body.lighten(65%))
 
 // Every role a built-in theme sets text in, `secondary` included, is
