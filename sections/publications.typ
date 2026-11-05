@@ -4,10 +4,11 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib-entry` lays them out.
 
-#import "../internal/util/fields.typ": (
-  _array-or-empty, _dict-or-empty, _field, _string-at,
+#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/values.typ": _group-by
+#import "../internal/data/cv.typ": (
+  _authors, _identifier-refs, _identifier-url, _identifiers,
 )
-#import "../internal/util/values.typ": _group-by, _present-str
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/frame.typ": _grouped-section
@@ -18,59 +19,6 @@
   let raw = _string-at(pub, "type")
   if raw != none { lower(raw) } else { "article" }
 }
-
-// Scheme names are proper nouns, so not labels. Order matters: an
-// unlinked title takes the first linkable scheme listed.
-#let _identifier-schemes = (
-  doi: (name: "DOI", url: "https://doi.org/"),
-  arxiv: (name: "arXiv", url: "https://arxiv.org/abs/"),
-  pmid: (name: "PMID", url: "https://pubmed.ncbi.nlm.nih.gov/"),
-  isbn: (name: "ISBN", url: none),
-)
-#let _identifier-scheme(scheme) = _identifier-schemes.at(
-  scheme,
-  default: (name: scheme, url: none),
-)
-
-// Read leniently, as the README documents: anything but a dictionary
-// reads as none, and a non-string or empty ID is skipped.
-#let _identifiers(pub) = (
-  _dict-or-empty(pub.at("identifiers", default: none))
-    .pairs()
-    .filter(((_, id)) => _present-str(id))
-    .map(((scheme, id)) => (lower(scheme), id))
-)
-
-// One `(scheme, name, id, url)` per identifier, `url` being `none`
-// for a scheme that doesn't link.
-#let _identifier-refs(ids) = ids.map(((scheme, id)) => {
-  let s = _identifier-scheme(scheme)
-  (scheme: scheme, name: s.name, id: id, url: if s.url != none { s.url + id })
-})
-
-// An unlinked title's destination: the first linkable ref in
-// `_identifier-schemes` order, whatever order the data lists them in.
-// Of two refs sharing a scheme (`DOI` and `doi`), the last wins.
-#let _identifier-url(refs) = {
-  let linkable = refs.rev().filter(r => r.url != none)
-  let hit = _identifier-schemes
-    .keys()
-    .map(k => linkable.find(r => r.scheme == k))
-    .find(r => r != none)
-  if hit != none { hit.url }
-}
-
-// `authors` in published order, trimmed, each flagged when it's one
-// of `owners` (`ctx.owners`: trimmed, lowercased), ignoring case.
-// Read leniently: anything but an array reads as none, and a
-// non-string or empty author is dropped.
-#let _authors(pub, owners) = (
-  _array-or-empty(pub.at("authors", default: none))
-    .filter(a => type(a) == str)
-    .map(a => a.trim())
-    .filter(_present-str)
-    .map(a => (name: a, owner: lower(a) in owners))
-)
 
 #let _render-publication(pub, (format-date, owners, ..)) = {
   let refs = _identifier-refs(_identifiers(pub))

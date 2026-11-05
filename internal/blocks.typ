@@ -5,12 +5,19 @@
 #import "data/defaults.typ": (
   _default-labels, _default-preferences, _translations,
 )
+#import "data/cv.typ": (
+  _authors, _identifier-refs, _identifier-url, _identifiers, _owner-keys,
+  _skill-rating,
+)
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
 #import "util/checks.typ": _check, _check-type, _enum-rule
 #import "primitives.typ": _portrait, divider
+#import "components/bibliography.typ": _bib-entry
 #import "components/entry.typ": _entry
 #import "components/header.typ": _page-header
+#import "components/keywords.typ": _keyword-rows, _label-rows
+#import "components/ratings.typ": _rating-mark
 
 // The labels in the document's language, as `alta()` resolves them:
 // its bundled translation over the English.
@@ -214,3 +221,81 @@
     )
   }
 }
+
+/// A publication, as a bibliography item: the title (linked), the
+/// authors (yours set apart: the document's author), the source and
+/// date, and persistent identifiers. Consecutive publications stack
+/// as `alta()`'s do, so a group of them reads as one list.
+///
+/// - title (content, str): The title.
+/// - url (str, none): Its link; with none, the first linkable
+///   identifier's (DOI, then arXiv, then PMID), as `alta()` links.
+/// - authors (array): Author names, in order. The one matching the
+///   document's author (`#set document(author: ..)`), ignoring case,
+///   is set apart.
+/// - source (content, str, none): The publisher or venue.
+/// - date (content, str, none): When, as written.
+/// - identifiers (dictionary): IDs by scheme (`doi`, `arxiv`, `pmid`
+///   link; others, `isbn` say, show unlinked).
+/// - body (content): A summary.
+/// -> content
+#let publication(
+  title: none,
+  url: none,
+  authors: (),
+  source: none,
+  date: none,
+  identifiers: (:),
+  body,
+) = context {
+  // `alta()`'s readers, over the arguments in its CV shape.
+  let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
+  // `document.author` is an array once set, a string set or not.
+  let owners = _owner-keys(document.author)
+  // One unbreakable block per item, as `alta()` lays them out.
+  block(breakable: false, _bib-entry(
+    title,
+    url: if url != none { url } else { _identifier-url(refs) },
+    authors: _authors((authors: authors), owners),
+    publisher: source,
+    date: date,
+    identifiers: refs,
+    summary: if body != [] { body },
+  ))
+}
+
+/// A skill group's row: its name as a label pill, then its keywords as
+/// pills, with an optional level: a term such as "Expert" shows as dots,
+/// any other text as written.
+///
+/// - name (content, str): The group's name.
+/// - keywords (array): Its keywords, each a pill.
+/// - level (str, content, none): Its level, after the name: a rating
+///   term (`"Beginner"`, `"Intermediate"`, `"Advanced"`, `"Expert"`, …)
+///   as dots out of 5, anything else as written.
+/// -> content
+#let skills(name, keywords, level: none) = {
+  let prefs = _default-preferences
+  _keyword-rows((
+    (
+      name: name,
+      keywords: keywords,
+      mark: _rating-mark(
+        _skill-rating((level: level), prefs),
+        prefs.max-rating,
+        fallback: level,
+      ),
+    ),
+  ))
+}
+
+/// A labelled line: "Music: Trad, Jazz".
+///
+/// - label (content, str): The label, in the emphasis colour.
+/// - items (array): The items, joined by the theme's separator.
+/// -> content
+#let label-row(label, items) = context block(
+  // Rows stack a line apart, as `alta()`'s rows of one paragraph do.
+  spacing: par.leading,
+  _label-rows(((name: label, keywords: items),)),
+)

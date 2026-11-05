@@ -10,6 +10,7 @@
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
 #import "data/defaults.typ": _default-preferences
+#import "data/cv.typ": _owner-keys
 #import "design/presets.typ": themes
 #import "design/styles.typ": _justify, _level-headings
 #import "design/theme.typ": _theme-for
@@ -37,7 +38,7 @@
     prefs: prefs,
     format-date: v => _format-date(v, prefs.date-format, labels.months),
     owner: cv.basics.name,
-    owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
+    owners: _owner-keys((cv.basics.name, ..prefs.owner-names)),
   )
   (
     cv: cv,
