@@ -9,8 +9,10 @@
 
 // With the built theme: the theme state, the default text and margins,
 // and the paragraph, list and heading rules: what a user's rules after
-// `altacv` override.
-#let _document(theme, margin, body) = {
+// `altacv` override. A `scoped` template's theme ends with its body;
+// standalone `alta()`'s stays set for the content after it, as the
+// public helpers (`tag`, `rating`, …) there read it.
+#let _document(theme, margin, body, scoped: true) = {
   _theme-state.update(themes => themes + (theme,))
   set text(
     10pt,
@@ -21,7 +23,7 @@
   set page(margin: margin)
   show: _content-styles.with(theme)
   body
-  _theme-state.update(themes => themes.slice(0, -1))
+  if scoped { _theme-state.update(themes => themes.slice(0, -1)) }
 }
 
 // For `show: _standalone.with(prefs, labels, footer)`, with the merged,
@@ -31,6 +33,7 @@
   show: _document.with(
     _theme-for(prefs.theme, _token-prefs(prefs)),
     prefs.margin,
+    scoped: false,
   )
   // `text.lang` unless the deprecated `labels.lang` is set; drop with
   // it (#239). Before `set page`, so the footer inherits it.
