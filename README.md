@@ -14,7 +14,7 @@
 <p align="center">
   <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.gif">
 </p>
-<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column, Irish labels, and show rules restyling the ratings and keywords.</sub></p>
+<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column, a CV in Irish, and show rules restyling the ratings and keywords.</sub></p>
 
 ## Highlights
 

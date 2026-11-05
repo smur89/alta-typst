@@ -27,10 +27,11 @@
 
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "../lib.typ": alta, maps-providers, tag, themes
-#import "_cv.typ": cv, no-image
+#import "_cv.typ": cv, in-irish, no-image
 
-// Irish-language label overrides used by frames 4, 8 and 12 to
-// demonstrate localisation. Loaded once at parse time — the same
+// Irish-language label overrides used by frames 4, 8 and 12, with the
+// CV's content translated to match (`in-irish`), to demonstrate
+// localisation. Loaded once at parse time — the same
 // dict is passed to `alta(..., labels: ga-labels)`.
 #let ga-labels = toml("labels-ga.toml")
 
@@ -78,7 +79,7 @@
 // Each frame is `(cv: …, prefs: …)`, with `labels` (default English)
 // and `wrap` (show rules around its `alta()`, see `restyled`) where it
 // sets them. Frames using `no-image(cv)` drop the portrait; frames
-// using `cv` keep it. Dict spread (`base + (key: value)`) is Typst's
+// using `cv`, or `in-irish(cv)` (the content in Irish), keep it. Dict spread (`base + (key: value)`) is Typst's
 // equivalent of Scala's `base.copy(key = value)`, so each frame reads
 // as a small patch over the baseline.
 #let frames = (
@@ -163,20 +164,18 @@
       ),
   ),
 
-  // ── Frame 4 ─ crimson + portrait left + QR right + Irish labels ─
+  // ── Frame 4 ─ crimson + portrait left + QR right + Irish ────────
   // Image swung to the left of the header with a QR matrix mirrored
   // on the right — the flipped twin of frame 6's QR layout, exercising
   // the same feature under `imagePosition: "left"`. Section columns
   // swap emphasis (compact / support blocks lead, work, volunteer and
-  // projects move right). Section headings render in Irish via
-  // `labels-ga.toml`
-  // — the same data dict, just localised display strings.
+  // projects move right). In Irish: the headings, months and footer
+  // (`labels-ga.toml`) and the content (`in-irish`).
   (
-    cv: cv,
+    cv: in-irish(cv),
     prefs: base
       + (
         theme: themes.crimson,
-        bodySize: 10.5pt,
         imagePosition: "left",
         qrCode: auto,
         leftColumnSections: (
@@ -282,13 +281,14 @@
       ),
   ),
 
-  // ── Frame 8 ─ teal + rounded portrait left + single column + justified
+  // ── Frame 8 ─ teal + rounded portrait left + single column + justified + Irish
   // A second single column (`columnRatio: 1`), this one under a
   // rounded portrait on the left, with body text justified to both
   // edges.
-  // Headings, months and the footer in Irish (`labels-ga.toml`).
+  // In Irish: the headings, months and footer (`labels-ga.toml`) and
+  // the content (`in-irish`).
   (
-    cv: cv,
+    cv: in-irish(cv),
     prefs: base
       + (
         theme: themes.teal,
@@ -385,18 +385,19 @@
       ),
   ),
 
-  // ── Frame 12 ─ navy + large portrait right + full URLs ──────────
+  // ── Frame 12 ─ navy + large portrait right + full URLs + Irish ──
   // A larger portrait (`imageSize: 8em`) on the right, the contact
   // bar set up for paper (unlinked, profiles printed as URLs,
-  // `github.com/…`, in place of usernames), at `bodySize: 11pt`, with
+  // `github.com/…`, in place of usernames), at `bodySize: 10.5pt`, with
   // education, awards and publications in the main column.
-  // Headings, months and the footer in Irish (`labels-ga.toml`).
+  // In Irish: the headings, months and footer (`labels-ga.toml`) and
+  // the content (`in-irish`).
   (
-    cv: cv,
+    cv: in-irish(cv),
     prefs: base
       + (
         theme: themes.navy,
-        bodySize: 11pt,
+        bodySize: 10.5pt,
         imageSize: 8em,
         linkContactInfo: false,
         printFullUrls: true,
