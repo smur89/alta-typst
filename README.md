@@ -301,6 +301,17 @@ Parts of the CV carry Typst labels (`<alta-…>`) that show rules can target, to
 
 A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`. Every part is listed under [Part labels](#part-labels).
 
+An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()` and drop the separator between them (a wrapped row of pills sits closer than skill rows do):
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.8.0": alta, tag
+
+#show <alta-keyword>: it => tag(it)
+#alta(cv, preferences: (theme: (separator: (keywords: ""))))
+```
+<!-- x-release-please-end -->
+
 The list bullet is Typst's `list`, so change it with a show-set rule: `#show list: set list(marker: [–])`. A plain `#set list(...)` doesn't reach inside `alta()`.
 
 ### PDF metadata, PDF/A and accessibility
@@ -517,7 +528,7 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 | `space` | `xx-small` 0.15, `x-small` 0.3, `small` 0.5, `medium` 0.8, `large` 1.2 | The spacing scale, in multiples of `bodySize`. |
 | `stroke-width` | `thin` 0.5, `thick` 1 | Rule and border widths, in pt. |
 | `leading` | 0.55 | Line spacing, in `em`. |
-| `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "` | Between groups of facts, between items in a group, after a label (`Music: Trad`), and between two dates. |
+| `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "`, `keywords` `" · "` | Between groups of facts, between items in a group, after a label (`Music: Trad`), between two dates, and between an entry's keywords. |
 | `treatment` | `preamble` `"italic"`, `link` `"emph"`, `owner` `"strong"`, `label` `"strong"` | How a summary, a publication title, your name among authors and an interest's name stand out: `"italic"`, `"emph"`, `"strong"`, `"upper"` or `"none"`. |
 | `citation` | `issue` `("(", ")")`, `pages` `", "`, `source` `" "`, `page-range` `"–"` | The punctuation of `ACM 12(3), 45–67`. |
 
@@ -572,6 +583,7 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | `<alta-summary>` | A summary: the CV's, the objective, or an entry's. |
 | `<alta-pill>` | A skill pill's text (its box is the theme's). |
 | `<alta-pill-label>` | A skill group's label pill. |
+| `<alta-keyword>` | One of an entry's keywords: a project's keyword, an education's course. |
 | `<alta-rating-label>` | A language's name beside its rating. |
 | `<alta-footer>` | The page footer. |
 | `<alta-section-rule>` | The line under a section's heading. |

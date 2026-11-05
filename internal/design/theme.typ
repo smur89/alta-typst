@@ -55,8 +55,15 @@
   // `Manager, Pied Piper · 2024`: `items` within a group (a location's
   // parts too), `facts` between groups; `label` after an interest
   // group's name (`Music: Trad, Jazz`) and the footer's "Last
-  // updated"; `range` between a period's dates.
-  separator: (facts: " · ", items: ", ", label: ": ", range: " – "),
+  // updated"; `range` between a period's dates; `keywords` between an
+  // entry's keywords (a project's stack, education's courses).
+  separator: (
+    facts: " · ",
+    items: ", ",
+    label: ": ",
+    range: " – ",
+    keywords: " · ",
+  ),
   // A publication's citation, `ACM 12(3), 45–67`: the brackets around
   // the issue, before the pages, between the publisher and the rest,
   // and the dash that replaces hyphens in a page range (unspaced, where
