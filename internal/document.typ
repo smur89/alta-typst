@@ -30,6 +30,6 @@
     margin: prefs.margin,
     footer: _part("footer", footer),
   )
-  show: _content-styles.with(body-size, theme, prefs.justify)
+  show: _content-styles.with(theme, prefs.justify)
   body
 }
