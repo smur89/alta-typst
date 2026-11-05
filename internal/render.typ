@@ -11,13 +11,72 @@
 #import "design/presets.typ": themes
 #import "design/styles.typ": _justify
 #import "design/theme.typ": _theme-for
-#import "context.typ": _max-rating-state, _template-state
+#import "context.typ": _max-rating-state
 #import "document.typ": _document, _standalone
 #import "registry.typ": _renderers
 #import "components/columns.typ": _columns
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
 #import "../sections/footer.typ": _cv-details, _footer
+
+// The merged options, the read CV and the `ctx` every renderer takes
+// with its data, in `context`: the labels follow `text.lang`.
+// `format-date` formats a date per the preferences and labels; `owner`
+// is the CV owner's name, and `owners` every spelling of it
+// (`preferences.owner-names` too), trimmed and lowercased, to bold among
+// publication authors.
+#let _prepare(cv, labels, preferences) = {
+  let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
+  let (cv, sections) = _read-cv(cv, prefs)
+  let ctx = (
+    labels: labels,
+    prefs: prefs,
+    format-date: v => _format-date(v, prefs.date-format, labels.months),
+    owner: cv.basics.name,
+    owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
+  )
+  (cv: cv, sections: sections, ctx: ctx)
+}
+
+// The CV itself, from `_prepare`, in both of `alta()`'s forms.
+#let _cv-content((cv, sections, ctx)) = {
+  _max-rating-state.update(ctx.prefs.max-rating)
+  // What the footer helpers print (`sections/footer.typ`).
+  [#metadata(_cv-details(cv, ctx.labels))<alta-cv>]
+  show: _justify.with(ctx.prefs.justify)
+  _header(cv, ctx)
+  _intro(cv, ctx)
+  // Renderers are width-agnostic, so any section fits either column.
+  let render(key) = (_renderers.at(key))(sections.at(key), ctx)
+  _columns(
+    ctx.prefs.left-column-sections.map(render),
+    ctx.prefs.right-column-sections.map(render),
+    ctx.prefs.column-ratio,
+  )
+}
+
+// `alta()` inside the template, rendered by `altacv`'s show rule: only
+// the CV. At the next major (#239) `alta()` returns this directly.
+#let _alta-content(cv, labels: (:), preferences: (:)) = context {
+  _check-template-preferences(labels, preferences)
+  let prepared = _prepare(cv, labels, preferences)
+  let (cv, sections, ctx) = prepared
+  // For `altacv` to set at the top level: `set document` fails inside a
+  // container, where this may sit (`#block(alta(cv))`).
+  [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
+  _cv-content(prepared)
+}
+
+// `alta()` on its own (removed in the next major, #239): the template's
+// body and the preferences that stand in for the set rules after it,
+// the footer among them, around the CV.
+#let _alta-standalone(cv, labels: (:), preferences: (:)) = context {
+  let prepared = _prepare(cv, labels, preferences)
+  let (cv, sections, ctx) = prepared
+  set document(.._pdf-metadata(cv, sections, ctx.labels))
+  show: _standalone.with(ctx.prefs, ctx.labels, _footer(cv, ctx))
+  _cv-content(prepared)
+}
 
 /// The altacv template: `#show: altacv.with(theme: themes.navy)`, then
 /// `#alta(cv)` and any other content. It sets the theme, the default
@@ -32,21 +91,31 @@
 #let altacv(theme: themes.teal, body) = {
   // Checked and canonicalised as `preferences.theme` is.
   let theme = _merge-options((:), (theme: theme)).prefs.theme
-  _template-state.update(true)
   show: _document.with(_theme-for(theme, (:)), _default-preferences.margin)
+  // Picks `alta()`'s template form: the CV alone, from its metadata.
+  show <alta-internal-standalone>: none
+  show <alta-internal-cv>: it => _alta-content(
+    it.value.cv,
+    labels: it.value.labels,
+    preferences: it.value.preferences,
+  )
+  // The first CV's PDF metadata (`_alta-content`): a `set document` in
+  // a top-level `context` reaches the document, and one of the user's
+  // own in `body` still wins.
+  context {
+    let info = query(<alta-internal-document>).at(0, default: none)
+    if info != none { set document(..info.value) }
+  }
   body
 }
 
-/// Renders a CV from a JSON Resume-style dictionary. Inside
-/// `#show: altacv.with(..)` it emits only the CV; on its own it applies
-/// the template itself. Every input
-/// is checked before anything renders. The labels follow the document's
-/// language: `#set text(lang: "ga")` before `alta()` renders them in
-/// Irish.
-///
-/// Inside the template, document-level preferences (theme, colours, font,
+/// Renders a CV from a JSON Resume-style dictionary. On its own it
+/// applies the template itself. Inside `#show: altacv.with(..)` it emits
+/// only the CV, and document-level preferences (theme, colours, font,
 /// sizes, paper, margin, footers) panic, naming the template argument or
-/// set rule that replaces each.
+/// set rule that replaces each. Every input is checked before anything
+/// renders. The labels follow the document's language:
+/// `#set text(lang: "ga")` before `alta()` renders them in Irish.
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema plus altacv's
 ///   `custom.altacv` extensions. Unknown keys and wrong types panic,
@@ -62,46 +131,22 @@
   cv,
   labels: (:),
   preferences: (:),
-) = context {
-  let in-template = _template-state.get()
-  if in-template { _check-template-preferences(labels, preferences) }
-  let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
-  let (cv, sections) = _read-cv(cv, prefs)
-  // What every renderer takes with its data. `format-date` formats a
-  // date per the preferences and labels; `owner` is the CV owner's
-  // name, and `owners` every spelling of it (`preferences.owner-names`
-  // too), trimmed and lowercased, to bold among publication authors.
-  let ctx = (
+) = {
+  // Both forms; `altacv`'s show rules pick one. Through the style chain
+  // rather than state, so the choice holds on the first layout pass
+  // (standalone's `set page` would fail inside a container) and ends
+  // where the template's scope does. Without the template the metadata
+  // renders nothing.
+  [#_alta-standalone(
+    cv,
     labels: labels,
-    prefs: prefs,
-    format-date: v => _format-date(v, prefs.date-format, labels.months),
-    owner: cv.basics.name,
-    owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
-  )
-  let content = {
-    _max-rating-state.update(prefs.max-rating)
-    // What the footer helpers print (`sections/footer.typ`).
-    [#metadata(_cv-details(cv, labels))<alta-cv>]
-    set document(.._pdf-metadata(cv, sections, labels))
-    show: _justify.with(prefs.justify)
-    _header(cv, ctx)
-    _intro(cv, ctx)
-    // Renderers are width-agnostic, so any section fits either column.
-    let render(key) = (_renderers.at(key))(sections.at(key), ctx)
-    _columns(
-      prefs.left-column-sections.map(render),
-      prefs.right-column-sections.map(render),
-      prefs.column-ratio,
-    )
-  }
-  if in-template { content } else {
-    // Standalone (removed in the next major, #239): the template's body
-    // and the preferences that stand in for set rules after it. Not
-    // `altacv` itself: its `_template-state` update would sit inside
-    // this context, which reads the state, so it would never converge.
-    show: _standalone.with(prefs, labels, _footer(cv, ctx))
-    content
-  }
+    preferences: preferences,
+  )<alta-internal-standalone>]
+  [#metadata((
+    cv: cv,
+    labels: labels,
+    preferences: preferences,
+  ))<alta-internal-cv>]
 }
 
 // `..rest` forwards future `alta` kwargs without an edit here. Extra
