@@ -6,17 +6,17 @@
 // Every preference is checked, by a rule or by name here, so a new one
 // can't skip validation; the rules keep the defaults' order.
 #let checked-elsewhere = (
-  "publicationIcons",
-  "projectIcons",
-  "profileIcons",
+  "publication-icons",
+  "project-icons",
+  "profile-icons",
   "font",
   "theme",
   "colours",
-  "leftColumnSections",
-  "rightColumnSections",
-  "linkContactInfo",
-  "groupCertificates",
-  "showPronouns",
+  "left-column-sections",
+  "right-column-sections",
+  "link-contact-info",
+  "group-certificates",
+  "show-pronouns",
 )
 #assert.eq(
   _preference-rules.keys(),

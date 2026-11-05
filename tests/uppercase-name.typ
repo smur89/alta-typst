@@ -1,4 +1,4 @@
-// `uppercaseName: false` with mixed-case Turkish input. The dotted /
+// `uppercase-name: false` with mixed-case Turkish input. The dotted /
 // dotless i is the canonical case where Unicode default upper-casing
 // loses information, so this fixture pins the opt-out path. The
 // default `true` is exercised by every other fixture.
@@ -22,6 +22,6 @@
     ),
   ),
   preferences: (
-    uppercaseName: false,
+    uppercase-name: false,
   ),
 )

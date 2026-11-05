@@ -38,14 +38,14 @@
   let (cv, sections) = _read-cv(cv, prefs)
   // What every renderer takes with its data. `format-date` formats a
   // date per the preferences and labels; `owner` is the CV owner's
-  // name, and `owners` every spelling of it (`preferences.ownerNames`
+  // name, and `owners` every spelling of it (`preferences.owner-names`
   // too), trimmed and lowercased, to bold among publication authors.
   let ctx = (
     labels: labels,
     prefs: prefs,
-    format-date: v => _format-date(v, prefs.dateFormat, labels.months),
+    format-date: v => _format-date(v, prefs.date-format, labels.months),
     owner: cv.basics.name,
-    owners: (cv.basics.name, ..prefs.ownerNames).map(n => lower(n.trim())),
+    owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
   )
   set document(.._pdf-metadata(cv, sections, labels))
   show: _document.with(prefs, labels, footer: _footer(cv, ctx))
@@ -55,9 +55,9 @@
   // Renderers are width-agnostic, so any section fits either column.
   let render(key) = (_renderers.at(key))(sections.at(key), ctx)
   _columns(
-    prefs.leftColumnSections.map(render),
-    prefs.rightColumnSections.map(render),
-    prefs.columnRatio,
+    prefs.left-column-sections.map(render),
+    prefs.right-column-sections.map(render),
+    prefs.column-ratio,
   )
 }
 

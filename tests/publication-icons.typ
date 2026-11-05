@@ -1,6 +1,6 @@
-// `preferences.publicationIcons`: a custom type, matched
+// `preferences.publication-icons`: a custom type, matched
 // case-insensitively, and a remapped built-in. Precedence over the
-// deprecated `labels.publicationIcons` is pinned in
+// deprecated `labels.publication-icons` is pinned in
 // tests/unit/canonical.typ.
 
 #import "../lib.typ": alta
@@ -15,6 +15,6 @@
       (name: "An Episode", type: "Podcast", releaseDate: "2025-01"),
     ),
   ),
-  labels: (publicationTypes: (podcast: "Podcasts")),
-  preferences: (publicationIcons: (Podcast: "microphone", talk: "newspaper")),
+  labels: (publication-types: (podcast: "Podcasts")),
+  preferences: (publication-icons: (Podcast: "microphone", talk: "newspaper")),
 )

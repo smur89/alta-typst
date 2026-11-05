@@ -1,7 +1,7 @@
 // The defaults the caller's labels and preferences merge over: the
 // labels, kept in `labels-en.toml` and its translations so translators
 // edit a plain resource file rather than Typst source, and the
-// preferences, with the `maps-providers` presets for `mapsProvider`.
+// preferences, with the `maps-providers` presets for `maps-provider`.
 
 #import "../design/icon-set.typ": _network-icons, _publication-icons
 #import "../design/presets.typ": themes
@@ -12,7 +12,7 @@
 // it changes, over `_default-labels` (`_merge-options`).
 #let _translations = (ga: toml("labels-ga.toml"))
 
-/// Map deep-link URL templates for `preferences.mapsProvider`; `{q}`
+/// Map deep-link URL templates for `preferences.maps-provider`; `{q}`
 /// becomes the URL-encoded `basics.location`.
 /// -> dictionary
 #let maps-providers = (
@@ -31,52 +31,52 @@
   // Look.
   // `auto`: the theme's.
   font: auto,
-  bodySize: 10pt,
+  body-size: 10pt,
   // Renders as the theme state's default does (`tests/unit/colours.typ`
   // checks).
   theme: themes.teal,
   colours: (:),
-  publicationIcons: _publication-icons,
-  projectIcons: (:),
-  profileIcons: _network-icons,
+  publication-icons: _publication-icons,
+  project-icons: (:),
+  profile-icons: _network-icons,
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
-  uppercaseName: true,
-  headerTextAlign: left,
-  imageSize: 6em,
-  imageShape: "circle",
-  imagePosition: right,
-  // Deprecated (#239): read into `imagePosition` (`canonical.typ`).
-  imageStackOrder: "above",
-  qrCode: none,
+  uppercase-name: true,
+  header-text-align: left,
+  image-size: 6em,
+  image-shape: "circle",
+  image-position: right,
+  // Deprecated (#239): read into `image-position` (`canonical.typ`).
+  image-stack-order: "above",
+  qr-code: none,
   // Page and layout.
   paper: "a4",
   margin: (x: 0.9cm, y: 1.5cm),
-  columnRatio: 0.65,
-  leftColumnSections: _keys-for-column("left"),
-  rightColumnSections: _keys-for-column("right"),
+  column-ratio: 0.65,
+  left-column-sections: _keys-for-column("left"),
+  right-column-sections: _keys-for-column("right"),
   // Footer.
-  pageFooter: none,
-  lastModifiedFooter: false,
-  // Rides the `lastModifiedFooter` line; no-op without it.
-  footerVersion: false,
+  page-footer: none,
+  last-modified-footer: false,
+  // Rides the `last-modified-footer` line; no-op without it.
+  footer-version: false,
   // Formatting and links.
   justify: false,
-  dateFormat: "long",
-  linkContactInfo: true,
-  printFullUrls: false,
-  mapsProvider: maps-providers.google,
-  maxRating: 5,
-  skillLevelDisplay: auto,
-  ownerNames: (),
+  date-format: "long",
+  link-contact-info: true,
+  print-full-urls: false,
+  maps-provider: maps-providers.google,
+  max-rating: 5,
+  skill-level-display: auto,
+  owner-names: (),
   // Deprecated, removed in the next major (#239). `accent` has no
   // default, as `_canonical-preferences` folds it into `colours`.
-  // `groupCertificates` and `showPronouns` are ignored (JSON Resume
+  // `group-certificates` and `show-pronouns` are ignored (JSON Resume
   // dropped `basics.pronouns` as added by accident,
   // https://github.com/jsonresume/jsonresume.org/pull/629),
-  // and `_canonical-cv` turns `referencesAvailableOnRequest` into a
+  // and `_canonical-cv` turns `references-available-on-request` into a
   // `references[].availableOnRequest` entry.
-  groupCertificates: true,
-  showPronouns: false,
-  referencesAvailableOnRequest: false,
+  group-certificates: true,
+  show-pronouns: false,
+  references-available-on-request: false,
 )

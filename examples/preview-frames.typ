@@ -22,7 +22,7 @@
 // bolder themes (odd frames) alternate with the single-hue ones (even
 // frames), so neighbouring frames differ in character, not just hue.
 //
-// `imagePosition: bottom` is deliberately excluded — the photo
+// `image-position: bottom` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
@@ -44,21 +44,21 @@
 // invert layouts on top of this same starting point.
 #let base = (
   theme: themes.altacv,
-  dateFormat: "[day padding:none] [month repr:short] [year]",
-  mapsProvider: maps-providers.osm,
-  pageFooter: auto,
-  maxRating: 6,
+  date-format: "[day padding:none] [month repr:short] [year]",
+  maps-provider: maps-providers.osm,
+  page-footer: auto,
+  max-rating: 6,
   // One body size for every frame, so what changes between frames is
   // the theme and layout, not the type.
-  bodySize: 10.5pt,
-  leftColumnSections: (
+  body-size: 10.5pt,
+  left-column-sections: (
     "work",
     "volunteer",
     "projects",
     "publications",
     "interests",
   ),
-  rightColumnSections: (
+  right-column-sections: (
     "focusAreas",
     "skills",
     "languages",
@@ -98,14 +98,14 @@
     cv: no-image(cv),
     prefs: base
       + (
-        leftColumnSections: (
+        left-column-sections: (
           "work",
           "volunteer",
           "projects",
           "publications",
           "awards",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "focusAreas",
           "skills",
           "languages",
@@ -118,7 +118,7 @@
 
   // ── Frame 2 ─ charcoal + portrait centred above + side panel left
   // The portrait stacked above a centred header, over a narrow side
-  // panel on the left (`columnRatio: 0.35`) led by skills and
+  // panel on the left (`column-ratio: 0.35`) led by skills and
   // languages, with work leading the main column on the right.
   // Charcoal contrasts the dark red opener.
   (
@@ -126,10 +126,10 @@
     prefs: base
       + (
         theme: themes.charcoal,
-        columnRatio: 0.35,
-        imagePosition: top,
-        headerTextAlign: center,
-        leftColumnSections: (
+        column-ratio: 0.35,
+        image-position: top,
+        header-text-align: center,
+        left-column-sections: (
           "skills",
           "languages",
           "focusAreas",
@@ -137,12 +137,17 @@
           "certificates",
           "interests",
         ),
-        rightColumnSections: ("work", "volunteer", "projects", "publications"),
+        right-column-sections: (
+          "work",
+          "volunteer",
+          "projects",
+          "publications",
+        ),
       ),
   ),
 
   // ── Frame 3 ─ rust + no image + single column ───────────────────
-  // Single-column layout (`columnRatio: 1`) led by areas of focus,
+  // Single-column layout (`column-ratio: 1`) led by areas of focus,
   // skills and languages, then work, projects and education, with
   // closure-formatted quarterly date labels ("Q3 2024").
   (
@@ -150,21 +155,21 @@
     prefs: base
       + (
         theme: themes.rust,
-        columnRatio: 1,
-        dateFormat: parts => {
+        column-ratio: 1,
+        date-format: parts => {
           if parts.month == none { return str(parts.year) }
           let quarter = int((parts.month - 1) / 3) + 1
           "Q" + str(quarter) + " " + str(parts.year)
         },
-        leftColumnSections: ("focusAreas", "skills", "languages", "work"),
-        rightColumnSections: ("projects", "education"),
+        left-column-sections: ("focusAreas", "skills", "languages", "work"),
+        right-column-sections: ("projects", "education"),
       ),
   ),
 
   // ── Frame 4 ─ crimson + portrait left + QR right + Irish ────────
   // Image swung to the left of the header with a QR matrix mirrored
   // on the right — the flipped twin of frame 6's QR layout, exercising
-  // the same feature under `imagePosition: left`. Section columns
+  // the same feature under `image-position: left`. Section columns
   // swap emphasis (compact / support blocks lead, work and volunteer
   // move right). In Irish: the headings, months and footer
   // (`in-ga`) and the content (`in-irish`).
@@ -173,9 +178,9 @@
     prefs: base
       + (
         theme: themes.crimson,
-        imagePosition: left,
-        qrCode: auto,
-        leftColumnSections: (
+        image-position: left,
+        qr-code: auto,
+        left-column-sections: (
           "focusAreas",
           "skills",
           "languages",
@@ -184,30 +189,30 @@
           "awards",
           "interests",
         ),
-        rightColumnSections: ("work", "volunteer"),
+        right-column-sections: ("work", "volunteer"),
       ),
     wrap: in-ga,
   ),
 
   // ── Frame 5 ─ bauhaus + no image + centred + equal columns ──────
   // A centred header over two columns of equal width
-  // (`columnRatio: 0.5`) that split the long-form sections: projects
+  // (`column-ratio: 0.5`) that split the long-form sections: projects
   // and publications lead the left, work the right.
   (
     cv: no-image(cv),
     prefs: base
       + (
         theme: themes.bauhaus,
-        headerTextAlign: center,
-        columnRatio: 0.5,
-        leftColumnSections: (
+        header-text-align: center,
+        column-ratio: 0.5,
+        left-column-sections: (
           "projects",
           "publications",
           "education",
           "certificates",
           "interests",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "work",
           "volunteer",
           "focusAreas",
@@ -222,24 +227,24 @@
   // opposite side — a [QR | text | portrait] header showcasing the
   // print-affordance feature on the standard layout. Compact European-
   // style `[day]/[month]/[year]` dates. Education
-  // and certificates lead the main column (`columnRatio: 0.6`), ahead
+  // and certificates lead the main column (`column-ratio: 0.6`), ahead
   // of work.
   (
     cv: cv,
     prefs: base
       + (
         theme: themes.plum,
-        columnRatio: 0.6,
-        qrCode: auto,
-        dateFormat: "[day]/[month]/[year]",
-        leftColumnSections: (
+        column-ratio: 0.6,
+        qr-code: auto,
+        date-format: "[day]/[month]/[year]",
+        left-column-sections: (
           "education",
           "certificates",
           "work",
           "volunteer",
           "awards",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "focusAreas",
           "skills",
           "languages",
@@ -251,7 +256,7 @@
   ),
 
   // ── Frame 7 ─ riso + no image + side panel left + projects first
-  // A side panel on the left (`columnRatio: 0.42`) of compact
+  // A side panel on the left (`column-ratio: 0.42`) of compact
   // sections; projects and publications lead the main column on the
   // right, ahead of work. Name cased naturally.
   (
@@ -259,9 +264,9 @@
     prefs: base
       + (
         theme: themes.riso,
-        columnRatio: 0.42,
-        uppercaseName: false,
-        leftColumnSections: (
+        column-ratio: 0.42,
+        uppercase-name: false,
+        left-column-sections: (
           "focusAreas",
           "skills",
           "languages",
@@ -269,7 +274,7 @@
           "certificates",
           "interests",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "projects",
           "publications",
           "work",
@@ -280,7 +285,7 @@
   ),
 
   // ── Frame 8 ─ teal + rounded portrait left + single column + justified + Irish
-  // A second single column (`columnRatio: 1`), this one under a
+  // A second single column (`column-ratio: 1`), this one under a
   // rounded portrait on the left, led by education, with body text
   // justified to both edges.
   // In Irish: the headings, months and footer (`in-ga`) and
@@ -290,34 +295,34 @@
     prefs: base
       + (
         theme: themes.teal,
-        imagePosition: left,
-        imageShape: "rounded",
+        image-position: left,
+        image-shape: "rounded",
         justify: true,
-        columnRatio: 1,
-        leftColumnSections: ("education", "work", "projects"),
-        rightColumnSections: ("skills", "languages", "awards"),
+        column-ratio: 1,
+        left-column-sections: ("education", "work", "projects"),
+        right-column-sections: ("skills", "languages", "awards"),
       ),
     wrap: in-ga,
   ),
 
   // ── Frame 9 ─ catppuccin + no image + right-aligned + narrow panel left
   // Header text aligned right, over a very narrow side panel on the
-  // left (`columnRatio: 0.3`) and a wide main column on the right.
+  // left (`column-ratio: 0.3`) and a wide main column on the right.
   (
     cv: no-image(cv),
     prefs: base
       + (
         theme: themes.catppuccin,
-        columnRatio: 0.3,
-        headerTextAlign: right,
-        leftColumnSections: (
+        column-ratio: 0.3,
+        header-text-align: right,
+        left-column-sections: (
           "focusAreas",
           "skills",
           "languages",
           "certificates",
           "interests",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "work",
           "volunteer",
           "projects",
@@ -329,7 +334,7 @@
 
   // ── Frame 10 ─ forest + square portrait right + wide main column + restyled
   // A square-cropped portrait, a wider main column
-  // (`columnRatio: 0.7`) for work, volunteer, projects, publications
+  // (`column-ratio: 0.7`) for work, volunteer, projects, publications
   // and awards, and show rules (`restyled`) drawing stars for the
   // rating dots and entries' keywords as pills, with the keyword
   // separator dropped.
@@ -338,16 +343,16 @@
     prefs: base
       + (
         theme: themes.forest + (separator: (keywords: "")),
-        imageShape: "square",
-        columnRatio: 0.7,
-        leftColumnSections: (
+        image-shape: "square",
+        column-ratio: 0.7,
+        left-column-sections: (
           "work",
           "volunteer",
           "projects",
           "publications",
           "awards",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "focusAreas",
           "skills",
           "languages",
@@ -362,22 +367,22 @@
   // ── Frame 11 ─ phosphor + no image + publications first + ISO dates
   // ISO 8601 dates (`2024-03`) suiting the terminal look; publications
   // and projects lead the main column on the right
-  // (`columnRatio: 0.45`).
+  // (`column-ratio: 0.45`).
   (
     cv: no-image(cv),
     prefs: base
       + (
         theme: themes.phosphor,
-        columnRatio: 0.45,
-        dateFormat: "[year]-[month]",
-        leftColumnSections: (
+        column-ratio: 0.45,
+        date-format: "[year]-[month]",
+        left-column-sections: (
           "focusAreas",
           "skills",
           "languages",
           "education",
           "certificates",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "publications",
           "projects",
           "work",
@@ -388,9 +393,9 @@
   ),
 
   // ── Frame 12 ─ navy + large portrait right + full URLs + Irish ──
-  // A larger portrait (`imageSize: 8em`) on the right, the contact
+  // A larger portrait (`image-size: 8em`) on the right, the contact
   // bar set up for paper (unlinked, profiles printed as URLs,
-  // `github.com/…`, in place of usernames), with volunteer leading the main column (`columnRatio: 0.62`).
+  // `github.com/…`, in place of usernames), with volunteer leading the main column (`column-ratio: 0.62`).
   // In Irish: the headings, months and footer (`in-ga`) and
   // the content (`in-irish`).
   (
@@ -398,18 +403,18 @@
     prefs: base
       + (
         theme: themes.navy,
-        columnRatio: 0.62,
-        imageSize: 8em,
-        linkContactInfo: false,
-        printFullUrls: true,
-        leftColumnSections: (
+        column-ratio: 0.62,
+        image-size: 8em,
+        link-contact-info: false,
+        print-full-urls: true,
+        left-column-sections: (
           "volunteer",
           "work",
           "education",
           "awards",
           "publications",
         ),
-        rightColumnSections: (
+        right-column-sections: (
           "focusAreas",
           "skills",
           "languages",

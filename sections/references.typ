@@ -1,5 +1,5 @@
 // References. `availableOnRequest: true` shows
-// `labels.referencesAvailableOnRequest` instead of a quote; when every
+// `labels.references-available-on-request` instead of a quote; when every
 // entry is on request the section is that one line, with no names.
 // Nameless entries render anonymously. Contact details stay out, as
 // JSON Resume intends.
@@ -25,7 +25,7 @@
   // as nothing.
   if entries.all(_on-request) {
     _section-frame(labels.references, entries, _preamble(
-      labels.referencesAvailableOnRequest,
+      labels.references-available-on-request,
     ))
   } else {
     _section(labels.references, entries, entry => _entry(
@@ -33,7 +33,7 @@
       title: _field(entry, "name"),
       subtitle: _attribution(entry, format-date),
       summary: if _on-request(entry) {
-        labels.referencesAvailableOnRequest
+        labels.references-available-on-request
       } else {
         entry.reference
       },

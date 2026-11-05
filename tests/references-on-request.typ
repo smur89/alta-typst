@@ -2,12 +2,12 @@
 // on request' rather than publishing the reference". Three documents:
 //
 //   1. Mixed — a quoted reference, a named referee on request (name +
-//      `labels.referencesAvailableOnRequest` in place of the quote), an
+//      `labels.references-available-on-request` in place of the quote), an
 //      entry with both a quote and the flag (the flag wins, the quote
 //      stays private), and a non-boolean flag (ignored, so the
 //      quote-less entry is skipped as before).
 //   2. Every entry on request — one line under the heading, no names,
-//      the same output as `preferences.referencesAvailableOnRequest`.
+//      the same output as `preferences.references-available-on-request`.
 //   3. Every entry on request with a translated label.
 
 #import "../lib.typ": alta
@@ -47,5 +47,5 @@
     basics: (name: "Jane Doe", email: "jane@example.com"),
     references: ((name: "Grace Hopper", availableOnRequest: true),),
   ),
-  labels: (referencesAvailableOnRequest: "Referenzen auf Anfrage."),
+  labels: (references-available-on-request: "Referenzen auf Anfrage."),
 )

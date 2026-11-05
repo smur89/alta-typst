@@ -1,6 +1,6 @@
 // All certificates have empty / missing `name`. The Certifications
 // section should be suppressed entirely — no orphan heading with no
-// items below it. Also sets the deprecated `groupCertificates: false`,
+// items below it. Also sets the deprecated `group-certificates: false`,
 // which is where an earlier regression lived.
 
 #import "../lib.typ": alta
@@ -14,6 +14,6 @@
     ),
   ),
   preferences: (
-    groupCertificates: false,
+    group-certificates: false,
   ),
 )

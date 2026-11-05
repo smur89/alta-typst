@@ -18,7 +18,7 @@
 #assert.eq(ga.work, "Taithí Oibre")
 #assert.eq(ga.months.first(), "Ean")
 #assert.eq(ga.lang, "ga")
-#assert.eq(ga.publicationTypes.book, "Books")
+#assert.eq(ga.publication-types.book, "Books")
 
 // A language with no translation keeps the English labels, and its
 // own code.

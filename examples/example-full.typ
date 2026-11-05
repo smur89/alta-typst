@@ -26,13 +26,13 @@
 //     untyped minimal entry under "Other".
 //   • Publications: grouped by `type` code (`article`, `paper`,
 //     `talk`); `paper` gets its heading and icon at the `alta()` call.
-//     The paper lists `authors`, the owner set apart via `ownerNames`,
+//     The paper lists `authors`, the owner set apart via `owner-names`,
 //     and a DOI.
 //   • Interests: structured `{name, keywords}` form.
 //   • References: a populated entry plus an anonymous (no `name`)
 //     quote.
 //   • Preferences: a theme, short dates, custom maps provider, page
-//     footer, QR code, `ownerNames`, a non-default `maxRating`, custom
+//     footer, QR code, `owner-names`, a non-default `max-rating`, custom
 //     publication and project icons, and the column layout.
 
 #import "../lib.typ": alta, avatar-placeholder, maps-providers, themes
@@ -88,9 +88,9 @@
   // PDF document metadata. `lastModified` accepts a bare ISO date or
   // a full timestamp; only the calendar part is used for `set
   // document(date:)`, and it surfaces optionally in a page footer when
-  // `preferences.lastModifiedFooter: true`. `canonical` and `version`
+  // `preferences.last-modified-footer: true`. `canonical` and `version`
   // have no dedicated Typst document field, so they append to the PDF
-  // Keywords (and `version` can suffix the footer via `footerVersion`).
+  // Keywords (and `version` can suffix the footer via `footer-version`).
   meta: (
     canonical: "https://example.com/cv.json",
     version: "v1.0.0",
@@ -288,9 +288,9 @@
 
   // Three groups by `type` code: `article`, `paper`, `talk`. `paper`
   // isn't a built-in code, so the `alta()` call below names its heading
-  // (`labels.publicationTypes`) and icon (`preferences.publicationIcons`).
+  // (`labels.publication-types`) and icon (`preferences.publication-icons`).
   // The paper lists its `authors`, the owner's entry set apart by
-  // matching `preferences.ownerNames`, and a DOI.
+  // matching `preferences.owner-names`, and a DOI.
   publications: (
     (
       name: "Event Sourcing in Practice",
@@ -325,25 +325,25 @@
 // long-form blocks; the rest of the layout takes the shipped defaults.
 #alta(
   cv,
-  labels: (publicationTypes: (paper: "Conference Papers")),
+  labels: (publication-types: (paper: "Conference Papers")),
   preferences: (
     theme: themes.navy,
-    publicationIcons: (paper: "newspaper"),
-    projectIcons: (application: "laptop-code", library: "cubes"),
-    dateFormat: "[day padding:none] [month repr:short] [year]",
-    mapsProvider: maps-providers.osm,
-    pageFooter: auto,
-    qrCode: auto,
-    ownerNames: ("S. Ó Murchú",),
-    maxRating: 6,
-    leftColumnSections: (
+    publication-icons: (paper: "newspaper"),
+    project-icons: (application: "laptop-code", library: "cubes"),
+    date-format: "[day padding:none] [month repr:short] [year]",
+    maps-provider: maps-providers.osm,
+    page-footer: auto,
+    qr-code: auto,
+    owner-names: ("S. Ó Murchú",),
+    max-rating: 6,
+    left-column-sections: (
       "work",
       "volunteer",
       "projects",
       "publications",
       "interests",
     ),
-    rightColumnSections: (
+    right-column-sections: (
       "focusAreas",
       "skills",
       "languages",

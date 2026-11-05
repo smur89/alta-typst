@@ -36,7 +36,7 @@
 }
 
 // A profile network's FontAwesome glyph from the merged, lowercase-keyed
-// `preferences.profileIcons`, or `none` for a network it doesn't map.
+// `preferences.profile-icons`, or `none` for a network it doesn't map.
 // The network as written is looked up before its alias's key, so `x`
 // can be mapped apart from `twitter`, and a `twitter` mapping covers
 // both.

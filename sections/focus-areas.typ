@@ -7,7 +7,7 @@
 
 // One list, not an entry per item, so the bullets keep list spacing.
 #let _focus-areas(items, (labels, ..)) = _section-frame(
-  labels.focusAreas,
+  labels.focus-areas,
   items,
   list(..items),
 )

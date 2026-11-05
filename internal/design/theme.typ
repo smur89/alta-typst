@@ -20,7 +20,7 @@
 #let _accent-roles(accent) = (
   accent: accent,
   heading: accent,
-  headingRule: accent,
+  heading-rule: accent,
   subheading: accent,
   name: accent,
 )
@@ -58,7 +58,7 @@
     display: (size: 2.5, weight: "bold"),
     headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
-    // No size: `bodySize` is the body's. The weight is the body text's
+    // No size: `body-size` is the body's. The weight is the body text's
     // (`_document`) and the pills'.
     body: (weight: "regular"),
   ),
@@ -194,7 +194,7 @@
       contact-gap: sp.large,
       ornament-gutter: sp.medium * 1em,
       photo-gap: sp.medium,
-      // The corner radius per `preferences.imageShape`.
+      // The corner radius per `preferences.image-shape`.
       portrait-radius: (circle: 50%, rounded: 15%, square: 0%),
       // The QR code's side.
       qr: 3.5,

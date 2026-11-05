@@ -4,7 +4,7 @@
   colours: (
     name: rgb("#4C4F69"),
     heading: rgb("#8839EF"),
-    headingRule: rgb("#EA76CB"),
+    heading-rule: rgb("#EA76CB"),
     subheading: rgb("#6C6F85"),
     accent: rgb("#1E66F5"),
     emphasis: rgb("#4C4F69"),

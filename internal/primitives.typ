@@ -236,7 +236,7 @@
   } #body]
 
 // The portrait, clipped to a square with the theme's corner radius for
-// `shape` (a `preferences.imageShape`). `image()` resolves a bare string path from
+// `shape` (a `preferences.image-shape`). `image()` resolves a bare string path from
 // the file that calls it, so this stays in `internal/`, where a bare
 // `basics.image` has always resolved; `path` and `bytes` sources let
 // callers anchor resolution at their own .typ instead. `alt` becomes

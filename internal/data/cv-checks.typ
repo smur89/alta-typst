@@ -65,12 +65,12 @@
   optional: true,
 )
 
-// An entry's `custom.altacv.rating`, checked against `maxRating` when
+// An entry's `custom.altacv.rating`, checked against `max-rating` when
 // set; `none` when not.
 #let _altacv-rating(key, entry, prefs) = {
   let rating = _altacv(entry, "rating")
   if rating != none {
-    _check-rating(key + "[].custom.altacv.rating", rating, prefs.maxRating)
+    _check-rating(key + "[].custom.altacv.rating", rating, prefs.max-rating)
   }
   rating
 }
@@ -90,21 +90,21 @@
 #let _skill-level-expected = (
   "one of "
     + _prose-list(_skill-levels.keys().map(_quote))
-    + " with `skillLevelDisplay: \"rating\"`, or overridden by `custom.altacv.rating`"
+    + " with `skill-level-display: \"rating\"`, or overridden by `custom.altacv.rating`"
 )
 
-// With `skillLevelDisplay: "rating"`, a `level` must map to dots.
+// With `skill-level-display: "rating"`, a `level` must map to dots.
 #let _check-skill(key, entry, prefs) = {
   let level = _field(entry, "level")
   if (
     _altacv-rating(key, entry, prefs) == none
-      and prefs.skillLevelDisplay == "rating"
+      and prefs.skill-level-display == "rating"
       and level != none
   ) {
     _require(
       key + "[].level",
       level,
-      _term-rating(entry, "level", _skill-levels, prefs.maxRating) != none,
+      _term-rating(entry, "level", _skill-levels, prefs.max-rating) != none,
       _skill-level-expected,
     )
   }
@@ -152,22 +152,22 @@
       "network" in profile,
       "set",
     )
-    if _profile-glyph(profile, prefs.profileIcons) == none {
+    if _profile-glyph(profile, prefs.profile-icons) == none {
       _unknown(
         "profile network",
         repr(profile.network),
-        prefs.profileIcons.keys().join(", "),
-        hint: " To use another, map it to a FontAwesome glyph in preferences.profileIcons (e.g. (kaggle: \"kaggle\")).",
+        prefs.profile-icons.keys().join(", "),
+        hint: " To use another, map it to a FontAwesome glyph in preferences.profile-icons (e.g. (kaggle: \"kaggle\")).",
       )
     }
   }
-  if prefs.qrCode == auto {
+  if prefs.qr-code == auto {
     let url = basics.at("url", default: none)
     _require(
       "basics.url",
       url,
       _present-str(url),
-      "a non-empty URL string when preferences.qrCode is `auto`",
+      "a non-empty URL string when preferences.qr-code is `auto`",
     )
   }
   _check-type("meta", cv.meta, (dictionary,), "a dictionary")

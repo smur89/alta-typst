@@ -93,7 +93,7 @@
     // The stroke is `set` around the `section-rule` part, so a user's
     // `show <alta-section-rule>: set line(...)` overrides it.
     #{
-      set line(stroke: sw.thick + colours.headingRule)
+      set line(stroke: sw.thick + colours.heading-rule)
       _part("section-rule", line(length: 100%))
     }
     #v(below * body-size)

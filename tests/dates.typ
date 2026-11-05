@@ -1,4 +1,4 @@
-// Exercises preferences.dateFormat across every supported variant:
+// Exercises preferences.date-format across every supported variant:
 // - default "long" formatter on ISO inputs (yyyy / yyyy-mm / yyyy-mm-dd)
 // - non-ISO strings pass through verbatim (back-compat)
 // - "short" formatter (dd/mm/yyyy and mm/yyyy)
@@ -68,19 +68,19 @@
 #pagebreak()
 
 // 2. "short" formatter — numeric mm/yyyy and dd/mm/yyyy.
-#alta(base-cv, preferences: (dateFormat: "short"))
+#alta(base-cv, preferences: (date-format: "short"))
 
 #pagebreak()
 
 // 3. "iso" passthrough — every date renders exactly as supplied.
-#alta(base-cv, preferences: (dateFormat: "iso"))
+#alta(base-cv, preferences: (date-format: "iso"))
 
 #pagebreak()
 
 // 4. Closure formatter — caller emits a fully custom shape. Receives
 //    a parsed (year, month?, day?) dict; must return a string.
 #alta(base-cv, preferences: (
-  dateFormat: parts => {
+  date-format: parts => {
     if parts.month == none { return str(parts.year) }
     let mm = if parts.month < 10 { "0" + str(parts.month) } else {
       str(parts.month)
@@ -96,7 +96,7 @@
 //    miss month/day) substitute empty strings and the surrounding
 //    separators are stripped so partials degrade gracefully.
 #alta(base-cv, preferences: (
-  dateFormat: "[day padding:none] [month repr:short] [year]",
+  date-format: "[day padding:none] [month repr:short] [year]",
 ))
 
 #pagebreak()
@@ -106,7 +106,7 @@
 //     variant, plus a non-ASCII middot separator that the new
 //     unicode-aware separator-strip handles cleanly on partials.
 #alta(base-cv, preferences: (
-  dateFormat: "[day padding:zero] · [month repr:long] · [year]",
+  date-format: "[day padding:zero] · [month repr:long] · [year]",
 ))
 
 #pagebreak()

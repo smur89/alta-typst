@@ -46,7 +46,7 @@
 // at least WCAG AA's 4.5:1 on the white page.
 #for (name, theme) in themes {
   let colours = roles((theme: theme))
-  for key in colours.keys().filter(k => k not in ("headingRule", "border")) {
+  for key in colours.keys().filter(k => k not in ("heading-rule", "border")) {
     let ratio = _contrast(colours.at(key))
     assert(ratio >= 4.5, message: name + "." + key + ": " + str(ratio))
   }
@@ -60,14 +60,14 @@
 // `colours` sets only the roles it names, over the chosen theme.
 #let tweaked = roles((theme: themes.altacv, colours: (body: black)))
 #assert.eq(tweaked.body, black)
-#assert.eq(tweaked.headingRule, themes.altacv.colours.headingRule)
+#assert.eq(tweaked.heading-rule, themes.altacv.colours.heading-rule)
 #assert.eq(tweaked.secondary, black.lighten(35%))
 #assert.eq(roles((colours: (accent: red))).heading, palettes.teal)
 
 // #239: the deprecated top-level `accent` colours the accent roles
 // with one colour, beneath the caller's `colours`.
 #let legacy = roles((accent: palettes.navy))
-#for key in ("accent", "heading", "headingRule", "subheading", "name") {
+#for key in ("accent", "heading", "heading-rule", "subheading", "name") {
   assert.eq(legacy.at(key), palettes.navy)
 }
 #assert.eq(legacy.body, defaults.body)

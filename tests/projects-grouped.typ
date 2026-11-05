@@ -1,7 +1,7 @@
 // JSON Resume `projects` clustered by `type` (an optional field).
 // When at least one entry is typed, entries group under `====`
 // subheadings in first-occurrence order; untyped entries pool under
-// `labels.otherProjects` ("Other"). Fixture covers: two entries
+// `labels.other-projects` ("Other"). Fixture covers: two entries
 // sharing a type, a second type, and an untyped entry falling through
 // to the "Other" bucket.
 

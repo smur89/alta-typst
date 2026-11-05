@@ -11,13 +11,13 @@
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
 
-// `linkContactInfo` channels and `headerTextAlign` values. In `data/`,
+// `link-contact-info` channels and `header-text-align` values. In `data/`,
 // as `sections/header.typ` reads them too and `data/` may not import
 // sections.
 #let _contact-channels = ("email", "phone", "location", "url", "profiles")
 
 // Unknown keys panic rather than being silently absorbed. The keys
-// named in `tables` (`labels.publicationTypes`) hold dictionaries that
+// named in `tables` (`labels.publication-types`) hold dictionaries that
 // merge entry by entry, so a partial override keeps the rest; any
 // other key is replaced whole, dictionary or not (`margin`).
 #let _strict-merge(defaults, overrides, name, tables: ()) = {
@@ -32,7 +32,7 @@
   defaults + overrides.pairs().map(((k, v)) => (k, merge-key(k, v))).to-dict()
 }
 
-// Every spacing token multiplies `bodySize`, so it must be an absolute
+// Every spacing token multiplies `body-size`, so it must be an absolute
 // length: `1em` would resolve against itself, and a bare number reaches
 // `set text(...)` as a stray positional.
 #let _is-body-size(v) = type(v) == length and v.em == 0 and v.abs > 0pt
@@ -68,13 +68,13 @@
     )
 )
 
-// The icon tables' value rules: icon-set keys, except `profileIcons`,
+// The icon tables' value rules: icon-set keys, except `profile-icons`,
 // which takes raw FontAwesome glyph names, as it draws networks the
 // icon set doesn't ship. Too many to list, so its message points at
 // the catalogue instead.
 #let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
 #let _icon-table-rules = (
-  profileIcons: (
+  profile-icons: (
     v => type(v) == str and v in _fa-glyphs,
     "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
   ),
@@ -93,21 +93,21 @@
 // The single-value preferences, in `_default-preferences`' order. The
 // rest are checked in `_validate-preferences` (`font` and `colours`
 // with the theme's tokens), or for the icon tables in
-// `_merge-options`; `groupCertificates` and `showPronouns` are
+// `_merge-options`; `group-certificates` and `show-pronouns` are
 // ignored, so they aren't checked.
 #let _preference-rules = (
-  bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
-  uppercaseName: _bool-rule,
-  headerTextAlign: _enum-rule((left, center, right)),
-  imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
-  imageShape: _enum-rule(_default-theme.header.portrait-radius.keys()),
+  body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
+  uppercase-name: _bool-rule,
+  header-text-align: _enum-rule((left, center, right)),
+  image-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
+  image-shape: _enum-rule(_default-theme.header.portrait-radius.keys()),
   // The side of the header text the portrait takes.
-  imagePosition: _enum-rule((left, right, top, bottom)),
-  // Deprecated (#239): read into `imagePosition` with `"center"`, but
+  image-position: _enum-rule((left, right, top, bottom)),
+  // Deprecated (#239): read into `image-position` with `"center"`, but
   // checked even when unused, so a typo surfaces before it matters.
-  imageStackOrder: _enum-rule(("above", "below")),
-  // A typo (`qrCode: true`) fails here, not inside `qrcode(...)`.
-  qrCode: (
+  image-stack-order: _enum-rule(("above", "below")),
+  // A typo (`qr-code: true`) fails here, not inside `qrcode(...)`.
+  qr-code: (
     v => v == none or v == auto or _present-str(v),
     "`none`, `auto`, or a non-empty URL string",
   ),
@@ -116,34 +116,34 @@
     _is-margin,
     "a length, `auto`, or a dict of them (e.g. (x: 1cm, y: 1.5cm))",
   ),
-  columnRatio: (
+  column-ratio: (
     v => type(v) in (int, float) and v > 0 and v <= 1,
     "a number in (0, 1]",
   ),
-  pageFooter: (
+  page-footer: (
     v => v == none or v == auto or type(v) == content,
     "`none`, `auto`, or a content value",
   ),
-  lastModifiedFooter: _bool-rule,
-  footerVersion: _bool-rule,
+  last-modified-footer: _bool-rule,
+  footer-version: _bool-rule,
   justify: _bool-rule,
-  dateFormat: (
+  date-format: (
     _is-date-format,
     "\"long\", \"short\", \"iso\", a bracketed template "
       + "(e.g. \"[day]/[month]/[year]\"), or a closure",
   ),
-  printFullUrls: _bool-rule,
-  mapsProvider: (
+  print-full-urls: _bool-rule,
+  maps-provider: (
     v => v == none or (type(v) == str and "{q}" in v),
     "`none` or a URL template string containing `{q}`",
   ),
-  maxRating: _positive-int-rule,
-  skillLevelDisplay: (
+  max-rating: _positive-int-rule,
+  skill-level-display: (
     v => v == auto or v in ("rating", "text"),
     "`auto`, \"rating\" or \"text\"",
   ),
-  ownerNames: _list-rule((str,), "an array of strings"),
-  referencesAvailableOnRequest: _bool-rule,
+  owner-names: _list-rule((str,), "an array of strings"),
+  references-available-on-request: _bool-rule,
 )
 
 // Only a colour supports `lighten` / `darken`; a palette name string
@@ -255,9 +255,9 @@
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
   _validate-theme(prefs)
-  let link-contact-info = prefs.linkContactInfo
+  let link-contact-info = prefs.link-contact-info
   _check-type(
-    "linkContactInfo",
+    "link-contact-info",
     link-contact-info,
     (bool, dictionary),
     "a bool or a dict",
@@ -266,16 +266,16 @@
     _check-unknown-keys(
       link-contact-info.keys(),
       _contact-channels,
-      "linkContactInfo",
+      "link-contact-info",
     )
     for (channel, v) in link-contact-info {
-      _check("linkContactInfo." + channel, v, _bool-rule)
+      _check("link-contact-info." + channel, v, _bool-rule)
     }
   }
-  if type(prefs.dateFormat) == str {
-    _check-date-template(prefs.dateFormat, "dateFormat")
+  if type(prefs.date-format) == str {
+    _check-date-template(prefs.date-format, "date-format")
   }
-  for key in ("leftColumnSections", "rightColumnSections") {
+  for key in ("left-column-sections", "right-column-sections") {
     _check-unknown-keys(prefs.at(key), section-keys, key)
   }
 }
@@ -319,7 +319,7 @@
 #let _label-rules = (
   // Deprecated (#239), and merged into the preference's icons by
   // `_canonical-preferences`, which needs a dictionary.
-  publicationIcons: _type-rule((dictionary,), "a dictionary"),
+  publication-icons: _type-rule((dictionary,), "a dictionary"),
   // Typst accepts any case; requiring lowercase keeps label files
   // canonical and catches a language *name* ("Irish") up front.
   lang: (
@@ -334,6 +334,6 @@
 
 #let _validate-labels(labels) = {
   _check-rules(labels, _label-rules, prefix: "labels.")
-  _validate-template-label(labels, "pageNumber", ("current",), ("total",))
-  _validate-template-label(labels, "documentTitle", ("name",), ())
+  _validate-template-label(labels, "page-number", ("current",), ("total",))
+  _validate-template-label(labels, "document-title", ("name",), ())
 }

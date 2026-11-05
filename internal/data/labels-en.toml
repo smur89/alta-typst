@@ -15,7 +15,7 @@ lang = "en"
 # Section headings.
 work         = "Experience"
 volunteer    = "Volunteer"
-focusAreas   = "Areas of Focus"
+focus-areas   = "Areas of Focus"
 skills       = "Skills"
 languages    = "Languages"
 education    = "Education"
@@ -25,15 +25,15 @@ awards       = "Awards"
 projects     = "Projects"
 interests    = "Interests"
 references   = "References"
-referencesAvailableOnRequest = "References available upon request."
+references-available-on-request = "References available upon request."
 
-# Deprecated for `publicationTypes.article`; still honoured when
+# Deprecated for `publication-types.article`; still honoured when
 # overridden, removed in the next major (#239).
 articles = "Articles"
 
 # Heading for untyped projects when another project is typed (an
 # all-untyped list renders flat).
-otherProjects = "Other"
+other-projects = "Other"
 
 # Rendered in date ranges when `endDate` is empty.
 present = "Present"
@@ -42,20 +42,20 @@ present = "Present"
 date     = "Date"
 location = "Location"
 
-# Footer label when `preferences.lastModifiedFooter` is true.
-lastModified = "Last updated"
+# Footer label when `preferences.last-modified-footer` is true.
+last-modified = "Last updated"
 
 # Templates rather than prefixes, so a translation can reorder the
 # parts; unknown placeholders panic.
 #
-# `pageFooter: auto` counter. `{current}` required, `{total}` optional.
-pageNumber = "Page {current} / {total}"
+# `page-footer: auto` counter. `{current}` required, `{total}` optional.
+page-number = "Page {current} / {total}"
 
 # PDF Title; `{name}` required. A plain string, not markup, so write a
 # real em dash — `---` only becomes one in Typst markup.
-documentTitle = "{name} — CV"
+document-title = "{name} — CV"
 
-# Exactly twelve. Used by `dateFormat: "long"` and the
+# Exactly twelve. Used by `date-format: "long"` and the
 # `[month repr:long]` / `[month repr:short]` template tokens.
 months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -65,14 +65,14 @@ months = [
 # Subheadings for `publications[].type` codes (untyped counts as
 # `article`), matched case-insensitively; other types print as given.
 # Overrides merge key by key.
-[publicationTypes]
+[publication-types]
 article = "Articles"
 book    = "Books"
 patent  = "Patents"
 thesis  = "Theses"
 talk    = "Talks"
 
-# Deprecated for `preferences.publicationIcons`: icons are styling,
+# Deprecated for `preferences.publication-icons`: icons are styling,
 # not text to translate. Still honoured beneath the preference, which
 # wins key by key; removed in the next major (#239).
-[publicationIcons]
+[publication-icons]

@@ -2,7 +2,8 @@
 // defaults and validated, as the pair `alta()` renders with.
 
 #import "canonical.typ": (
-  _canonical-labels, _canonical-preferences, _label-tables, _preference-tables,
+  _canonical-labels, _canonical-preferences, _kebab-options, _label-tables,
+  _preference-tables,
 )
 #import "../util/fields.typ": _dict-or-empty
 #import "defaults.typ": _default-labels, _default-preferences, _translations
@@ -14,16 +15,20 @@
 // The caller's `labels` and `preferences`, each canonicalised before
 // its merge over the defaults and validated after it. The raw labels
 // go to `_canonical-preferences`, which folds in the deprecated
-// `labels.publicationIcons`. Only the caller's own icon names are
+// `labels.publication-icons`. Only the caller's own icon names are
 // checked, before that fold: the deprecated label's are left to fail
 // where used, so an unused bad one doesn't stop a CV compiling.
-// `projectIcons` and `profileIcons` have no such fold but are checked
+// `project-icons` and `profile-icons` have no such fold but are checked
 // the same way, each against its own rule (`_icon-table-rules`).
+//
+// Option names are read in kebab-case first (`_kebab-options`), so
+// every step after it, the icon-name checks included, sees one form.
 //
 // `lang` is the document's language (`text.lang` where `alta()` is
 // called); the deprecated `labels.lang` wins over it (#239). The
 // labels start from its bundled translation, if any, over the English.
 #let _merge-options(labels, preferences, lang: "en") = {
+  let (labels, preferences) = _kebab-options(labels, preferences)
   for table in _preference-tables {
     let icons = _dict-or-empty(preferences).at(table, default: none)
     if type(icons) == dictionary {

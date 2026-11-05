@@ -1,4 +1,4 @@
-// `preferences.leftColumnSections` and `preferences.rightColumnSections`
+// `preferences.left-column-sections` and `preferences.right-column-sections`
 // control which sections render in which column, and in what order.
 // Sections are placeable in either column; section renderers are
 // width-agnostic so they adapt to wherever they land.
@@ -37,7 +37,7 @@
 
 // 1. Reversed right-column order; left stays at its default (work).
 #alta(cv, preferences: (
-  rightColumnSections: (
+  right-column-sections: (
     "publications",
     "certificates",
     "education",
@@ -51,30 +51,30 @@
 
 // 2. Subset on the right.
 #alta(cv, preferences: (
-  rightColumnSections: ("skills", "education"),
+  right-column-sections: ("skills", "education"),
 ))
 
 #pagebreak()
 
 // 3. Inverted layout: side-panel sections move to the (now narrower)
 //    left column, work moves to the (now wider) right column.
-//    `columnRatio` lives alongside the section arrays in preferences.
+//    `column-ratio` lives alongside the section arrays in preferences.
 #alta(cv, preferences: (
-  columnRatio: 0.35,
-  leftColumnSections: (
+  column-ratio: 0.35,
+  left-column-sections: (
     "focusAreas",
     "skills",
     "languages",
     "education",
     "certificates",
   ),
-  rightColumnSections: ("work", "publications"),
+  right-column-sections: ("work", "publications"),
 ))
 
 #pagebreak()
 
 // 4. Both columns empty — header only.
 #alta(cv, preferences: (
-  leftColumnSections: (),
-  rightColumnSections: (),
+  left-column-sections: (),
+  right-column-sections: (),
 ))

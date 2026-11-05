@@ -18,7 +18,7 @@
 // rejects a `none` date, and empty strings would still write an entry.
 // It has no URL or version field, so `meta.canonical` / `meta.version`
 // ride the Keywords, the only machine-readable home; `_string-at`, as
-// Keywords must be strings. `uppercaseName` is purely visual, so the
+// Keywords must be strings. `uppercase-name` is purely visual, so the
 // title and author keep the name as given.
 #let _pdf-metadata(cv, sections, labels) = {
   let meta = cv.meta
@@ -31,7 +31,7 @@
   let description = _field(cv.basics, "summary")
   let date = _iso-datetime(meta.at("lastModified", default: none))
   (
-    title: _fill-template(labels.documentTitle, (name: cv.basics.name)),
+    title: _fill-template(labels.document-title, (name: cv.basics.name)),
     author: cv.basics.name,
     ..(if keywords.len() > 0 { (keywords: keywords) }),
     ..(if description != none { (description: description) }),

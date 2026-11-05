@@ -1,4 +1,4 @@
-// `labels.pageNumber` / `labels.documentTitle` — the auto page footer
+// `labels.page-number` / `labels.document-title` — the auto page footer
 // and PDF Title rendered from translated templates. German puts the
 // name after the prefix ("Lebenslauf — Jane Doe"), so this also pins
 // that placeholders, not fixed prefixes, drive word order.
@@ -12,8 +12,8 @@
 #let labels = (
   lang: "de",
   work: "Berufserfahrung",
-  pageNumber: "Seite {current} von {total}",
-  documentTitle: "Lebenslauf — {name}",
+  page-number: "Seite {current} von {total}",
+  document-title: "Lebenslauf — {name}",
 )
 
 #let cv = (
@@ -35,5 +35,5 @@
 )
 
 // The deprecated string spelling (#239), still read as `auto`.
-#alta(cv, labels: labels, preferences: (pageFooter: "auto"))
-#alta(cv, labels: labels, preferences: (pageFooter: "auto"))
+#alta(cv, labels: labels, preferences: (page-footer: "auto"))
+#alta(cv, labels: labels, preferences: (page-footer: "auto"))

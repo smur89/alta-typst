@@ -1,4 +1,4 @@
-// Header QR code (opt-in via `preferences.qrCode`), restoring the
+// Header QR code (opt-in via `preferences.qr-code`), restoring the
 // most-followed link on a printed CV. Renders the code;
 // `data/validation.typ` checks the preference and `sections/header.typ`
 // resolves its target. Only this file imports `@preview/zebra`, so

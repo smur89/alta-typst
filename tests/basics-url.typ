@@ -1,11 +1,11 @@
 // `basics.url` is JSON Resume's canonical "personal homepage" field —
 // rendered in the contact bar with the `link` icon, alongside the
-// other entries, and participating in `preferences.linkContactInfo`
+// other entries, and participating in `preferences.link-contact-info`
 // per-channel control under the `"url"` key. Three documents cover
 // the relevant shapes:
 //
 //   1. Bare `basics.url` — rendered as a deep link (default).
-//   2. `linkContactInfo: (url: false)` — homepage shown as plain text;
+//   2. `link-contact-info: (url: false)` — homepage shown as plain text;
 //      other channels stay linked.
 //   3. `basics.url` alongside a `basics.profiles` "Website" entry —
 //      both render (the template doesn't dedupe; semantically distinct
@@ -35,7 +35,7 @@
 
 #pagebreak()
 
-#alta(cv, preferences: (linkContactInfo: (url: false)))
+#alta(cv, preferences: (link-contact-info: (url: false)))
 
 #pagebreak()
 

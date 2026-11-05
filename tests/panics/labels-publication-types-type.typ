@@ -1,4 +1,4 @@
-// expect: labels.publicationTypes must be a dictionary
+// expect: labels.publication-types must be a dictionary
 #import "/lib.typ": alta
 
-#alta((basics: (name: "Jane Doe")), labels: (publicationTypes: "Talks"))
+#alta((basics: (name: "Jane Doe")), labels: (publication-types: "Talks"))

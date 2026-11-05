@@ -59,7 +59,7 @@
   datetime(year: parts.year, month: parts.month, day: parts.day)
 }
 
-// Named shorthands for `dateFormat`; partial dates are handled by the
+// Named shorthands for `date-format`; partial dates are handled by the
 // token elision in `_apply-date-template`.
 #let _date-format-aliases = (
   long: "[day padding:none] [month repr:long] [year]",

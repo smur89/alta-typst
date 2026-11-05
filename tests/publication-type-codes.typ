@@ -1,12 +1,12 @@
 // JSON Resume 1.4.0 made `publications[].type` part of the spec, with
 // lowercase codes (`article`, `book`, `patent`, `thesis`, `talk`).
-// Known codes map to `labels.publicationTypes` headings, matched
+// Known codes map to `labels.publication-types` headings, matched
 // case-insensitively; anything else still prints exactly as given, so
 // free-text headings (`"Talks"`, `"Podcasts"`) keep working. Three
 // documents:
 //
 //   1. Every built-in code and a free-text type.
-//   2. A translated `labels.publicationTypes` table.
+//   2. A translated `labels.publication-types` table.
 //   3. Code-based grouping, a partial override and the deprecated
 //      `labels.articles`.
 
@@ -31,7 +31,7 @@
 #alta(
   (basics: (name: "Jane Doe", email: "jane@example.com"), publications: pubs),
   labels: (
-    publicationTypes: (
+    publication-types: (
       article: "Artikel",
       book: "Bücher",
       patent: "Patente",
@@ -59,5 +59,5 @@
       (name: "A Book", type: "book", releaseDate: "2020"),
     ),
   ),
-  labels: (articles: "Ailt", publicationTypes: (talk: "Cainteanna")),
+  labels: (articles: "Ailt", publication-types: (talk: "Cainteanna")),
 )

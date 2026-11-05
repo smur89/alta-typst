@@ -1,6 +1,6 @@
 // Language ratings: integer, fractional (half-dot), boundary values
 // (0 and the configured max), fluency-string fallback, and a custom
-// `preferences.maxRating` for non-5 scales (CEFR's 6 levels here).
+// `preferences.max-rating` for non-5 scales (CEFR's 6 levels here).
 
 #import "../lib.typ": alta
 
@@ -31,5 +31,5 @@
       (language: "Spanish", rating: 2),
     ),
   ),
-  preferences: (maxRating: 6),
+  preferences: (max-rating: 6),
 )

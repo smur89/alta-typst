@@ -1,5 +1,5 @@
-// expect: preferences.publicationIcons must be a dictionary
+// expect: preferences.publication-icons must be a dictionary
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (publicationIcons: "microphone"))
+#alta(cv, preferences: (publication-icons: "microphone"))

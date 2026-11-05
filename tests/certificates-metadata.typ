@@ -2,7 +2,7 @@
 // `url` when present, and the calendar-icon term row appears when
 // `date` is supplied. Covers: full entry, url-only, date-only,
 // name-only, several certs from one issuer (mixed metadata), and the
-// deprecated `groupCertificates: false`, which has no effect.
+// deprecated `group-certificates: false`, which has no effect.
 
 #import "../lib.typ": alta
 
@@ -41,8 +41,8 @@
 
 #pagebreak()
 
-// Same data with `groupCertificates: false` to exercise the flat path.
-#alta(cv, preferences: (groupCertificates: false))
+// Same data with `group-certificates: false` to exercise the flat path.
+#alta(cv, preferences: (group-certificates: false))
 
 #pagebreak()
 

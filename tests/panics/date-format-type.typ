@@ -1,5 +1,5 @@
-// expect: dateFormat must be "long"
+// expect: date-format must be "long"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (dateFormat: 1))
+#alta(cv, preferences: (date-format: 1))

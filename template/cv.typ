@@ -167,8 +167,8 @@
 // preference you like — `alta(cv, preferences: (...))` accepts any
 // subset, with unknown keys panicking so typos surface immediately.
 #let preferences = (
-  imagePosition: top,
-  headerTextAlign: center,
+  image-position: top,
+  header-text-align: center,
 )
 
 #alta(cv, preferences: preferences)

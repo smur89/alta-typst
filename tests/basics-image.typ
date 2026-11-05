@@ -1,7 +1,7 @@
 // Pages exercise each accepted source form (bytes, `path()`,
-// root-relative string), an imageSize override, flipped/mirrored
+// root-relative string), an `image-size` override, flipped/mirrored
 // layouts, centred header on a no-image CV, and the rounded and
-// square `imageShape`s.
+// square `image-shape`s.
 
 #import "../lib.typ": alta
 
@@ -46,12 +46,12 @@
   (
     basics: (
       name: "Large Photo",
-      label: "imageSize: 8em override",
+      label: "image-size: 8em override",
       email: "large@example.com",
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (imageSize: 8em),
+  preferences: (image-size: 8em),
 )
 
 #pagebreak()
@@ -65,7 +65,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (imagePosition: left),
+  preferences: (image-position: left),
 )
 
 #pagebreak()
@@ -80,26 +80,26 @@
     ),
   ),
   preferences: (
-    imagePosition: left,
-    headerTextAlign: right,
+    image-position: left,
+    header-text-align: right,
   ),
 )
 
 #pagebreak()
 
-// No image — `headerTextAlign: center` still applies, centring the
+// No image — `header-text-align: center` still applies, centring the
 // name / label / contact bar block on the page.
 #alta(
   (
     basics: (
       name: "Centred Header, No Photo",
-      label: "headerTextAlign: center",
+      label: "header-text-align: center",
       email: "centre@example.com",
       phone: "+353 1 555 0100",
       location: "Dublin, Ireland",
     ),
   ),
-  preferences: (headerTextAlign: center),
+  preferences: (header-text-align: center),
 )
 
 #for shape in ("rounded", "square") {
@@ -108,11 +108,11 @@
     (
       basics: (
         name: "Shaped Photo",
-        label: "imageShape: " + repr(shape),
+        label: "image-shape: " + repr(shape),
         email: "shape@example.com",
         image: read("../assets/avatar-placeholder.svg", encoding: none),
       ),
     ),
-    preferences: (imageShape: shape),
+    preferences: (image-shape: shape),
   )
 }

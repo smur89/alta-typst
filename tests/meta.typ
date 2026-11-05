@@ -1,12 +1,12 @@
 // JSON Resume `meta` block feeds PDF metadata (date / keywords /
-// description) and, when `preferences.lastModifiedFooter` is set,
+// description) and, when `preferences.last-modified-footer` is set,
 // also renders a visible "Last updated: …" footer.
 //
 // `basics.summary` flows into the PDF description; `skills[].keywords`
 // flatten and de-duplicate into the PDF keywords field; the calendar
 // part of `meta.lastModified` becomes the PDF date. `meta.canonical`
 // and `meta.version` append to the PDF keywords (no dedicated Typst
-// document field for either), and with `preferences.footerVersion` the
+// document field for either), and with `preferences.footer-version` the
 // version also suffixes the footer line — "Last updated: … (v1.0.0)".
 
 #import "../lib.typ": alta
@@ -41,7 +41,7 @@
     ),
   ),
   preferences: (
-    lastModifiedFooter: true,
-    footerVersion: true,
+    last-modified-footer: true,
+    footer-version: true,
   ),
 )

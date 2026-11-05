@@ -40,9 +40,9 @@
     meta: (lastModified: datetime(year: 2026, month: 6, day: 12)),
   ),
   preferences: (
-    imagePosition: bottom,
-    headerTextAlign: center,
-    lastModifiedFooter: true,
+    image-position: bottom,
+    header-text-align: center,
+    last-modified-footer: true,
     theme: (
       treatment: (link: upper, owner: underline, preamble: strong),
     ),

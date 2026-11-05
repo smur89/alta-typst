@@ -2,8 +2,8 @@
 // localised labels. Exercises _strict-merge for both `labels` and
 // `preferences`. Labels are translated to Gaeilge (Irish) to
 // demonstrate the localisation path with a non-English language.
-// Also sets the deprecated `groupCertificates: false` and
-// `showPronouns: true`, which have no effect: `basics.pronouns` is
+// Also sets the deprecated `group-certificates: false` and
+// `show-pronouns: true`, which have no effect: `basics.pronouns` is
 // ignored, as JSON Resume dropped it (https://github.com/jsonresume/jsonresume.org/pull/629).
 
 #import "../lib.typ": alta
@@ -31,12 +31,12 @@
   ),
   preferences: (
     colours: (accent: rgb("#1976D2")),
-    groupCertificates: false,
-    showPronouns: true,
+    group-certificates: false,
+    show-pronouns: true,
   ),
   labels: (
     work: "Taithí Oibre",
-    focusAreas: "Réimsí Spéise",
+    focus-areas: "Réimsí Spéise",
     skills: "Scileanna",
     languages: "Teangacha",
     education: "Oideachas",
