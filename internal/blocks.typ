@@ -11,7 +11,7 @@
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
-#import "util/checks.typ": _check, _check-type, _enum-rule
+#import "util/checks.typ": _check, _check-type, _enum-rule, _list-rule
 #import "primitives.typ": _portrait, divider
 #import "components/bibliography.typ": _bib-entry
 #import "components/entry.typ": _entry
@@ -230,13 +230,13 @@
 /// - title (content, str): The title.
 /// - url (str, none): Its link; with none, the first linkable
 ///   identifier's (DOI, then arXiv, then PMID), as `alta()` links.
-/// - authors (array): Author names, in order. The one matching the
-///   document's author (`#set document(author: ..)`), ignoring case,
-///   is set apart.
+/// - authors (array): Author names (strings or content, shown as
+///   their text), in order. The one matching the document's author
+///   (`#set document(author: ..)`), ignoring case, is set apart.
 /// - source (content, str, none): The publisher or venue.
 /// - date (content, str, none): When, as written.
-/// - identifiers (dictionary): IDs by scheme (`doi`, `arxiv`, `pmid`
-///   link; others, `isbn` say, show unlinked).
+/// - identifiers (dictionary): ID strings by scheme (`doi`, `arxiv`,
+///   `pmid` link; others, `isbn` say, show unlinked).
 /// - body (content): A summary.
 /// -> content
 #let publication(
@@ -247,21 +247,40 @@
   date: none,
   identifiers: (:),
   body,
-) = context {
-  // `alta()`'s readers, over the arguments in its CV shape.
-  let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
-  // `document.author` is an array once set, a string set or not.
-  let owners = _owner-keys(document.author)
-  // One unbreakable block per item, as `alta()` lays them out.
-  block(breakable: false, _bib-entry(
-    title,
-    url: if url != none { url } else { _identifier-url(refs) },
-    authors: _authors((authors: authors), owners),
-    publisher: source,
-    date: date,
-    identifiers: refs,
-    summary: if body != [] { body },
-  ))
+) = {
+  // `alta()`'s readers are lenient, dropping what they can't read;
+  // arguments written by hand panic instead.
+  _check(
+    "publication() authors",
+    authors,
+    _list-rule((str, content), "an array of strings or content"),
+  )
+  _check(
+    "publication() identifiers",
+    identifiers,
+    (
+      v => type(v) == dictionary and v.values().all(id => type(id) == str),
+      "a dictionary of strings",
+    ),
+  )
+  context {
+    // `alta()`'s readers, over the arguments in its CV shape; an
+    // author given as content is matched and shown as its text.
+    let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
+    // `document.author` is an array of strings: Typst wraps an author
+    // set as a string, and leaves it empty when unset.
+    let owners = _owner-keys(document.author)
+    // One unbreakable block per item, as `alta()` lays them out.
+    block(breakable: false, _bib-entry(
+      title,
+      url: if url != none { url } else { _identifier-url(refs) },
+      authors: _authors((authors: authors.map(_plain)), owners),
+      publisher: source,
+      date: date,
+      identifiers: refs,
+      summary: if body != [] { body },
+    ))
+  }
 }
 
 /// A skill group's row: its name as a label pill, then its keywords as
