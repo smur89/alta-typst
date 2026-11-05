@@ -43,14 +43,11 @@
   body,
 )
 
-// For `show: _content-styles.with(theme, justify)`, with the built
-// theme (`_theme-for`).
+// For `show: _content-styles.with(theme)`, with the built theme
+// (`_theme-for`).
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
-// (e.g. publication type). `justify` justifies prose only, lists and
-// the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
-// pills never stretch; Typst then hyphenates it too
-// (`text.hyphenate` is `auto`).
-#let _content-styles(theme, justify, body) = {
+// (e.g. publication type).
+#let _content-styles(theme, body) = {
   let (
     par: p,
     list: l,
@@ -62,8 +59,6 @@
     ..,
   ) = theme
   set par(leading: p.leading, spacing: p.spacing)
-  show list: set par(justify: justify)
-  show <alta-internal-prose>: set par(justify: justify)
   set list(
     marker: [•],
     indent: 0pt,
@@ -125,5 +120,15 @@
     weight: subheading.group.weight,
   )
   show <alta-internal-group>: sub-heading(subheading.group, "group-title")
+  body
+}
+
+// For `show: _justify.with(on)`: justify and hyphenate prose only,
+// lists and the paragraphs labelled `<alta-internal-prose>`, so rows of
+// facts, names or pills never stretch. `alta()`'s, as `justify` is a
+// CV preference.
+#let _justify(on, body) = {
+  show list: set par(justify: on)
+  show <alta-internal-prose>: set par(justify: on)
   body
 }

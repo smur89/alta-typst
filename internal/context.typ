@@ -12,3 +12,7 @@
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.max-rating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)
+
+// Set by the `altacv` template, so `alta()` knows to emit only the
+// CV's content. Removed with standalone `alta()` (#239).
+#let _template-state = state("alta-template", false)

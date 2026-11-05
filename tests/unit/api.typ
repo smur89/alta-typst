@@ -10,6 +10,7 @@
   (
     "alta",
     "alta-from-json",
+    "altacv",
     "avatar-placeholder",
     "divider",
     "from-json-resume",

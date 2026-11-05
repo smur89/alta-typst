@@ -8,6 +8,8 @@
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _document
 #import "../internal/data/options.typ": _merge-options
+#import "../internal/design/styles.typ": _part
+#import "../internal/design/theme.typ": _theme-for, _token-prefs
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
   _portrait, _tag-row, divider, name, styled-link, tag, term,
@@ -26,9 +28,13 @@
 // PDF/UA requires a title; `alta()` sets one from the CV.
 #set document(title: "altacv component gallery")
 #show: _document.with(
-  prefs,
-  labels,
-  footer: _auto-page-footer("Jane Doe", labels.page-number),
+  _theme-for(prefs.theme, _token-prefs(prefs)),
+  prefs.margin,
+)
+#set text(prefs.body-size, lang: labels.lang)
+#set page(
+  paper: prefs.paper,
+  footer: _part("footer", _auto-page-footer("Jane Doe", labels.page-number)),
 )
 
 #let contacts = (
