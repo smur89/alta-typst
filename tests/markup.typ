@@ -6,8 +6,8 @@
 // dots), `rating` and `label-row`.
 
 #import "../lib.typ": (
-  alta-footer, altacv, avatar-placeholder, contact, cv-header, entry,
-  label-row, publication, rating, skills, themes,
+  alta-footer, altacv, avatar-placeholder, contact, cv-header, entry, label-row,
+  publication, rating, skills, themes,
 )
 
 #set document(title: "Jane Doe", author: "Jane Doe")
