@@ -177,6 +177,7 @@ A few things to know:
 
 - A `===` heading isn't styled as a group, and an `entry` under one panics.
 - An `entry` right after `#alta(cv)` continues its last section; start your own with `= ...`.
+- An `entry` doesn't break across pages: it moves to the next one whole, so one taller than a page overflows it. Split long prose over several entries.
 - A `publication` without a `url` links its title to its first DOI, arXiv or PMID identifier.
 - Group headings in markup carry no icon, where `alta()`'s publication and project groups do. Add one yourself: `== #icon("microphone") Talks`.
 - Numbering a heading (`set heading(numbering: ..)`) numbers the outline but not the title as drawn.

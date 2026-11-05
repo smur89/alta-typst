@@ -42,6 +42,9 @@
 /// same section or group. It needs a section (`=`) or group (`==`)
 /// heading before it. One right after `#alta(cv)` continues `alta()`'s
 /// last section, after a divider, so start your own with `= ...`.
+/// An entry doesn't break across pages: it moves to the next whole,
+/// and one taller than a page overflows it, so split long prose over
+/// several entries.
 ///
 /// - title (content, str, none): The role or qualification.
 /// - url (str, none): A link for the title.
