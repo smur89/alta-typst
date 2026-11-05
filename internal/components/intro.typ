@@ -2,12 +2,12 @@
 // summary, from the slot `sections/intro.typ` maps `basics.summary`
 // onto. (The objective sits in the header, under the headline.)
 
-#import "../context.typ": _body-size-state, _theme-state
+#import "../context.typ": _theme-state
 #import "../primitives.typ": _prose
 
 #let _intro-block(summary: none) = if summary != none {
   context {
-    let body-size = _body-size-state.get()
+    let body-size = text.size
     let (above, below) = _theme-state.get().intro
     v(above * body-size)
     _prose(summary)

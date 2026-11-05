@@ -25,15 +25,20 @@
   labels.work,
   entries,
   e => _entry(
+    labels,
     .._entry-slots(e, "name", format-date, labels),
     keywords: e.at("keywords", default: ()),
   ),
 )
 
-#let _volunteer(entries, (labels, prefs, format-date, ..)) = _section(
+#let _volunteer(
+  entries,
+  (labels, prefs, format-date, ..),
+) = _section(
   labels.volunteer,
   entries,
   e => _entry(
+    labels,
     .._entry-slots(e, "organization", format-date, labels),
   ),
 )

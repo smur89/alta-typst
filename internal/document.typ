@@ -6,9 +6,7 @@
 
 #import "design/styles.typ": _content-styles, _part
 #import "design/theme.typ": _theme-for, _token-prefs
-#import "context.typ": (
-  _body-size-state, _icon-alts-state, _max-rating-state, _theme-state,
-)
+#import "context.typ": _max-rating-state, _theme-state
 
 // For `show: _document.with(prefs, labels, footer: ...)`, with the
 // merged, validated preferences and labels.
@@ -16,9 +14,7 @@
   let (bodySize: body-size, maxRating: max-rating, ..) = prefs
   let theme = _theme-for(prefs.theme, _token-prefs(prefs))
   _theme-state.update(theme)
-  _body-size-state.update(body-size)
   _max-rating-state.update(max-rating)
-  _icon-alts-state.update((date: labels.date, location: labels.location))
   // Before `set page`, so the footer inherits the font and language.
   set text(
     body-size,

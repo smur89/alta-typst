@@ -96,6 +96,7 @@
 
 == Section of entries: full, with roles and keywords
 #_section("Entries", (1, 2), _ => _entry(
+  labels,
   title: "Staff Engineer",
   url: "https://example.com",
   org: "Acme",
@@ -113,6 +114,7 @@
 
 == Entry: in a narrow column, the date and location on lines of their own
 #block(width: 30%, _entry(
+  labels,
   title: "Staff Engineer",
   org: "Acme",
   period: ("Jan 2022", "Present"),
@@ -121,6 +123,7 @@
 
 == Entry: issuer and details
 #_section("Compact", (1,), _ => _entry(
+  labels,
   title: "Certified Kubernetes Administrator",
   url: "https://example.com",
   org: "CNCF",
@@ -134,7 +137,7 @@
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
-  _ => _entry(title: "An item", period: ("2024",)),
+  _ => _entry(labels, title: "An item", period: ("2024",)),
   separator: none,
 )
 

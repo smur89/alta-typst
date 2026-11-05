@@ -8,7 +8,7 @@
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
 #import "design/styles.typ": _inline, _part
-#import "context.typ": _body-size-state, _theme-state
+#import "context.typ": _theme-state
 
 // `body` with `alt` as its alt text in tagged PDF. `figure` is Typst's
 // carrier for alt text on non-image content, as `box` and `link` take
@@ -37,7 +37,9 @@
 // Brands, so `solid: true` draws either kind. `part` labels the glyph
 // inside its fixed box (`_part`), its fill `set` around it, so a
 // user's rule can recolour or replace it and keep the box, the
-// centring and the alt text.
+// centring and the alt text. `size` and the `gap` after it follow the
+// text around the glyph when `auto`; a caller in other text (the
+// contact bar, a subheading) passes the gap to keep it the body's.
 #let _glyph(
   glyph,
   solid: true,
@@ -46,10 +48,10 @@
   fill: auto,
   alt: none,
   part: none,
+  gap: auto,
 ) = context {
-  let body-size = _body-size-state.get()
   let theme = _theme-state.get()
-  let resolved-size = if size == auto { body-size } else { size }
+  let resolved-size = if size == auto { text.size } else { size }
   let resolved-fill = if fill == auto { theme.colours.body } else { fill }
   let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
@@ -67,7 +69,7 @@
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))
   }
-  h(theme.icon.gap * body-size)
+  h(if gap == auto { theme.icon.gap * text.size } else { gap })
 }
 
 // An icon-set key's glyph, unchecked, with `_glyph`'s other arguments:
@@ -83,7 +85,7 @@
 ///
 /// - name (str): A key of the icon set (a utility icon or a profile
 ///   network, e.g. `"calendar"`, `"github"`). Unknown names panic.
-/// - size (auto, length): The glyph's box; `auto` is the body size.
+/// - size (auto, length): The glyph's box; `auto` is the text size.
 /// - shift (length): A vertical offset from the baseline.
 /// - fill (auto, color): The glyph's colour; `auto` is the body text's.
 /// - alt (str, none): Alt text, when the icon alone carries meaning.

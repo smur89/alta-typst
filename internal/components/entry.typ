@@ -3,7 +3,7 @@
 // and the entry's other facts with its location at the right edge.
 
 #import "../design/styles.typ": _part, _subheading-block
-#import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
+#import "../context.typ": _theme-state
 #import "../util/values.typ": _present
 #import "../primitives.typ": (
   _accent-text, _date-fact, _fact-line, _joined, _link-if, _location-fact,
@@ -28,8 +28,8 @@
 // with nothing on the right spans the grid. The grid sits in the
 // entry heading's block, so it keeps that spacing and stays with its
 // entry; after a facts line, `entry.facts-below`.
-#let _entry-head(title, facts, date, location) = context {
-  let body-size = _body-size-state.get()
+#let _entry-head(title, facts, date, location, alts) = context {
+  let body-size = text.size
   let theme = _theme-state.get()
   let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
@@ -51,7 +51,6 @@
     inset: (top: baseline - top(body)),
     body,
   )
-  let alts = _icon-alts-state.get()
   let rows = (
     (
       lead,
@@ -133,7 +132,12 @@
 // - `location`: one place's parts, joined by `items`.
 // - `subtitle`, `keywords-lead`: fact groups, as `_fact-line` takes:
 //   an array of arrays, `items` within a group and `facts` between.
+//
+// `alts`, required so no caller drops it from the tagged PDF, holds the
+// date and location icons' alt text, read aloud before them, as
+// `alts.date` and `alts.location`: a section passes its labels.
 #let _entry(
+  alts,
   title: none,
   url: none,
   org: none,
@@ -157,6 +161,7 @@
     facts,
     _range(period),
     _fact-line(location),
+    alts,
   )
   _subtitle(subtitle)
   _preamble(summary)

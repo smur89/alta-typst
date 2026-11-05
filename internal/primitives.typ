@@ -4,7 +4,7 @@
 // custom layouts; underscored helpers are internal.
 
 #import "design/styles.typ": _part
-#import "context.typ": _body-size-state, _theme-state
+#import "context.typ": _theme-state
 #import "design/theme.typ": _as-is
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": _icon-glyph, icon
@@ -32,9 +32,8 @@
   body,
 ))
 
-// The gap `tag()` leaves after a pill, from the theme the caller read
-// in context. Takes the CV's body size, not `em`, since `tag()` is
-// public and may sit outside `alta()`'s text.
+// The gap `tag()` leaves after a pill, from the theme and the text
+// size the caller read in context.
 #let _tag-gap(theme, body-size) = h(theme.tag.gap * body-size)
 
 /// An accent-coloured line, for an organisation on a line of its own in
@@ -42,14 +41,11 @@
 ///
 /// - body (content): The text.
 /// -> content
-#let name(body) = context {
-  let body-size = _body-size-state.get()
-  block(
-    above: 0pt,
-    below: _theme-state.get().entry.name-below * body-size,
-    _accent-text(body),
-  )
-}
+#let name(body) = context block(
+  above: 0pt,
+  below: _theme-state.get().entry.name-below * text.size,
+  _accent-text(body),
+)
 
 // Groups of facts on one line (`Manager, Pied Piper · 2024`): the
 // parts of a group joined by `separator.items`, the groups by
@@ -93,7 +89,7 @@
 
 // The term row's frame: indented text under an entry's heading.
 #let _term-row(body) = context {
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let (below, inset) = _theme-state.get().term
   block(
     above: 0pt,
@@ -146,7 +142,7 @@
 ///   last pill, so the row doesn't end on a gap.
 /// -> content
 #let tag(body, label: false, trailing: true) = context {
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let theme = _theme-state.get()
   let accent = theme.colours.accent
   let (
@@ -198,7 +194,7 @@
 // it tracks `preferences.margin`. `rule: false` keeps the spacing
 // without the line (`_divider-space`).
 #let _divider(rule) = context {
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let theme = _theme-state.get()
   let (gap, dash, clearance) = theme.divider
   if here().position().y < _top-margin() + clearance { return }
@@ -230,14 +226,18 @@
   }
 }
 
-// A `====` subheading led by an icon at the subheading's size. Read in
-// context: `em` inside the heading is already scaled.
-#let _icon-heading(icon-name, body) = [#context icon(
-    icon-name,
-    size: _theme-state.get().type.title.size * _body-size-state.get(),
-    // The heading's own colour (`styles.typ`), not the icon's default.
-    fill: text.fill,
-  ) #body]
+// A `====` subheading led by an icon at the subheading's size, the
+// text it sits in (`styles.typ` sets the heading's text to the title
+// size), and the body's gap after it.
+#let _icon-heading(icon-name, body) = [#context {
+    let (type: ty, icon: (gap, ..), ..) = _theme-state.get()
+    _icon-glyph(
+      icon-name,
+      // The heading's own colour (`styles.typ`), not the icon's default.
+      fill: text.fill,
+      gap: gap * text.size / ty.title.size,
+    )
+  } #body]
 
 // The portrait, clipped to a square with the theme's corner radius for
 // `shape` (a `preferences.imageShape`). `image()` resolves a bare string path from

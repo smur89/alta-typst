@@ -29,6 +29,7 @@
     ))
   } else {
     _section(labels.references, entries, entry => _entry(
+      labels,
       title: _field(entry, "name"),
       subtitle: _attribution(entry, format-date),
       summary: if _on-request(entry) {

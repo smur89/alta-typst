@@ -15,6 +15,7 @@
     let study-type = _field(edu, "studyType")
     let area = _field(edu, "area")
     _entry(
+      labels,
       title: if study-type != none { study-type } else { area },
       org: _field(edu, "institution"),
       org-url: _field(edu, "url"),

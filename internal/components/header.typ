@@ -3,7 +3,7 @@
 // contact bar, with an optional portrait and QR around them.
 
 #import "../design/styles.typ": _part
-#import "../context.typ": _body-size-state, _theme-state
+#import "../context.typ": _theme-state
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
 #import "qr.typ": _qr-render
@@ -141,7 +141,12 @@
 #let _contact-bar(contacts, theme, body-size) = {
   let contact-gap = theme.header.contact-gap
   let size = theme.header.contact-size * body-size
-  let bar-icon = _glyph.with(size: size, fill: theme.colours.accent)
+  // The gap after the icon is the body's, not the bar's smaller text's.
+  let bar-icon = _glyph.with(
+    size: size,
+    fill: theme.colours.accent,
+    gap: theme.icon.gap * body-size,
+  )
   set text(size, weight: theme.font-weight.bold)
   contacts
     .map(row => row
@@ -169,8 +174,7 @@
   photo-at: none,
   qr-url: none,
 ) = context {
-  // Read once here and passed to the subcomponents.
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let theme = _theme-state.get()
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
