@@ -14,7 +14,7 @@ compiler = "0.15.0"
 # typst/packages docs (Group 2 — "commit & exclude"), those files ship
 # in the typst/packages directory so the README's local links resolve
 # on Universe, but `exclude` keeps them out of the compiler bundle so
-# `#import "@preview/altacv:..."` doesn't pull a megabyte of GIF /
+# `#import "@preview/altacv:..."` doesn't pull a megabyte of WebP /
 # PDF / PNG that the renderer never touches. CONTRIBUTING.md, linked
 # from the README too, is documentation the renderer never reads.
 exclude = ["/examples/**", "/CONTRIBUTING.md"]

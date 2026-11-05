@@ -9,7 +9,7 @@
 // This file is also the canonical demo for the project — what
 // renders as `examples/cv.png` (reviewer artifact and release asset), as
 // `thumbnail.png` (Typst Universe package card), and as the data
-// behind every frame of `examples/preview.gif` (via
+// behind every frame of `examples/preview.webp` (via
 // `examples/_cv.typ`).
 
 #import "@preview/altacv:1.8.0": alta, avatar-placeholder // x-release-please-version
