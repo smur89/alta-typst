@@ -48,6 +48,10 @@
   v => type(v) == array and v.all(x => type(x) in types),
   expected,
 )
+#let _dict-rule(types, expected) = (
+  v => type(v) == dictionary and v.values().all(x => type(x) in types),
+  expected,
+)
 #let _enum-rule(allowed) = (
   v => v in allowed,
   _prose-list(allowed.map(_quote)),

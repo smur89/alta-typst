@@ -80,6 +80,13 @@
   ..args,
 )
 
+// `name` a key of the icon set, for the public helpers that take one
+// (`icon()`, `contact()`); `label` names the argument in the panic. The
+// prose list is built only on a miss.
+#let _check-icon(label, name) = if name not in _icon-glyphs {
+  _check(label, name, _enum-rule(_icon-glyphs.keys()))
+}
+
 /// A FontAwesome glyph from altacv's icon set, standing on the text's
 /// baseline. Decorative in tagged PDF unless `alt` is given.
 ///
@@ -91,10 +98,7 @@
 /// - alt (str, none): Alt text, when the icon alone carries meaning.
 /// -> content
 #let icon(name, size: auto, shift: 0pt, fill: auto, alt: none) = {
-  // A public helper, so it checks its own argument; the prose list is
-  // built only on a miss.
-  if name not in _icon-glyphs {
-    _check("icon() name", name, _enum-rule(_icon-glyphs.keys()))
-  }
+  // A public helper, so it checks its own argument.
+  _check-icon("icon() name", name)
   _icon-glyph(name, size: size, shift: shift, fill: fill, alt: alt)
 }

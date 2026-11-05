@@ -81,23 +81,27 @@
   }
 }
 
-// The CV's one level-1 heading, so tagged PDF and the bookmarks nest
-// the sections under the person, and a user's
-// `show heading.where(level: 1)` rule restyles it (its font, say) as
-// `heading.where(level: 2)` does the sections. Its styles are `set`
-// around `name`, which arrives labelled (`_page-header`).
-#let _name-line(name, theme, body-size) = block(
-  spacing: 0pt,
-  below: theme.header.name-below * body-size,
-  [#heading(level: 1, {
-    set text(
-      theme.type.display.size * body-size,
-      fill: theme.colours.name,
-      weight: theme.type.display.weight,
-    )
-    name
-  })<alta-internal-name>],
-)
+// The name line, `name` labelled (`_page-header`). Inside the template
+// (`title`), the `title` element, styled by `_level-headings`;
+// standalone, the one level-1 heading, its styles `set` around it, so
+// the bookmarks nest the sections under the person. A user's rule on
+// either element restyles it.
+#let _name-line(name, theme, body-size, title: false) = if title {
+  std.title(name)
+} else {
+  block(
+    spacing: 0pt,
+    below: theme.header.name-below * body-size,
+    [#heading(level: 1, {
+      set text(
+        theme.type.display.size * body-size,
+        fill: theme.colours.name,
+        weight: theme.type.display.weight,
+      )
+      name
+    })<alta-internal-name>],
+  )
+}
 
 // A line of the header's text, `below` apart from the next.
 #let _header-line(below, body) = block(spacing: 0pt, below: below, body)
@@ -162,7 +166,8 @@
 
 // `photo` (a built portrait) and `qr-url` are `none` when absent;
 // `photo-at` is the side of the text the photo takes: `left` or
-// `right`, or centred at the `top` or `bottom`.
+// `right`, or centred at the `top` or `bottom`. `title` sets the name
+// as the `title` element (`_name-line`).
 #let _page-header(
   name: none,
   headline: none,
@@ -173,6 +178,7 @@
   photo: none,
   photo-at: none,
   qr-url: none,
+  title: false,
 ) = context {
   let body-size = text.size
   let theme = _theme()
@@ -186,6 +192,7 @@
         if uppercase { upper(name) } else { name },
         theme,
         body-size,
+        title: title,
       )
       _headline(headline, objective, theme, body-size)
       _contact-bar(contacts, theme, body-size)

@@ -75,6 +75,12 @@
   _label-row(_theme(), label, _rating-dots(value, max-rating))
 }
 
+// `value` as dots on a scale of `max` or, with no `value`, the
+// `fallback` text in their place: a skill level's mark.
+#let _rating-mark(value, max, fallback: none) = if value != none {
+  _rating-dots(value, max)
+} else { fallback }
+
 // The label's rating as dots on a scale of `max` or, with no `value`,
 // the `fallback` text in their place.
 #let _rating-row(label, value, max: auto, fallback: none) = if (

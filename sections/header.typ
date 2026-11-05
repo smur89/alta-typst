@@ -145,7 +145,7 @@
   c => if c.channel == "profiles" { "profiles" } else { "details" },
 ).values()
 
-#let _header(cv, (labels, prefs, ..)) = {
+#let _header(cv, (labels, prefs, in-template, ..)) = {
   let basics = cv.basics
   let image = _header-image(basics.at("image", default: none))
   _page-header(
@@ -163,5 +163,6 @@
     },
     photo-at: prefs.image-position,
     qr-url: _resolve-qr-url(prefs.qr-code, basics),
+    title: in-template,
   )
 }

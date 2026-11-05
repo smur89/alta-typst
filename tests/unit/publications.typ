@@ -1,5 +1,5 @@
 // Unit checks for the publication field helpers in
-// sections/publications.typ and the `_bib-entry` line builders,
+// internal/data/cv.typ and the `_bib-entry` line builders,
 // citation included, in internal/components/bibliography.typ.
 
 #import "/internal/components/bibliography.typ": (
@@ -8,7 +8,7 @@
 )
 #import "/internal/primitives.typ": _join-facts
 #import "/internal/design/theme.typ": _default-theme
-#import "/sections/publications.typ": (
+#import "/internal/data/cv.typ": (
   _authors, _identifier-refs, _identifier-url, _identifiers,
 )
 #import "/tests/unit/_plain.typ": plain
