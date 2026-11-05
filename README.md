@@ -73,7 +73,7 @@ This copies [`template/cv.typ`](template/cv.typ), a complete example CV, into a 
 ```
 <!-- x-release-please-end -->
 
-The file is validated against the JSON Resume schema first, so a vanilla `resume.json` works without edits. Dates must be ISO 8601 (`2024`, `2024-06`, `2024-06-15`). To inspect or change the data before rendering, parse it yourself with `from-json-resume`:
+The file is validated against the [JSON Resume schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits. Both routes take the same data: anything an inline dict can hold, altacv's [extensions](#extensions) included, a `resume.json` can too. Dates must be ISO 8601 (`2024`, `2024-06`, `2024-06-15`). To inspect or change the data before rendering, parse it yourself with `from-json-resume`:
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -83,7 +83,6 @@ The file is validated against the JSON Resume schema first, so a vanilla `resume
 ```
 <!-- x-release-please-end -->
 
-> **Note:** the validator doesn't accept JSON Resume's `custom` object or the newer 1.4.0+ fields such as `objective` yet ([#217](https://github.com/smur89/alta-typst/issues/217)), so altacv's [extensions](#extensions) take a different form on this route. `alta()` with an inline dict accepts everything.
 
 ### Write the data in Typst
 
@@ -250,7 +249,7 @@ basics: (
 )
 ```
 
-A bare relative string without the leading `/` resolves inside the package, so use `path()`. JSON Resume calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
+A bare relative string without the leading `/` resolves inside the package, so use `path()`. [JSON Resume](https://jsonresume.org/schema/) calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
 
 Position it with `imagePosition` (`"right"`, `"left"`, or `"center"` with `imageStackOrder` `"above"` / `"below"` the text), size it with `imageSize` and shape it with `imageShape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `headerTextAlign` aligns the name and contact bar.
 
@@ -353,7 +352,7 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). Missing or 
 
 `basics`, `objective`, `work`, `volunteer`, `education`, `skills`, `languages`, `projects`, `publications`, `certificates`, `awards`, `interests`, `references`, `custom` ([extensions](#extensions)), `meta` ([PDF metadata](#pdf-metadata-pdfa-and-accessibility)), `$schema` (accepted, not rendered), and the deprecated `focusAreas`. Any other key panics, so a misspelt section (`publication`) fails rather than vanishing.
 
-`objective` (JSON Resume 1.4.0) is a short career goal, a string or content, shown between the header and the first section, above the summary and set off like a pull quote.
+`objective` ([JSON Resume](https://jsonresume.org/schema/) 1.4.0) is a short career goal, a string or content, shown between the header and the first section, above the summary and set off like a pull quote.
 
 #### Dates
 
@@ -361,7 +360,7 @@ ISO 8601 dates (`"2024"`, `"2024-06"`, `"2024-06-15"`) are formatted per `prefer
 
 #### Extensions
 
-altacv reads four optional fields JSON Resume has no place for, from its own namespace in JSON Resume's `custom` object. Other keys under `custom` are ignored.
+altacv reads four optional fields the [JSON Resume schema](https://jsonresume.org/schema/) has no place for, from its own namespace in the schema's `custom` object. Other keys under `custom` are ignored.
 
 ```typst
 (
@@ -372,12 +371,12 @@ altacv reads four optional fields JSON Resume has no place for, from its own nam
 )
 ```
 
-| Field | Effect | In a `resume.json` via `alta-from-json` ([#217](https://github.com/smur89/alta-typst/issues/217)) |
-|---|---|---|
-| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section and label key is `focusAreas`. | Top-level `focusAreas` |
-| `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.maxRating` in 0.5 steps; wins over `fluency`. | `languages[].rating` |
-| `skills[].custom.altacv.rating` | The same for a skill group; wins over `level`. | Not yet: use `level` |
-| `awards[].custom.altacv.url` | Links the award title. | `awards[].url` |
+| Field | Effect |
+|---|---|
+| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section and label key is `focusAreas`. |
+| `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.maxRating` in 0.5 steps; wins over `fluency`. |
+| `skills[].custom.altacv.rating` | The same for a skill group; wins over `level`. |
+| `awards[].custom.altacv.url` | Links the award title. |
 
 **Deprecated:** the top-level `focusAreas`, `languages[].rating` and `awards[].url` are still read (`custom.altacv` wins when both are set) and are removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 

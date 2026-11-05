@@ -29,7 +29,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (themes, palettes, the icon set), with no rendering code.
 
-Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it; a paragraph part (`<alta-keywords>`) labels the `par` that lays out a row, so `set par(...)` reaches it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
+Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it; a paragraph part (`<alta-keywords>`) labels the `par` that lays out a row, so `set par(...)` reaches it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page. A helper that may receive a part puts its own label on a new element, so the part keeps its label: a keyword drawn by `tag()` is both `<alta-keyword>` and `<alta-pill>`. `_part` never skips labelled content, which would unlabel a user's own labelled values. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
 
 ## Sections and components
 
@@ -58,7 +58,7 @@ Renderers take their entries and `ctx`: the labels, the preferences, `format-dat
 - **`design/presets.typ`**: the built-in `themes` and the deprecated accent `palettes`. Each theme is a set of `_tokens` overrides; the built-in ones set every colour role. A caller's theme may set any tokens, any subset of them: validation (`_check-tokens`) checks it against `_tokens`' shape, so an unknown key or a value of the wrong kind panics with its path.
 - **`context.typ`**: the built theme, body size and rating scale, as `state`. Components and the public helpers (`tag`, `rating`, …), which may sit anywhere in a user's document, read the theme from it in `context`; `_content-styles` takes it from `_document` directly.
 
-Users style through [preferences](README.md#preferences) and show rules, in that order of precedence: `theme` picks a theme (`themes.teal` unless set), `font` and `colours` override its font and colour roles, and a show rule on a labelled part overrides all of them.
+Users style through [preferences](README.md#preferences) and show rules, in that order of precedence: `theme` picks a theme (`themes.teal` unless set), `font` and `colours` override its font and colour roles, and a show rule on a labelled part overrides all of them. A new look is a part or a theme token, not a preference ([design conventions](CONTRIBUTING.md#design-conventions)).
 
 ## Deprecations
 
