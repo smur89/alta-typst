@@ -3,6 +3,7 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
+#import "util/fields.typ": _field, _string-at
 #import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
@@ -80,6 +81,14 @@
   )
   let content = {
     _max-rating-state.update(prefs.max-rating)
+    // What the footer helpers print (`sections/footer.typ`).
+    [#metadata((
+      owner: cv.basics.name,
+      last-modified: _field(cv.meta, "last-modified"),
+      version: _string-at(cv.meta, "version"),
+      page-number: labels.page-number,
+      last-modified-label: labels.last-modified,
+    ))<alta-cv>]
     set document(.._pdf-metadata(cv, sections, labels))
     show: _justify.with(prefs.justify)
     _header(cv, ctx)

@@ -9,7 +9,9 @@
   dictionary(lib).keys().sorted(),
   (
     "alta",
+    "alta-footer",
     "alta-from-json",
+    "alta-updated-footer",
     "altacv",
     "avatar-placeholder",
     "divider",
