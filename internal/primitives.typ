@@ -204,14 +204,16 @@
   if here().position().y < _top-margin() + clearance { return }
   v(gap * body-size)
   if rule {
-    // The stroke is `set` around the `divider` part, so a user's
-    // `show <alta-divider>: set line(...)` overrides it.
+    // Typst's `divider`. The stroke is `set` around it, so a user's
+    // `set line(...)` rule on the divider overrides it; its block
+    // spacing is reset to `par.spacing`, the spacing a bare line had.
     set line(stroke: (
       paint: theme.colours.border,
       thickness: theme.stroke-width.thin,
       dash: dash,
     ))
-    _part("divider", line(length: 100%))
+    show divider: set block(spacing: par.spacing)
+    _part("divider", std.divider())
   }
   v(gap * body-size)
 }

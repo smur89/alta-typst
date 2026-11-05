@@ -292,13 +292,13 @@ Parts of the CV carry Typst labels (`<alta-…>`) that show rules can target, to
 ```typst
 #show <alta-contact>: set text(font: "IBM Plex Mono")
 #show <alta-date>: set text(style: "italic")
-#show <alta-divider>: set line(stroke: (paint: gray))  // keeps the dash
+#show divider: set line(stroke: (paint: gray))         // keeps the dash
 #show <alta-rating-full>: [★]                          // stars for dots
 #show <alta-rating-empty>: [☆]
 #alta(cv)
 ```
 
-A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`, and a glyph that replaces one takes its colour: the accent, or the border colour for an empty dot. A paragraph part, the line that lays out a row of items, takes `set par(…)`. Every part is listed under [Part labels](#part-labels), with its kind: the rules it takes, not the element it is. A replacement rule's `it` is the part as content, whatever builds it (text, a sequence, a `context`, an `align`), so use it whole (`tag(it)`, `emph(it)`), not `it.text`.
+A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The line between entries is Typst's own [`divider`](https://typst.app/docs/reference/model/divider/), so a plain `show divider` rule reaches it too. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`, and a glyph that replaces one takes its colour: the accent, or the border colour for an empty dot. A paragraph part, the line that lays out a row of items, takes `set par(…)`. Every part is listed under [Part labels](#part-labels), with its kind: the rules it takes, not the element it is. A replacement rule's `it` is the part as content, whatever builds it (text, a sequence, a `context`, an `align`), so use it whole (`tag(it)`, `emph(it)`), not `it.text`.
 
 An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()`, drop the separator between them, and space the `<alta-keywords>` line as skill rows are (0.8em, the default `keyword-row` gap) from its wrapped rows and the line above:
 
@@ -589,7 +589,7 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | `<alta-rating-label>` | text | A language's name beside its rating. |
 | `<alta-footer>` | text | The page footer. |
 | `<alta-section-rule>` | line | The line under a section's heading. |
-| `<alta-divider>` | line | The dashed line between entries (and `divider()`). |
+| `<alta-divider>` | line | The dashed line between entries, Typst's `divider` (and `divider()`). |
 | `<alta-date-icon>`, `<alta-location-icon>` | marker | The icon before an entry's date or location (and in `term()`). |
 | `<alta-rating-full>`, `<alta-rating-half>`, `<alta-rating-empty>` | marker | A filled, half-filled or empty rating dot. |
 
@@ -610,7 +610,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `term(period, location: none)` | A date and optional location, each with its icon. |
 | `rating(label, value, max: auto)` | A label with rating dots. |
 | `tag(body, ..)` | A pill. |
-| `divider()` | The dashed rule between entries. |
+| `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 

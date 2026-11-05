@@ -6,7 +6,9 @@
 // on `heading` can't. Icons keep the theme's colour, except the date
 // and location icons, and the rating dots, which a rule can recolour
 // or replace. The list bullet is a dash, through
-// `show list: set list(...)`.
+// `show list: set list(...)`, and the line between entries is thicker,
+// through Typst's own `show divider: set line(...)`, alongside the
+// `<alta-divider>` rule's colour.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "../lib.typ": alta
@@ -33,6 +35,7 @@
 #show <alta-footer>: set text(fill: rgb("#b03a2e"))
 #show <alta-section-rule>: set line(stroke: 2pt + rgb("#7d6608"))
 #show <alta-divider>: set line(stroke: (paint: rgb("#b03a2e")))
+#show divider: set line(stroke: (thickness: 1.5pt))
 #show list: set list(marker: [–])
 #show <alta-date-icon>: set text(fill: rgb("#b03a2e"))
 #show <alta-location-icon>: fa-icon("map-pin", solid: true)
