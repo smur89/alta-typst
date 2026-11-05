@@ -15,6 +15,7 @@
     "altacv",
     "avatar-placeholder",
     "divider",
+    "entry",
     "from-json-resume",
     "icon",
     "maps-providers",

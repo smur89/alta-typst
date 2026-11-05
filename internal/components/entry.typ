@@ -27,14 +27,18 @@
 // column; then each takes a line of its own under its row. A row
 // with nothing on the right spans the grid. The grid sits in the
 // entry heading's block, so it keeps that spacing and stays with its
-// entry; after a facts line, `entry.facts-below`.
-#let _entry-head(title, facts, date, location, alts) = context {
+// entry; after a facts line, `entry.facts-below`. The title's heading
+// is at `level`, or, when `auto`, by depth.
+#let _entry-head(title, facts, date, location, alts, level) = context {
   let theme = _theme()
   let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
     (
-      // Level 3, or 4 under a group (`components/frame.typ`).
-      [#heading(depth: 2, title)<alta-internal-entry>],
+      // `auto`, by depth: level 3, or 4 under a group (`components/frame.typ`).
+      [#heading(
+        ..if level == auto { (depth: 2) } else { (level: level) },
+        title,
+      )<alta-internal-entry>],
       theme.type.title.size * text.size,
       facts,
     )
@@ -122,7 +126,8 @@
 // leads. The `keywords` (a project's stack, education's courses) end
 // the entry as one line; `keywords-lead` is a line of its own above
 // them (education's area and score), so it doesn't read as one of
-// them.
+// them. A `body` (an entry written in markup's own prose, `blocks.typ`)
+// follows the highlights as it is, so the keywords still end the entry.
 //
 // Every fact is data, which the entry joins with the theme's
 // separators. Each slot's shape, `()` when absent:
@@ -135,6 +140,10 @@
 // `alts`, required so no caller drops it from the tagged PDF, holds the
 // date and location icons' alt text, read aloud before them, as
 // `alts.date` and `alts.location`: a section passes its labels.
+//
+// `level` sets the title's heading level, for an entry written in
+// markup (`blocks.typ`), where no section emits it at a depth; `auto`
+// emits it by depth, as the sections do.
 #let _entry(
   alts,
   title: none,
@@ -148,8 +157,10 @@
   details: (),
   summary: none,
   highlights: (),
+  body: none,
   keywords-lead: (),
   keywords: (),
+  level: auto,
 ) = {
   let org = if _present(org) {
     _accent-text(_link-if(org-url, _part("org", org)))
@@ -161,10 +172,12 @@
     _range(period),
     _fact-line(location),
     alts,
+    level,
   )
   _subtitle(subtitle)
   _preamble(summary)
   for bullet in highlights [- #bullet]
+  body
   _entry-keywords(
     _fact-line(..keywords-lead),
     // Filtered first: a labelled `""` counts as present.
