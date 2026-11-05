@@ -3,7 +3,6 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
-#import "util/fields.typ": _field, _string-at
 #import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
@@ -18,7 +17,7 @@
 #import "components/columns.typ": _columns
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
-#import "../sections/footer.typ": _footer
+#import "../sections/footer.typ": _cv-details, _footer
 
 /// The altacv template: `#show: altacv.with(theme: themes.navy)`, then
 /// `#alta(cv)` and any other content. It sets the theme, the default
@@ -82,13 +81,7 @@
   let content = {
     _max-rating-state.update(prefs.max-rating)
     // What the footer helpers print (`sections/footer.typ`).
-    [#metadata((
-      owner: cv.basics.name,
-      last-modified: _field(cv.meta, "last-modified"),
-      version: _string-at(cv.meta, "version"),
-      page-number: labels.page-number,
-      last-modified-label: labels.last-modified,
-    ))<alta-cv>]
+    [#metadata(_cv-details(cv, labels))<alta-cv>]
     set document(.._pdf-metadata(cv, sections, labels))
     show: _justify.with(prefs.justify)
     _header(cv, ctx)
