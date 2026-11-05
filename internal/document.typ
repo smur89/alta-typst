@@ -3,12 +3,12 @@
 // (`tests/components.typ`), which adds the CV's own styles
 // (`_cv-styles`), so it shows components exactly as a CV does.
 
-#import "design/styles.typ": _content-styles, _part
+#import "design/styles.typ": _base-styles, _label-headings, _part
 #import "design/theme.typ": _theme-for, _token-prefs
 #import "context.typ": _theme-state
 
-// The theme state, the default text and margins, and the paragraph,
-// list and heading rules, from the built theme and the body size and
+// The theme state, the default text and margins, and the paragraph
+// and list rules, from the built theme and the body size and
 // margins `data/` resolves: what a user's rules after `altacv`
 // override. A `scoped` template's theme ends with its body;
 // standalone `alta()`'s stays set for the content after it, as the
@@ -22,21 +22,19 @@
     fill: theme.colours.body,
   )
   set page(margin: margin)
-  show: _content-styles.with(theme)
+  show: _base-styles.with(theme)
   body
   if scoped { _theme-state.update(themes => themes.slice(0, -1)) }
 }
 
 // For `show: _standalone.with(prefs, labels, footer)`, with the merged,
-// validated preferences and labels: the template's body, then the
-// preferences that stand in for a user's set rules after it.
+// validated preferences and labels: the template's body and its
+// heading rules, then the preferences that stand in for a user's set
+// rules after it.
 #let _standalone(prefs, labels, footer, body) = {
-  show: _document.with(
-    _theme-for(prefs.theme, _token-prefs(prefs)),
-    prefs.body-size,
-    prefs.margin,
-    scoped: false,
-  )
+  let theme = _theme-for(prefs.theme, _token-prefs(prefs))
+  show: _document.with(theme, prefs.body-size, prefs.margin, scoped: false)
+  show: _label-headings.with(theme)
   // `text.lang` unless the deprecated `labels.lang` is set; drop with
   // it (#239). Before `set page`, so the footer inherits it.
   set text(lang: labels.lang)

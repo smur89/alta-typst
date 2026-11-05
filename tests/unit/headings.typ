@@ -18,3 +18,17 @@
   (14pt, 12pt, 10pt, 10pt),
   message: "Typst's built-in heading sizes changed: update `_content-styles`",
 )
+
+// The title element's: 1.7em, bold.
+#let title-size = state("title-size", none)
+#set document(title: "T")
+#show title: it => context {
+  let size = text.size
+  title-size.update(size)
+}
+#title()
+#context assert.eq(
+  title-size.final().to-absolute(),
+  17pt,
+  message: "Typst's built-in title size changed: update `_level-headings`",
+)

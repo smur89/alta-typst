@@ -10,7 +10,7 @@
 #show: altacv.with(theme: themes.navy)
 #set page(paper: "us-letter", footer: alta-footer())
 #set text(11pt, lang: "ga", font: "Libertinus Serif")
-#show heading.where(level: 2): set text(fill: rgb("#b03a2e"))
+#show heading.where(level: 1): set text(fill: rgb("#b03a2e"))
 
 #alta(
   (

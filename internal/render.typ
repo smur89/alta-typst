@@ -11,7 +11,7 @@
 #import "data/json-resume.typ": from-json-resume
 #import "data/defaults.typ": _default-preferences
 #import "design/presets.typ": themes
-#import "design/styles.typ": _justify
+#import "design/styles.typ": _justify, _level-headings
 #import "design/theme.typ": _theme-for
 #import "context.typ": _max-rating-state
 #import "document.typ": _document, _standalone
@@ -57,8 +57,11 @@
   body
 }
 
-// The CV itself, from `_prepare`, in both of `alta()`'s forms.
-#let _cv-content((cv, sections, ctx, details)) = {
+// The CV itself, from `_prepare`, in both of `alta()`'s forms;
+// `in-template` picks the template's heading scheme, the name as the
+// `title` element (`_level-headings`).
+#let _cv-content((cv, sections, ctx, details), in-template) = {
+  let ctx = ctx + (in-template: in-template)
   show: _cv-styles.with(ctx.prefs)
   // What the footer helpers print.
   [#metadata(details)<alta-cv>]
@@ -82,7 +85,7 @@
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
-  _cv-content(prepared)
+  _cv-content(prepared, true)
 }
 
 // `alta()` on its own (removed in the next major, #239): the template's
@@ -95,7 +98,7 @@
   show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
   // Standalone keeps today's levels: the sections one below the name.
   set heading(offset: 1)
-  _cv-content(prepared)
+  _cv-content(prepared, false)
 }
 
 /// The altacv template: `#show: altacv.with(theme: themes.navy)`, then
@@ -109,12 +112,13 @@
 /// - body (content): The document.
 /// -> content
 #let altacv(theme: themes.teal, body) = {
-  let theme = _checked-theme(theme)
+  let built = _theme-for(_checked-theme(theme), (:))
   show: _document.with(
-    _theme-for(theme, (:)),
+    built,
     _default-preferences.body-size,
     _default-preferences.margin,
   )
+  show: _level-headings.with(built)
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
   show <alta-internal-cv>: it => _alta-content(

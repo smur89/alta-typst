@@ -19,3 +19,24 @@
   #context assert.eq(accent(), themes.navy.colours.accent)
 ]
 #context assert.eq(accent(), themes.teal.colours.accent)
+
+// Inside the template a user's size rule sets a section title's size
+// exactly: the theme's sizes are show-set rules over Typst's own. The
+// probe reads the size the title's text renders at.
+#[
+  #show: altacv
+  #show heading: set text(size: 16pt)
+  #let seen = state("section-size", none)
+  #show <alta-section-title>: it => {
+    box(context {
+      let size = text.size
+      seen.update(size)
+    })
+    it
+  }
+  #alta((
+    basics: (name: "Jane Doe"),
+    work: ((name: "Acme", position: "Engineer"),),
+  ))
+  #context assert.eq(seen.final().to-absolute(), 16pt)
+]
