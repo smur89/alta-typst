@@ -43,8 +43,8 @@
   body,
 )
 
-// For `show: _content-styles.with(theme, justify)`, with
-// the built theme (`_theme-for`).
+// For `show: _content-styles.with(theme, justify)`, with the built
+// theme (`_theme-for`).
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
 // (e.g. publication type). `justify` justifies prose only, lists and
 // the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
@@ -75,7 +75,9 @@
   // so a later rule on `heading` overrides them; its size is set
   // inside, on its `_part`, which a rule on the part reaches. Inside a
   // heading the body size is read in context, dividing out Typst's
-  // own heading size (`tests/unit/headings.typ` guards it).
+  // own heading size (`tests/unit/headings.typ` guards it), so a rule
+  // setting a heading's size scales its title and spacing together; a
+  // rule on `<alta-section-title>` sets the title's size alone.
   // Matched by role (an internal label), not level: a heading's level
   // is its outline depth (`components/frame.typ`). The name is the one
   // level-1 heading, drawn as it is (`components/header.typ`).

@@ -5,7 +5,10 @@
 
 #set text(10pt)
 #let sizes = state("heading-sizes", ())
-#show heading: it => context { let size = text.size; sizes.update(s => s + (size,)) }
+#show heading: it => context {
+  let size = text.size
+  sizes.update(s => s + (size,))
+}
 = One
 == Two
 === Three
