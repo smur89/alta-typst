@@ -3,11 +3,11 @@
 // and `_theme-for`, the sequence `alta()` runs.
 
 #import "/internal/data/options.typ": _merge-options
-#import "/internal/design/colour.typ": _contrast
 #import "/internal/design/presets.typ": palettes, themes
 #import "/internal/design/styles.typ": _treatments
 #import "/internal/design/theme.typ": (
-  _default-theme, _theme-for, _token-prefs, _tokens, _treatment-names,
+  _contrast, _default-theme, _theme-for, _token-prefs, _tokens,
+  _treatment-names,
 )
 
 #let built(preferences) = {

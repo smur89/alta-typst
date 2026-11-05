@@ -12,7 +12,6 @@
 // `pt` and `cm` lengths don't scale.
 
 #import "../util/values.typ": _deep-merge
-#import "colour.typ": _contrast
 #import "presets/teal.typ"
 
 // The roles the deprecated top-level `accent` colours with one
@@ -24,6 +23,17 @@
   subheading: accent,
   name: accent,
 )
+
+// WCAG's contrast ratio of `c` on the white page.
+#let _contrast(c) = {
+  let (r, g, b) = rgb(c)
+    .components(alpha: false)
+    .map(v => {
+      let x = v / 100%
+      if x <= 0.04045 { x / 12.92 } else { calc.pow((x + 0.055) / 1.055, 2.4) }
+    })
+  1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
+}
 
 #let _tokens = (
   // The family, or a fallback array of them. Must be installed on the
