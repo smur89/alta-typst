@@ -12,11 +12,10 @@
   ],
 
   // Only these three. The typst toolchain version is held in lockstep by hand
-  // across the Dockerfile base image, the Makefile's DOCKER_IMAGE tag and
-  // build.yml's TYPST_VERSION/FA_VERSION; the dockerfile manager would bump
-  // just one of them and break the pinned-image PDF drift gate. The
-  // typstyle, package-check and tytanic pins are tracked by
-  // `custom.regex` below.
+  // across the Dockerfile base image and the Makefile's DOCKER_IMAGE tag; the
+  // dockerfile manager would bump just one of them and break the
+  // pinned-image PDF drift gate. The typstyle, package-check and tytanic
+  // pins are tracked by `custom.regex` below.
   enabledManagers: ['github-actions', 'typst', 'custom.regex'],
 
   customManagers: [
@@ -36,10 +35,10 @@
       datasourceTemplate: 'docker',
     },
     {
-      description: "build.yml's TYTANIC_VERSION, from tytanic's GitHub releases.",
+      description: "The Dockerfile's TYTANIC_VERSION, from tytanic's GitHub releases.",
       customType: 'regex',
-      managerFilePatterns: ['/^\\.github/workflows/build\\.yml$/'],
-      matchStrings: ['TYTANIC_VERSION: (?<currentValue>\\S+)'],
+      managerFilePatterns: ['/^Dockerfile$/'],
+      matchStrings: ['ARG TYTANIC_VERSION=(?<currentValue>\\S+)'],
       depNameTemplate: 'typst-community/tytanic',
       datasourceTemplate: 'github-releases',
       extractVersionTemplate: '^v(?<version>.+)$',
@@ -90,10 +89,11 @@
     },
     {
       // CI-only, like typstyle. Renovate can't recompute TYTANIC_SHA256, so
-      // the lint job fails its checksum check on the bump PR until the new
-      // release's SHA-256 is set by hand. Each release bundles a Typst
-      // version, which renders the references: hold the bump if it isn't
-      // TYPST_VERSION, and run `make test-refs` on the branch.
+      // the image build fails its checksum check on the bump PR until the
+      // new release's SHA-256 is set by hand. Each release bundles a Typst
+      // version, which renders the visual tests' references: hold the bump
+      // if it isn't the Dockerfile's, and run `make test-refs` on the
+      // branch.
       description: 'tytanic bumps are CI changes; the checksum is updated by hand.',
       matchDepNames: ['typst-community/tytanic'],
       semanticCommitType: 'ci',

@@ -57,7 +57,7 @@ The default look is opinionated (only skills are pills). A new alternative look 
 
 ## Development loop
 
-Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflows/build.yml`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
+Install Typst at the version CI uses — the `FROM ghcr.io/typst/typst:<version>` line in the `Dockerfile`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
 
 On macOS, one block sets up everything Homebrew can provide:
 
@@ -70,7 +70,7 @@ brew install --cask font-lato font-fontawesome
 
 Linux / Windows / manual install paths: see the [Requirements section in the README](README.md#requirements). Run `typst fonts` to confirm both are visible to Typst.
 
-The visual tests also need [tytanic](https://typst-community.github.io/tytanic/) (`tt`) at the version CI uses, `TYTANIC_VERSION` in `build.yml`. Install it from its [release binaries](https://github.com/typst-community/tytanic/releases) or with `cargo install tytanic --locked --version <version>`. They don't use your installed fonts (see [Visual tests](#visual-tests-tytanic)).
+The visual tests also need [tytanic](https://typst-community.github.io/tytanic/) (`tt`) at the version CI uses, `TYTANIC_VERSION` in the `Dockerfile` (or run them through `make in-image`). Install it from its [release binaries](https://github.com/typst-community/tytanic/releases) or with `cargo install tytanic --locked --version <version>`. They don't use your installed fonts (see [Visual tests](#visual-tests-tytanic)).
 
 Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
@@ -105,7 +105,7 @@ Pick the test kind by what the fixture checks:
 - **Ephemeral** (a `ref.typ` instead of `ref/`): that one input renders the same as another, such as a deprecated form and its replacement. tytanic renders both and compares, so nothing is committed (`tests/visual/custom-altacv-deprecated`).
 - **Compile-only** (neither): behaviour a render can't show. A linked and a plain entry look the same, so `assert-links` (`tests/visual/_links.typ`) pins each document's link destinations (`tests/visual/link-contact-info`). Formatting that a helper computes belongs in `tests/unit/`.
 
-References only reproduce with the pinned Lato and FontAwesome builds, so the tests read the copies committed in `tests/fonts/` (both under the SIL Open Font License, its text beside them) and never your installed fonts. tytanic bundles its own Typst, so with the pinned `tt` any host renders exactly as CI does. After a change that intentionally affects rendering, run `make test-refs`: it rewrites only the references whose render changed. References are 72 ppi (`typst.toml`), half tytanic's default, which measured just as sensitive.
+References only reproduce with the pinned Lato and FontAwesome builds, so the tests read the copies committed in `tests/fonts/` (both under the SIL Open Font License, its text beside them) and never your installed fonts. tytanic bundles its own Typst, so with the pinned `tt` any host renders exactly as CI does; without a local `tt`, `make in-image TARGETS=test-visual` (or `test-refs`) runs the pinned image's, as CI does. After a change that intentionally affects rendering, run `make test-refs`: it rewrites only the references whose render changed. References are 72 ppi (`typst.toml`), half tytanic's default, which measured just as sensitive.
 
 Create a test with `tt new <name>` (`--type ephemeral` or `--type compile-only` for the others), then replace its `test.typ` and run `make test-refs`.
 
@@ -118,7 +118,7 @@ make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and run
 make docker-shell  # drop into the image with the workspace mounted, for ad-hoc work
 ```
 
-`--platform linux/amd64` is forced so the renders are identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). `build.yml`'s `TYPST_VERSION` and `FA_VERSION` must match it.
+`--platform linux/amd64` is forced so the renders are identical regardless of host architecture (Apple Silicon falls back to emulation — slower but reproducible). The image is published by [`.github/workflows/image.yml`](.github/workflows/image.yml); the pinned tag lives in the `Makefile` (`DOCKER_IMAGE`). CI's render jobs run in the same image (`make in-image`).
 
 If you'd rather drive Typst directly, the manual incantations are:
 

@@ -11,9 +11,9 @@ TYPST     ?= typst ## the typst binary
 # When set, Typst searches only these directories (plus the fonts it
 # bundles), never the system's, so a render doesn't depend on what else
 # the machine has installed: a font both bundled and installed (DejaVu
-# Sans Mono on CI's runner) would otherwise resolve differently per
-# machine. The pinned image (`docker-pdfs`) and CI set it; host runs
-# leave it empty and use system fonts.
+# Sans Mono, say) would otherwise resolve differently per machine.
+# `DOCKER_RUN` sets it for the pinned image; host runs leave it empty
+# and use system fonts.
 FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
 TT        ?= tt ## the tytanic binary (test-visual)
@@ -85,7 +85,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml,
 # from main only; bump the tag here, once the new image is published,
@@ -99,13 +99,13 @@ DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0
 # The image bakes no @preview cache and `-u` leaves HOME unwritable
 # ("Permission denied" on first download), so the cache lives in the
 # bind mount (`.typst-cache/`, gitignored) and persists across runs.
+# `-e GITHUB_ACTIONS` (forwarded only when set) keeps CI's log groups
+# and annotations.
 DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work \
+  -e GITHUB_ACTIONS \
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
   -e FONT_PATHS=/usr/share/fonts/lato:/usr/share/fonts/fontawesome
 
-# `make` in the image. `-u` keeps outputs owned by the host user rather
-# than root on Linux.
-DOCKER_MAKE = $(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make
 
 all: pdfs cv thumbnail ## build every example PDF and the cv preview
 
@@ -181,31 +181,65 @@ examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) exampl
 	$(IMG2WEBP) -loop 0 -lossy -q 75 -m 6 -d $(PREVIEW_DELAY) examples/.preview-frame-*.png -o $@
 	rm -f examples/.preview-frame-*.png
 
-# Compile each listed file to /dev/null, carrying on past failures so
-# one run reports every broken file:
-#   $(call compile-check,<files>[,<pdf standards>])
-# On GitHub Actions it adds log groups and `::error file=` annotations.
-# `$(TEMPLATE_SRC)` is reported as template/cv.typ, the file people edit.
-# Checked against `$(2)`, the PDF standards (default `PDF_STANDARDS`:
-# PDF/A-2b and PDF/UA-1, which back the README's PDF/A and
-# accessibility notes); the output is discarded, so the committed
-# renders are unaffected.
-define compile-check
-@status=0; \
-for f in $(1); do \
-  name=$$f; [ "$$f" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
-  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
-  else printf '  %s\n' "$$name"; fi; \
-  if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$$f" /dev/null; then \
-    if [ -n "$$GITHUB_ACTIONS" ]; then \
-      printf '::error file=%s::compile failed\n' "$$name"; \
-    fi; \
-    status=1; \
-  fi; \
-  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
-done; \
+# One target per checked file, so `make -j` parallelises them and `-k`
+# reports every failure. On GitHub Actions each check is a log group
+# with `::error file=` annotations; `$(TEMPLATE_SRC)` is reported as
+# template/cv.typ, the file people edit.
+#
+# `compile-one` compiles to /dev/null against `$(2)`, the PDF standards
+# (default `PDF_STANDARDS`: PDF/A-2b and PDF/UA-1, which back the
+# README's PDF/A and accessibility notes).
+#   $(call compile-one,<file>[,<pdf standards>])
+define compile-one
+@name=$(1); [ "$(1)" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
+if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
+else printf '  %s\n' "$$name"; fi; \
+status=0; \
+if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$(1)" /dev/null; then \
+  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::compile failed\n' "$$name"; fi; \
+  status=1; \
+fi; \
+if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
 exit $$status
 endef
+
+COMPILE_CHECKS := $(addprefix check/compile/,$(EXAMPLES) $(TEMPLATE_SRC))
+FIXTURE_CHECKS := $(addprefix check/fixture/,$(TESTS))
+UNIT_CHECKS    := $(addprefix check/unit/,$(UNIT_TESTS))
+PANIC_CHECKS   := $(addprefix check/panic/,$(PANIC_TESTS))
+.PHONY: $(COMPILE_CHECKS) $(FIXTURE_CHECKS) $(UNIT_CHECKS) $(PANIC_CHECKS)
+
+# Static pattern rules: make skips implicit rules for .PHONY targets.
+# The compile checks wait for `$(TEMPLATE_SRC)`, which the examples
+# read (preview-frames.typ, via examples/_cv.typ).
+$(COMPILE_CHECKS): check/compile/%: $(TEMPLATE_SRC)
+	$(call compile-one,$*)
+$(FIXTURE_CHECKS): check/fixture/%:
+	$(call compile-one,$*)
+# A failed `assert` fails the compile.
+$(UNIT_CHECKS): check/unit/%:
+	$(call compile-one,$*,a-2b)
+
+# A panic fixture must FAIL to compile, and its error output must
+# contain the text after the file's leading `// expect: ` line — so
+# each validator's message is pinned, and a check that stops firing
+# (or starts failing for a different reason) breaks the build.
+$(PANIC_CHECKS): check/panic/%:
+	@expect=$$(sed -n '1s|^// expect: ||p' "$*"); \
+	if [ -z "$$expect" ]; then \
+	  printf '%s: missing leading `// expect: <message>` line\n' "$*" >&2; exit 1; \
+	fi; \
+	msg=; \
+	if out=$$($(TYPST) compile --root $(ROOT) --format pdf "$*" /dev/null 2>&1); then \
+	  msg="compiled, expected a failure containing: $$expect"; \
+	elif ! printf '%s' "$$out" | grep -qF -- "$$expect"; then \
+	  msg="failed without: $$expect"; \
+	fi; \
+	if [ -n "$$msg" ]; then \
+	  printf '%s: %s\n%s\n' "$*" "$$msg" "$$out" >&2; \
+	  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::%s\n' "$*" "$$msg"; fi; \
+	  exit 1; \
+	fi
 
 # Every check CI's lint job runs, so a green `make test` locally means
 # it will pass too.
@@ -213,48 +247,19 @@ test: test-compile test-fixtures test-panics test-unit test-visual ## compile ex
 
 # The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
 # template/cv.typ's `@preview/altacv` import won't resolve locally — a
-# broken starter trips here before release). The prerequisite also
-# covers preview-frames.typ, which reads its CV from `$(TEMPLATE_SRC)`
-# through examples/_cv.typ.
-test-compile: $(TEMPLATE_SRC) ## compile every example and the template
-	$(call compile-check,$(EXAMPLES) $(TEMPLATE_SRC))
+# broken starter trips here before release).
+test-compile: $(COMPILE_CHECKS) ## compile every example and the template
 
 # tytanic doesn't check PDF standards, so this keeps the fixtures
 # under `PDF_STANDARDS`.
-test-fixtures: ## compile every tests/visual/ fixture, output discarded
-	$(call compile-check,$(TESTS))
+test-fixtures: $(FIXTURE_CHECKS) ## compile every tests/visual/ fixture, output discarded
 
-# A failed `assert` fails the compile.
-test-unit: ## run the helper checks under tests/unit/
-	$(call compile-check,$(UNIT_TESTS),a-2b)
+test-unit: $(UNIT_CHECKS) ## run the helper checks under tests/unit/
 
-# Every tests/panics/*.typ must FAIL to compile, and its error output
-# must contain the text after the file's leading `// expect: ` line —
-# so each validator's message is pinned, and a check that stops firing
-# (or starts failing for a different reason) breaks the build.
-test-panics: ## check each tests/panics/*.typ fails with its `// expect:` text
-	@status=0; \
-	for f in $(PANIC_TESTS); do \
-	  expect=$$(sed -n '1s|^// expect: ||p' "$$f"); \
-	  if [ -z "$$expect" ]; then \
-	    printf '%s: missing leading `// expect: <message>` line\n' "$$f" >&2; status=1; continue; \
-	  fi; \
-	  msg=; \
-	  if out=$$($(TYPST) compile --root $(ROOT) --format pdf "$$f" /dev/null 2>&1); then \
-	    msg="compiled, expected a failure containing: $$expect"; \
-	  elif ! printf '%s' "$$out" | grep -qF -- "$$expect"; then \
-	    msg="failed without: $$expect"; \
-	  fi; \
-	  if [ -n "$$msg" ]; then \
-	    status=1; printf '%s: %s\n%s\n' "$$f" "$$msg" "$$out" >&2; \
-	    if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::%s\n' "$$f" "$$msg"; fi; \
-	  fi; \
-	done; \
-	exit $$status
+test-panics: $(PANIC_CHECKS) ## check each tests/panics/*.typ fails with its `// expect:` text
 
 # A quick check after editing template/cv.typ; `test-compile` covers it.
-test-template: $(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
-	$(call compile-check,$(TEMPLATE_SRC))
+test-template: check/compile/$(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 
 # tytanic compares each tests/visual/<name>/ render against its
 # committed ref/*.png, and compile-checks the template as `@template`,
@@ -334,20 +339,30 @@ help: ## list these targets and the variables you can override
 	@echo 'Overrides (make VAR=value):'
 	@awk -F' *[?]= *| *## ' '/^[A-Z_]+ *[?]=.*## /{printf "  %-22s %s (default %s)\n", $$1, $$3, $$2}' $(MAKEFILE_LIST)
 
+# `make $(TARGETS)` in the pinned image, as CI runs it:
+#   make in-image TARGETS='-k -j4 test'
+# `-u` keeps outputs owned by the host user, not root.
+in-image: ## run `make $(TARGETS)` in the pinned image
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make $(TARGETS)
+
 # Regenerate the committed example renders inside the pinned CI image,
 # which pins Typst as well as the fonts. The visual tests' references
 # need no image: `make test-refs`. `-B` because a merge or checkout
 # gives tracked outputs fresh mtimes, so make would skip them and
 # commit stale bytes.
 docker-pdfs: ## regenerate the committed example renders in the pinned CI image
-	$(DOCKER_MAKE) -B all
+	$(MAKE) in-image TARGETS='-B all'
 
-# Just the tracked thumbnail PNG. Raster output is
-# environment-sensitive, so the pinned image is its only canonical
-# source; the `preview-images-in-sync` CI gate runs this same target.
-# `-B` for the same mtime reason as above.
+# Just the tracked thumbnail: raster output only reproduces in the
+# pinned image. `-B` for the same mtime reason as above.
 docker-preview-images: ## regenerate thumbnail.png in the pinned image
-	$(DOCKER_MAKE) -B thumbnail
+	$(MAKE) in-image TARGETS='-B thumbnail'
+
+# The release artifacts in the pinned image, for CI's build,
+# package-check and release jobs. `-B` so the thumbnail re-renders for
+# the drift check.
+docker-release-artifacts: ## build the release artifacts in the pinned image
+	$(MAKE) in-image TARGETS='-B -j4 release-artifacts'
 
 # Interactive shell in the CI image. Runs as root (no `-u`) so you can
 # `apk add` debugging tools.
