@@ -65,12 +65,14 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*
   $(wildcard sections/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages: shared by the release tarball and
-# the PR-time package-check stager so the two can't drift.
+# the PR-time package-check stager so the two can't drift. Besides the
+# package itself, only what the README links to (typst/packages' "What
+# to commit? What to exclude?"): `examples/cv.png` is a release asset,
+# not a README image, so it stays out.
 PACKAGE_FILES := \
   typst.toml lib.typ internal sections assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
-  examples/cv.png \
   $(EXAMPLE_FULL_PDF) \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
@@ -303,8 +305,8 @@ package-tarball: ## build the release tarball from the staged package
 	@test -n "$(PACKAGE_TARBALL)" || { echo "package-tarball: PACKAGE_TARBALL=/path.tar.gz required" >&2; exit 2; }
 	tar czf "$(PACKAGE_TARBALL)" $(PACKAGE_FILES)
 
-# Also removes tracked renders (examples/cv.png, thumbnail.png, the
-# fixture PDFs, …); `git checkout` restores them.
+# Also removes tracked renders (thumbnail.png, the fixture PDFs, …);
+# `git checkout` restores them.
 clean: ## remove generated PDFs and PNGs
 	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
@@ -323,12 +325,12 @@ help: ## list these targets and the variables you can override
 docker-pdfs: ## regenerate every committed render in the pinned CI image
 	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B all
 
-# Just the two tracked preview PNGs. Raster output is
+# Just the tracked thumbnail PNG. Raster output is
 # environment-sensitive (unlike the fixture PDFs), so the pinned image
 # is their only canonical source; the `preview-images-in-sync` CI gate
 # runs this same target. `-B` for the same mtime reason as above.
-docker-preview-images: ## regenerate cv.png + thumbnail.png in the pinned image
-	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B cv thumbnail
+docker-preview-images: ## regenerate thumbnail.png in the pinned image
+	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make -B thumbnail
 
 # Interactive shell in the CI image. Runs as root (no `-u`) so you can
 # `apk add` debugging tools.

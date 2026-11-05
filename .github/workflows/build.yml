@@ -166,9 +166,10 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Also fills ~/.cache/typst with @preview deps, which the
-      # validate step mounts into the check container.
-      - name: Render artifacts the release tarball contains
+      # The release artifacts, the tarball's renders among them. Also
+      # fills ~/.cache/typst with @preview deps, which the validate step
+      # mounts into the check container.
+      - name: Render the release artifacts
         run: make release-artifacts
 
       # Stage at typst.toml's version so the template's self-import
@@ -212,8 +213,8 @@ jobs:
       - name: Regenerate preview PNGs in the pinned image
         run: make docker-preview-images
 
-      - name: Verify examples/cv.png + thumbnail.png are in sync
-        run: make check-drift DRIFT_PATHS='examples/cv.png thumbnail.png' DRIFT_FIX='make docker-preview-images'
+      - name: Verify thumbnail.png is in sync
+        run: make check-drift DRIFT_PATHS='thumbnail.png' DRIFT_FIX='make docker-preview-images'
 
   # release-please-config.json bumps typst.toml's `package.version`
   # as an extra-file, keeping it in lockstep with the tag.

@@ -12,10 +12,15 @@ target/
 # `examples/example_full.pdf` is the explicit exception — tracked
 # so the README's Gallery link resolves via raw.githubusercontent
 # without a local rebuild. The negation MUST come after the broader
-# ignore line. Other tracked artifacts (cv.png, preview.gif,
+# ignore line. Other tracked artifacts (preview.gif,
 # example_full-*.png, thumbnail.png) aren't listed here at all.
 examples/*.pdf
 !examples/example_full.pdf
+
+# A CI artifact and release asset, built from source by both; nothing
+# reads a committed copy (the README doesn't link it and it isn't
+# submitted to typst/packages).
+examples/cv.png
 
 # Intermediate GIF frames that `make preview-gif` writes before
 # ffmpeg stitches them. A SIGINT between compile and `rm -f` would
