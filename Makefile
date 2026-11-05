@@ -79,9 +79,10 @@ PACKAGE_FILES := \
 
 .PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
-# Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome / Lato versions
-# in the Dockerfile (image.yml derives the same tag and pushes it).
+# Pinned CI image. Built and published by .github/workflows/image.yml,
+# from main only; bump the tag here, once the new image is published,
+# whenever a version the tag encodes changes in the Dockerfile
+# (image.yml derives the same tag).
 DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0 ## the pinned CI image
 
 # `--platform linux/amd64` keeps output byte-identical to CI on any
