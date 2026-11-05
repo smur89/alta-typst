@@ -1,7 +1,6 @@
 // The paragraph, list and heading rules for everything `alta()`
-// renders, from the theme `_document` builds, and `_treat`, which
-// applies a named treatment. `set text` is `_document`'s
-// (`document.typ`).
+// renders, from the theme `_document` builds. `set text` is
+// `_document`'s (`document.typ`).
 
 // A part of the CV a user can restyle (#327): `body` labelled
 // `<alta-{name}>`, for `show <alta-{name}>: set text(...)` rules before
@@ -9,30 +8,13 @@
 // two rules hold everywhere:
 // - The label sits on the raw value, before any styling (`upper()`,
 //   a treatment): a label on styled content doesn't take the rule.
-//   Style around the part, e.g. `_treat(case, _part(...))`.
+//   Style around the part, e.g. `case(_part(...))`.
 // - No space before the label: one renders as a real space after the
 //   part.
 // Labels the template uses for its own rules (`justify`'s
 // `<alta-internal-prose>`) are prefixed `alta-internal-`, so they can't
 // be mistaken for a public part.
 #let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
-
-// Applies a named treatment (the theme's `treatment`, or its
-// `section.case`); `"none"` leaves the body as it is.
-// `italic` sets the style where `emph` toggles it: a treatment around a
-// `_part` has to be a plain setting, or a user's `style:` rule on the
-// part would be flipped (`emph` turns their "normal" italic).
-#let _treatments = (
-  emph: emph,
-  italic: b => {
-    set text(style: "italic")
-    b
-  },
-  strong: strong,
-  upper: upper,
-  "none": b => b,
-)
-#let _treat(name, body) = _treatments.at(name)(body)
 
 // Places an inline graphic on the surrounding text by one rule:
 // glyphs stand on the baseline (`to: "baseline"`: `body` as it is, as
@@ -105,7 +87,7 @@
         weight: ty.headline.weight,
         tracking: tracking,
       )
-      _treat(case, _part("section-title", it.body))
+      case(_part("section-title", it.body))
     }
     #v(rule-gap * body-size)
     // The stroke is `set` around the `section-rule` part, so a user's

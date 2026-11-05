@@ -150,7 +150,7 @@ Set only the keys you want to change. An unknown key or a wrong type panics with
   theme: themes.navy,
   paper: "us-letter",
   dateFormat: "short",              // 06/2024
-  imagePosition: "left",
+  imagePosition: left,
   linkContactInfo: (phone: false),  // everything linked but the phone
   mapsProvider: maps-providers.osm, // OpenStreetMap for basics.location
   rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
@@ -251,7 +251,7 @@ basics: (
 
 A bare relative string without the leading `/` resolves inside the package, so use `path()`. [JSON Resume](https://jsonresume.org/schema/) calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
 
-Position it with `imagePosition` (`"right"`, `"left"`, or `"center"` with `imageStackOrder` `"above"` / `"below"` the text), size it with `imageSize` and shape it with `imageShape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `headerTextAlign` aligns the name and contact bar.
+Position it with `imagePosition` (`right`, `left`, `top`, `bottom`), size it with `imageSize` and shape it with `imageShape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `headerTextAlign` aligns the name and contact bar: `left`, `center` or `right`.
 
 **Contact bar.** Built from `basics.email`, `phone`, `location`, `url` and `profiles`, each linked (`mailto:`, `tel:`, a maps search, the URL). `linkContactInfo` turns linking off globally or per channel. For paper, turn linking off and set `printFullUrls: true` to print profile URLs in place of usernames.
 
@@ -360,6 +360,8 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). Missing or 
 #### Dates
 
 ISO 8601 dates (`"2024"`, `"2024-06"`, `"2024-06-15"`) are formatted per `preferences.dateFormat`; other strings (`"Jan 2022"`) print as given. A missing or empty `endDate` reads `Present` (`labels.present`).
+
+In Typst, a full date can also be a `datetime` (`datetime(year: 2024, month: 6, day: 15)`, or `datetime.today()`), read as its ISO string. A `datetime` always has a day, so a date known only to the month or year stays a string (`"2024-06"`).
 
 #### Extensions
 
@@ -470,11 +472,10 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 | Key | Default | Effect |
 |---|---|---|
 | `uppercaseName` | `true` | Set `false` for scripts without case, or where uppercasing changes letters (Turkish dotless i). |
-| `headerTextAlign` | `"left"` | `"left"`, `"right"` or `"center"`. |
+| `headerTextAlign` | `left` | `left`, `right` or `center`. |
 | `imageSize` | `6em` | The portrait's width and height. |
 | `imageShape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
-| `imagePosition` | `"right"` | `"left"`, `"right"`, or `"center"` (its own row). |
-| `imageStackOrder` | `"above"` | With `"center"`: the portrait `"above"` or `"below"` the text. |
+| `imagePosition` | `right` | The side of the header text the portrait takes: `left`, `right`, or centred at the `top` or `bottom`. |
 | `qrCode` | `none` | `auto` (encode `basics.url`; panics without one) or a URL string. |
 
 #### Page and layout
@@ -516,6 +517,10 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 |---|---|
 | `accent` | `theme`, or `colours` for a custom colour. |
 | `referencesAvailableOnRequest` | `references[].availableOnRequest`. |
+| `imagePosition: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
+| `imageStackOrder` | `imagePosition: top` or `bottom`. |
+| `headerTextAlign: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
+| Treatment names (`theme.treatment.link: "emph"`) | The functions: `emph`, `strong`, `upper`; `"italic"` is `it => text(style: "italic", it)`, `"none"` is `it => it`. |
 | `groupCertificates`, `showPronouns` | Nothing: both are ignored. |
 
 ### Theme tokens
@@ -532,7 +537,7 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 | `stroke-width` | `thin` 0.5, `thick` 1 | Rule and border widths, in pt. |
 | `leading` | 0.55 | Line spacing, in `em`. |
 | `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "`, `keywords` `" · "` | Between groups of facts, between items in a group, after a label (`Music: Trad`), between two dates, and between an entry's keywords. |
-| `treatment` | `preamble` `"italic"`, `link` `"emph"`, `owner` `"strong"`, `label` `"strong"` | How a summary, a publication title, your name among authors and an interest's name stand out: `"italic"`, `"emph"`, `"strong"`, `"upper"` or `"none"`. |
+| `treatment` | `preamble` italic, `link` `emph`, `owner` `strong`, `label` `strong` | How a summary, a publication title, your name among authors and an interest's name stand out: a function of the content (`emph`, `strong`, `upper`, `underline`, `it => it` for none). The italic default sets the style rather than toggling it as `emph` does, so a show rule on the summary keeps its own style. |
 | `citation` | `issue` `("(", ")")`, `pages` `", "`, `source` `" "`, `page-range` `"–"` | The punctuation of `ACM 12(3), 45–67`. |
 
 ### Labels

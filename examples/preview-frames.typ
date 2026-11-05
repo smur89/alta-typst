@@ -22,7 +22,7 @@
 // bolder themes (odd frames) alternate with the single-hue ones (even
 // frames), so neighbouring frames differ in character, not just hue.
 //
-// `imageStackOrder: "below"` is deliberately excluded — the photo
+// `imagePosition: bottom` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
@@ -127,9 +127,8 @@
       + (
         theme: themes.charcoal,
         columnRatio: 0.35,
-        imagePosition: "center",
-        imageStackOrder: "above",
-        headerTextAlign: "center",
+        imagePosition: top,
+        headerTextAlign: center,
         leftColumnSections: (
           "skills",
           "languages",
@@ -165,7 +164,7 @@
   // ── Frame 4 ─ crimson + portrait left + QR right + Irish ────────
   // Image swung to the left of the header with a QR matrix mirrored
   // on the right — the flipped twin of frame 6's QR layout, exercising
-  // the same feature under `imagePosition: "left"`. Section columns
+  // the same feature under `imagePosition: left`. Section columns
   // swap emphasis (compact / support blocks lead, work and volunteer
   // move right). In Irish: the headings, months and footer
   // (`in-ga`) and the content (`in-irish`).
@@ -174,7 +173,7 @@
     prefs: base
       + (
         theme: themes.crimson,
-        imagePosition: "left",
+        imagePosition: left,
         qrCode: auto,
         leftColumnSections: (
           "focusAreas",
@@ -199,7 +198,7 @@
     prefs: base
       + (
         theme: themes.bauhaus,
-        headerTextAlign: "center",
+        headerTextAlign: center,
         columnRatio: 0.5,
         leftColumnSections: (
           "projects",
@@ -291,7 +290,7 @@
     prefs: base
       + (
         theme: themes.teal,
-        imagePosition: "left",
+        imagePosition: left,
         imageShape: "rounded",
         justify: true,
         columnRatio: 1,
@@ -310,7 +309,7 @@
       + (
         theme: themes.catppuccin,
         columnRatio: 0.3,
-        headerTextAlign: "right",
+        headerTextAlign: right,
         leftColumnSections: (
           "focusAreas",
           "skills",

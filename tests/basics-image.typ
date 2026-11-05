@@ -65,7 +65,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (imagePosition: "left"),
+  preferences: (imagePosition: left),
 )
 
 #pagebreak()
@@ -80,26 +80,26 @@
     ),
   ),
   preferences: (
-    imagePosition: "left",
-    headerTextAlign: "right",
+    imagePosition: left,
+    headerTextAlign: right,
   ),
 )
 
 #pagebreak()
 
-// No image — `headerTextAlign: "center"` still applies, centring the
+// No image — `headerTextAlign: center` still applies, centring the
 // name / label / contact bar block on the page.
 #alta(
   (
     basics: (
       name: "Centred Header, No Photo",
-      label: "headerTextAlign: \"center\"",
+      label: "headerTextAlign: center",
       email: "centre@example.com",
       phone: "+353 1 555 0100",
       location: "Dublin, Ireland",
     ),
   ),
-  preferences: (headerTextAlign: "center"),
+  preferences: (headerTextAlign: center),
 )
 
 #for shape in ("rounded", "square") {

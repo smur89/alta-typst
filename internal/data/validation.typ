@@ -3,9 +3,7 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": (
-  _default-theme, _token-prefs, _tokens, _treatment-names,
-)
+#import "../design/theme.typ": _default-theme, _token-prefs, _tokens
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-keys, _check-rules, _check-type,
   _check-unknown-keys, _enum-rule, _list-rule, _positive-int-rule, _type-rule,
@@ -17,7 +15,6 @@
 // as `sections/header.typ` reads them too and `data/` may not import
 // sections.
 #let _contact-channels = ("email", "phone", "location", "url", "profiles")
-#let _text-aligns = (left: left, right: right, center: center)
 
 // Unknown keys panic rather than being silently absorbed. The keys
 // named in `tables` (`labels.publicationTypes`) hold dictionaries that
@@ -101,11 +98,13 @@
 #let _preference-rules = (
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercaseName: _bool-rule,
-  headerTextAlign: _enum-rule(_text-aligns.keys()),
+  headerTextAlign: _enum-rule((left, center, right)),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
   imageShape: _enum-rule(_default-theme.header.portrait-radius.keys()),
-  imagePosition: _enum-rule(("left", "right", "center")),
-  // Checked even when unused, so a typo surfaces before it matters.
+  // The side of the header text the portrait takes.
+  imagePosition: _enum-rule((left, right, top, bottom)),
+  // Deprecated (#239): read into `imagePosition` with `"center"`, but
+  // checked even when unused, so a typo surfaces before it matters.
   imageStackOrder: _enum-rule(("above", "below")),
   // A typo (`qrCode: true`) fails here, not inside `qrcode(...)`.
   qrCode: (
@@ -192,7 +191,10 @@
 // of their path (`treatment`), else by its last (`weight`).
 #let _token-rules = (
   font: _font-rule,
-  treatment: _enum-rule(_treatment-names),
+  treatment: _type-rule(
+    (function,),
+    "a function of the content (e.g. emph, strong, upper)",
+  ),
   separator: _separator-rule,
   font-weight: _weight-rule,
   weight: _weight-rule,

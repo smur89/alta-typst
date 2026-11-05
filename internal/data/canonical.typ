@@ -5,7 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
-#import "../design/theme.typ": _accent-roles
+#import "../design/theme.typ": _accent-roles, _treatment-names
 #import "cv.typ": _altacv-ns, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
@@ -102,20 +102,30 @@
   ) { cv } else { cv + (references: refs + ((availableOnRequest: true),)) }
 }
 
-// `none` (JSON's `null`) means absent: a key set to it is dropped, at
-// any depth, so checks and renderers meet one absent form, a missing
-// key, and a reader's default applies.
-#let _drop-nones(v) = if type(v) == dictionary {
+// The CV's values in JSON Resume's forms, at any depth. `none` (JSON's
+// `null`) means absent: a key set to it is dropped, so checks and
+// renderers meet one absent form, a missing key, and a reader's
+// default applies. A `datetime` with a date reads as the ISO string
+// the spec writes (`2024-06-15`, with its time if it has one): a Typst
+// convenience over the string, so every date reader meets one form.
+#let _spec-values(v) = if type(v) == dictionary {
   v
     .pairs()
     .filter(((_, x)) => x != none)
-    .map(((k, x)) => (k, _drop-nones(x)))
+    .map(((k, x)) => (k, _spec-values(x)))
     .to-dict()
-} else if type(v) == array { v.map(_drop-nones) } else { v }
+} else if type(v) == array { v.map(_spec-values) } else if (
+  type(v) == datetime and v.year() != none
+) {
+  v.display(
+    "[year]-[month]-[day]"
+      + if v.hour() != none { "T[hour]:[minute]:[second]" } else { "" },
+  )
+} else { v }
 
 // `prefs` is the merged, validated preferences dict.
 #let _canonical-cv(cv, prefs) = (
-  _drop-nones,
+  _spec-values,
   cv => _lift-into-custom(cv, _legacy-root-fields),
   cv => _legacy-entry-fields
     .pairs()
@@ -188,8 +198,52 @@
   }
 }
 
+// #239: the strings `headerTextAlign` and `imagePosition` took become
+// Typst's alignments. `"center"` placed the portrait on its own row,
+// `imageStackOrder` (`"above"`, the default, or `"below"`) the text,
+// so it becomes `top` or `bottom`. A string with no alignment passes
+// through for validation to name.
+// `v`'s value in `table` when it names one, else `v`.
+#let _named(table, v) = if type(v) == str and v in table { table.at(v) } else {
+  v
+}
+
+#let _alignments = (left: left, center: center, right: right)
+#let _canonical-alignments(overrides) = if type(overrides) != dictionary {
+  overrides
+} else {
+  let at(key, default: none) = overrides.at(key, default: default)
+  // Only the keys the caller set, so a missing one keeps its default.
+  let set-only(key, value) = if key in overrides { ((key): value) } else {
+    (:)
+  }
+  let position = if at("imagePosition") == "center" {
+    _named((above: top, below: bottom), at("imageStackOrder", default: "above"))
+  } else { _named(_alignments, at("imagePosition")) }
+  (
+    overrides
+      + set-only("headerTextAlign", _named(_alignments, at("headerTextAlign")))
+      + set-only("imagePosition", position)
+  )
+}
+
+// #239: a theme's `treatment` names (`"italic"`) become their
+// functions. An unknown name passes through for validation to name.
+#let _canonical-treatments(overrides) = {
+  let theme = _dict-or-empty(overrides).at("theme", default: none)
+  let treatment = _dict-or-empty(theme).at("treatment", default: none)
+  if type(treatment) != dictionary { overrides } else {
+    let treatment = treatment
+      .pairs()
+      .map(((k, v)) => (k, _named(_treatment-names, v)))
+      .to-dict()
+    overrides + (theme: theme + (treatment: treatment))
+  }
+}
+
 // Runs before the merge over the defaults. #239: the deprecated
-// top-level `accent` becomes `colours` (`_fold-accent`), and the
+// top-level `accent` becomes `colours` (`_fold-accent`), the string
+// alignments and treatment names become Typst's values, and the
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
 // one table. `projectIcons` and `profileIcons` are lowercased too.
@@ -197,7 +251,9 @@
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
-  let overrides = _fold-accent(overrides)
+  let overrides = _canonical-treatments(
+    _canonical-alignments(_fold-accent(overrides)),
+  )
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"

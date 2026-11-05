@@ -4,7 +4,8 @@
 
 #import "values.typ": _round-half
 
-#let _quote(s) = "\"" + s + "\""
+// A string quoted; any other value (an alignment) as Typst writes it.
+#let _quote(s) = if type(s) == str { "\"" + s + "\"" } else { repr(s) }
 
 // `"a" or "b"`, `"a", "b", or "c"`.
 #let _prose-list(items) = items.join(

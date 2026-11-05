@@ -2,7 +2,7 @@
 // the CV and preferences onto: the name line, headline, objective and
 // contact bar, with an optional portrait and QR around them.
 
-#import "../design/styles.typ": _part, _treat
+#import "../design/styles.typ": _part
 #import "../context.typ": _body-size-state, _theme-state
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
@@ -26,7 +26,7 @@
   // the header's top corner whichever way the stack runs. The row gap
   // is an explicit `v(...)` because block spacing inside a grid cell
   // is consumed by the cell.
-  if photo-at in ("above", "below") {
+  if photo-at in (top, bottom) {
     let centred-photo = if photo != none {
       block(width: 100%, align(center, photo))
     }
@@ -40,24 +40,24 @@
         qr, content, box(width: qr-size),
       )
     }
-    let (top, bottom) = if centred-photo == none {
+    let (first, second) = if centred-photo == none {
       (header-text, none)
-    } else if photo-at == "above" {
+    } else if photo-at == top {
       (centred-photo, header-text)
     } else {
       (header-text, centred-photo)
     }
-    with-qr(top)
-    if bottom != none {
+    with-qr(first)
+    if second != none {
       v(photo-gap * body-size)
-      bottom
+      second
     }
   } else {
     // QR goes opposite the photo even with no photo, so adding
     // one later doesn't move it. Absent ornaments are dropped rather
     // than left as empty cells, which would add a stray gutter.
     let (left-ornament, right-ornament) = if (
-      photo-at == "left"
+      photo-at == left
     ) {
       (photo, qr)
     } else {
@@ -125,8 +125,7 @@
     )
   }
   if objective != none {
-    _header-line(headline-below * body-size, _treat(
-      theme.treatment.preamble,
+    _header-line(headline-below * body-size, (theme.treatment.preamble)(
       // `#[]` gives the outer label an element of its own.
       _part("summary", [#_part("objective", objective)#[]]),
     ))
@@ -157,8 +156,8 @@
 }
 
 // `photo` (a built portrait) and `qr-url` are `none` when absent;
-// `photo-at` places the photo `"left"` or `"right"` of the text, or
-// centred `"above"` / `"below"` it.
+// `photo-at` is the side of the text the photo takes: `left` or
+// `right`, or centred at the `top` or `bottom`.
 #let _page-header(
   name: none,
   headline: none,

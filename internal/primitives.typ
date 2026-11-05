@@ -3,8 +3,9 @@
 // `name`, `term`, `tag`, `divider`, `styled-link` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
-#import "design/styles.typ": _part, _treat
+#import "design/styles.typ": _part
 #import "context.typ": _body-size-state, _theme-state
+#import "design/theme.typ": _as-is
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": _icon-glyph, icon
 
@@ -78,8 +79,7 @@
 // A summary as a paragraph of prose: the paragraph labelled
 // `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
 // public `<alta-summary>` part.
-#let _prose(body, treatment: "none") = [#par(_treat(
-  treatment,
+#let _prose(body, treatment: _as-is) = [#par(treatment(
   _part("summary", body),
 ))<alta-internal-prose>]
 
@@ -267,8 +267,7 @@
 /// -> content
 #let styled-link(content, dest: none) = context {
   let theme = _theme-state.get()
-  let styled = _treat(
-    theme.treatment.link,
+  let styled = (theme.treatment.link)(
     text(fill: theme.colours.accent, content),
   )
   _link-if(dest, styled)

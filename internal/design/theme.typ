@@ -35,6 +35,17 @@
   1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
 }
 
+// Sets the style where `emph` toggles it: a treatment around a
+// `_part` has to be a plain setting, or a user's `style:` rule on the
+// part would be flipped (`emph` turns their "normal" italic).
+// A treatment that leaves the content as it is.
+#let _as-is(body) = body
+
+#let _italic(body) = {
+  set text(style: "italic")
+  body
+}
+
 #let _tokens = (
   // The family, or a fallback array of them. Must be installed on the
   // build host (the pinned image installs it from apk).
@@ -74,13 +85,13 @@
   // `separator.range` between dates is spaced).
   citation: (issue: ("(", ")"), pages: ", ", source: " ", page-range: "–"),
   // For a summary, a `styled-link` title, the CV owner among
-  // publication authors, and an interest group's name.
+  // publication authors, and an interest group's name: each a function
+  // of the content.
   treatment: (
-    // A plain setting, not `emph`: the summary is a `_part`.
-    preamble: "italic",
-    link: "emph",
-    owner: "strong",
-    label: "strong",
+    preamble: _italic,
+    link: emph,
+    owner: strong,
+    label: strong,
   ),
   // CSS's size keywords.
   space: (
@@ -127,7 +138,7 @@
       above: sp.small,
       rule-gap: -0.7,
       below: sp.xx-small,
-      case: "upper",
+      case: upper,
       tracking: 0.04em,
     ),
     // Entry and group headings.
@@ -208,9 +219,15 @@
     + if prefs.font != auto { (font: prefs.font) } else { (:) }
 )
 
-// The names `_treat` (`styles.typ`) applies, for a theme's
-// `treatment` tokens.
-#let _treatment-names = ("emph", "italic", "strong", "upper", "none")
+// #239: the names a theme's `treatment` tokens took, as the functions
+// `_canonical-preferences` rewrites them to.
+#let _treatment-names = (
+  emph: emph,
+  italic: _italic,
+  strong: strong,
+  upper: upper,
+  "none": _as-is,
+)
 
 // The theme to render with: the chosen theme's tokens, then
 // `overrides` (`_token-prefs`), over `_tokens`. Either may set only
