@@ -8,7 +8,7 @@
 // or replace. The list bullet is a dash, through
 // `show list: set list(...)`, and the line between entries is thicker,
 // through Typst's own `show divider: set line(...)`, alongside the
-// `<alta-divider>` rule's colour.
+// deprecated `<alta-divider>` rule's colour, which still applies.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
 #import "../lib.typ": alta
