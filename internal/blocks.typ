@@ -5,7 +5,8 @@
 #import "data/defaults.typ": (
   _default-labels, _default-preferences, _translations,
 )
-#import "design/icon-set.typ": _icon-glyphs
+#import "design/icon-set.typ": _icon-glyphs, _network-icons
+#import "icons.typ": _check-icon
 #import "util/checks.typ": _check, _check-type, _enum-rule
 #import "primitives.typ": _portrait, divider
 #import "components/entry.typ": _entry
@@ -102,8 +103,17 @@
 } else if it.has("children") {
   it.children.map(_plain).join(default: "")
 } else if it.has("body") { _plain(it.body) } else if (
+  it.func() == smartquote
+) { if it.double { "\"" } else { "'" } } else if (
   it.func() == [ ].func()
 ) { " " } else { "" }
+
+// An `auto` contact alt, as `alta()`'s contacts read: a profile its
+// network, a location the localised word, and email, phone and a
+// homepage (`link`) nothing, their text saying what they are.
+#let _contact-alt(icon, labels) = if icon == "location" {
+  labels.location
+} else if icon in _network-icons and icon != "link" { icon }
 
 /// One contact-bar entry for `cv-header`: an icon, its text, and an
 /// optional link.
@@ -112,16 +122,18 @@
 ///   `"phone"`, `"github"`, …).
 /// - value (content, str): The text shown.
 /// - link (str, none): Where it links (`mailto:…`, a URL).
-/// - alt (str, auto): Read aloud before it; `auto` is the icon's name
-///   (for `"location"`, the localised word `alta()` reads).
+/// - alt (str, none, auto): Read aloud before it. `auto` reads as
+///   `alta()`'s contacts do: a profile network's icon (`"github"`) its
+///   name, `"location"` the localised word for it, and the rest
+///   (`"email"`, `"phone"`, `"link"`), whose text says what it is,
+///   nothing.
 /// -> dictionary
 #let contact(icon, value, link: none, alt: auto) = {
   // `icon()`'s check, so an unknown name panics the same way.
-  if icon not in _icon-glyphs {
-    _check("contact() icon", icon, _enum-rule(_icon-glyphs.keys()))
-  }
+  _check-icon("contact() icon", icon)
   // `_contact-bar`'s record; `icon` resolves an `auto` alt in context
-  // (`cv-header`), where the document's language is known.
+  // (`cv-header`, `_contact-alt`), where the document's language is
+  // known.
   (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: link, alt: alt)
 }
 
@@ -132,8 +144,8 @@
 /// - tagline (content, str, none): Under the name.
 /// - objective (content, str, none): A short goal, under the tagline.
 /// - contacts (array): `contact(..)` entries, wrapping as one bar.
-/// - photo (content, none): An `image(..)`, loaded in your file, so its
-///   path is yours.
+/// - photo (content, none): The portrait: content, typically an
+///   `image(..)`, loaded in your file, so its path is yours.
 /// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
 /// - qr (str, none): A URL to encode as a QR code, opposite the photo.
 /// - uppercase (bool): Set the name in capitals.
@@ -153,7 +165,12 @@
     top,
     bottom,
   )))
-  _check-type("cv-header() photo", photo, (content, type(none)), "an image")
+  _check-type(
+    "cv-header() photo",
+    photo,
+    (content, type(none)),
+    "content or none",
+  )
   context {
     let name = document.title
     if name == none {
@@ -173,10 +190,9 @@
           contacts.map(c => (
             c
               + (
-                alt: if c.alt != auto { c.alt } else if (
-                  // `alta()`'s localised word, its one contact label.
-                  c.icon == "location"
-                ) { labels.location } else { c.icon },
+                alt: if c.alt == auto { _contact-alt(c.icon, labels) } else {
+                  c.alt
+                },
               )
           )),
         )
