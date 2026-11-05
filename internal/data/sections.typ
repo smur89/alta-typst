@@ -59,7 +59,7 @@
     fields: _role + (organization: _text-rule),
     check: _check-entry-location,
   ),
-  focusAreas: (
+  focus-areas: (
     column: "right",
     read: cv => _altacv(cv, "focusAreas", default: ()),
     root: false,

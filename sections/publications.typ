@@ -85,7 +85,7 @@
       issue: _string-at(pub, "issue"),
       pages: _string-at(pub, "pages"),
     ),
-    date: format-date(_field(pub, "releaseDate")),
+    date: format-date(_field(pub, "release-date")),
     identifiers: refs,
     summary: _field(pub, "summary"),
   )

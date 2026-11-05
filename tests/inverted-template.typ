@@ -116,7 +116,7 @@
     image-position: left,
     // Side-panel sections take the narrow left column.
     left-column-sections: (
-      "focusAreas",
+      "focus-areas",
       "skills",
       "languages",
       "education",

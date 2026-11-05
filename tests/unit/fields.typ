@@ -32,7 +32,8 @@
 #assert.eq(_fill-template("{name} — CV", (name: "{total}")), "{total} — CV")
 
 // _location-parts: strings pass through whole, dicts give their
-// city / region / countryCode parts in that order, absent values drop
+// city / region / country-code parts in that order (the names
+// rendering reads, `_kebab-fields`), absent values drop
 // out.
 #assert.eq(_location-parts((location: "Cork, Ireland")), ("Cork, Ireland",))
 #assert.eq(
@@ -40,13 +41,13 @@
     location: (
       city: "Cork",
       region: "Munster",
-      countryCode: "IE",
+      country-code: "IE",
       address: "1 Main St",
     ),
   )),
   ("Cork", "Munster", "IE"),
 )
-#assert.eq(_location-parts((location: (city: "", countryCode: "IE"))), ("IE",))
-#assert.eq(_location-parts((location: (postalCode: "T12"))), ())
+#assert.eq(_location-parts((location: (city: "", country-code: "IE"))), ("IE",))
+#assert.eq(_location-parts((location: (postal-code: "T12"))), ())
 #assert.eq(_location-parts((location: "")), ())
 #assert.eq(_location-parts((:)), ())

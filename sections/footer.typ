@@ -10,7 +10,7 @@
 #let _footer(cv, (labels, prefs, owner, ..)) = {
   let meta = cv.meta
   let page-footer = prefs.page-footer
-  let last-modified = _field(meta, "lastModified")
+  let last-modified = _field(meta, "last-modified")
   if page-footer != none {
     if page-footer == auto {
       _auto-page-footer(owner, labels.page-number)

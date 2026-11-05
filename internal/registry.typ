@@ -19,7 +19,7 @@
 #let _renderers = (
   work: _work,
   volunteer: _volunteer,
-  focusAreas: _focus-areas,
+  focus-areas: _focus-areas,
   skills: _skills,
   languages: _languages,
   education: _education,

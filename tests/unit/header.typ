@@ -32,7 +32,7 @@
   (
     email: "jane@example.com",
     phone: "+353 (21) 123-4567",
-    location: (city: "Cork", countryCode: "IE"),
+    location: (city: "Cork", country-code: "IE"),
     url: "",
   ),
   "https://maps.example/?q={q}",

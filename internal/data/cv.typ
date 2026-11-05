@@ -8,11 +8,18 @@
 #import "../util/values.typ": _present, _round-half
 
 // A `references[]` entry's flag: only a real boolean counts, so a
-// stray `"yes"` doesn't hide a quote.
-#let _on-request(r) = r.at("availableOnRequest", default: false) == true
+// stray `"yes"` doesn't hide a quote. Rendering reads it kebab-case
+// (`_kebab-fields`), the checks under JSON Resume's name.
+#let _on-request(r, key: "available-on-request") = (
+  r.at(key, default: false) == true
+)
 
-// A reference worth rendering: a quote, or the on-request flag.
-#let _reference-usable(r) = _on-request(r) or _field(r, "reference") != none
+// A reference worth rendering, read before the field names go
+// kebab-case (`_read-sections`' `keep`, `_canonical-cv`): a quote, or
+// the on-request flag.
+#let _reference-usable(r) = (
+  _on-request(r, key: "availableOnRequest") or _field(r, "reference") != none
+)
 
 // `(:)` when either level is missing or not a dictionary.
 #let _altacv-ns(obj) = _dict-or-empty(
@@ -51,8 +58,10 @@
 // JSON Resume's `location` (a string or the shared dict), collapsed
 // one way for every caller so a location reads the same everywhere.
 // `address` / `postalCode` are accepted but not rendered — a CV isn't
-// a mailing label. Absent values become `none`, so callers' `!= none`
-// checks leave no orphan row or blank-query maps URL.
+// a mailing label. The fields are JSON Resume's names, for the checks;
+// the display order is rendering's (`_kebab-fields`). Absent values
+// become `none`, so callers' `!= none` checks leave no orphan row or
+// blank-query maps URL.
 #let _location-fields = (
   "address",
   "postalCode",
@@ -60,7 +69,7 @@
   "countryCode",
   "region",
 )
-#let _location-display-order = ("city", "region", "countryCode")
+#let _location-display-order = ("city", "region", "country-code")
 // `obj`'s `location` (an entry's or `basics`') as its present parts,
 // for `_fact-line` to join with the theme's separator; `()` when
 // there are none. It has passed `_check-location` (`cv-checks.typ`).
@@ -71,12 +80,12 @@
   _location-display-order.map(k => _field(value, k)).filter(_present)
 }
 
-// A `startDate` / `endDate` entry's period as `_date-span` sides, a
+// A `start-date` / `end-date` entry's period as `_date-span` sides, a
 // missing end reading `present` (`labels.present`); a fully undated
 // entry has neither side, not a bare "Present".
 #let _entry-period(entry, format-date, present) = {
-  let start = _field(entry, "startDate")
-  let end = _field(entry, "endDate")
+  let start = _field(entry, "start-date")
+  let end = _field(entry, "end-date")
   if start == none and end == none { return (none, none) }
   _date-span(start, end, format-date, open-end: present)
 }

@@ -1,4 +1,4 @@
-// References. `availableOnRequest: true` shows
+// References. `available-on-request: true` shows
 // `labels.references-available-on-request` instead of a quote; when every
 // entry is on request the section is that one line, with no names.
 // Nameless entries render anonymously. Contact details stay out, as

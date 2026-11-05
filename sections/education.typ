@@ -1,4 +1,4 @@
-// Education. The heading is `studyType`, or `area` when that's
+// Education. The heading is `study-type`, or `area` when that's
 // absent; otherwise `area` leads the score line (`Engineering ·
 // Distinction`). `courses` end the entry as one line, under it.
 
@@ -11,8 +11,8 @@
   labels.education,
   entries,
   edu => {
-    // An empty `studyType` falls through to `area`, as a missing one does.
-    let study-type = _field(edu, "studyType")
+    // An empty `study-type` falls through to `area`, as a missing one does.
+    let study-type = _field(edu, "study-type")
     let area = _field(edu, "area")
     _entry(
       labels,
