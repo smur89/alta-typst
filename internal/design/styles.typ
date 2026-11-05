@@ -60,10 +60,9 @@
 
 // For `show: _label-headings.with(theme)`: standalone `alta()`'s
 // heading rules (`_standalone`), matched by internal label at today's
-// levels, and removed with it in the next major (#239); the
-// template's are `_level-headings`.
-// Levels: 2 section title, 3 role / qualification, 4 sub-grouping
-// (e.g. publication type).
+// levels (2 section title, 3 role / qualification, 4 sub-grouping,
+// e.g. publication type), and removed with it in the next major
+// (#239); the template's are `_level-headings`.
 #let _label-headings(theme, body) = {
   let (
     section,

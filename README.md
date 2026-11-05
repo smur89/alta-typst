@@ -171,7 +171,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 ```
 <!-- x-release-please-end -->
 
-The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way, and the [exports](#exports) list the blocks.
+The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way; the blocks are under [Exports](#exports).
 
 A few things to know:
 
@@ -179,6 +179,8 @@ A few things to know:
 - An `entry` right after `#alta(cv)` continues its last section; start your own with `= ...`.
 - A `publication` without a `url` links its title to its first DOI, arXiv or PMID identifier.
 - Group headings in markup carry no icon, where `alta()`'s publication and project groups do. Add one yourself: `== #icon("microphone") Talks`.
+- Numbering a heading (`set heading(numbering: ..)`) numbers the outline but not the title as drawn.
+- Use `outline(depth: 1)` to list sections only, as entries are headings too.
 
 ## Customising
 

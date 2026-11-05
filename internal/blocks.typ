@@ -11,7 +11,9 @@
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
-#import "util/checks.typ": _check, _check-type, _enum-rule, _list-rule
+#import "util/checks.typ": (
+  _check, _check-type, _dict-rule, _enum-rule, _list-rule,
+)
 #import "primitives.typ": _divider, _portrait
 #import "components/bibliography.typ": _bib-entry
 #import "components/entry.typ": _entry
@@ -20,7 +22,9 @@
 #import "components/ratings.typ": _rating-mark
 
 // The labels in the document's language, as `alta()` resolves them:
-// its bundled translation over the English.
+// its bundled translation over the English. A shallow merge, not
+// `_merge-options` per call: the blocks read only top-level labels
+// (`date`, `location`), which it resolves exactly.
 #let _labels() = _default-labels + _translations.at(text.lang, default: (:))
 
 // The most recent section or group heading before here: the heading
@@ -108,16 +112,17 @@
 }
 
 // Content's text, for alt text, which takes a string: `document.title`
-// is content, `[Jane Doe]` set from a string.
-#let _plain(it) = if type(it) == str { it } else if it.has("text") {
-  _plain(it.text)
-} else if it.has("children") {
-  it.children.map(_plain).join(default: "")
-} else if it.has("body") { _plain(it.body) } else if (
-  it.func() == smartquote
-) { if it.double { "\"" } else { "'" } } else if (
-  it.func() == [ ].func()
-) { " " } else { "" }
+// is content, `[Jane Doe]` set from a string. One case per kind of
+// element, the first that matches returning.
+#let _plain(it) = {
+  if type(it) == str { return it }
+  if it.has("text") { return _plain(it.text) }
+  if it.has("children") { return it.children.map(_plain).join(default: "") }
+  if it.has("body") { return _plain(it.body) }
+  if it.func() == smartquote { return if it.double { "\"" } else { "'" } }
+  if it.func() == [ ].func() { return " " }
+  ""
+}
 
 // An `auto` contact alt, as `alta()`'s contacts read: a profile its
 // network, a location the localised word, and email, phone and a
@@ -262,10 +267,7 @@
   _check(
     "publication() identifiers",
     identifiers,
-    (
-      v => type(v) == dictionary and v.values().all(id => type(id) == str),
-      "a dictionary of strings",
-    ),
+    _dict-rule((str,), "a dictionary of strings"),
   )
   context {
     // `alta()`'s readers, over the arguments in its CV shape; an
