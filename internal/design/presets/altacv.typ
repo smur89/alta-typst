@@ -1,6 +1,3 @@
-// Two hues: dark red over a gold rule, the name near-black and the
-// tagline in the red, over warm greys.
-
 #let theme = (
   colours: (
     name: rgb("#1C1414"),

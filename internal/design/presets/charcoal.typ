@@ -1,7 +1,3 @@
-// Greys only, for a print-first CV: a near-black name, charcoal
-// titles, a silver rule, and a cool slate that keeps the details
-// apart from the text.
-
 #let theme = (
   colours: (
     name: rgb("#1E2124"),

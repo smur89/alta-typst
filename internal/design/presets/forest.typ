@@ -1,5 +1,3 @@
-// Forest-green titles, moss details, a sage rule and olive greys.
-
 #let theme = (
   colours: (
     name: rgb("#1E3F27"),

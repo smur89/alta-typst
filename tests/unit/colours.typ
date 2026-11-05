@@ -62,8 +62,8 @@
 #assert.eq(tweaked.secondary, black.lighten(35%))
 #assert.eq(roles((colours: (accent: red))).heading, palettes.teal)
 
-// #239: the deprecated top-level `accent` colours the accent roles as
-// a single-accent theme does, beneath the caller's `colours`.
+// #239: the deprecated top-level `accent` colours the accent roles
+// with one colour, beneath the caller's `colours`.
 #let legacy = roles((accent: palettes.navy))
 #for key in ("accent", "heading", "headingRule", "subheading", "name") {
   assert.eq(legacy.at(key), palettes.navy)

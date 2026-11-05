@@ -1,6 +1,3 @@
-// Crimson titles and details under an oxblood name, over a dusty-rose
-// rule and warm, brownish greys.
-
 #let theme = (
   colours: (
     name: rgb("#6E1C1F"),

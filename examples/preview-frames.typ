@@ -19,7 +19,7 @@
 //
 // The theme also changes every frame, one built-in theme each: the
 // `altacv` theme (dark red headings over a gold rule) leads, then the
-// six single-hue themes, no two neighbours alike.
+// other six, no two neighbours alike.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.

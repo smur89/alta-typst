@@ -1,5 +1,4 @@
-// The default theme: teal, its name a deep teal ink, over greys that
-// lean green.
+// The default theme: `_tokens` (`theme.typ`) takes its colours.
 
 #let theme = (
   colours: (

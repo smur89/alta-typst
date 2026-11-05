@@ -1,5 +1,3 @@
-// Plum titles, orchid details, a lavender rule and mauve greys.
-
 #let theme = (
   colours: (
     name: rgb("#421B4C"),

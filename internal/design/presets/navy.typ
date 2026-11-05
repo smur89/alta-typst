@@ -1,6 +1,3 @@
-// Navy section titles under a deeper name, the details a brighter
-// cobalt so they don't sink into the ink; blue-leaning greys.
-
 #let theme = (
   colours: (
     name: rgb("#13284A"),
