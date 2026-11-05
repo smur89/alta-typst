@@ -17,7 +17,8 @@ TYPST     ?= typst ## the typst binary
 FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
 TT        ?= tt ## the tytanic binary (test-visual)
-FFMPEG    ?= ffmpeg ## the ffmpeg binary
+IMG2WEBP  ?= img2webp ## the img2webp binary (libwebp; preview-webp)
+PNGQUANT  ?= pngquant ## the pngquant binary (in the pinned image)
 ROOT      := .
 PDF_STANDARDS := a-2b,ua-1
 ifneq ($(strip $(FONT_PATHS)),)
@@ -25,8 +26,15 @@ export TYPST_IGNORE_SYSTEM_FONTS := true
 export TYPST_FONT_PATHS := $(FONT_PATHS)
 endif
 PPI       ?= 150 ## preview PNG resolution
-# Animated-preview frame rate: 0.4 → 2.5 s per frame.
-PREVIEW_FPS ?= 0.4 ## GIF frame rate
+PREVIEW_PPI ?= 100 ## animated preview resolution (the README shows it at about this width)
+PREVIEW_DELAY ?= 2500 ## animated preview: milliseconds per frame
+
+# Quantises PNGs in place to a 256-colour palette, about a third of the
+# size with no visible difference: the committed renders ship to
+# typst/packages with every release. `--speed 1` is deterministic, so
+# the pinned image's thumbnail stays byte-stable for its drift check.
+#   $(call quantise,<png files>)
+quantise = $(PNGQUANT) --force --strip --speed 1 --ext .png -- $(1)
 
 # Swaps the template's `@preview/altacv:<version>` import for the
 # in-tree `/lib.typ`; `[^"]*` matches any version release-please writes.
@@ -65,22 +73,25 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*
   $(wildcard sections/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages: shared by the release tarball and
-# the PR-time package-check stager so the two can't drift.
+# the PR-time package-check stager so the two can't drift. Besides the
+# package itself, only what the README links to (typst/packages' "What
+# to commit? What to exclude?"): `examples/cv.png` is a release asset,
+# not a README image, so it stays out.
 PACKAGE_FILES := \
   typst.toml lib.typ internal sections assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
-  examples/preview.gif \
-  examples/cv.png \
+  examples/preview.webp \
   $(EXAMPLE_FULL_PDF) \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-gif pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help docker-pdfs docker-preview-images docker-shell stage-package-dir package-tarball
 
-# Pinned CI image. Built and published by .github/workflows/image.yml;
-# bump the tag here when bumping Typst / FontAwesome / Lato versions
-# in the Dockerfile (image.yml derives the same tag and pushes it).
-DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0 ## the pinned CI image
+# Pinned CI image. Built and published by .github/workflows/image.yml,
+# from main only; bump the tag here, once the new image is published,
+# whenever a version the tag encodes changes in the Dockerfile
+# (image.yml derives the same tag).
+DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0-tt-0.4.1-pq-3.0.3-r0 ## the pinned CI image
 
 # `--platform linux/amd64` keeps renders identical on any
 # host (Apple Silicon emulates: slow but reproducible).
@@ -98,7 +109,7 @@ DOCKER_MAKE = $(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) m
 
 all: pdfs cv thumbnail ## build every example PDF and the cv preview
 
-preview-gif: examples/preview.gif ## build the animated README hero (needs ffmpeg)
+preview-webp: examples/preview.webp ## build the animated README hero (needs img2webp)
 
 # The canonical demo: template/cv.typ as PDF (reviewer/release
 # artifact) + page-1 PNG (tracked README preview).
@@ -118,6 +129,7 @@ thumbnail: thumbnail.png ## build thumbnail.png, the Universe package card
 
 thumbnail.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 	$(call render-page1,$<,$(THUMB_PPI),$@)
+	$(call quantise,$@)
 
 # Everything CI publishes (reviewer artifacts, package-check staging,
 # release assets) — one name so the three jobs can't drift.
@@ -146,6 +158,7 @@ $(EXAMPLE_FULL_PDF): examples/example-full.typ examples/_dates.typ $(LIB_SOURCES
 	rm -f examples/example_full-*.png
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
+	$(call quantise,examples/example_full-*.png)
 
 examples/%.png: examples/%.typ $(LIB_SOURCES)
 	$(call render-page1,$<,$(PPI),$@)
@@ -157,15 +170,16 @@ examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 	$(call render-page1,$<,$(PPI),$@)
 
 # Animated README hero: one page per variation in preview-frames.typ,
-# stitched with `palettegen` + `paletteuse` for better colour than a
-# default GIF. Local-only and committed; CI never regenerates it.
-# Prereqs must cover every file preview-frames.typ transitively reads.
-examples/preview.gif: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
-	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/.preview-gif-frame-{p}.png'
-	$(FFMPEG) -framerate $(PREVIEW_FPS) -i 'examples/.preview-gif-frame-%d.png' \
-	  -vf "split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=sierra2_4a" \
-	  -loop 0 -y $@
-	rm -f examples/.preview-gif-frame-*.png
+# an animated lossy WebP (`-q 75`) at the width the README shows it,
+# a fraction of the size of a GIF and as legible. Frames are
+# zero-padded (`{0p}`) so the glob orders them. Local-only and
+# committed; CI never regenerates it. Prereqs must cover every file
+# preview-frames.typ transitively reads.
+examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
+	rm -f examples/.preview-frame-*.png
+	$(TYPST) compile --root $(ROOT) --format png --ppi $(PREVIEW_PPI) $< 'examples/.preview-frame-{0p}.png'
+	$(IMG2WEBP) -loop 0 -lossy -q 75 -m 6 -d $(PREVIEW_DELAY) examples/.preview-frame-*.png -o $@
+	rm -f examples/.preview-frame-*.png
 
 # Compile each listed file to /dev/null, carrying on past failures so
 # one run reports every broken file:
@@ -310,10 +324,10 @@ package-tarball: ## build the release tarball from the staged package
 	@test -n "$(PACKAGE_TARBALL)" || { echo "package-tarball: PACKAGE_TARBALL=/path.tar.gz required" >&2; exit 2; }
 	tar czf "$(PACKAGE_TARBALL)" $(PACKAGE_FILES)
 
-# Also removes tracked renders (examples/cv.png, thumbnail.png, …);
-# `git checkout` restores them.
+# Also removes tracked renders (thumbnail.png, …); `git checkout`
+# restores them.
 clean: ## remove generated PDFs and PNGs
-	rm -f $(PDFS) $(PNGS) examples/cv.pdf examples/cv.png examples/preview.gif examples/.preview-gif-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
+	rm -f $(PDFS) $(PNGS) examples/cv.pdf examples/cv.png examples/preview.webp examples/.preview-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
 help: ## list these targets and the variables you can override
 	@awk -F':[^=]*## ' '/^[a-zA-Z0-9_.-]+:[^=]*## /{printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -328,12 +342,12 @@ help: ## list these targets and the variables you can override
 docker-pdfs: ## regenerate the committed example renders in the pinned CI image
 	$(DOCKER_MAKE) -B all
 
-# Just the two tracked preview PNGs. Raster output is
-# environment-sensitive, so the pinned image
-# is their only canonical source; the `preview-images-in-sync` CI gate
-# runs this same target. `-B` for the same mtime reason as above.
-docker-preview-images: ## regenerate cv.png + thumbnail.png in the pinned image
-	$(DOCKER_MAKE) -B cv thumbnail
+# Just the tracked thumbnail PNG. Raster output is
+# environment-sensitive, so the pinned image is its only canonical
+# source; the `preview-images-in-sync` CI gate runs this same target.
+# `-B` for the same mtime reason as above.
+docker-preview-images: ## regenerate thumbnail.png in the pinned image
+	$(DOCKER_MAKE) -B thumbnail
 
 # Interactive shell in the CI image. Runs as root (no `-u`) so you can
 # `apk add` debugging tools.

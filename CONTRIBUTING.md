@@ -62,9 +62,11 @@ Install Typst at the version CI uses — see `TYPST_VERSION` in `.github/workflo
 On macOS, one block sets up everything Homebrew can provide:
 
 ```bash
-brew install typst
+brew install typst pngquant webp
 brew install --cask font-lato font-fontawesome
 ```
+
+`pngquant` compresses the committed PNG renders (the thumbnail, the gallery pages) and `webp`'s `img2webp` builds the README's animated preview (`make preview-webp`); `make check` needs neither.
 
 Linux / Windows / manual install paths: see the [Requirements section in the README](README.md#requirements). Run `typst fonts` to confirm both are visible to Typst.
 

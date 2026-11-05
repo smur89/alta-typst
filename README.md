@@ -10,9 +10,9 @@
 
 <p align="center">A two-column CV template for Typst, inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX).<br>Write your CV once as <a href="https://jsonresume.org/">JSON Resume</a> data; pick a theme, a layout and a language.</p>
 
-<!-- Relative path so the GIF tracks the codebase: GitHub renders the README from main, Universe from the package version's snapshot. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml). -->
+<!-- Relative path so the preview tracks the codebase: GitHub renders the README from main, Universe from the package version's snapshot. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml). -->
 <p align="center">
-  <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.gif">
+  <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.webp">
 </p>
 <p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column, a CV in Irish, and show rules restyling the ratings and keywords.</sub></p>
 
