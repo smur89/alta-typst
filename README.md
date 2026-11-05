@@ -113,6 +113,7 @@ The file is validated against the JSON Resume schema first, so a vanilla `resume
       location: "Dublin, Ireland",
       startDate: "2022-01",             // no endDate: "Present"
       highlights: ([Led the migration…], [Designed the platform…]),
+      keywords: ("Python", "Go", "Rust"),
     ),
   ),
   skills: (
@@ -409,7 +410,7 @@ These fields mean the same in every entry section:
 
 | Section | Title | Facts line | Also reads |
 |---|---|---|---|
-| `work` | `position` | `name` (linked by `url`) | `location`, dates, `summary`, `highlights` |
+| `work` | `position` | `name` (linked by `url`) | `location`, dates, `summary`, `highlights`, `keywords` |
 | `volunteer` | `position` | `organization` (linked by `url`) | `location`, dates, `summary`, `highlights` |
 | `education` | `studyType`, else `area` | `institution` (linked by `url`) | `location`, dates, `summary`, `courses`; a line above the courses with `area` (when `studyType` is the title) and `score` |
 | `projects` | `name` (linked by `url`) | `entity · roles` | dates, `summary`, `highlights`, `keywords`, `type` |
