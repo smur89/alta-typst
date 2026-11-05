@@ -162,7 +162,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 
 ### Themes and colours
 
-`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum` and `charcoal`, each one accent over grey text, and `themes.altacv`, dark red headings over a gold rule.
+`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum` and `charcoal`, each tones of one hue (the deepest for the name, a pale tint for the rule under each section title) over greys that lean towards it, and `themes.altacv`, dark red headings over a gold rule. Every built-in theme's text meets WCAG AA contrast (4.5:1) on white.
 
 `preferences.colours` then recolours any role over the theme's:
 
@@ -174,7 +174,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 |---|---|
 | `accent` | Organisation names, tags, rating dots, contact icons, the objective's rule, publication titles, the QR code. |
 | `emphasis` | Entry titles and interest group names. |
-| `body` | Body text and icons. Dates, dividers and empty rating dots take lighter shades of it. |
+| `body` | Body text and icons. The quietest lines (publication dates, identifiers) take its palest shade that still reads at 4.5:1 on white; dividers and empty rating dots a paler one. |
 | `heading` | Section titles. |
 | `headingRule` | The rule under each section title. |
 | `subheading` | Group titles, such as a publication type. |
@@ -611,7 +611,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `palettes` | Deprecated: the single-accent themes' accents. Use `themes`. |
+| `palettes` | Deprecated: the colour each built-in theme is named for. Use `themes`. |
 
 <!-- x-release-please-start-version -->
 ```typst

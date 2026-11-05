@@ -6,7 +6,8 @@
 #import "/internal/design/presets.typ": palettes, themes
 #import "/internal/design/styles.typ": _treatments
 #import "/internal/design/theme.typ": (
-  _default-theme, _theme-for, _token-prefs, _tokens, _treatment-names,
+  _contrast, _default-theme, _theme-for, _token-prefs, _tokens,
+  _treatment-names,
 )
 
 #let built(preferences) = {
@@ -33,14 +34,26 @@
 // two can't drift apart.
 #assert.eq(built((:)), _default-theme)
 
-// The default is the teal theme; a single-accent theme colours the
-// headings, their rules, the group titles and the name with its accent.
+// The default is the teal theme.
 #let defaults = roles((:))
-#for key in ("accent", "heading", "headingRule", "subheading", "name") {
-  assert.eq(defaults.at(key), palettes.teal)
-}
+#assert.eq(defaults, roles((theme: themes.teal)))
 #assert.eq(defaults.tagline, defaults.emphasis)
 #assert.eq(defaults.border, defaults.body.lighten(65%))
+
+// Every role a built-in theme sets text in, `secondary` included, is
+// at least WCAG AA's 4.5:1 on the white page.
+#for (name, theme) in themes {
+  let colours = roles((theme: theme))
+  for key in colours.keys().filter(k => k not in ("headingRule", "border")) {
+    let ratio = _contrast(colours.at(key))
+    assert(ratio >= 4.5, message: name + "." + key + ": " + str(ratio))
+  }
+}
+
+// `secondary` is `body`'s palest tint, up to 35%, that keeps 4.5:1;
+// `body` itself when even that fails.
+#assert.eq(roles((colours: (body: black))).secondary, black.lighten(35%))
+#assert.eq(roles((colours: (body: luma(160)))).secondary, luma(160))
 
 // `colours` sets only the roles it names, over the chosen theme.
 #let tweaked = roles((theme: themes.altacv, colours: (body: black)))
@@ -82,7 +95,7 @@
 #assert.eq(partial.colours.accent, palettes.teal)
 #assert.eq(
   built((theme: (colours: (heading: red)))).colours.name,
-  palettes.teal,
+  _tokens.colours.name,
 )
 
 // `preferences.font` overrides the theme's; `auto` (the default) keeps

@@ -152,6 +152,7 @@
   let (
     fill,
     label-fill,
+    stroke-lighten,
     text-darken,
     radius,
     inset,
@@ -163,7 +164,7 @@
   let text-weight = if label { label-weight } else { weight }
   box(
     fill: accent.lighten(if label { label-fill } else { fill }),
-    stroke: theme.stroke-width.thin + accent,
+    stroke: theme.stroke-width.thin + accent.lighten(stroke-lighten),
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
     outset: (y: outset-y * body-size),
