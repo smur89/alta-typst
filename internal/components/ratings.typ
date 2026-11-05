@@ -43,8 +43,12 @@
     half: _half-fill(accent, border),
     empty: border,
   )
+  // A show rule may replace a dot with a glyph, which takes the text
+  // fill: the dot's colour, the accent for a half (the glyph draws its
+  // own half).
   let dot(state) = _inline(box({
     set circle(fill: fills.at(state))
+    set text(fill: if state == "empty" { border } else { accent })
     _part("rating-" + state, circle(radius: radius * body-size))
   }))
   range(1, max + 1)

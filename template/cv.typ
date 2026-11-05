@@ -45,6 +45,11 @@
     ),
   ),
 
+  // A short career goal, shown as a pull quote above the summary.
+  objective: [
+    Lead a platform team building reliable, event-driven systems.
+  ],
+
   custom: (
     altacv: (
       focusAreas: (
