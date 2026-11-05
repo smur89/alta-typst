@@ -1,6 +1,6 @@
-// Source for `examples/preview.gif` — the animated README hero.
+// Source for `examples/preview.webp` — the animated README hero.
 // One frame per built-in theme, each layering a small override on
-// top of the shared `base` preferences below so the GIF reads as
+// top of the shared `base` preferences below so the animation reads as
 // "the template with one or two knobs turned" rather than
 // independent configurations.
 //
@@ -9,7 +9,7 @@
 // pulling volunteer or interests in, dropping one section in
 // favour of another) on top of their accent / image / date /
 // label variations. The body layout shifts visibly frame-to-frame
-// so the GIF reads as more than just a colour cycle.
+// so the animation reads as more than just a colour cycle.
 //
 // Image presence alternates frame-to-frame: odd frames render
 // without a portrait (realistic for ATS / anti-bias CVs), even
@@ -37,7 +37,7 @@
 
 // Baseline preferences the per-frame overrides patch on top of. A
 // richer-than-defaults setup (the altacv theme, ISO short-date,
-// OSM maps, auto footer, CEFR-style 6-dot rating) gives the GIF
+// OSM maps, auto footer, CEFR-style 6-dot rating) gives the animation
 // more visual surface to vary — frames flip themes, swap columns,
 // invert layouts on top of this same starting point.
 #let base = (

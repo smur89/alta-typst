@@ -1,6 +1,6 @@
 // Shared CV data for the animated multi-frame preview
-// (`preview-frames.typ` → `examples/preview.gif`). Every frame of
-// the GIF renders the SAME fictional CV (translated in the Irish
+// (`preview-frames.typ` → `examples/preview.webp`). Every frame of
+// the animation renders the SAME fictional CV (translated in the Irish
 // frames, `in-irish`) — only the preferences differ — so accent /
 // layout / column-arrangement changes read as preference
 // customisation rather than data differences.
@@ -20,7 +20,7 @@
 // `no-image` is a helper that returns the CV with `basics.image`
 // suppressed, used by frames that demonstrate the image-less header
 // (most real-world CVs don't include a photo — ATS systems and
-// anti-bias hiring practices both discourage it — so the GIF
+// anti-bias hiring practices both discourage it — so the animation
 // alternates between with-photo and without-photo frames to reflect
 // what most users actually ship). `in-irish` returns it with its
 // prose in Irish, for the frames rendered with `labels-ga.toml`.
