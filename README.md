@@ -299,15 +299,16 @@ Parts of the CV carry Typst labels (`<alta-…>`) that show rules can target, to
 #alta(cv)
 ```
 
-A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`. Every part is listed under [Part labels](#part-labels).
+A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`. A paragraph part, the line that lays out a row of items, takes `set par(…)`. Every part is listed under [Part labels](#part-labels), with its kind: the rules it takes, not the element it is. A replacement rule's `it` is the part as content, whatever builds it (text, a sequence, a `context`, an `align`), so use it whole (`tag(it)`, `emph(it)`), not `it.text`.
 
-An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()` and drop the separator between them (a wrapped row of pills sits closer than skill rows do):
+An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()`, drop the separator between them, and space the `<alta-keywords>` line as skill rows are (0.8em, the default `keyword-row` gap) from its wrapped rows and the line above:
 
 <!-- x-release-please-start-version -->
 ```typst
 #import "@preview/altacv:1.8.0": alta, tag
 
 #show <alta-keyword>: it => tag(it)
+#show <alta-keywords>: set par(leading: 0.8em, spacing: 0.8em)
 #alta(cv, preferences: (theme: (separator: (keywords: ""))))
 ```
 <!-- x-release-please-end -->
@@ -568,28 +569,29 @@ Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml). Se
 
 Show-rule targets for [restyling](#restyling-parts). They are public API and change only in a major release; labels prefixed `alta-internal-` may change at any time, so don't target them.
 
-| Label | Part |
-|---|---|
-| `<alta-name>` | The name. |
-| `<alta-headline>` | The tagline under the name (`basics.label`). |
-| `<alta-section-title>` | A section's heading (Experience, Skills, …). |
-| `<alta-entry-title>` | An entry's title: a role, qualification, project or award. |
-| `<alta-group-title>` | A group's heading within a section: a publication type, a project type. |
-| `<alta-contact>` | Each contact-bar entry. |
-| `<alta-org>` | An entry's organisation: employer, institution, issuer or awarder. |
-| `<alta-facts>` | The line under an entry's title: the organisation with its roles and details (`<alta-org>` sets the organisation's own colour). |
-| `<alta-date>` | An entry's date or date range. |
-| `<alta-location>` | An entry's location. |
-| `<alta-summary>` | A summary: the CV's, the objective, or an entry's. |
-| `<alta-pill>` | A skill pill's text (its box is the theme's). |
-| `<alta-pill-label>` | A skill group's label pill. |
-| `<alta-keyword>` | One of an entry's keywords: a project's keyword, an education's course. |
-| `<alta-rating-label>` | A language's name beside its rating. |
-| `<alta-footer>` | The page footer. |
-| `<alta-section-rule>` | The line under a section's heading. |
-| `<alta-divider>` | The dashed line between entries (and `divider()`). |
-| `<alta-date-icon>`, `<alta-location-icon>` | The icon before an entry's date or location (and in `term()`). |
-| `<alta-rating-full>`, `<alta-rating-half>`, `<alta-rating-empty>` | A filled, half-filled or empty rating dot. |
+| Label | Kind | Part |
+|---|---|---|
+| `<alta-name>` | text | The name. |
+| `<alta-headline>` | text | The tagline under the name (`basics.label`). |
+| `<alta-section-title>` | text | A section's heading (Experience, Skills, …). |
+| `<alta-entry-title>` | text | An entry's title: a role, qualification, project or award. |
+| `<alta-group-title>` | text | A group's heading within a section: a publication type, a project type. |
+| `<alta-contact>` | text | Each contact-bar entry. |
+| `<alta-org>` | text | An entry's organisation: employer, institution, issuer or awarder. |
+| `<alta-facts>` | text | The line under an entry's title: the organisation with its roles and details (`<alta-org>` sets the organisation's own colour). |
+| `<alta-date>` | text | An entry's date or date range. |
+| `<alta-location>` | text | An entry's location. |
+| `<alta-summary>` | text | A summary: the CV's, the objective, or an entry's. |
+| `<alta-pill>` | text | A skill pill's text (its box is the theme's). |
+| `<alta-pill-label>` | text | A skill group's label pill. |
+| `<alta-keyword>` | text | One of an entry's keywords: a work or project keyword, an education's course. |
+| `<alta-keywords>` | paragraph | An entry's keyword line, a paragraph of its `<alta-keyword>` parts (not a skill or interest row). |
+| `<alta-rating-label>` | text | A language's name beside its rating. |
+| `<alta-footer>` | text | The page footer. |
+| `<alta-section-rule>` | line | The line under a section's heading. |
+| `<alta-divider>` | line | The dashed line between entries (and `divider()`). |
+| `<alta-date-icon>`, `<alta-location-icon>` | marker | The icon before an entry's date or location (and in `term()`). |
+| `<alta-rating-full>`, `<alta-rating-half>`, `<alta-rating-empty>` | marker | A filled, half-filled or empty rating dot. |
 
 ### Exports
 

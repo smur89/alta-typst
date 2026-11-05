@@ -29,6 +29,7 @@
 #show <alta-pill-label>: set text(fill: rgb("#b03a2e"))
 #show <alta-rating-label>: set text(weight: "bold")
 #show <alta-keyword>: set text(fill: rgb("#1f618d"), style: "italic")
+#show <alta-keywords>: set par(spacing: 1.5em)
 #show <alta-footer>: set text(fill: rgb("#b03a2e"))
 #show <alta-section-rule>: set line(stroke: 2pt + rgb("#7d6608"))
 #show <alta-divider>: set line(stroke: (paint: rgb("#b03a2e")))
@@ -60,7 +61,11 @@
       (name: "Liffey Labs", position: "Engineer", startDate: "2019-06"),
     ),
     projects: (
-      (name: "Event pipeline", keywords: ("Kafka", "Flink")),
+      (
+        name: "Event pipeline",
+        summary: "Streaming ingestion.",
+        keywords: ("Kafka", "Flink"),
+      ),
     ),
     skills: ((name: "Languages", keywords: ("Scala", "Haskell")),),
     languages: (
