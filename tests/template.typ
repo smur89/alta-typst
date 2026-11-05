@@ -16,7 +16,11 @@
   (
     basics: (name: "Caoimhe Ní Bhriain", label: "Innealtóir Bogearraí"),
     work: (
-      (name: "Acme Teo.", position: "Innealtóir Sinsearach", startDate: "2022-03"),
+      (
+        name: "Acme Teo.",
+        position: "Innealtóir Sinsearach",
+        startDate: "2022-03",
+      ),
     ),
     skills: ((name: "Teangacha", keywords: ("Scala", "Go")),),
   ),

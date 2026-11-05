@@ -8,7 +8,7 @@ How altacv turns a CV dict into a page, and where each kind of code lives. [CONT
 
 1. **Options:** `_merge-options` (`data/options.typ`) rewrites deprecated label and preference forms, merges them over `data/defaults.typ` and validates them. The labels start from the document language's bundled translation (`text.lang` where `alta()` is called, so `alta()` renders in `context`), over the English.
 2. **CV:** `_read-cv` (`data/read.typ`) rejects unknown top-level keys, has `_canonical-cv` drop `none` fields and rewrite deprecated CV forms, checks `basics` and `objective`, and has `_read-sections` (`data/sections.typ`) shape-check every section, check each entry's field types against its spec's `fields`, keep the entries its spec's `keep` says render, and run its `check` on those.
-3. **Document:** `_pdf-metadata` (`data/metadata.typ`), then `_document` (`document.typ`): the render-time context (`context.typ`), `set text`, the page with its footer (`sections/footer.typ`), and the paragraph, list and heading rules (`design/styles.typ`).
+3. **Document:** `altacv` (`render.typ`) checks its theme and applies `_document` (`document.typ`): theme state, `set text`, the margins, and the paragraph, list and heading rules (`design/styles.typ`). Inside it, `alta()` emits only content: `set document` from `_pdf-metadata` (`data/metadata.typ`), the `<alta-cv>` marker the footer helpers (`sections/footer.typ`) read, then step 4. Standalone, `alta()` applies `_standalone` (`document.typ`) itself, with the set-rule preferences and the footer (removed in the next major, [#239](https://github.com/smur89/alta-typst/issues/239)).
 4. **Content:** the header and intro (`sections/header.typ`, `sections/intro.typ`), then each column section's renderer from `registry.typ`, laid out by `_columns` (`components/columns.typ`).
 
 ## Layers
@@ -20,7 +20,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | util | `util/` | generic helpers: presence checks, joins, grouping, a deep merge, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme, document styles, the built-in themes and palettes, icon set | util |
 | data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_location-parts`, `_entry-period` in `cv.typ`) | util, design |
-| context | `context.typ` | render-time `state` set by `alta()` | design |
+| context | `context.typ` | render-time `state` set by `alta()` and `altacv` (`_template-state` marks that the template is active) | design |
 | document | `document.typ` | the document setup shared by `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
 | components | `components/` | layout that takes slots: entry, bibliography, header, footer, … | util, design, context, primitives |
