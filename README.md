@@ -23,7 +23,7 @@
 - **Any layout.** Two columns at any ratio, any section in either column, the side panel left or right, or a single column for applicant-tracking systems (ATS).
 - **A rich header.** Portrait (circle, rounded or square; left, right or centred), contact bar with icons for common networks, and an optional QR code to your homepage for printed copies.
 - **Ratings as dots.** Language fluency and skill levels from LinkedIn-style terms (`Native`, `Expert`) or exact numbers, in half-dot steps.
-- **Every string translatable**, including month names and the document language; a [worked Irish translation](examples/labels-ga.toml) is included.
+- **Every string translatable**, including month names. The labels follow `set text(lang: ..)`, with English and [Irish](internal/data/labels-ga.toml) built in.
 - **Print- and archive-ready.** PDF metadata comes from your data, and the output compiles as PDF/A and PDF/UA-1 (tagged, with alt text).
 
 The full example, every section in use, over two pages ([source](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version -->, [PDF](examples/example_full.pdf)):
@@ -264,11 +264,18 @@ Position it with `imagePosition` (`"right"`, `"left"`, or `"center"` with `image
 
 ### Translating labels
 
-Every string the template prints is a label. Override any subset; the rest stay English:
+Every string the template prints is a label, and the labels follow the document's language. Set it with Typst's own rule, before `#alta(...)`:
 
 ```typst
+#set text(lang: "ga")
+#alta(cv)
+```
+
+The language also drives hyphenation, smart quotes and the PDF's language tag. English and Irish labels are built in ([`example-ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version --> is a CV in Irish); any other language keeps the English ones. Override any subset with `labels`, over the language's own:
+
+```typst
+#set text(lang: "de")
 #alta(cv, labels: (
-  lang:         "de",
   work:         "Berufserfahrung",
   skills:       "Kenntnisse",
   education:    "Ausbildung",
@@ -277,13 +284,9 @@ Every string the template prints is a label. Override any subset; the rest stay 
 ))
 ```
 
-Set `lang` alongside any translation: it drives hyphenation, smart quotes and the PDF's language tag. For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml) next to your CV (say as `labels-de.toml`), translate the values and load it:
+For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml) next to your CV (say as `labels-de.toml`), translate the values, drop its `lang` line and load it: `#alta(cv, labels: toml("labels-de.toml"))`. To have it built in, open a pull request adding it as `internal/data/labels-de.toml`. Every key is under [Labels](#labels).
 
-```typst
-#alta(cv, labels: toml("labels-de.toml"))
-```
-
-See [`examples/labels-ga.toml`](examples/labels-ga.toml) and [`examples/example-ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version --> for a complete Irish translation. Every key is under [Labels](#labels).
+`labels.lang` is deprecated: it still sets the document's language, over `set text`, until the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 ### Restyling parts
 
@@ -340,7 +343,7 @@ For an archival (PDF/A) or accessible (PDF/UA-1) PDF, ask the compiler. The temp
 typst compile --pdf-standard a-2b,ua-1 cv.typ
 ```
 
-The output has a tagged structure with nested headings, a document title, alt text for the portrait and meaningful icons, and the language from `labels.lang`.
+The output has a tagged structure with nested headings, a document title, alt text for the portrait and meaningful icons, and the language from `set text(lang: ..)`.
 
 ## Reference
 
@@ -534,11 +537,11 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 
 ### Labels
 
-Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml). Section labels share the section's key.
+Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](internal/data/labels-ga.toml)). Section labels share the section's key.
 
 | Key | Default |
 |---|---|
-| `lang` | `"en"`, an ISO 639 code (two or three lowercase letters) |
+| `lang` | Deprecated: use `set text(lang: ..)`, which also picks the built-in labels ([#239](https://github.com/smur89/alta-typst/issues/239)). An ISO 639 code (two or three lowercase letters); when set, it wins over `text.lang` |
 | `work` | `"Experience"` |
 | `volunteer` | `"Volunteer"` |
 | `focusAreas` | `"Areas of Focus"` |

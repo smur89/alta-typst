@@ -15,13 +15,16 @@
 #import "../sections/footer.typ": _footer
 
 /// Renders a CV from a JSON Resume-style dictionary. Every input is
-/// checked before anything renders.
+/// checked before anything renders. The labels follow the document's
+/// language: `#set text(lang: "ga")` before `alta()` renders them in
+/// Irish.
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema plus altacv's
 ///   `custom.altacv` extensions. Unknown keys and wrong types panic,
 ///   naming the field.
 /// - labels (dictionary): Display strings to override, merged over the
-///   English defaults. See the README's Labels section.
+///   defaults for the document's language (`text.lang`). See the
+///   README's Labels section.
 /// - preferences (dictionary): Settings to override (colours, font,
 ///   columns, …), merged over the defaults. See the README's
 ///   Preferences tables.
@@ -30,8 +33,8 @@
   cv,
   labels: (:),
   preferences: (:),
-) = {
-  let (labels, prefs) = _merge-options(labels, preferences)
+) = context {
+  let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
   let (cv, sections) = _read-cv(cv, prefs)
   // What every renderer takes with its data. `format-date` formats a
   // date per the preferences and labels; `owner` is the CV owner's

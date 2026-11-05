@@ -82,8 +82,7 @@ PACKAGE_FILES := \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.webp \
   $(EXAMPLE_FULL_PDF) \
-  examples/example_full-1.png examples/example_full-2.png \
-  examples/labels-ga.toml
+  examples/example_full-1.png examples/example_full-2.png
 
 .PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
 
@@ -188,7 +187,7 @@ examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 # zero-padded (`{0p}`) so the glob orders them. Local-only and
 # committed; CI never regenerates it. Prereqs must cover every file
 # preview-frames.typ transitively reads.
-examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) examples/labels-ga.toml $(LIB_SOURCES)
+examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) $(LIB_SOURCES)
 	rm -f examples/.preview-frame-*.png
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PREVIEW_PPI) $< 'examples/.preview-frame-{0p}.png'
 	$(IMG2WEBP) -loop 0 -lossy -q 75 -m 6 -d $(PREVIEW_DELAY) examples/.preview-frame-*.png -o $@

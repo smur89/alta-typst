@@ -1,12 +1,10 @@
-# Aistriúchán Gaeilge ar labels-en.toml — worked translator example.
-# Load at the call site via:
-#   #alta(cv, labels: toml("labels-ga.toml"))
+# Aistriúchán Gaeilge ar labels-en.toml: the labels for
+# `#set text(lang: "ga")`, over the English ones (`_translations` in
+# `defaults.typ`), so a key left out stays English.
 #
 # Translator note: section headings use idiomatic Irish CV vocabulary.
 # Some choices are stylistic — e.g. "Caitheamh Aimsire" (pastimes) for
 # `interests` reads more naturally than a literal "Spéiseanna".
-
-lang = "ga"
 
 work         = "Taithí Oibre"
 volunteer    = "Obair Dheonach"

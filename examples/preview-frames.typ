@@ -29,11 +29,13 @@
 #import "../lib.typ": alta, maps-providers, tag, themes
 #import "_cv.typ": cv, in-irish, no-image
 
-// Irish-language label overrides used by frames 4, 8 and 12, with the
-// CV's content translated to match (`in-irish`), to demonstrate
-// localisation. Loaded once at parse time — the same
-// dict is passed to `alta(..., labels: ga-labels)`.
-#let ga-labels = toml("labels-ga.toml")
+// Frames 4, 8 and 12 render in Irish: `set text(lang: "ga")` picks the
+// package's Irish labels, with the CV's content translated to match
+// (`in-irish`), to demonstrate localisation.
+#let in-ga(body) = {
+  set text(lang: "ga")
+  body
+}
 
 // Baseline preferences the per-frame overrides patch on top of. A
 // richer-than-defaults setup (the altacv theme, ISO short-date,
@@ -79,10 +81,10 @@
   body
 }
 
-// Each frame is `(cv: …, prefs: …)`, with `labels` (default English)
-// and `wrap` (show rules around its `alta()`, see `restyled`) where it
-// sets them. Frames using `no-image(cv)` drop the portrait; frames
-// using `cv`, or `in-irish(cv)` (the content in Irish), keep it. Dict
+// Each frame is `(cv: …, prefs: …)`, with `wrap` (rules around its
+// `alta()`: `restyled`, `in-ga`) where it sets one. Frames using
+// `no-image(cv)` drop the portrait; frames using `cv`, or
+// `in-irish(cv)` (the content in Irish), keep it. Dict
 // spread (`base + (key: value)`) is Typst's equivalent of Scala's
 // `base.copy(key = value)`, so each frame reads as a small patch over
 // the baseline.
@@ -166,7 +168,7 @@
   // the same feature under `imagePosition: "left"`. Section columns
   // swap emphasis (compact / support blocks lead, work and volunteer
   // move right). In Irish: the headings, months and footer
-  // (`labels-ga.toml`) and the content (`in-irish`).
+  // (`in-ga`) and the content (`in-irish`).
   (
     cv: in-irish(cv),
     prefs: base
@@ -185,7 +187,7 @@
         ),
         rightColumnSections: ("work", "volunteer"),
       ),
-    labels: ga-labels,
+    wrap: in-ga,
   ),
 
   // ── Frame 5 ─ bauhaus + no image + centred + equal columns ──────
@@ -282,7 +284,7 @@
   // A second single column (`columnRatio: 1`), this one under a
   // rounded portrait on the left, led by education, with body text
   // justified to both edges.
-  // In Irish: the headings, months and footer (`labels-ga.toml`) and
+  // In Irish: the headings, months and footer (`in-ga`) and
   // the content (`in-irish`).
   (
     cv: in-irish(cv),
@@ -296,7 +298,7 @@
         leftColumnSections: ("education", "work", "projects"),
         rightColumnSections: ("skills", "languages", "awards"),
       ),
-    labels: ga-labels,
+    wrap: in-ga,
   ),
 
   // ── Frame 9 ─ catppuccin + no image + right-aligned + narrow panel left
@@ -390,7 +392,7 @@
   // A larger portrait (`imageSize: 8em`) on the right, the contact
   // bar set up for paper (unlinked, profiles printed as URLs,
   // `github.com/…`, in place of usernames), with volunteer leading the main column (`columnRatio: 0.62`).
-  // In Irish: the headings, months and footer (`labels-ga.toml`) and
+  // In Irish: the headings, months and footer (`in-ga`) and
   // the content (`in-irish`).
   (
     cv: in-irish(cv),
@@ -417,14 +419,12 @@
           "interests",
         ),
       ),
-    labels: ga-labels,
+    wrap: in-ga,
   ),
 )
 
 #for (i, frame) in frames.enumerate() {
   if i > 0 { pagebreak(weak: true) }
-  let (cv: frame-cv, prefs, labels, wrap) = (
-    (labels: (:), wrap: it => it) + frame
-  )
-  wrap(alta(frame-cv, preferences: prefs, labels: labels))
+  let (cv: frame-cv, prefs, wrap) = (wrap: it => it) + frame
+  wrap(alta(frame-cv, preferences: prefs))
 }
