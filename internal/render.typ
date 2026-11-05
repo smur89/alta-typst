@@ -1,4 +1,4 @@
-// `alta()` and `alta-from-json()`, re-exported from `lib.typ`: the
+// `altacv`, `alta()` and `alta-from-json()`, re-exported from `lib.typ`: the
 // render pipeline ARCHITECTURE.md describes. Not in `lib.typ`, which
 // would then re-export every helper this imports.
 
@@ -9,10 +9,10 @@
 #import "data/json-resume.typ": from-json-resume
 #import "data/defaults.typ": _default-preferences
 #import "design/presets.typ": themes
-#import "design/styles.typ": _justify, _part
-#import "design/theme.typ": _theme-for, _token-prefs
+#import "design/styles.typ": _justify
+#import "design/theme.typ": _theme-for
 #import "context.typ": _max-rating-state, _template-state
-#import "document.typ": _document
+#import "document.typ": _document, _standalone
 #import "registry.typ": _renderers
 #import "components/columns.typ": _columns
 #import "../sections/header.typ": _header
@@ -39,8 +39,8 @@
 
 /// Renders a CV from a JSON Resume-style dictionary. Inside
 /// `#show: altacv.with(..)` it emits only the CV; on its own it applies
-/// the template itself. Every input is
-/// checked before anything renders. The labels follow the document's
+/// the template itself. Every input
+/// is checked before anything renders. The labels follow the document's
 /// language: `#set text(lang: "ga")` before `alta()` renders them in
 /// Irish.
 ///
@@ -88,21 +88,11 @@
     )
   }
   if in-template { content } else {
-    // Standalone (#239: removed): the template's body, with the
-    // preferences that stand in for set rules after it. Not `altacv`
-    // itself: its `_template-state` update would sit inside this
-    // context, which reads the state, so it would never converge.
-    show: _document.with(
-      _theme-for(prefs.theme, _token-prefs(prefs)),
-      prefs.margin,
-    )
-    // `text.lang` unless the deprecated `labels.lang` is set; drop with
-    // it (#239). Before `set page`, so the footer inherits it.
-    set text(prefs.body-size, lang: labels.lang)
-    set page(
-      paper: prefs.paper,
-      footer: _part("footer", _footer(cv, ctx)),
-    )
+    // Standalone (removed in the next major, #239): the template's body
+    // and the preferences that stand in for set rules after it. Not
+    // `altacv` itself: its `_template-state` update would sit inside
+    // this context, which reads the state, so it would never converge.
+    show: _standalone.with(prefs, labels, _footer(cv, ctx))
     content
   }
 }
