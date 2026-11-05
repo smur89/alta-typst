@@ -5,7 +5,7 @@
 // and a gradient gives a sharper edge than a transparent overlay.
 
 #import "../design/styles.typ": _inline, _part
-#import "../context.typ": _max-rating-state, _theme-state
+#import "../context.typ": _max-rating-state, _theme
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
 
 #let _half-fill(accent, border) = gradient.linear(
@@ -34,7 +34,7 @@
 // Unchecked: `rating` checks its arguments, and `_read-cv` the CV's
 // ratings.
 #let _rating-dots(value, max) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let (accent, border, ..) = theme.colours
   let (radius, gap, ..) = theme.rating
   let fills = (
@@ -72,7 +72,7 @@
   // The state is validated as `max-rating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
-  _label-row(_theme-state.get(), label, _rating-dots(value, max-rating))
+  _label-row(_theme(), label, _rating-dots(value, max-rating))
 }
 
 // The label's rating as dots on a scale of `max` or, with no `value`,
@@ -80,5 +80,5 @@
 #let _rating-row(label, value, max: auto, fallback: none) = if (
   value != none
 ) { rating(label, value, max: max) } else {
-  context _label-row(_theme-state.get(), label, fallback)
+  context _label-row(_theme(), label, fallback)
 }

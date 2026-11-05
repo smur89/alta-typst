@@ -2,7 +2,7 @@
 // name as a label pill and the keywords wrapping under the first of
 // them; interests' as a line of text.
 
-#import "../context.typ": _theme-state
+#import "../context.typ": _theme
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
@@ -13,7 +13,7 @@
 // column hangs nothing, so its keywords keep room to wrap. A group's
 // optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let (gap, dash, indent-max) = theme.keyword-row
   let row-gap = gap * text.size
   layout(size => for (name, keywords, ..group) in groups {
@@ -45,7 +45,7 @@
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
 #let _label-rows(groups) = context {
-  let (separator, treatment, colours) = _theme-state.get()
+  let (separator, treatment, colours) = _theme()
   par(
     groups
       .map(((name, keywords, ..)) => [#text(

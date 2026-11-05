@@ -3,7 +3,7 @@
 // contact bar, with an optional portrait and QR around them.
 
 #import "../design/styles.typ": _part
-#import "../context.typ": _theme-state
+#import "../context.typ": _theme
 #import "../icons.typ": _glyph
 #import "../primitives.typ": _link-if
 #import "qr.typ": _qr-render
@@ -175,7 +175,7 @@
   qr-url: none,
 ) = context {
   let body-size = text.size
-  let theme = _theme-state.get()
+  let theme = _theme()
   // Small enough to stay clear of the contact bar, large enough to
   // scan in print. Filled with `accent` to match the other ornaments.
   let qr-size = theme.header.qr * body-size

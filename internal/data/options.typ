@@ -72,7 +72,7 @@
   body-size: "`set text(size: ..)`",
   paper: "`set page(paper: ..)`",
   margin: "`set page(margin: ..)`",
-  page-footer: "`set page(footer: alta-footer())`",
+  page-footer: "`set page(footer: alta-footer())` for `auto`, or `set page(footer: ..)` with your own content",
   last-modified-footer: "`set page(footer: alta-updated-footer())`",
   footer-version: "`set page(footer: alta-updated-footer(version: true))`",
 )

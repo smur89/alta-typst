@@ -11,7 +11,7 @@
 // and the paragraph, list and heading rules: what a user's rules after
 // `altacv` override.
 #let _document(theme, margin, body) = {
-  _theme-state.update(theme)
+  _theme-state.update(themes => themes + (theme,))
   set text(
     10pt,
     font: theme.font,
@@ -21,6 +21,7 @@
   set page(margin: margin)
   show: _content-styles.with(theme)
   body
+  _theme-state.update(themes => themes.slice(0, -1))
 }
 
 // For `show: _standalone.with(prefs, labels, footer)`, with the merged,
