@@ -8,7 +8,7 @@
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
 #import "design/styles.typ": _inline, _part
-#import "context.typ": _theme-state
+#import "context.typ": _theme
 
 // `body` with `alt` as its alt text in tagged PDF. `figure` is Typst's
 // carrier for alt text on non-image content, as `box` and `link` take
@@ -50,7 +50,7 @@
   part: none,
   gap: auto,
 ) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let resolved-size = if size == auto { text.size } else { size }
   let resolved-fill = if fill == auto { theme.colours.body } else { fill }
   let mark = box(baseline: shift, _inline(to: "baseline", box(

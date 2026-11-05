@@ -3,7 +3,7 @@
 // and the entry's other facts with its location at the right edge.
 
 #import "../design/styles.typ": _part, _subheading-block
-#import "../context.typ": _theme-state
+#import "../context.typ": _theme
 #import "../util/values.typ": _present
 #import "../primitives.typ": (
   _accent-text, _date-fact, _fact-line, _joined, _link-if, _location-fact,
@@ -15,7 +15,7 @@
 #let _subtitle(groups) = {
   let line = _fact-line(..groups)
   if line != none {
-    context block(below: _theme-state.get().entry.subtitle-below, line)
+    context block(below: _theme().entry.subtitle-below, line)
   }
 }
 
@@ -29,7 +29,7 @@
 // entry heading's block, so it keeps that spacing and stays with its
 // entry; after a facts line, `entry.facts-below`.
 #let _entry-head(title, facts, date, location, alts) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
     (

@@ -43,14 +43,11 @@
   body,
 )
 
-// For `show: _content-styles.with(body-size, theme, justify)`, with
-// the built theme (`_theme-for`).
+// For `show: _content-styles.with(theme)`, with the built theme
+// (`_theme-for`).
 // Levels: 2 section title, 3 role / qualification, 4 sub-grouping
-// (e.g. publication type). `justify` justifies prose only, lists and
-// the paragraphs labelled `<alta-internal-prose>`, so rows of facts, names or
-// pills never stretch; Typst then hyphenates it too
-// (`text.hyphenate` is `auto`).
-#let _content-styles(body-size, theme, justify, body) = {
+// (e.g. publication type).
+#let _content-styles(theme, body) = {
   let (
     par: p,
     list: l,
@@ -62,61 +59,72 @@
     ..,
   ) = theme
   set par(leading: p.leading, spacing: p.spacing)
-  show list: set par(justify: justify)
-  show <alta-internal-prose>: set par(justify: justify)
   set list(
     marker: [•],
     indent: 0pt,
-    body-indent: l.body-indent * body-size,
+    body-indent: l.body-indent * 1em,
     spacing: l.spacing,
   )
   let (above, rule-gap, below, case, tracking) = section
-  // Each heading's body is a `_part` labelled inside the rule: a user's
-  // rule on `heading` itself can't override what this transform sets,
-  // as it runs inside the heading.
+  // Colour, weight and tracking are show-set rules, so a later rule on
+  // `heading` overrides them; the size sits on the title's `_part`, from
+  // the body size read in context (`tests/unit/headings.typ`).
   // Matched by role (an internal label), not level: a heading's level
   // is its outline depth (`components/frame.typ`). The name is the one
   // level-1 heading, drawn as it is (`components/header.typ`).
   show <alta-internal-name>: it => it.body
-  show <alta-internal-section>: it => block(sticky: true)[
-    #v(above * body-size)
-    #{
-      set text(
-        ty.headline.size * body-size,
-        fill: colours.heading,
-        weight: ty.headline.weight,
-        tracking: tracking,
-      )
+  show <alta-internal-section>: set text(
+    fill: colours.heading,
+    weight: ty.headline.weight,
+    tracking: tracking,
+  )
+  show <alta-internal-section>: it => block(sticky: true, context {
+    // Typst sets a level-2 heading's text at 1.2em of the body's.
+    let body-size = text.size / 1.2
+    v(above * body-size)
+    {
+      set text(ty.headline.size * body-size)
       case(_part("section-title", it.body))
     }
-    #v(rule-gap * body-size)
+    v(rule-gap * body-size)
     // The stroke is `set` around the `section-rule` part, so a user's
     // `show <alta-section-rule>: set line(...)` overrides it.
-    #{
+    {
       set line(stroke: sw.thick + colours.heading-rule)
       _part("section-rule", line(length: 100%))
     }
-    #v(below * body-size)
-  ]
-  let sub-heading(role, fill, part) = it => _subheading-block(
+    v(below * body-size)
+  })
+  // Typst keeps level 3 and deeper at the body's size.
+  let sub-heading(role, part) = it => context _subheading-block(
     role,
-    body-size,
+    text.size,
     {
-      set text(ty.title.size * body-size, fill: fill, weight: role.weight)
+      set text(ty.title.size * text.size)
       _part(part, it.body)
     },
   )
-  show <alta-internal-entry>: sub-heading(
-    subheading.entry,
-    colours.emphasis,
-    "entry-title",
+  show <alta-internal-entry>: set text(
+    fill: colours.emphasis,
+    weight: subheading.entry.weight,
   )
+  show <alta-internal-entry>: sub-heading(subheading.entry, "entry-title")
   // In the accent by default, so a group reads apart from the entries
   // under it.
-  show <alta-internal-group>: sub-heading(
-    subheading.group,
-    colours.subheading,
-    "group-title",
+  show <alta-internal-group>: set text(
+    fill: colours.subheading,
+    weight: subheading.group.weight,
   )
+  show <alta-internal-group>: sub-heading(subheading.group, "group-title")
+  body
+}
+
+// For `show: _justify.with(on)`: justify and hyphenate prose only,
+// lists and the paragraphs labelled `<alta-internal-prose>`, so rows of
+// facts, names or pills never stretch. Applied by `alta()`: `justify`
+// is a CV preference, not the template's.
+#let _justify(on, body) = {
+  show list: set par(justify: on)
+  show <alta-internal-prose>: set par(justify: on)
   body
 }

@@ -67,7 +67,9 @@ This copies [`template/cv.typ`](template/cv.typ), a complete example CV, into a 
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta-from-json
+#import "@preview/altacv:1.8.0": alta-from-json, altacv
+
+#show: altacv.with()
 
 #alta-from-json(path("resume.json"))
 ```
@@ -77,9 +79,11 @@ The file is validated against the [JSON Resume schema](https://jsonresume.org/sc
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, from-json-resume, themes
+#import "@preview/altacv:1.8.0": alta, altacv, from-json-resume, themes
 
-#alta(from-json-resume(path("resume.json")), preferences: (theme: themes.forest))
+#show: altacv.with(theme: themes.forest)
+
+#alta(from-json-resume(path("resume.json")))
 ```
 <!-- x-release-please-end -->
 
@@ -88,7 +92,7 @@ The file is validated against the [JSON Resume schema](https://jsonresume.org/sc
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta
+#import "@preview/altacv:1.8.0": alta, altacv
 
 #let cv = (
   basics: (
@@ -126,13 +130,17 @@ The file is validated against the [JSON Resume schema](https://jsonresume.org/sc
   // education, projects, publications, certificates, awards, …
 )
 
+#show: altacv.with()
+
 #alta(cv)
 ```
 <!-- x-release-please-end -->
 
-Only `basics.name` is required. Fields that take "string or content" also accept Typst markup (`[Led the *platform* team]`); keep to plain strings if the data also lives in a `resume.json`, as JSON can't carry markup. The [data schema](#data-schema) lists every section and field.
+Your own `set` and `show` rules go between the two lines and win. Only `basics.name` is required. Fields that take "string or content" also accept Typst markup (`[Led the *platform* team]`); keep to plain strings if the data also lives in a `resume.json`, as JSON can't carry markup. The [data schema](#data-schema) lists every section and field.
 
 ## Customising
+
+Put `#show: altacv.with(theme: ..)` above the CV, then your own `set` and `show` rules: `#set page(paper: "us-letter")`, `#set text(font: "Inter", lang: "de")`, `#show heading: ..`. `alta(cv)` on its own still works as before; the template form replaces it in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 `alta()` takes the CV and two optional dicts, each merged over the defaults:
 
@@ -140,15 +148,16 @@ Only `basics.name` is required. Fields that take "string or content" also accept
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-Set only the keys you want to change. Option names are kebab-case (`column-ratio`), as Typst's own are; the camelCase spellings of earlier releases (`columnRatio`) still work but are deprecated. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
+Set only the keys you want to change. Option names are kebab-case (`column-ratio`), as Typst's own are; the camelCase spellings of earlier releases (`columnRatio`) still work but are deprecated. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). Inside the template, the document-level ones go to the template or a `set` rule instead: see [In the template](#in-the-template). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, maps-providers, themes
+#import "@preview/altacv:1.8.0": alta, altacv, maps-providers, themes
+
+#show: altacv.with(theme: themes.navy)
+#set page(paper: "us-letter")
 
 #alta(cv, preferences: (
-  theme: themes.navy,
-  paper: "us-letter",
   date-format: "short",              // 06/2024
   image-position: left,
   link-contact-info: (phone: false),  // everything linked but the phone
@@ -158,17 +167,19 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 ```
 <!-- x-release-please-end -->
 
-Settings layer in order: the theme, then `preferences.colours` and `preferences.font`, then any [show rules](#restyling-parts), which win over both.
+Settings layer in order: the theme, then your `set` and `show` rules after the show line, which win over it. Standalone `alta()` takes the theme, font, paper and footer as preferences instead ([In the template](#in-the-template) maps each).
 
 ### Themes and colours
 
-`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
+The template's `theme` picks the look (`preferences.theme` standalone). The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
 
-`preferences.colours` then recolours any role over the theme's:
+To recolour a role, set it over the theme's colours:
 
 ```typst
-#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))
+#show: altacv.with(theme: themes.altacv + (colours: (..themes.altacv.colours, body: black)))
 ```
+
+Standalone, `preferences.colours` does the same: `#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))`.
 
 | Role | Colours |
 |---|---|
@@ -186,28 +197,30 @@ Any `rgb(...)` value works; roles that colour text should stay dark enough to re
 A theme can also set the font, the type sizes and weights, the spacing and the separators. A theme of your own sets only what it changes; the rest comes from the default theme:
 
 ```typst
-#alta(cv, preferences: (theme: (
+#show: altacv.with(theme: (
   font: "Libertinus Serif",
   type: (headline: (size: 1.2)),  // section titles
   separator: (facts: " | "),
-)))
+))
 ```
 
-To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")`. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours; set a few roles with `preferences.colours` instead. Every token is listed under [Theme tokens](#theme-tokens).
+To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")`. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours; spread them to change a few, `(colours: (..themes.navy.colours, accent: …))`. Every token is listed under [Theme tokens](#theme-tokens).
 
 ### Fonts
 
-`preferences.font` sets the font family (or a fallback array), over the theme's: `#alta(cv, preferences: (font: "Inter"))`. Any installed font works.
+Set the font family (or a fallback array) with `#set text(font: "Inter")` after the show line, over the theme's (`preferences.font` standalone). Any installed font works.
 
-To set the name or headings in a different face, add a show rule before `#alta(...)`. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
+To set the name or headings in a different face, add a show rule after the show line. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
 
 ```typst
 // A slab-serif name and section headings over a sans body:
+#show: altacv.with()
+#set text(font: "Source Sans 3")
 #show heading.where(level: 1).or(heading.where(level: 2)): set text(font: "Roboto Slab")
-#alta(cv, preferences: (font: "Source Sans 3"))
+#alta(cv)
 ```
 
-A plain `show heading: …` reaches group and entry titles too. A `set text(font: …)` outside `alta()` doesn't change the body: `alta()` sets the body's font, size, colour and language itself. Other text settings (tracking, number styles, OpenType features) still apply.
+A plain `show heading: …` reaches group and entry titles too. Standalone, a `set text(font: …)` outside `alta()` doesn't change the body, as `alta()` sets the body's font, size, colour and language itself; other text settings (tracking, number styles, OpenType features) still apply.
 
 ### Layout
 
@@ -233,7 +246,7 @@ Invert the layout, side panel on the narrow left:
 ))
 ```
 
-Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `page-footer: auto`.
+Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: alta-footer())`; for the last-modified line, `alta-updated-footer()`, with `version: true` to add the version; or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
 
 ### Portrait, contact bar and QR code
 
@@ -307,15 +320,16 @@ An entry's keywords (a project's stack, education's courses) are a line of text.
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, tag
+#import "@preview/altacv:1.8.0": alta, altacv, tag
 
+#show: altacv.with(theme: (separator: (keywords: "")))
 #show <alta-keyword>: it => tag(it)
 #show <alta-keywords>: set par(leading: 0.8em, spacing: 0.8em)
-#alta(cv, preferences: (theme: (separator: (keywords: ""))))
+#alta(cv)
 ```
 <!-- x-release-please-end -->
 
-The list bullet is Typst's `list`, so change it with a show-set rule: `#show list: set list(marker: [–])`. A plain `#set list(...)` doesn't reach inside `alta()`.
+The list bullet is Typst's `list`, so change it with a show-set rule: `#show list: set list(marker: [–])`. Standalone, a plain `#set list(...)` doesn't reach inside `alta()`; inside the template it does, after the show line.
 
 ### PDF metadata, PDF/A and accessibility
 
@@ -509,6 +523,24 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 | `skill-level-display` | `auto` | `auto` (dots when the level maps, else text), `"rating"` (an unmapped level panics) or `"text"`. |
 | `owner-names` | `()` | Other spellings of your name among publication authors, e.g. `("J. Doe",)`. |
 
+#### In the template
+
+Inside `#show: altacv.with(..)`, the document-level preferences are the template's argument or your own rules after the show line; passed to `alta()` there, they panic, naming the replacement.
+
+| Standalone preference | In the template |
+|---|---|
+| `theme` | `altacv.with(theme: ..)` |
+| `colours` | Theme tokens: `altacv.with(theme: themes.teal + (colours: ..))` |
+| `font` | `set text(font: ..)` |
+| `body-size` | `set text(size: ..)` |
+| `paper` | `set page(paper: ..)` |
+| `margin` | `set page(margin: ..)` |
+| `page-footer` | `auto`: `set page(footer: alta-footer())`. Your own content: `set page(footer: [..])`. |
+| `last-modified-footer` | `set page(footer: alta-updated-footer())` |
+| `footer-version` | `set page(footer: alta-updated-footer(version: true))` |
+| `accent` (deprecated) | `altacv.with(theme: ..)`: a theme colour |
+| `labels.lang` (deprecated) | `set text(lang: ..)` |
+
 #### Deprecated
 
 Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
@@ -609,7 +641,10 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 
 | Export | Purpose |
 |---|---|
+| `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules. |
 | `alta(cv, labels:, preferences:)` | Renders the CV. |
+| `alta-footer()` | Page-footer content: the name and page numbers on documents of more than one page, counted by Typst's page counter (a `counter(page).update(..)` restart changes the count). Use as `#set page(footer: alta-footer())`. |
+| `alta-updated-footer(version: false)` | Page-footer content: the last-modified line, with the version when `version` is `true`. |
 | `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
 | `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |
 | `themes` | The built-in themes. |

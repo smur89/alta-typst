@@ -12,7 +12,7 @@
 // behind every frame of `examples/preview.webp` (via
 // `examples/_cv.typ`).
 
-#import "@preview/altacv:1.8.0": alta, avatar-placeholder // x-release-please-version
+#import "@preview/altacv:1.8.0": alta, altacv, avatar-placeholder // x-release-please-version
 
 #let cv = (
   basics: (
@@ -170,5 +170,9 @@
   image-position: top,
   header-text-align: center,
 )
+
+// The template, then your own rules (they win), then the CV:
+// `#set page(paper: "us-letter")`, `#set text(lang: "de")`, … .
+#show: altacv.with()
 
 #alta(cv, preferences: preferences)

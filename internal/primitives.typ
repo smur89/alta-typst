@@ -4,7 +4,7 @@
 // custom layouts; underscored helpers are internal.
 
 #import "design/styles.typ": _part
-#import "context.typ": _theme-state
+#import "context.typ": _theme
 #import "design/theme.typ": _as-is
 #import "util/values.typ": _join-present, _present
 #import "icons.typ": _icon-glyph, icon
@@ -13,7 +13,7 @@
 // entry's organisation on its facts line). Regular weight, so the
 // title above it leads.
 #let _accent-text(body) = context text(
-  fill: _theme-state.get().colours.accent,
+  fill: _theme().colours.accent,
   body,
 )
 
@@ -22,7 +22,7 @@
 // built on it still returns `none` for an empty line, which callers
 // rely on to skip it; only the formatting reads the theme.
 #let _with-theme(parts, format) = if parts.any(_present) {
-  context format(_theme-state.get())
+  context format(_theme())
 }
 
 // The quietest lines (publication dates, identifiers); absent bodies
@@ -43,7 +43,7 @@
 /// -> content
 #let name(body) = context block(
   above: 0pt,
-  below: _theme-state.get().entry.name-below * text.size,
+  below: _theme().entry.name-below * text.size,
   _accent-text(body),
 )
 
@@ -89,7 +89,7 @@
 
 // The term row's frame: indented text under an entry's heading.
 #let _term-row(body) = context {
-  let (below, inset) = _theme-state.get().term
+  let (below, inset) = _theme().term
   block(
     above: 0pt,
     below: below * text.size,
@@ -141,7 +141,7 @@
 ///   last pill, so the row doesn't end on a gap.
 /// -> content
 #let tag(body, label: false, trailing: true) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let accent = theme.colours.accent
   let (
     fill,
@@ -191,7 +191,7 @@
 // it tracks `preferences.margin`. `rule: false` keeps the spacing
 // without the line (`_divider-space`).
 #let _divider(rule) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let (gap, dash, clearance) = theme.divider
   if here().position().y < _top-margin() + clearance { return }
   v(gap * text.size)
@@ -226,7 +226,7 @@
 // text it sits in (`styles.typ` sets the heading's text to the title
 // size), and the body's gap after it.
 #let _icon-heading(icon-name, body) = [#context {
-    let (type: ty, icon: (gap, ..), ..) = _theme-state.get()
+    let (type: ty, icon: (gap, ..), ..) = _theme()
     _icon-glyph(
       icon-name,
       // The heading's own colour (`styles.typ`), not the icon's default.
@@ -245,7 +245,7 @@
   width: size,
   height: size,
   clip: true,
-  radius: _theme-state.get().header.portrait-radius.at(shape),
+  radius: _theme().header.portrait-radius.at(shape),
   image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
 )
 
@@ -262,7 +262,7 @@
 /// - dest (str, none): A URL to link it to.
 /// -> content
 #let styled-link(content, dest: none) = context {
-  let theme = _theme-state.get()
+  let theme = _theme()
   let styled = (theme.treatment.link)(
     text(fill: theme.colours.accent, content),
   )
