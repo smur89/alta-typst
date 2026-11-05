@@ -140,7 +140,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 
 ## Customising
 
-Put `#show: altacv.with(theme: ..)` above the CV. Your own `set` and `show` rules after it win: `#set page(paper: "us-letter")`, `#set text(font: "Inter", lang: "de")`, `#show heading: ..`. `alta(cv)` on its own still works as before; the template form replaces it in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+Put `#show: altacv.with(theme: ..)` above the CV, then your own `set` and `show` rules: `#set page(paper: "us-letter")`, `#set text(font: "Inter", lang: "de")`, `#show heading: ..`. `alta(cv)` on its own still works as before; the template form replaces it in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
 
 `alta()` takes the CV and two optional dicts, each merged over the defaults:
 
@@ -148,7 +148,7 @@ Put `#show: altacv.with(theme: ..)` above the CV. Your own `set` and `show` rule
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-Set only the keys you want to change. Option names are kebab-case (`column-ratio`), as Typst's own are; the camelCase spellings of earlier releases (`columnRatio`) still work but are deprecated. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). The preferences below are for standalone `alta()`; inside the template, [document-level ones](#preferences) are set with `altacv.with(..)` or a `set` rule and panic if passed to `alta()`. The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
+Set only the keys you want to change. Option names are kebab-case (`column-ratio`), as Typst's own are; the camelCase spellings of earlier releases (`columnRatio`) still work but are deprecated. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). Inside the template, the document-level ones go to the template or a `set` rule instead: see [In the template](#in-the-template). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -166,7 +166,7 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 ```
 <!-- x-release-please-end -->
 
-Settings layer in order. Standalone: the theme, then `preferences.colours` and `preferences.font`, then any [show rules](#restyling-parts), which win over both. In the template: the theme, then your `set` and `show` rules after the show line, which win.
+Settings layer in order. Standalone: the theme, then `preferences.colours` and `preferences.font`, then any [show rules](#restyling-parts), which win over both. In the template: the theme, then your `set` and `show` rules after the show line.
 
 ### Themes and colours
 
@@ -241,7 +241,7 @@ Invert the layout, side panel on the narrow left:
 ))
 ```
 
-Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. Inside the template, use `#set page(paper: .., margin: ..)`. For a footer with your name and page numbers on multi-page CVs, set `page-footer: auto` standalone, or `#set page(footer: alta-footer())` inside the template. For the last-modified line, use `alta-updated-footer(version: true)` to add the version.
+Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `page-footer: auto`; for the last-modified line, `last-modified-footer: true`, with `footer-version: true` to add the version. Inside the template these are set rules: see [In the template](#in-the-template).
 
 ### Portrait, contact bar and QR code
 
@@ -467,10 +467,10 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 
 | Key | Default | Effect |
 |---|---|---|
-| `theme` | `themes.teal` | The theme: see [Themes and colours](#themes-and-colours). Standalone `alta()` only; inside the template: `altacv.with(theme: ..)`. |
-| `colours` | `(:)` | Colour roles over the theme's. Standalone `alta()` only; inside the template: theme tokens. |
-| `font` | `auto` | Font family or fallback array, over the theme's (Lato by default). Standalone `alta()` only; inside the template: `set text(font: ..)`. |
-| `body-size` | `10pt` | Base text size, an absolute length. Everything else scales from it. Standalone `alta()` only; inside the template: `set text(size: ..)`. |
+| `theme` | `themes.teal` | The theme: see [Themes and colours](#themes-and-colours). |
+| `colours` | `(:)` | Colour roles over the theme's. |
+| `font` | `auto` | Font family or fallback array, over the theme's (Lato by default). |
+| `body-size` | `10pt` | Base text size, an absolute length. Everything else scales from it. |
 | `publication-icons` | built-ins | Icon per `publications[].type`, from the [icon set](#exports); merged over the built-ins (`article` → `newspaper`, `book` and `thesis` → `book`, `talk` → `microphone`, others `file`). |
 | `project-icons` | `(:)` | Icon per `projects[].type` (e.g. `laptop-code`, `cubes`, `terminal`, `flask`); `folder` when unmapped. |
 | `profile-icons` | built-ins | FontAwesome glyph per profile network; merged over the [built-ins](#profile-networks). |
@@ -490,21 +490,19 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 
 | Key | Default | Effect |
 |---|---|---|
-| `paper` | `"a4"` | Any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper). Standalone `alta()` only; inside the template: `set page(paper: ..)`. |
-| `margin` | `(x: 0.9cm, y: 1.5cm)` | As `set page(margin: …)` takes. Standalone `alta()` only; inside the template: `set page(margin: ..)`. |
+| `paper` | `"a4"` | Any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper). |
+| `margin` | `(x: 0.9cm, y: 1.5cm)` | As `set page(margin: …)` takes. |
 | `column-ratio` | `0.65` | The left column's share of the width, in `(0, 1]`; `1` for a single column. |
 | `left-column-sections` | `("work", "volunteer", "projects", "publications")` | Sections in the left column, in order. |
 | `right-column-sections` | `("focus-areas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
 
 #### Footer
 
-Inside the template, the footer is `#set page(footer: alta-footer())`, or `alta-updated-footer(version: true)` for the last-modified line.
-
 | Key | Default | Effect |
 |---|---|---|
-| `page-footer` | `none` | `auto`: on multi-page CVs, the name on the left and `labels.page-number` on the right. Or any content, on every page. Takes precedence over `last-modified-footer`. Standalone `alta()` only; inside the template: `set page(footer: alta-footer())`. |
-| `last-modified-footer` | `false` | Shows `labels.last-modified: meta.lastModified` in the footer. Standalone `alta()` only; inside the template: `set page(footer: alta-updated-footer())`. |
-| `footer-version` | `false` | Appends `(meta.version)` to that line. Standalone `alta()` only; inside the template: `alta-updated-footer(version: true)`. |
+| `page-footer` | `none` | `auto`: on multi-page CVs, the name on the left and `labels.page-number` on the right. Or any content, on every page. Takes precedence over `last-modified-footer`. |
+| `last-modified-footer` | `false` | Shows `labels.last-modified: meta.lastModified` in the footer. |
+| `footer-version` | `false` | Appends `(meta.version)` to that line. |
 
 #### Formatting and links
 
@@ -518,6 +516,24 @@ Inside the template, the footer is `#set page(footer: alta-footer())`, or `alta-
 | `max-rating` | `5` | Dots per rating scale. |
 | `skill-level-display` | `auto` | `auto` (dots when the level maps, else text), `"rating"` (an unmapped level panics) or `"text"`. |
 | `owner-names` | `()` | Other spellings of your name among publication authors, e.g. `("J. Doe",)`. |
+
+#### In the template
+
+Inside `#show: altacv.with(..)`, the document-level preferences are the template's argument or your own rules after the show line; passed to `alta()` there, they panic, naming the replacement.
+
+| Standalone preference | In the template |
+|---|---|
+| `theme` | `altacv.with(theme: ..)` |
+| `colours` | Theme tokens: `altacv.with(theme: themes.teal + (colours: ..))` |
+| `font` | `set text(font: ..)` |
+| `body-size` | `set text(size: ..)` |
+| `paper` | `set page(paper: ..)` |
+| `margin` | `set page(margin: ..)` |
+| `page-footer` | `set page(footer: alta-footer())` |
+| `last-modified-footer` | `set page(footer: alta-updated-footer())` |
+| `footer-version` | `set page(footer: alta-updated-footer(version: true))` |
+| `accent` (deprecated) | `altacv.with(theme: ..)`: a theme colour |
+| `labels.lang` (deprecated) | `set text(lang: ..)` |
 
 #### Deprecated
 
@@ -619,9 +635,9 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 
 | Export | Purpose |
 |---|---|
-| `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules; your own rules after it win. |
+| `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules. |
 | `alta(cv, labels:, preferences:)` | Renders the CV. |
-| `alta-footer()` | Page-footer content: the name and page numbers on multi-page CVs. Use as `#set page(footer: alta-footer())`. |
+| `alta-footer()` | Page-footer content: the name and page numbers on documents of more than one page. Use as `#set page(footer: alta-footer())`. |
 | `alta-updated-footer(version: false)` | Page-footer content: the last-modified line, with the version when `version` is `true`. |
 | `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
 | `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |
