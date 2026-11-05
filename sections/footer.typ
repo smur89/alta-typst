@@ -52,7 +52,9 @@
 // `none` with no CV placed.
 #let _placed-cv() = {
   let before = query(selector(<alta-cv>).before(here()))
-  before.at(-1, default: query(<alta-cv>).at(0, default: none))
+  if before != () { before.last() } else {
+    query(<alta-cv>).at(0, default: none)
+  }
 }
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:
