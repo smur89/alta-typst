@@ -125,7 +125,17 @@
   if it.has("children") { return it.children.map(_plain).join(default: "") }
   if it.has("body") { return _plain(it.body) }
   if it.func() == smartquote { return if it.double { "\"" } else { "'" } }
-  if it.func() == [ ].func() { return " " }
+  if it.func() in ([ ].func(), linebreak) { return " " }
+  // A gap (`h(0.3em)`, `h(1fr)`) reads as a space; a negative kern,
+  // pulling its neighbours together, as nothing.
+  if it.func() == h {
+    let a = it.amount
+    let gap = if type(a) == fraction { a > 0fr } else {
+      let r = 0% + 0pt + a
+      r.ratio > 0% or r.length.abs > 0pt or r.length.em > 0
+    }
+    return if gap { " " } else { "" }
+  }
   ""
 }
 

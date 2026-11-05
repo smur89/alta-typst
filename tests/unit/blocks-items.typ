@@ -3,6 +3,7 @@
 // else its text.
 
 #import "/lib.typ": altacv, label-row, publication, skills
+#import "/internal/blocks.typ": _plain
 
 #set document(author: "Jane Doe")
 #show: altacv
@@ -29,6 +30,14 @@
 // Matched trimmed and ignoring case, as `alta()` matches its owner.
 #publication(title: "A", authors: ("A. N. Other", " jane doe "))[]
 #context assert.eq(owners.get(), ([jane doe],))
+// Content's text, as an owner is matched and a portrait's alt reads:
+// a gap or a line break is a space, a negative kern nothing.
+#assert.eq(_plain([Jane#h(0.3em)Doe]), "Jane Doe")
+#assert.eq(_plain([Jane#h(1fr)Doe]), "Jane Doe")
+#assert.eq(_plain([Jane#linebreak()Doe]), "Jane Doe")
+#assert.eq(_plain([T#h(-0.1em)eX]), "TeX")
+#publication(title: "B", authors: ([Jane#h(0.3em)Doe],))[]
+#context assert.eq(owners.get(), ([jane doe], [Jane Doe]))
 
 = Skills
 #skills("Typst", ("Markup",), level: "Expert")
