@@ -1,7 +1,6 @@
 // The bibliography list item publications map onto, and the line
 // builders for its author and identifier records and its citation.
 
-#import "../design/styles.typ": _treat
 #import "../util/values.typ": _join-present
 #import "../primitives.typ": (
   _fact-line, _join-facts, _link-if, _meta, _preamble, _with-theme, styled-link,
@@ -12,7 +11,7 @@
 // separator; `none` when there are none.
 #let _author-names(theme, authors) = (
   authors
-    .map(a => if a.owner { _treat(theme.treatment.owner, a.name) } else {
+    .map(a => if a.owner { (theme.treatment.owner)(a.name) } else {
       a.name
     })
     .join(theme.separator.items)

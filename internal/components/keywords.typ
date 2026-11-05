@@ -2,7 +2,6 @@
 // name as a label pill and the keywords wrapping under the first of
 // them; interests' as a line of text.
 
-#import "../design/styles.typ": _treat
 #import "../context.typ": _body-size-state, _theme-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
@@ -52,7 +51,7 @@
     groups
       .map(((name, keywords, ..)) => [#text(
           fill: colours.emphasis,
-          _treat(treatment.label, name),
+          (treatment.label)(name),
         )#separator.label#keywords.join(separator.items)])
       .join(linebreak()),
   )

@@ -42,10 +42,11 @@
   // Header.
   // Visual only: PDF title / author metadata keep the name as given.
   uppercaseName: true,
-  headerTextAlign: "left",
+  headerTextAlign: left,
   imageSize: 6em,
   imageShape: "circle",
-  imagePosition: "right",
+  imagePosition: right,
+  // Deprecated (#239): read into `imagePosition` (`canonical.typ`).
   imageStackOrder: "above",
   qrCode: none,
   // Page and layout.

@@ -6,7 +6,7 @@
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
 #import "../internal/data/cv.typ": _location-parts, _profile-glyph
-#import "../internal/data/validation.typ": _contact-channels, _text-aligns
+#import "../internal/data/validation.typ": _contact-channels
 #import "../internal/design/icon-set.typ": _icon-glyphs, _network-icons
 #import "../internal/primitives.typ": _fact-line, _portrait
 #import "../internal/components/header.typ": _page-header
@@ -155,15 +155,13 @@
     contacts: _contact-rows(
       _linked-contacts(basics, prefs, location-alt: labels.location),
     ),
-    text-align: _text-aligns.at(prefs.headerTextAlign),
+    text-align: prefs.headerTextAlign,
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
       _portrait(image, prefs.imageSize, basics.name, shape: prefs.imageShape)
     },
-    photo-at: if prefs.imagePosition == "center" {
-      prefs.imageStackOrder
-    } else { prefs.imagePosition },
+    photo-at: prefs.imagePosition,
     qr-url: _resolve-qr-url(prefs.qrCode, basics),
   )
 }

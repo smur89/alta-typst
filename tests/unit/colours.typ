@@ -4,10 +4,8 @@
 
 #import "/internal/data/options.typ": _merge-options
 #import "/internal/design/presets.typ": palettes, themes
-#import "/internal/design/styles.typ": _treatments
 #import "/internal/design/theme.typ": (
   _contrast, _default-theme, _theme-for, _token-prefs, _tokens,
-  _treatment-names,
 )
 
 #let built(preferences) = {
@@ -26,8 +24,13 @@
   )
 }
 
-// The theme validation's names are the ones `_treat` applies.
-#assert.eq(_treatments.keys().sorted(), _treatment-names.sorted())
+// A treatment is a function; the deprecated names (#239) read as
+// theirs, and the rest of the treatments keep the defaults.
+#let treatment(t) = built((theme: (treatment: t))).treatment
+#assert.eq(treatment((link: strong)).link, strong)
+#assert.eq(treatment((link: "strong")).link, strong)
+#assert.eq(treatment((link: "upper")).owner, strong)
+#assert.eq((treatment((owner: "none")).owner)("ab"), "ab")
 
 // The default preferences render the theme the state starts from
 // outside `alta()` (`context.typ` can't read the preferences), so the
@@ -79,8 +82,8 @@
 #assert.eq(piped.separator.facts, " | ")
 #assert.eq(piped.separator.items, ", ")
 #assert.eq(
-  _theme-for((treatment: (link: "strong")), (:)).treatment.link,
-  "strong",
+  _theme-for((treatment: (link: strong)), (:)).treatment.link,
+  strong,
 )
 
 // A theme may set any tokens and only those: the rest, colours

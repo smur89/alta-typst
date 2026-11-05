@@ -54,7 +54,7 @@ The default look is opinionated (only skills are pills). A new alternative look 
 - **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the README's [Part labels](README.md#part-labels).
 - **An element Typst already has is restyled through that element, not a part**: the list bullet through `show list`, the line between entries through `show divider`. A part label is for what Typst has no element for.
 - **A replacement rule's `it` is opaque.** The README promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
-- **A theme token for any value the default fixes**: a separator, size or named treatment (`separator.keywords`, `treatment.link: "emph"`). A token holds a value, never a choice of component: not `keywords: "pills"`.
+- **A theme token for any value the default fixes**: a separator, size or treatment (`separator.keywords`, `treatment.link: emph`). A token holds a value, never a choice of component: not `keywords: "pills"`.
 
 ## Development loop
 

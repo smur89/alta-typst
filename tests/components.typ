@@ -65,11 +65,11 @@
   "Jane Doe",
 )
 #for (at, text-align) in (
-  ("right", left),
-  ("left", left),
-  ("above", center),
-  ("below", center),
-  ("above", left),
+  (right, left),
+  (left, left),
+  (top, center),
+  (bottom, center),
+  (top, left),
 ) {
   variant(header(photo: portrait, photo-at: at, text-align: text-align))
 }

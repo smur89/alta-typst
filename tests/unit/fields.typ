@@ -1,8 +1,6 @@
 // Unit checks for the util helpers (internal/util/fields.typ,
-// values.typ), the location formatter in internal/data/cv.typ and the
-// treatment resolver in internal/design/styles.typ.
+// values.typ) and the location formatter in internal/data/cv.typ.
 
-#import "/internal/design/styles.typ": _treat
 #import "/internal/util/fields.typ": _field
 #import "/internal/data/cv.typ": _location-parts
 #import "/internal/util/values.typ": (
@@ -52,9 +50,3 @@
 #assert.eq(_location-parts((location: (postalCode: "T12"))), ())
 #assert.eq(_location-parts((location: "")), ())
 #assert.eq(_location-parts((:)), ())
-
-// _treat: a named treatment applies its function; "none" is identity.
-#assert.eq(_treat("upper", "ab"), "AB")
-#assert.eq(_treat("none", "ab"), "ab")
-#assert.eq(_treat("emph", "ab").func(), emph)
-
