@@ -47,12 +47,21 @@
   )
 }
 
+// For `show: _cv-styles.with(prefs)`: the CV preferences that style
+// what renders after them, the public `rating()`'s scale and
+// justification. Shared with the component gallery
+// (`tests/components.typ`), so it shows components as a CV does.
+#let _cv-styles(prefs, body) = {
+  _max-rating-state.update(prefs.max-rating)
+  show: _justify.with(prefs.justify)
+  body
+}
+
 // The CV itself, from `_prepare`, in both of `alta()`'s forms.
 #let _cv-content((cv, sections, ctx, details)) = {
-  _max-rating-state.update(ctx.prefs.max-rating)
+  show: _cv-styles.with(ctx.prefs)
   // What the footer helpers print.
   [#metadata(details)<alta-cv>]
-  show: _justify.with(ctx.prefs.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
   // Renderers are width-agnostic, so any section fits either column.

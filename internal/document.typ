@@ -1,7 +1,7 @@
 // The `altacv` template's body, applied by `altacv` and standalone
 // `alta()` (`render.typ`) and by the component gallery
-// (`tests/components.typ`), so the gallery shows components exactly as
-// a CV does.
+// (`tests/components.typ`), which adds the CV's own styles
+// (`_cv-styles`), so it shows components exactly as a CV does.
 
 #import "design/styles.typ": _content-styles, _part
 #import "design/theme.typ": _theme-for, _token-prefs
