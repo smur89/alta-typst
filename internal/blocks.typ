@@ -12,7 +12,7 @@
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
 #import "util/checks.typ": _check, _check-type, _enum-rule, _list-rule
-#import "primitives.typ": _portrait, divider
+#import "primitives.typ": _divider, _portrait
 #import "components/bibliography.typ": _bib-entry
 #import "components/entry.typ": _entry
 #import "components/header.typ": _page-header
@@ -82,8 +82,12 @@
     .before(here())
     .after(parent.location())
   // `alta()` joins a section's entries with the divider, so none
-  // precedes the first of a section or group.
-  if query(siblings).len() > 0 { divider() }
+  // precedes the first of a section or group. At a page top the
+  // divider keeps its space, the rule hidden, where `alta()`'s drops
+  // both: dropping it moved what follows, which moved the next
+  // divider, and a CV of a few pages ran out of Typst's five layout
+  // passes. Hidden, it moves nothing.
+  if query(siblings).len() > 0 { _divider(true, at-top: hide) }
   [#metadata(none)<alta-internal-entry-mark>]
   block(breakable: false, _entry(
     // The icons' alt text, in the document's language.

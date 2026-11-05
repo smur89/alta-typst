@@ -186,28 +186,33 @@
 }
 
 // Typst has no keep-with-previous, so a divider before an entry that
-// moved to a new page would orphan at its top. Suppress it within
-// `clearance` of the top margin (headroom for a following heading), so
-// it tracks `preferences.margin`. `rule: false` keeps the spacing
-// without the line (`_divider-space`).
-#let _divider(rule) = context {
+// moved to a new page would orphan at its top. Within `clearance` of
+// the top margin (headroom for a following heading), so it tracks
+// `preferences.margin`, it renders as `at-top(body)`: nothing by
+// default, its space alone with `hide` (`entry`, which says why).
+// `rule: false` keeps the spacing without the line (`_divider-space`).
+#let _divider(rule, at-top: _ => none) = context {
   let theme = _theme()
   let (gap, dash, clearance) = theme.divider
-  if here().position().y < _top-margin() + clearance { return }
-  v(gap * text.size)
-  if rule {
-    // Typst's `divider`. The stroke is `set` around it, so a user's
-    // `set line(...)` rule on the divider overrides it; its block
-    // spacing is reset to `par.spacing`, the spacing a bare line had.
-    set line(stroke: (
-      paint: theme.colours.border,
-      thickness: theme.stroke-width.thin,
-      dash: dash,
-    ))
-    show divider: set block(spacing: par.spacing)
-    _part("divider", std.divider())
+  let body = {
+    v(gap * text.size)
+    if rule {
+      // Typst's `divider`. The stroke is `set` around it, so a user's
+      // `set line(...)` rule on the divider overrides it; its block
+      // spacing is reset to `par.spacing`, the spacing a bare line had.
+      set line(stroke: (
+        paint: theme.colours.border,
+        thickness: theme.stroke-width.thin,
+        dash: dash,
+      ))
+      show divider: set block(spacing: par.spacing)
+      _part("divider", std.divider())
+    }
+    v(gap * text.size)
   }
-  v(gap * text.size)
+  if here().position().y < _top-margin() + clearance { at-top(body) } else {
+    body
+  }
 }
 
 /// The dashed grey rule altacv draws between entries.

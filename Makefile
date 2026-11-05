@@ -200,15 +200,24 @@ examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) $(LIB_
 #
 # `compile-one` compiles to /dev/null against `$(2)`, the PDF standards
 # (default `PDF_STANDARDS`: PDF/A-2b and PDF/UA-1, which back the
-# README's PDF/A and accessibility notes).
+# README's PDF/A and accessibility notes). A warning fails it too:
+# Typst only warns when a document doesn't converge, and renders it
+# anyway (tests/markup-long.typ).
 #   $(call compile-one,<file>[,<pdf standards>])
 define compile-one
 @name=$(1); [ "$(1)" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
 if [ -n "$$GITHUB_ACTIONS" ]; then printf '::group::%s\n' "$$name"; \
 else printf '  %s\n' "$$name"; fi; \
-status=0; \
-if ! $(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$(1)" /dev/null; then \
-  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::compile failed\n' "$$name"; fi; \
+status=0; msg=; \
+if ! out=$$($(TYPST) compile --root $(ROOT) --format pdf --pdf-standard $(or $(2),$(PDF_STANDARDS)) "$(1)" /dev/null 2>&1); then \
+  msg='compile failed'; \
+elif printf '%s\n' "$$out" | grep -q '^warning'; then \
+  msg='compiled with warnings'; \
+fi; \
+[ -z "$$out" ] || printf '%s\n' "$$out" >&2; \
+if [ -n "$$msg" ]; then \
+  if [ -n "$$GITHUB_ACTIONS" ]; then printf '::error file=%s::%s\n' "$$name" "$$msg"; \
+  else printf '%s: %s\n' "$$name" "$$msg" >&2; fi; \
   status=1; \
 fi; \
 if [ -n "$$GITHUB_ACTIONS" ]; then printf '::endgroup::\n'; fi; \
