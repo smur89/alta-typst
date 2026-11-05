@@ -61,3 +61,34 @@
   _validate-preferences(merged-preferences, _section-specs.keys())
   (labels: merged-labels, prefs: merged-preferences)
 }
+
+// Inside the `altacv` template, what each document-level preference
+// is instead: a template argument or a `set` rule after the show line.
+#let _template-replacements = (
+  theme: "`altacv.with(theme: ..)`",
+  colours: "theme tokens: `altacv.with(theme: themes.teal + (colours: ..))`",
+  font: "`set text(font: ..)`",
+  body-size: "`set text(size: ..)`",
+  paper: "`set page(paper: ..)`",
+  margin: "`set page(margin: ..)`",
+  page-footer: "`set page(footer: alta-footer())`",
+  last-modified-footer: "`set page(footer: alta-updated-footer())`",
+  footer-version: "`set page(footer: alta-updated-footer(version: true))`",
+)
+
+// Panics on a document-level preference passed to `alta()` inside the
+// template, naming what replaces it. camelCase names count (#389).
+#let _check-template-preferences(preferences) = {
+  let (_, prefs) = _kebab-options((:), preferences)
+  for key in _dict-or-empty(prefs).keys() {
+    if key in _template-replacements {
+      panic(
+        "preferences."
+          + key
+          + " isn't an alta() preference inside the altacv template: use "
+          + _template-replacements.at(key)
+          + " after `#show: altacv.with(..)`.",
+      )
+    }
+  }
+}

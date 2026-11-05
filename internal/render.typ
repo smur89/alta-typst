@@ -3,7 +3,7 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
-#import "data/options.typ": _merge-options
+#import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
@@ -44,6 +44,10 @@
 /// language: `#set text(lang: "ga")` before `alta()` renders them in
 /// Irish.
 ///
+/// Inside the template, document-level preferences (theme, colours, font,
+/// sizes, paper, margin, footers) panic, naming the template argument or
+/// set rule that replaces each.
+///
 /// - cv (dictionary): The CV, in the JSON Resume schema plus altacv's
 ///   `custom.altacv` extensions. Unknown keys and wrong types panic,
 ///   naming the field.
@@ -60,6 +64,7 @@
   preferences: (:),
 ) = context {
   let in-template = _template-state.get()
+  if in-template { _check-template-preferences(preferences) }
   let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
   let (cv, sections) = _read-cv(cv, prefs)
   // What every renderer takes with its data. `format-date` formats a
