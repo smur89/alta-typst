@@ -1,7 +1,9 @@
 // Unit checks for internal/primitives.typ.
 
 #import "/internal/design/theme.typ": _default-theme
-#import "/internal/primitives.typ": _fact-line, _join-facts, _link-if, _portrait
+#import "/internal/primitives.typ": (
+  _fact-line, _join-facts, _joined, _link-if, _portrait,
+)
 
 // _join-facts: parts joined within a group, groups joined after;
 // absent parts and emptied groups drop out, and nothing left is `none`.
@@ -26,3 +28,6 @@
 #assert.eq(_link-if(none, "x"), "x")
 #assert.eq(_link-if("", "x"), "x")
 #assert.eq(_link-if("https://a.b", "x").func(), link)
+
+// _joined: nothing without a part to show.
+#assert.eq(_joined("keywords", ("", none)), none)

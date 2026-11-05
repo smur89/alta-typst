@@ -59,12 +59,15 @@
   separator.facts,
 )
 
-// A range's sides (`_date-span`) joined by the theme's
-// `separator.range`; an absent side drops out with it.
-#let _range(sides) = _with-theme(sides, t => _join-present(
-  sides,
-  t.separator.range,
+// Parts joined with the theme's `separator.at(key)`; an absent part
+// drops out with it.
+#let _joined(key, parts) = _with-theme(parts, t => _join-present(
+  parts,
+  t.separator.at(key),
 ))
+
+// A range's sides (`_date-span`), joined by `separator.range`.
+#let _range = _joined.with("range")
 
 // `_join-facts` with the theme's separators.
 #let _fact-line(..groups) = _with-theme(
@@ -164,12 +167,14 @@
     radius: radius,
     inset: (x: inset.x * body-size, y: inset.y * body-size),
     outset: (y: outset-y * body-size),
-    // The box's look is the theme's; only its text is a `_part`.
+    // The box's look is the theme's; only its text is a `_part`. The
+    // `[]` gives the label its own element, so a body that is already
+    // a part (`tag(it)` in a `show <alta-keyword>` rule) keeps its label.
     text(
       body-size,
       fill: accent.darken(text-darken),
       weight: text-weight,
-      _part(if label { "pill-label" } else { "pill" }, body),
+      _part(if label { "pill-label" } else { "pill" }, [#body#[]]),
     ),
   )
   if trailing { _tag-gap(theme, body-size) }
