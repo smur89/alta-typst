@@ -46,6 +46,9 @@
   mapsProvider: maps-providers.osm,
   pageFooter: auto,
   maxRating: 6,
+  // One body size for every frame, so what changes between frames is
+  // the theme and layout, not the type.
+  bodySize: 10.5pt,
   leftColumnSections: (
     "work",
     "volunteer",
@@ -86,15 +89,13 @@
 #let frames = (
   // ── Frame 1 ─ altacv + no image ─────────────────────────────────
   // Baseline arrangement: work-heavy left, support sections on the
-  // right, at a slightly larger body size (`bodySize: 11pt`) so the
-  // page fills. The realistic baseline most users ship — portrait
+  // right. The realistic baseline most users ship — portrait
   // omitted (ATS- / anti-bias-friendly), the altacv theme from
   // `base`.
   (
     cv: no-image(cv),
     prefs: base
       + (
-        bodySize: 11pt,
         leftColumnSections: (
           "work",
           "volunteer",
@@ -135,13 +136,7 @@
           "certificates",
           "interests",
         ),
-        rightColumnSections: (
-          "work",
-          "volunteer",
-          "projects",
-          "publications",
-          "awards",
-        ),
+        rightColumnSections: ("work", "volunteer", "projects", "publications"),
       ),
   ),
 
@@ -169,8 +164,8 @@
   // Image swung to the left of the header with a QR matrix mirrored
   // on the right — the flipped twin of frame 6's QR layout, exercising
   // the same feature under `imagePosition: "left"`. Section columns
-  // swap emphasis (compact / support blocks lead, work, volunteer and
-  // projects move right). In Irish: the headings, months and footer
+  // swap emphasis (compact / support blocks lead, work and volunteer
+  // move right). In Irish: the headings, months and footer
   // (`labels-ga.toml`) and the content (`in-irish`).
   (
     cv: in-irish(cv),
@@ -188,7 +183,7 @@
           "awards",
           "interests",
         ),
-        rightColumnSections: ("work", "volunteer", "projects"),
+        rightColumnSections: ("work", "volunteer"),
       ),
     labels: ga-labels,
   ),
@@ -217,7 +212,6 @@
           "focusAreas",
           "skills",
           "languages",
-          "awards",
         ),
       ),
   ),
@@ -226,7 +220,7 @@
   // Image on the right (canonical default) and a QR matrix on the
   // opposite side — a [QR | text | portrait] header showcasing the
   // print-affordance feature on the standard layout. Compact European-
-  // style `[day]/[month]/[year]` dates, at `bodySize: 11pt`. Education
+  // style `[day]/[month]/[year]` dates. Education
   // and certificates lead the main column (`columnRatio: 0.6`), ahead
   // of work.
   (
@@ -235,7 +229,6 @@
       + (
         theme: themes.plum,
         columnRatio: 0.6,
-        bodySize: 11pt,
         qrCode: auto,
         dateFormat: "[day]/[month]/[year]",
         leftColumnSections: (
@@ -329,23 +322,21 @@
           "projects",
           "education",
           "awards",
-          "publications",
         ),
       ),
   ),
 
   // ── Frame 10 ─ forest + square portrait right + wide main column + restyled
   // A square-cropped portrait, a wider main column
-  // (`columnRatio: 0.7`, `bodySize: 10.5pt`) for work, volunteer,
-  // projects, publications and awards, and show
-  // rules (`restyled`) drawing stars for the rating dots and entries'
-  // keywords as pills, with the keyword separator dropped.
+  // (`columnRatio: 0.7`) for work, volunteer, projects, publications
+  // and awards, and show rules (`restyled`) drawing stars for the
+  // rating dots and entries' keywords as pills, with the keyword
+  // separator dropped.
   (
     cv: cv,
     prefs: base
       + (
         theme: themes.forest + (separator: (keywords: "")),
-        bodySize: 10.5pt,
         imageShape: "square",
         columnRatio: 0.7,
         leftColumnSections: (
@@ -367,17 +358,16 @@
     wrap: restyled,
   ),
 
-  // ── Frame 11 ─ phosphor + no image + large type + publications first
-  // Large type (`bodySize: 11.5pt`) with ISO 8601 dates (`2024-03`)
-  // suiting the terminal look; publications and projects lead the
-  // main column on the right (`columnRatio: 0.45`).
+  // ── Frame 11 ─ phosphor + no image + publications first + ISO dates
+  // ISO 8601 dates (`2024-03`) suiting the terminal look; publications
+  // and projects lead the main column on the right
+  // (`columnRatio: 0.45`).
   (
     cv: no-image(cv),
     prefs: base
       + (
         theme: themes.phosphor,
         columnRatio: 0.45,
-        bodySize: 11.5pt,
         dateFormat: "[year]-[month]",
         leftColumnSections: (
           "focusAreas",
@@ -385,17 +375,21 @@
           "languages",
           "education",
           "certificates",
+        ),
+        rightColumnSections: (
+          "publications",
+          "projects",
+          "work",
+          "volunteer",
           "awards",
         ),
-        rightColumnSections: ("publications", "projects", "work", "volunteer"),
       ),
   ),
 
   // ── Frame 12 ─ navy + large portrait right + full URLs + Irish ──
   // A larger portrait (`imageSize: 8em`) on the right, the contact
   // bar set up for paper (unlinked, profiles printed as URLs,
-  // `github.com/…`, in place of usernames), at `bodySize: 10.5pt`,
-  // with volunteer leading the main column (`columnRatio: 0.62`).
+  // `github.com/…`, in place of usernames), with volunteer leading the main column (`columnRatio: 0.62`).
   // In Irish: the headings, months and footer (`labels-ga.toml`) and
   // the content (`in-irish`).
   (
@@ -404,7 +398,6 @@
       + (
         theme: themes.navy,
         columnRatio: 0.62,
-        bodySize: 10.5pt,
         imageSize: 8em,
         linkContactInfo: false,
         printFullUrls: true,
