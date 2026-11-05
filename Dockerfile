@@ -1,9 +1,10 @@
 # The pinned render environment: official Typst image + Lato +
 # FontAwesome 7, so `make docker-pdfs` output is byte-identical to CI,
-# plus tytanic for the visual tests' reference images.
+# plus tytanic for the visual tests' reference images, and pngquant
+# to compress the committed PNG renders.
 #
 # Bumping a version (FROM tag, FA_VERSION + FA_SHA256, LATO_APK_VERSION,
-# TYTANIC_VERSION + TYTANIC_SHA256):
+# TYTANIC_VERSION + TYTANIC_SHA256, PNGQUANT_APK_VERSION):
 # also update the Makefile's DOCKER_IMAGE (image.yml derives the tag
 # from these lines) and TYPST_VERSION / FA_VERSION in build.yml.
 FROM ghcr.io/typst/typst:0.15.1
@@ -20,6 +21,13 @@ ARG LATO_APK_VERSION=2.015-r0
 # musl build runs on Alpine as is.
 ARG TYTANIC_VERSION=0.4.1
 ARG TYTANIC_SHA256=cf262206b2c89f4d74690b5c825d5ffce1f633eb2900948b50cc006dccebe32c
+# pngquant, for the Makefile to quantise the committed PNG renders
+# (the thumbnail, the gallery pages) to a 256-colour palette, about a
+# third of the size. Exact apk version, as for Lato: the renders are
+# drift-checked, and a given pngquant turns the same input into the
+# same bytes. Alpine keeps only a package's latest -rN, so a rebuild
+# there needs this bumped.
+ARG PNGQUANT_APK_VERSION=3.0.3-r0
 
 # Upstream runs as `typst`; install as root. No USER is set back, so
 # callers choose (`make docker-pdfs` passes `-u`).
@@ -34,6 +42,7 @@ RUN apk add --no-cache \
       fontconfig \
       git \
       make \
+      pngquant=${PNGQUANT_APK_VERSION} \
       unzip
 
 # `font-lato` only exists in Alpine's edge community repo. The
