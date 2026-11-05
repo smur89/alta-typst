@@ -166,9 +166,10 @@ jobs:
           typst-version: ${{ env.TYPST_VERSION }}
           fa-version: ${{ env.FA_VERSION }}
 
-      # Also fills ~/.cache/typst with @preview deps, which the
-      # validate step mounts into the check container.
-      - name: Render artifacts the release tarball contains
+      # The release artifacts, the tarball's renders among them. Also
+      # fills ~/.cache/typst with @preview deps, which the validate step
+      # mounts into the check container.
+      - name: Render the release artifacts
         run: make release-artifacts
 
       # Stage at typst.toml's version so the template's self-import

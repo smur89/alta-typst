@@ -65,12 +65,14 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*
   $(wildcard sections/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages: shared by the release tarball and
-# the PR-time package-check stager so the two can't drift.
+# the PR-time package-check stager so the two can't drift. Besides the
+# package itself, only what the README links to (typst/packages' "What
+# to commit? What to exclude?"): `examples/cv.png` is a release asset,
+# not a README image, so it stays out.
 PACKAGE_FILES := \
   typst.toml lib.typ internal sections assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.gif \
-  examples/cv.png \
   $(EXAMPLE_FULL_PDF) \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
