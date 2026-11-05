@@ -2,9 +2,18 @@
 // template (#370): what Typst has no element for, over the components
 // `alta()` draws with. Re-exported from `lib.typ`.
 
-#import "data/defaults.typ": _default-labels, _translations
-#import "primitives.typ": divider
+#import "data/defaults.typ": (
+  _default-labels, _default-preferences, _translations,
+)
+#import "design/icon-set.typ": _icon-glyphs
+#import "util/checks.typ": _check, _check-type, _enum-rule
+#import "primitives.typ": _portrait, divider
 #import "components/entry.typ": _entry
+#import "components/header.typ": _page-header
+
+// The labels in the document's language, as `alta()` resolves them:
+// its bundled translation over the English.
+#let _labels() = _default-labels + _translations.at(text.lang, default: (:))
 
 // The most recent section or group heading before here: the heading
 // an entry sits under. Entries' own headings don't count.
@@ -69,9 +78,8 @@
   if query(siblings).len() > 0 { divider() }
   [#metadata(none)<alta-internal-entry-mark>]
   block(breakable: false, _entry(
-    // The icons' alt text, in the document's language, as `alta()`'s
-    // labels resolve it: its bundled translation over the English.
-    _default-labels + _translations.at(text.lang, default: (:)),
+    // The icons' alt text, in the document's language.
+    _labels(),
     title: title,
     url: url,
     org: org,
@@ -85,4 +93,108 @@
     keywords: keywords,
     level: parent.level + 1,
   ))
+}
+
+// Content's text, for alt text, which takes a string: `document.title`
+// is content, `[Jane Doe]` set from a string.
+#let _plain(it) = if type(it) == str { it } else if it.has("text") {
+  _plain(it.text)
+} else if it.has("children") {
+  it.children.map(_plain).join(default: "")
+} else if it.has("body") { _plain(it.body) } else if (
+  it.func() == [ ].func()
+) { " " } else { "" }
+
+/// One contact-bar entry for `cv-header`: an icon, its text, and an
+/// optional link.
+///
+/// - icon (str): A key of the icon set (`icon()`'s names: `"email"`,
+///   `"phone"`, `"github"`, …).
+/// - value (content, str): The text shown.
+/// - link (str, none): Where it links (`mailto:…`, a URL).
+/// - alt (str, auto): Read aloud before it; `auto` is the icon's name
+///   (for `"location"`, the localised word `alta()` reads).
+/// -> dictionary
+#let contact(icon, value, link: none, alt: auto) = {
+  // `icon()`'s check, so an unknown name panics the same way.
+  if icon not in _icon-glyphs {
+    _check("contact() icon", icon, _enum-rule(_icon-glyphs.keys()))
+  }
+  // `_contact-bar`'s record; `icon` resolves an `auto` alt in context
+  // (`cv-header`), where the document's language is known.
+  (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: link, alt: alt)
+}
+
+/// The CV's header: your name (the document's title, rendered with
+/// Typst's `title` element), a tagline, an objective, the contact bar,
+/// and an optional portrait and QR code.
+///
+/// - tagline (content, str, none): Under the name.
+/// - objective (content, str, none): A short goal, under the tagline.
+/// - contacts (array): `contact(..)` entries, wrapping as one bar.
+/// - photo (content, none): An `image(..)`, loaded in your file, so its
+///   path is yours.
+/// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
+/// - qr (str, none): A URL to encode as a QR code, opposite the photo.
+/// - uppercase (bool): Set the name in capitals.
+/// -> content
+#let cv-header(
+  tagline: none,
+  objective: none,
+  contacts: (),
+  photo: none,
+  photo-side: right,
+  qr: none,
+  uppercase: true,
+) = {
+  _check("cv-header() photo-side", photo-side, _enum-rule((
+    left,
+    right,
+    top,
+    bottom,
+  )))
+  _check-type("cv-header() photo", photo, (content, type(none)), "an image")
+  context {
+    let name = document.title
+    if name == none {
+      panic(
+        "cv-header() shows the document's title as your name: `#set document(title: \"Jane Doe\")` first",
+      )
+    }
+    let labels = _labels()
+    let prefs = _default-preferences
+    _page-header(
+      name: name,
+      headline: tagline,
+      objective: objective,
+      // One row, wrapping between entries as `alta()`'s rows do.
+      contacts: if contacts == () { () } else {
+        (
+          contacts.map(c => (
+            c
+              + (
+                alt: if c.alt != auto { c.alt } else if (
+                  // `alta()`'s localised word, its one contact label.
+                  c.icon == "location"
+                ) { labels.location } else { c.icon },
+              )
+          )),
+        )
+      },
+      uppercase: uppercase,
+      // Framed as `alta()` frames `basics.image`, at its default size
+      // and shape; `alt` is the person's name.
+      photo: if photo != none {
+        _portrait(
+          photo,
+          prefs.image-size,
+          _plain(name),
+          shape: prefs.image-shape,
+        )
+      },
+      photo-at: photo-side,
+      qr-url: qr,
+      title: true,
+    )
+  }
 }

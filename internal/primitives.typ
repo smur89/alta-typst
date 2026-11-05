@@ -239,14 +239,21 @@
 // `shape` (a `preferences.image-shape`). `image()` resolves a bare string path from
 // the file that calls it, so this stays in `internal/`, where a bare
 // `basics.image` has always resolved; `path` and `bytes` sources let
-// callers anchor resolution at their own .typ instead. `alt` becomes
-// the image's `/Alt` in tagged PDF output.
+// callers anchor resolution at their own .typ instead, as does an
+// `image(..)` passed as content (`cv-header`'s `photo`), framed by
+// `set` rules its own arguments override. `alt` becomes the image's
+// `/Alt` in tagged PDF output.
 #let _portrait(source, size, alt, shape: "circle") = context box(
   width: size,
   height: size,
   clip: true,
   radius: _theme().header.portrait-radius.at(shape),
-  image(source, fit: "cover", width: 100%, height: 100%, alt: alt),
+  if type(source) == content {
+    set image(fit: "cover", width: 100%, height: 100%, alt: alt)
+    source
+  } else {
+    image(source, fit: "cover", width: 100%, height: 100%, alt: alt)
+  },
 )
 
 // `body` linked to `dest` when it's present, so an empty `url` never

@@ -14,6 +14,8 @@
     "alta-updated-footer",
     "altacv",
     "avatar-placeholder",
+    "contact",
+    "cv-header",
     "divider",
     "entry",
     "from-json-resume",

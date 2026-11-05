@@ -24,7 +24,7 @@
 #import "internal/primitives.typ": divider, name, styled-link, tag, term
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
-#import "internal/blocks.typ": entry
+#import "internal/blocks.typ": contact, cv-header, entry
 
 /// A generic silhouette (SVG bytes) for `basics.image`, so a CV (the
 /// `typst init` starter's, say) compiles before its own portrait is
