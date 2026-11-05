@@ -1,15 +1,15 @@
-// The `altacv` template's body, applied by `altacv` (`render.typ`) and
-// by the component gallery (`tests/components.typ`), so the gallery
-// shows components exactly as a CV does.
+// The `altacv` template's body, applied by `altacv` and standalone
+// `alta()` (`render.typ`) and by the component gallery
+// (`tests/components.typ`), so the gallery shows components exactly as
+// a CV does.
 
 #import "design/styles.typ": _content-styles, _part
 #import "design/theme.typ": _theme-for, _token-prefs
 #import "context.typ": _theme-state
 
 // With the built theme: the theme state, the default text and margins,
-// and the paragraph, list and heading rules. A user's `set` rules
-// after it win: the page size, the text's size, font and language, the
-// footer.
+// and the paragraph, list and heading rules: what a user's rules after
+// `altacv` override.
 #let _document(theme, margin, body) = {
   _theme-state.update(theme)
   set text(
@@ -25,7 +25,7 @@
 
 // For `show: _standalone.with(prefs, labels, footer)`, with the merged,
 // validated preferences and labels: the template's body, then the
-// preferences that stand in for the set rules a user writes after it.
+// preferences that stand in for a user's set rules after it.
 #let _standalone(prefs, labels, footer, body) = {
   show: _document.with(
     _theme-for(prefs.theme, _token-prefs(prefs)),

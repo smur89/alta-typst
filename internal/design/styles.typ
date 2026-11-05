@@ -66,13 +66,9 @@
     spacing: l.spacing,
   )
   let (above, rule-gap, below, case, tracking) = section
-  // A heading's colour, weight and tracking are show-set rules on it,
-  // so a later rule on `heading` overrides them; its size is set
-  // inside, on its `_part`, which a rule on the part reaches. Inside a
-  // heading the body size is read in context, dividing out Typst's
-  // own heading size (`tests/unit/headings.typ` guards it), so a rule
-  // setting a heading's size scales its title and spacing together; a
-  // rule on `<alta-section-title>` sets the title's size alone.
+  // Colour, weight and tracking are show-set rules, so a later rule on
+  // `heading` overrides them; the size sits on the title's `_part`, from
+  // the body size read in context (`tests/unit/headings.typ`).
   // Matched by role (an internal label), not level: a heading's level
   // is its outline depth (`components/frame.typ`). The name is the one
   // level-1 heading, drawn as it is (`components/header.typ`).
