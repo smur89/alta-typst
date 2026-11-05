@@ -1,5 +1,5 @@
-// expect: mapsProvider must be `none` or a URL template string containing `{q}`
+// expect: maps-provider must be `none` or a URL template string containing `{q}`
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (mapsProvider: true))
+#alta(cv, preferences: (maps-provider: true))

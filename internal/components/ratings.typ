@@ -65,11 +65,11 @@
 /// - label (content, str): The row's label.
 /// - value (int, float): The rating, from 0 to `max`, in steps of 0.5.
 /// - max (auto, int): The dots in the row; `auto` is the enclosing
-///   `alta()`'s `preferences.maxRating`.
+///   `alta()`'s `preferences.max-rating`.
 /// -> content
 #let rating(label, value, max: auto) = context {
   let max-rating = if max == auto { _max-rating-state.get() } else { max }
-  // The state is validated as `maxRating`; an explicit `max` isn't.
+  // The state is validated as `max-rating`; an explicit `max` isn't.
   _check("rating() max", max-rating, _positive-int-rule)
   _check-rating("rating value", value, max-rating)
   _label-row(_theme-state.get(), label, _rating-dots(value, max-rating))

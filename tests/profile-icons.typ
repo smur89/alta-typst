@@ -1,4 +1,4 @@
-// `preferences.profileIcons`: networks the icon set doesn't ship
+// `preferences.profile-icons`: networks the icon set doesn't ship
 // (Kaggle, ResearchGate) drawn with the FontAwesome glyph mapped to
 // them, keys matched case-insensitively; a built-in network (GitLab)
 // redrawn with another glyph; and an unmapped built-in (LinkedIn)
@@ -20,7 +20,7 @@
     ),
   ),
   preferences: (
-    profileIcons: (
+    profile-icons: (
       Kaggle: "kaggle",
       researchgate: "researchgate",
       gitlab: "square-gitlab",

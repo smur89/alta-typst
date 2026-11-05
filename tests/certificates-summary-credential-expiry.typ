@@ -8,8 +8,8 @@
 //     date) → the bare ID on the term row
 //   - an entry with none of the new fields
 //   - empty-string new fields, which are treated as absent
-// A second render uses the `short` `dateFormat`, so the range follows
-// the preference, and sets the deprecated `groupCertificates: false`,
+// A second render uses the `short` `date-format`, so the range follows
+// the preference, and sets the deprecated `group-certificates: false`,
 // which is still accepted and has no effect.
 
 #import "../lib.typ": alta
@@ -69,5 +69,5 @@
 
 #alta(
   cv,
-  preferences: (groupCertificates: false, dateFormat: "short"),
+  preferences: (group-certificates: false, date-format: "short"),
 )

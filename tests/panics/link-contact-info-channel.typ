@@ -1,5 +1,5 @@
-// expect: Unknown linkContactInfo key(s): "fax"
+// expect: Unknown link-contact-info key(s): "fax"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (linkContactInfo: (fax: true)))
+#alta(cv, preferences: (link-contact-info: (fax: true)))

@@ -1,4 +1,4 @@
-// `preferences.linkContactInfo` accepts a boolean (apply uniformly) or
+// `preferences.link-contact-info` accepts a boolean (apply uniformly) or
 // a partial dict keyed by channel ("email", "phone", "location",
 // "profiles"). Four documents exercise the relevant shapes:
 //
@@ -7,7 +7,7 @@
 //      email + profiles stay linked.
 //   3. Bool `true` (default behaviour, asserted explicitly) — every
 //      channel linked.
-//   4. Bool `false` with `printFullUrls` — the unlinked GitHub
+//   4. Bool `false` with `print-full-urls` — the unlinked GitHub
 //      profile prints `github.com/janedoe` in place of its username.
 
 #import "../lib.typ": alta
@@ -29,20 +29,20 @@
   ),
 )
 
-#alta(cv, preferences: (linkContactInfo: false))
+#alta(cv, preferences: (link-contact-info: false))
 
 #pagebreak()
 
 #alta(cv, preferences: (
   // Only phone + location go plain; email and the GitHub profile
   // stay linked. Omitted channels default to true.
-  linkContactInfo: (phone: false, location: false),
+  link-contact-info: (phone: false, location: false),
 ))
 
 #pagebreak()
 
-#alta(cv, preferences: (linkContactInfo: true))
+#alta(cv, preferences: (link-contact-info: true))
 
 #pagebreak()
 
-#alta(cv, preferences: (linkContactInfo: false, printFullUrls: true))
+#alta(cv, preferences: (link-contact-info: false, print-full-urls: true))

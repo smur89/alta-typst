@@ -1,8 +1,8 @@
 // `skills[].level`: a known level turns into dots on the
-// `maxRating` scale (`Master` fills them, `Intermediate` 3 of 5),
+// `max-rating` scale (`Master` fills them, `Intermediate` 3 of 5),
 // `custom.altacv.rating` overrides it, an unknown level shows as
 // text, and a group with neither keeps today's look. The second
-// document forces text (`skillLevelDisplay: "text"`).
+// document forces text (`skill-level-display: "text"`).
 
 #import "../lib.typ": alta
 
@@ -26,4 +26,4 @@
 
 #pagebreak()
 
-#alta(cv, preferences: (skillLevelDisplay: "text"))
+#alta(cv, preferences: (skill-level-display: "text"))

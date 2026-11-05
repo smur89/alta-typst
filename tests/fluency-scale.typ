@@ -1,4 +1,4 @@
-// LinkedIn `fluency` strings scale to `preferences.maxRating`, rounded
+// LinkedIn `fluency` strings scale to `preferences.max-rating`, rounded
 // to the nearest half, so they fit any dot count instead of
 // overflowing a smaller scale. Numeric `rating` is used as given.
 // Fluency matches case-insensitively (Portuguese: lowercase, padded).
@@ -23,8 +23,8 @@
 
 #pagebreak()
 
-#alta(cv("Four Dots"), preferences: (maxRating: 4))
+#alta(cv("Four Dots"), preferences: (max-rating: 4))
 
 #pagebreak()
 
-#alta(cv("Six Dots"), preferences: (maxRating: 6))
+#alta(cv("Six Dots"), preferences: (max-rating: 6))

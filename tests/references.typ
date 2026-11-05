@@ -4,10 +4,10 @@
 //   1. Populated — `name` + `reference` entries with the divider rule
 //      between them, plus a quote-only entry rendered anonymously, plus
 //      a name-only entry that's silently skipped (no orphan heading).
-//   2. Empty references + `referencesAvailableOnRequest: true` —
+//   2. Empty references + `references-available-on-request: true` —
 //      the section renders the heading with the italic fallback line
 //      underneath, no entries.
-//   3. Empty references + the default (`referencesAvailableOnRequest:
+//   3. Empty references + the default (`references-available-on-request:
 //      false`) — the section is suppressed entirely (no heading, no
 //      fallback line).
 
@@ -52,7 +52,7 @@
     basics: (name: "Jane Doe", email: "jane@example.com"),
     references: (),
   ),
-  preferences: (referencesAvailableOnRequest: true),
+  preferences: (references-available-on-request: true),
 )
 
 #pagebreak()

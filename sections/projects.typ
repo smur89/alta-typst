@@ -36,17 +36,17 @@
 
   // Flat unless some entry has a usable `type`, so the common untyped
   // case gets no redundant subheadings. Untyped entries in a mixed list
-  // pool under `labels.otherProjects`.
+  // pool under `labels.other-projects`.
   if not entries.any(p => _string-at(p, "type") != none) {
     _section(labels.projects, entries, render)
   } else {
     _grouped-section(
       labels.projects,
-      _group-by-type(entries, labels.otherProjects),
-      // `projectIcons` is lowercase-keyed (`_canonical-preferences`); a
+      _group-by-type(entries, labels.other-projects),
+      // `project-icons` is lowercase-keyed (`_canonical-preferences`); a
       // group it doesn't map gets `folder`.
       (group, _) => _icon-heading(
-        prefs.projectIcons.at(lower(group), default: "folder"),
+        prefs.project-icons.at(lower(group), default: "folder"),
         group,
       ),
       render,

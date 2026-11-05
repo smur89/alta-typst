@@ -1,4 +1,4 @@
-// `preferences.pageFooter` — two documents covering the API surface:
+// `preferences.page-footer` — two documents covering the API surface:
 //
 //   1. `auto` on a multi-page CV — emits name + "Page N / M" on
 //      every page. The auto renderer reactively reads the final page
@@ -13,7 +13,7 @@
 // isolated inside a multi-`alta()` fixture (every `alta()` call shares
 // the document's `counter(page).final()`), so it is exercised
 // implicitly: every other fixture compiles a single-page CV without
-// the footer enabled, and the default for `pageFooter` is `none`.
+// the footer enabled, and the default for `page-footer` is `none`.
 
 #import "../lib.typ": alta
 
@@ -152,7 +152,7 @@
       (name: "Hashicorp Terraform Associate", issuer: "Hashicorp"),
     ),
   ),
-  preferences: (pageFooter: auto),
+  preferences: (page-footer: auto),
 )
 
 #pagebreak()
@@ -172,7 +172,7 @@
     ),
   ),
   preferences: (
-    pageFooter: align(center, text(
+    page-footer: align(center, text(
       0.8em,
       fill: rgb("#888888"),
       [Confidential — do not distribute],

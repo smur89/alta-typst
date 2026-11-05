@@ -28,7 +28,7 @@
 #show: _document.with(
   prefs,
   labels,
-  footer: _auto-page-footer("Jane Doe", labels.pageNumber),
+  footer: _auto-page-footer("Jane Doe", labels.page-number),
 )
 
 #let contacts = (
@@ -61,7 +61,7 @@
 == Page header: each photo placement, and centred with left text
 #let portrait = _portrait(
   avatar-placeholder,
-  prefs.imageSize,
+  prefs.image-size,
   "Jane Doe",
 )
 #for (at, text-align) in (

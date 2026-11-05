@@ -1,30 +1,30 @@
-// The page footer: `preferences.pageFooter` / `lastModifiedFooter`,
+// The page footer: `preferences.page-footer` / `last-modified-footer`,
 // `labels` and the CV's `meta` mapped onto the footers in
 // `internal/components/footer.typ`, as the value for `set page(...)`.
 
 #import "../internal/util/fields.typ": _field, _string-at
 #import "../internal/components/footer.typ": _auto-page-footer, _updated-footer
 
-// `pageFooter` takes precedence; `lastModifiedFooter` is sugar that
-// applies only when `pageFooter` is `none`.
+// `page-footer` takes precedence; `last-modified-footer` is sugar that
+// applies only when `page-footer` is `none`.
 #let _footer(cv, (labels, prefs, owner, ..)) = {
   let meta = cv.meta
-  let page-footer = prefs.pageFooter
+  let page-footer = prefs.page-footer
   let last-modified = _field(meta, "lastModified")
   if page-footer != none {
     if page-footer == auto {
-      _auto-page-footer(owner, labels.pageNumber)
+      _auto-page-footer(owner, labels.page-number)
     } else {
       page-footer
     }
-  } else if prefs.lastModifiedFooter and last-modified != none {
+  } else if prefs.last-modified-footer and last-modified != none {
     // `meta.version` is verbatim: the schema's own example already
     // carries the "v".
     let version = _string-at(meta, "version")
-    let version-suffix = if prefs.footerVersion and version != none {
+    let version-suffix = if prefs.footer-version and version != none {
       " (" + version + ")"
     } else { "" }
-    _updated-footer(labels.lastModified, {
+    _updated-footer(labels.last-modified, {
       last-modified
       version-suffix
     })

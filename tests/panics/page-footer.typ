@@ -1,5 +1,5 @@
-// expect: pageFooter must be `none`
+// expect: page-footer must be `none`
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (pageFooter: true))
+#alta(cv, preferences: (page-footer: true))

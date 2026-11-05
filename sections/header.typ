@@ -21,7 +21,7 @@
 }
 
 // `profile-icons` is the merged, lowercase-keyed
-// `preferences.profileIcons`, which `_read-cv` has checked maps the
+// `preferences.profile-icons`, which `_read-cv` has checked maps the
 // network.
 #let _profile-entry(profile, profile-icons: _network-icons) = (
   channel: "profiles",
@@ -41,7 +41,7 @@
 // The contact bar's entries in display order, one
 // `(channel, glyph, value, url)` dict per present field, `glyph` a
 // FontAwesome name; `channel` keys
-// into the resolved `linkContactInfo` config. Pure data, no `context`.
+// into the resolved `link-contact-info` config. Pure data, no `context`.
 // An empty string counts as absent, so it never renders a bare icon
 // behind a dead `mailto:` / `tel:` link.
 #let _contact-entries(
@@ -113,23 +113,23 @@
 } else { qr-code }
 
 // The contact bar's `(channel, glyph, value, url)` entries (plus `alt`
-// for profiles), each with a `url` only where `linkContactInfo` links
-// its channel. With `printFullUrls`, an unlinked homepage or profile
+// for profiles), each with a `url` only where `link-contact-info` links
+// its channel. With `print-full-urls`, an unlinked homepage or profile
 // shows its `url`, scheme dropped, so a username on paper still says
 // where to find it; other channels' `url`s (`mailto:`, `tel:`, a maps
 // link) only point at the contact.
 #let _linked-contacts(basics, prefs, location-alt: none) = {
-  let link-config = _resolve-link-config(prefs.linkContactInfo)
+  let link-config = _resolve-link-config(prefs.link-contact-info)
   _contact-entries(
     basics,
-    prefs.mapsProvider,
+    prefs.maps-provider,
     location-alt: location-alt,
-    profile-icons: prefs.profileIcons,
+    profile-icons: prefs.profile-icons,
   ).map(e => {
     let linked = link-config.at(e.channel)
     let print = (
       not linked
-        and prefs.printFullUrls
+        and prefs.print-full-urls
         and e.channel in ("url", "profiles")
         and e.url != none
     )
@@ -155,13 +155,13 @@
     contacts: _contact-rows(
       _linked-contacts(basics, prefs, location-alt: labels.location),
     ),
-    text-align: prefs.headerTextAlign,
-    uppercase: prefs.uppercaseName,
+    text-align: prefs.header-text-align,
+    uppercase: prefs.uppercase-name,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
-      _portrait(image, prefs.imageSize, basics.name, shape: prefs.imageShape)
+      _portrait(image, prefs.image-size, basics.name, shape: prefs.image-shape)
     },
-    photo-at: prefs.imagePosition,
-    qr-url: _resolve-qr-url(prefs.qrCode, basics),
+    photo-at: prefs.image-position,
+    qr-url: _resolve-qr-url(prefs.qr-code, basics),
   )
 }

@@ -36,7 +36,7 @@
   sample("Theme navy, gold rule", "navy"),
   preferences: (
     theme: themes.navy,
-    colours: (headingRule: rgb("#E7D192")),
+    colours: (heading-rule: rgb("#E7D192")),
   ),
 )
 #pagebreak()

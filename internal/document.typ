@@ -11,7 +11,7 @@
 // For `show: _document.with(prefs, labels, footer: ...)`, with the
 // merged, validated preferences and labels.
 #let _document(prefs, labels, footer: none, body) = {
-  let (bodySize: body-size, maxRating: max-rating, ..) = prefs
+  let (body-size: body-size, max-rating: max-rating, ..) = prefs
   let theme = _theme-for(prefs.theme, _token-prefs(prefs))
   _theme-state.update(theme)
   _max-rating-state.update(max-rating)

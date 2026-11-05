@@ -40,8 +40,12 @@
 
 // Tables matched case-insensitively and merged entry by entry over
 // their defaults (`_strict-merge`'s `tables`).
-#let _label-tables = ("publicationTypes",)
-#let _preference-tables = ("publicationIcons", "projectIcons", "profileIcons")
+#let _label-tables = ("publication-types",)
+#let _preference-tables = (
+  "publication-icons",
+  "project-icons",
+  "profile-icons",
+)
 
 // `custom.altacv` wins when both are set. A non-dictionary `custom`
 // or `altacv` is replaced, as nothing else reads it.
@@ -90,13 +94,13 @@
   }
 }
 
-// #239: `preferences.referencesAvailableOnRequest` means the same as
+// #239: `preferences.references-available-on-request` means the same as
 // one `availableOnRequest: true` entry when no reference is usable.
 #let _references-on-request(cv, prefs) = {
   let refs = cv.at("references", default: ())
   let usable(r) = type(r) == dictionary and _reference-usable(r)
   if (
-    not prefs.referencesAvailableOnRequest
+    not prefs.references-available-on-request
       or type(refs) != array
       or refs.any(usable)
   ) { cv } else { cv + (references: refs + ((availableOnRequest: true),)) }
@@ -146,37 +150,85 @@
   cv => (meta: (:)) + cv,
 ).fold(cv, (acc, step) => step(acc))
 
-// Panics when two keys collapse onto one (`Talks` + `talks`) rather
-// than letting the last silently win. `name` is the table's full path
-// (`labels.publicationTypes`), for the message.
-#let _lowercase-table(table, name) = {
-  let keys = table.keys()
-  if keys.map(lower).dedup().len() != keys.len() {
+// `table` with each key mapped by `f`. Two keys mapping onto one panic,
+// named with `name` (the table's path) and `why`, rather than letting
+// the last silently win.
+#let _rekey(table, f, name, why) = {
+  let sources = table
+    .keys()
+    .fold((:), (acc, k) => acc + ((f(k)): acc.at(f(k), default: ()) + (k,)))
+  let clashes = sources.values().filter(ks => ks.len() > 1)
+  if clashes.len() > 0 {
     panic(
       name
-        + " has keys that collide after lowercasing — "
-        + "matching is case-insensitive, so e.g. `Talks` and `talks` are equivalent. "
-        + "Source keys: "
-        + repr(keys),
+        + " "
+        + why
+        + ": "
+        + clashes.map(ks => ks.map(repr).join(" and ")).join("; "),
     )
   }
-  table.pairs().map(((k, v)) => (lower(k), v)).to-dict()
+  table.pairs().map(((k, v)) => (f(k), v)).to-dict()
 }
+
+// `table` with `f` applied to its value at `key` when that's a
+// dictionary; anything else passes through for validation to name.
+#let _map-at(table, key, f) = {
+  let v = _dict-or-empty(table).at(key, default: none)
+  if type(v) != dictionary { table } else { table + ((key): f(v)) }
+}
+
+// #239: a camelCase option name (`columnRatio`) reads as its
+// kebab-case one (`column-ratio`): the labels' and the preferences'
+// top-level keys, and the colour roles in `colours` and in a theme's
+// `colours`. Their values are untouched: section keys, type codes and
+// icon names are data. A name set both ways panics, as neither would
+// win on purpose. Option names start lowercase, so no key gains a
+// leading `-`.
+#let _kebab(name) = name.replace(regex("[A-Z]"), m => "-" + lower(m.text))
+#let _kebab-keys(name) = table => if type(table) != dictionary { table } else {
+  _rekey(
+    table,
+    _kebab,
+    name,
+    "sets an option both in camelCase and in kebab-case; keep the kebab-case one",
+  )
+}
+#let _kebab-options(labels, preferences) = {
+  let colours(name) = t => _map-at(t, "colours", _kebab-keys(name + ".colours"))
+  (
+    _kebab-keys("labels")(labels),
+    _map-at(
+      colours("preferences")(_kebab-keys("preferences")(preferences)),
+      "theme",
+      colours("theme"),
+    ),
+  )
+}
+
+// Matching is case-insensitive, so `Talks` and `talks` are one key.
+// `name` is the table's full path (`labels.publication-types`), for
+// the message.
+#let _lowercase-table(table, name) = _rekey(
+  table,
+  lower,
+  name,
+  "has keys that collide after lowercasing (matching is case-insensitive)",
+)
 
 // Runs before the merge over the defaults; a non-dictionary (overall
 // or as a table) passes through for `_strict-merge` to reject.
 #let _canonical-labels(overrides) = if type(overrides) != dictionary {
   overrides
 } else {
-  let types = overrides.at("publicationTypes", default: (:))
+  let types = overrides.at("publication-types", default: (:))
   if type(types) != dictionary { overrides } else {
-    let types = _lowercase-table(types, "labels.publicationTypes")
+    let types = _lowercase-table(types, "labels.publication-types")
     // #239: a set `labels.articles` heads `article`, unless
-    // `publicationTypes.article` is set too.
+    // `publication-types.article` is set too.
     let articles = if "articles" in overrides {
       (article: overrides.articles)
     } else { (:) }
-    overrides + (publicationTypes: articles + types)
+    overrides + (publication-types: articles + types)
   }
 }
 
@@ -198,9 +250,9 @@
   }
 }
 
-// #239: the strings `headerTextAlign` and `imagePosition` took become
+// #239: the strings `header-text-align` and `image-position` took become
 // Typst's alignments. `"center"` placed the portrait on its own row,
-// `imageStackOrder` (`"above"`, the default, or `"below"`) the text,
+// `image-stack-order` (`"above"`, the default, or `"below"`) the text,
 // so it becomes `top` or `bottom`. A string with no alignment passes
 // through for validation to name.
 // `v`'s value in `table` when it names one, else `v`.
@@ -217,13 +269,19 @@
   let set-only(key, value) = if key in overrides { ((key): value) } else {
     (:)
   }
-  let position = if at("imagePosition") == "center" {
-    _named((above: top, below: bottom), at("imageStackOrder", default: "above"))
-  } else { _named(_alignments, at("imagePosition")) }
+  let position = if at("image-position") == "center" {
+    _named((above: top, below: bottom), at(
+      "image-stack-order",
+      default: "above",
+    ))
+  } else { _named(_alignments, at("image-position")) }
   (
     overrides
-      + set-only("headerTextAlign", _named(_alignments, at("headerTextAlign")))
-      + set-only("imagePosition", position)
+      + set-only("header-text-align", _named(
+        _alignments,
+        at("header-text-align"),
+      ))
+      + set-only("image-position", position)
   )
 }
 
@@ -244,10 +302,10 @@
 // Runs before the merge over the defaults. #239: the deprecated
 // top-level `accent` becomes `colours` (`_fold-accent`), the string
 // alignments and treatment names become Typst's values, and the
-// free-text icons, then a set `labels.publicationIcons`, sit beneath
-// the caller's `publicationIcons`, all lowercased, so the merge sees
-// one table. `projectIcons` and `profileIcons` are lowercased too.
-// #239: the string `pageFooter: "auto"` becomes `auto`. A
+// free-text icons, then a set `labels.publication-icons`, sit beneath
+// the caller's `publication-icons`, all lowercased, so the merge sees
+// one table. `project-icons` and `profile-icons` are lowercased too.
+// #239: the string `page-footer: "auto"` becomes `auto`. A
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
@@ -256,34 +314,34 @@
   )
   let overrides = if (
     type(overrides) == dictionary
-      and overrides.at("pageFooter", default: none) == "auto"
-  ) { overrides + (pageFooter: auto) } else { overrides }
+      and overrides.at("page-footer", default: none) == "auto"
+  ) { overrides + (page-footer: auto) } else { overrides }
   let lowercase-key(prefs, key) = {
     let table = _dict-or-empty(prefs).at(key, default: none)
     if type(table) != dictionary { prefs } else {
       prefs + ((key): _lowercase-table(table, "preferences." + key))
     }
   }
-  // `publicationIcons` is lowercased with its deprecated sources below.
+  // `publication-icons` is lowercased with its deprecated sources below.
   let overrides = _preference-tables
-    .filter(t => t != "publicationIcons")
+    .filter(t => t != "publication-icons")
     .fold(overrides, lowercase-key)
   let icons = if type(overrides) == dictionary {
-    overrides.at("publicationIcons", default: (:))
+    overrides.at("publication-icons", default: (:))
   }
   if type(icons) != dictionary { overrides } else {
     let label-icons = _dict-or-empty(labels).at(
-      "publicationIcons",
+      "publication-icons",
       default: none,
     )
     let from-label = if type(label-icons) == dictionary {
-      _lowercase-table(label-icons, "labels.publicationIcons")
+      _lowercase-table(label-icons, "labels.publication-icons")
     } else { (:) }
     let merged = (
       _legacy-publication-icons
         + from-label
-        + _lowercase-table(icons, "preferences.publicationIcons")
+        + _lowercase-table(icons, "preferences.publication-icons")
     )
-    overrides + (publicationIcons: merged)
+    overrides + (publication-icons: merged)
   }
 }

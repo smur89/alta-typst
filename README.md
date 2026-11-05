@@ -140,7 +140,7 @@ Only `basics.name` is required. Fields that take "string or content" also accept
 #alta(cv, labels: (:), preferences: (:))
 ```
 
-Set only the keys you want to change. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
+Set only the keys you want to change. Option names are kebab-case (`column-ratio`), as Typst's own are; the camelCase spellings of earlier releases (`columnRatio`) still work but are deprecated. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -149,11 +149,11 @@ Set only the keys you want to change. An unknown key or a wrong type panics with
 #alta(cv, preferences: (
   theme: themes.navy,
   paper: "us-letter",
-  dateFormat: "short",              // 06/2024
-  imagePosition: left,
-  linkContactInfo: (phone: false),  // everything linked but the phone
-  mapsProvider: maps-providers.osm, // OpenStreetMap for basics.location
-  rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
+  date-format: "short",              // 06/2024
+  image-position: left,
+  link-contact-info: (phone: false),  // everything linked but the phone
+  maps-provider: maps-providers.osm, // OpenStreetMap for basics.location
+  right-column-sections: ("focusAreas", "education", "skills", "languages", "certificates"),
 ))
 ```
 <!-- x-release-please-end -->
@@ -176,7 +176,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 | `emphasis` | Entry titles and interest group names. |
 | `body` | Body text and icons. Dates, dividers and empty rating dots take lighter shades of it. |
 | `heading` | Section titles. |
-| `headingRule` | The rule under each section title. |
+| `heading-rule` | The rule under each section title. |
 | `subheading` | Group titles, such as a publication type. |
 | `name` | `basics.name`. |
 | `tagline` | `basics.label`, under the name. |
@@ -211,29 +211,29 @@ A plain `show heading: …` reaches group and entry titles too. A `set text(font
 
 ### Layout
 
-`preferences.columnRatio` is the left column's share of the page width. `leftColumnSections` and `rightColumnSections` choose which sections go where, in order; by default long-form sections (experience, projects, publications) take the wide left column and the rest the right (see [Page and layout](#page-and-layout)). A section left out of both isn't rendered, even when it has data.
+`preferences.column-ratio` is the left column's share of the page width. `left-column-sections` and `right-column-sections` choose which sections go where, in order; by default long-form sections (experience, projects, publications) take the wide left column and the rest the right (see [Page and layout](#page-and-layout)). A section left out of both isn't rendered, even when it has data.
 
 Invert the layout, side panel on the narrow left:
 
 ```typst
 #alta(cv, preferences: (
-  columnRatio: 0.35,
-  leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
-  rightColumnSections: ("work", "publications"),
+  column-ratio: 0.35,
+  left-column-sections: ("focusAreas", "skills", "languages", "education", "certificates"),
+  right-column-sections: ("work", "publications"),
 ))
 ```
 
-**Single column.** `columnRatio: 1` stacks every section in one full-width column, left list first, then right. Useful for applicant-tracking systems that misread multi-column PDFs:
+**Single column.** `column-ratio: 1` stacks every section in one full-width column, left list first, then right. Useful for applicant-tracking systems that misread multi-column PDFs:
 
 ```typst
 #alta(cv, preferences: (
-  columnRatio: 1,
-  leftColumnSections: ("work", "education"),
-  rightColumnSections: ("skills", "languages", "certificates"),
+  column-ratio: 1,
+  left-column-sections: ("work", "education"),
+  right-column-sections: ("skills", "languages", "certificates"),
 ))
 ```
 
-Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `pageFooter: auto`.
+Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `page-footer: auto`.
 
 ### Portrait, contact bar and QR code
 
@@ -251,15 +251,15 @@ basics: (
 
 A bare relative string without the leading `/` resolves inside the package, so use `path()`. [JSON Resume](https://jsonresume.org/schema/) calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
 
-Position it with `imagePosition` (`right`, `left`, `top`, `bottom`), size it with `imageSize` and shape it with `imageShape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `headerTextAlign` aligns the name and contact bar: `left`, `center` or `right`.
+Position it with `image-position` (`right`, `left`, `top`, `bottom`), size it with `image-size` and shape it with `image-shape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `header-text-align` aligns the name and contact bar: `left`, `center` or `right`.
 
-**Contact bar.** Built from `basics.email`, `phone`, `location`, `url` and `profiles`, each linked (`mailto:`, `tel:`, a maps search, the URL). `linkContactInfo` turns linking off globally or per channel. For paper, turn linking off and set `printFullUrls: true` to print profile URLs in place of usernames.
+**Contact bar.** Built from `basics.email`, `phone`, `location`, `url` and `profiles`, each linked (`mailto:`, `tel:`, a maps search, the URL). `link-contact-info` turns linking off globally or per channel. For paper, turn linking off and set `print-full-urls: true` to print profile URLs in place of usernames.
 
-**QR code.** For printed copies, `qrCode` adds a QR code to your homepage on the side opposite the portrait:
+**QR code.** For printed copies, `qr-code` adds a QR code to your homepage on the side opposite the portrait:
 
 ```typst
-#alta(cv, preferences: (qrCode: auto))                         // encodes basics.url
-#alta(cv, preferences: (qrCode: "https://janedoe.dev/cv"))     // any URL
+#alta(cv, preferences: (qr-code: auto))                         // encodes basics.url
+#alta(cv, preferences: (qr-code: "https://janedoe.dev/cv"))     // any URL
 ```
 
 ### Translating labels
@@ -323,7 +323,7 @@ The PDF's document properties are filled from your data:
 
 | PDF field | Source |
 |---|---|
-| Title | `labels.documentTitle` (default `"{name} — CV"`) |
+| Title | `labels.document-title` (default `"{name} — CV"`) |
 | Author | `basics.name` |
 | Subject | `basics.summary` |
 | Keywords | Every `skills[].keywords`, de-duplicated, then `meta.canonical` and `meta.version` |
@@ -331,9 +331,9 @@ The PDF's document properties are filled from your data:
 
 ```typst
 meta: (
-  lastModified: "2026-06-12",               // PDF date; footer with lastModifiedFooter: true
+  lastModified: "2026-06-12",               // PDF date; footer with last-modified-footer: true
   canonical: "https://example.com/cv.json", // PDF Keywords
-  version: "v1.0.0",                        // PDF Keywords; footer with footerVersion: true
+  version: "v1.0.0",                        // PDF Keywords; footer with footer-version: true
 )
 ```
 
@@ -359,7 +359,7 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). Missing or 
 
 #### Dates
 
-ISO 8601 dates (`"2024"`, `"2024-06"`, `"2024-06-15"`) are formatted per `preferences.dateFormat`; other strings (`"Jan 2022"`) print as given. A missing or empty `endDate` reads `Present` (`labels.present`).
+ISO 8601 dates (`"2024"`, `"2024-06"`, `"2024-06-15"`) are formatted per `preferences.date-format`; other strings (`"Jan 2022"`) print as given. A missing or empty `endDate` reads `Present` (`labels.present`).
 
 In Typst, a full date can also be a `datetime` (`datetime(year: 2024, month: 6, day: 15)`, or `datetime.today()`), read as its ISO string. A `datetime` always has a day, so a date known only to the month or year stays a string (`"2024-06"`).
 
@@ -378,8 +378,8 @@ altacv reads four optional fields the [JSON Resume schema](https://jsonresume.or
 
 | Field | Effect |
 |---|---|
-| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section and label key is `focusAreas`. |
-| `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.maxRating` in 0.5 steps; wins over `fluency`. |
+| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section key is `focusAreas`, its label `focus-areas`. |
+| `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.max-rating` in 0.5 steps; wins over `fluency`. |
 | `skills[].custom.altacv.rating` | The same for a skill group; wins over `level`. |
 | `awards[].custom.altacv.url` | Links the award title. |
 
@@ -389,11 +389,11 @@ altacv reads four optional fields the [JSON Resume schema](https://jsonresume.or
 
 | Field | Effect |
 |---|---|
-| `name` | Required. The name, in uppercase unless `preferences.uppercaseName: false`. |
+| `name` | Required. The name, in uppercase unless `preferences.uppercase-name: false`. |
 | `label` | The tagline under the name. |
 | `summary` | The introduction under the header. |
 | `image` | The portrait; see [Portrait](#portrait-contact-bar-and-qr-code). |
-| `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qrCode: auto` encodes. |
+| `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qr-code: auto` encodes. |
 | `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`; the address and postcode aren't shown. |
 | `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
 
@@ -424,31 +424,31 @@ These fields mean the same in every entry section:
 
 An entry without its title field (`name` for projects and certificates, `title` for awards) is skipped.
 
-**Projects** with a `type` are grouped under a subheading per type, each with its [project icon](#preferences); untyped projects pool under `labels.otherProjects` ("Other"). If no project has a type, the list is flat.
+**Projects** with a `type` are grouped under a subheading per type, each with its [project icon](#preferences); untyped projects pool under `labels.other-projects` ("Other"). If no project has a type, the list is flat.
 
 **Publications** render as a bibliography: the `name` (linked by `url`, else by the first DOI, arXiv or PMID identifier), then the `authors`, the source with its `releaseDate`, the identifiers and the `summary`.
 
 | Field | Effect |
 |---|---|
-| `authors` | Author list. The CV owner's entry, matching `basics.name` or any of `preferences.ownerNames` (ignoring case), is set apart. |
+| `authors` | Author list. The CV owner's entry, matching `basics.name` or any of `preferences.owner-names` (ignoring case), is set apart. |
 | `publisher`, `volume`, `issue`, `pages` | The citation: `ACM 12(3), 45–67`. Hyphens in `pages` become an en dash. |
 | `identifiers` | Persistent IDs keyed by scheme: `DOI 10.1000/182 · arXiv 2101.00001`. `doi`, `arxiv` and `pmid` are linked; others print as given. |
-| `type` | Groups publications under a subheading per type, each with its icon. `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publicationTypes`); any other type is headed as written unless you add it there. Untyped entries are articles. Plural free-text types (`"Talks"`) still group with their code but are deprecated ([#239](https://github.com/smur89/alta-typst/issues/239)). |
+| `type` | Groups publications under a subheading per type, each with its icon. `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publication-types`); any other type is headed as written unless you add it there. Untyped entries are articles. Plural free-text types (`"Talks"`) still group with their code but are deprecated ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
-**Skills** are `{name, level, keywords}` groups: the name as a label pill, then the keywords as pills. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `preferences.maxRating`; any other level shows as text. `preferences.skillLevelDisplay` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
+**Skills** are `{name, level, keywords}` groups: the name as a label pill, then the keywords as pills. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `preferences.max-rating`; any other level shows as text. `preferences.skill-level-display` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
 
 **Languages** are `{language, fluency}`. LinkedIn's fluency terms (`Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`, any case) show as dots; other strings show as text. An exact [rating extension](#extensions) wins. An entry with neither a rating nor `fluency` panics.
 
 **Interests** are `{name, keywords}` lines: `Music: Trad, Jazz`. For prose bullets, use `focusAreas`.
 
-**References** show the `reference` quote under the referee's `name`, with a line of `relationship`, `organization` and `date`. `availableOnRequest: true` prints `labels.referencesAvailableOnRequest` in place of the quote; if every entry sets it, the section is just that one line. Entries with neither a quote nor `availableOnRequest` are skipped.
+**References** show the `reference` quote under the referee's `name`, with a line of `relationship`, `organization` and `date`. `availableOnRequest: true` prints `labels.references-available-on-request` in place of the quote; if every entry sets it, the section is just that one line. Entries with neither a quote nor `availableOnRequest` are skipped.
 
 #### Profile networks
 
-`basics.profiles[].network` is matched, ignoring case, against: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (or `X`), `Website`. `Link` is a generic fallback. Any other network panics unless you give it an icon with `preferences.profileIcons`:
+`basics.profiles[].network` is matched, ignoring case, against: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (or `X`), `Website`. `Link` is a generic fallback. Any other network panics unless you give it an icon with `preferences.profile-icons`:
 
 ```typst
-#alta(cv, preferences: (profileIcons: (kaggle: "kaggle", researchgate: "researchgate")))
+#alta(cv, preferences: (profile-icons: (kaggle: "kaggle", researchgate: "researchgate")))
 ```
 
 Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawesome.com/search); free brand and solid glyphs work, Pro ones need the Pro fonts.
@@ -462,21 +462,21 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 | `theme` | `themes.teal` | The theme: see [Themes and colours](#themes-and-colours). |
 | `colours` | `(:)` | Colour roles over the theme's. |
 | `font` | `auto` | Font family or fallback array, over the theme's (Lato by default). |
-| `bodySize` | `10pt` | Base text size, an absolute length. Everything else scales from it. |
-| `publicationIcons` | built-ins | Icon per `publications[].type`, from the [icon set](#exports); merged over the built-ins (`article` → `newspaper`, `book` and `thesis` → `book`, `talk` → `microphone`, others `file`). |
-| `projectIcons` | `(:)` | Icon per `projects[].type` (e.g. `laptop-code`, `cubes`, `terminal`, `flask`); `folder` when unmapped. |
-| `profileIcons` | built-ins | FontAwesome glyph per profile network; merged over the [built-ins](#profile-networks). |
+| `body-size` | `10pt` | Base text size, an absolute length. Everything else scales from it. |
+| `publication-icons` | built-ins | Icon per `publications[].type`, from the [icon set](#exports); merged over the built-ins (`article` → `newspaper`, `book` and `thesis` → `book`, `talk` → `microphone`, others `file`). |
+| `project-icons` | `(:)` | Icon per `projects[].type` (e.g. `laptop-code`, `cubes`, `terminal`, `flask`); `folder` when unmapped. |
+| `profile-icons` | built-ins | FontAwesome glyph per profile network; merged over the [built-ins](#profile-networks). |
 
 #### Header
 
 | Key | Default | Effect |
 |---|---|---|
-| `uppercaseName` | `true` | Set `false` for scripts without case, or where uppercasing changes letters (Turkish dotless i). |
-| `headerTextAlign` | `left` | `left`, `right` or `center`. |
-| `imageSize` | `6em` | The portrait's width and height. |
-| `imageShape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
-| `imagePosition` | `right` | The side of the header text the portrait takes: `left`, `right`, or centred at the `top` or `bottom`. |
-| `qrCode` | `none` | `auto` (encode `basics.url`; panics without one) or a URL string. |
+| `uppercase-name` | `true` | Set `false` for scripts without case, or where uppercasing changes letters (Turkish dotless i). |
+| `header-text-align` | `left` | `left`, `right` or `center`. |
+| `image-size` | `6em` | The portrait's width and height. |
+| `image-shape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
+| `image-position` | `right` | The side of the header text the portrait takes: `left`, `right`, or centred at the `top` or `bottom`. |
+| `qr-code` | `none` | `auto` (encode `basics.url`; panics without one) or a URL string. |
 
 #### Page and layout
 
@@ -484,30 +484,30 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 |---|---|---|
 | `paper` | `"a4"` | Any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper). |
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | As `set page(margin: …)` takes. |
-| `columnRatio` | `0.65` | The left column's share of the width, in `(0, 1]`; `1` for a single column. |
-| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections in the left column, in order. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
+| `column-ratio` | `0.65` | The left column's share of the width, in `(0, 1]`; `1` for a single column. |
+| `left-column-sections` | `("work", "volunteer", "projects", "publications")` | Sections in the left column, in order. |
+| `right-column-sections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
 
 #### Footer
 
 | Key | Default | Effect |
 |---|---|---|
-| `pageFooter` | `none` | `auto`: on multi-page CVs, the name on the left and `labels.pageNumber` on the right. Or any content, on every page. Takes precedence over `lastModifiedFooter`. |
-| `lastModifiedFooter` | `false` | Shows `labels.lastModified: meta.lastModified` in the footer. |
-| `footerVersion` | `false` | Appends `(meta.version)` to that line. |
+| `page-footer` | `none` | `auto`: on multi-page CVs, the name on the left and `labels.page-number` on the right. Or any content, on every page. Takes precedence over `last-modified-footer`. |
+| `last-modified-footer` | `false` | Shows `labels.last-modified: meta.lastModified` in the footer. |
+| `footer-version` | `false` | Appends `(meta.version)` to that line. |
 
 #### Formatting and links
 
 | Key | Default | Effect |
 |---|---|---|
 | `justify` | `false` | Justify and hyphenate running text (summaries, highlights, quotes). |
-| `dateFormat` | `"long"` | `"long"` (`Jun 2024`), `"short"` (`06/2024`), `"iso"` (unchanged), a [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) pattern such as `"[day]/[month]/[year]"`, or a function `(year, month, day) => str`. |
-| `linkContactInfo` | `true` | `false` to unlink the contact bar, or a dict keyed by `email`, `phone`, `location`, `url`, `profiles`. |
-| `printFullUrls` | `false` | Unlinked profiles show their URL (`github.com/jane`) in place of the username. |
-| `mapsProvider` | `maps-providers.google` | The location link: `maps-providers.{google,apple,bing,duckduckgo,osm}`, a template with `{q}`, or `none`. |
-| `maxRating` | `5` | Dots per rating scale. |
-| `skillLevelDisplay` | `auto` | `auto` (dots when the level maps, else text), `"rating"` (an unmapped level panics) or `"text"`. |
-| `ownerNames` | `()` | Other spellings of your name among publication authors, e.g. `("J. Doe",)`. |
+| `date-format` | `"long"` | `"long"` (`Jun 2024`), `"short"` (`06/2024`), `"iso"` (unchanged), a [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) pattern such as `"[day]/[month]/[year]"`, or a function `(year, month, day) => str`. |
+| `link-contact-info` | `true` | `false` to unlink the contact bar, or a dict keyed by `email`, `phone`, `location`, `url`, `profiles`. |
+| `print-full-urls` | `false` | Unlinked profiles show their URL (`github.com/jane`) in place of the username. |
+| `maps-provider` | `maps-providers.google` | The location link: `maps-providers.{google,apple,bing,duckduckgo,osm}`, a template with `{q}`, or `none`. |
+| `max-rating` | `5` | Dots per rating scale. |
+| `skill-level-display` | `auto` | `auto` (dots when the level maps, else text), `"rating"` (an unmapped level panics) or `"text"`. |
+| `owner-names` | `()` | Other spellings of your name among publication authors, e.g. `("J. Doe",)`. |
 
 #### Deprecated
 
@@ -515,13 +515,14 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 
 | Key | Use instead |
 |---|---|
+| camelCase option names (`columnRatio`, `labels.pageNumber`, `colours.headingRule`) | The kebab-case name (`column-ratio`, `labels.page-number`, `colours.heading-rule`). Data stays JSON Resume's camelCase (`startDate`), and so do section keys (`"focusAreas"`). |
 | `accent` | `theme`, or `colours` for a custom colour. |
-| `referencesAvailableOnRequest` | `references[].availableOnRequest`. |
-| `imagePosition: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
-| `imageStackOrder` | `imagePosition: top` or `bottom`. |
-| `headerTextAlign: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
+| `references-available-on-request` | `references[].availableOnRequest`. |
+| `image-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
+| `image-stack-order` | `image-position: top` or `bottom`. |
+| `header-text-align: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
 | Treatment names (`theme.treatment.link: "emph"`) | The functions: `emph`, `strong`, `upper`; `"italic"` is `it => text(style: "italic", it)`, `"none"` is `it => it`. |
-| `groupCertificates`, `showPronouns` | Nothing: both are ignored. |
+| `group-certificates`, `show-pronouns` | Nothing: both are ignored. |
 
 ### Theme tokens
 
@@ -531,9 +532,9 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 |---|---|---|
 | `font` | `"Lato"` | The font family, or a fallback array. |
 | `colours` | the teal theme's | The [colour roles](#themes-and-colours). |
-| `type` | `display` 2.5 bold, `headline` 1.4 bold, `title` 1.2 semibold, `body` regular | Each role's `size` (a multiple of `bodySize`) and `weight`: `display` the name, `headline` a section title, `title` an entry title or the tagline under the name, `body` the rest. |
+| `type` | `display` 2.5 bold, `headline` 1.4 bold, `title` 1.2 semibold, `body` regular | Each role's `size` (a multiple of `body-size`) and `weight`: `display` the name, `headline` a section title, `title` an entry title or the tagline under the name, `body` the rest. |
 | `font-weight` | `regular`, `bold` | The weights used for emphasis within a role. |
-| `space` | `xx-small` 0.15, `x-small` 0.3, `small` 0.5, `medium` 0.8, `large` 1.2 | The spacing scale, in multiples of `bodySize`. |
+| `space` | `xx-small` 0.15, `x-small` 0.3, `small` 0.5, `medium` 0.8, `large` 1.2 | The spacing scale, in multiples of `body-size`. |
 | `stroke-width` | `thin` 0.5, `thick` 1 | Rule and border widths, in pt. |
 | `leading` | 0.55 | Line spacing, in `em`. |
 | `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "`, `keywords` `" · "` | Between groups of facts, between items in a group, after a label (`Music: Trad`), between two dates, and between an entry's keywords. |
@@ -542,14 +543,14 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 
 ### Labels
 
-Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](internal/data/labels-ga.toml)). Section labels share the section's key.
+Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](internal/data/labels-ga.toml)). Section labels take the section's key in kebab-case (`focus-areas` for `focusAreas`).
 
 | Key | Default |
 |---|---|
 | `lang` | Deprecated: use `set text(lang: ..)`, which also picks the built-in labels ([#239](https://github.com/smur89/alta-typst/issues/239)). An ISO 639 code (two or three lowercase letters); when set, it wins over `text.lang` |
 | `work` | `"Experience"` |
 | `volunteer` | `"Volunteer"` |
-| `focusAreas` | `"Areas of Focus"` |
+| `focus-areas` | `"Areas of Focus"` |
 | `skills` | `"Skills"` |
 | `languages` | `"Languages"` |
 | `education` | `"Education"` |
@@ -559,18 +560,18 @@ Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), un
 | `projects` | `"Projects"` |
 | `interests` | `"Interests"` |
 | `references` | `"References"` |
-| `referencesAvailableOnRequest` | `"References available upon request."` |
-| `otherProjects` | `"Other"`, the group for untyped projects |
+| `references-available-on-request` | `"References available upon request."` |
+| `other-projects` | `"Other"`, the group for untyped projects |
 | `present` | `"Present"` |
 | `date`, `location` | `"Date"`, `"Location"`: read aloud by screen readers before an entry's date and location, not printed |
-| `lastModified` | `"Last updated"` |
-| `pageNumber` | `"Page {current} / {total}"` (`{total}` optional) |
-| `documentTitle` | `"{name} — CV"`, the PDF title |
+| `last-modified` | `"Last updated"` |
+| `page-number` | `"Page {current} / {total}"` (`{total}` optional) |
+| `document-title` | `"{name} — CV"`, the PDF title |
 | `months` | `("Jan", "Feb", …, "Dec")`, exactly twelve |
-| `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")`, merged entry by entry; other types print as given |
-| `articles`, `publicationIcons` | Deprecated: use `publicationTypes.article` and `preferences.publicationIcons` ([#239](https://github.com/smur89/alta-typst/issues/239)) |
+| `publication-types` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")`, merged entry by entry; other types print as given |
+| `articles`, `publication-icons` | Deprecated: use `publication-types.article` and `preferences.publication-icons` ([#239](https://github.com/smur89/alta-typst/issues/239)) |
 
-`pageNumber` and `documentTitle` are templates, so a translation can reorder them (`"Seite {current} von {total}"`). A missing required or unknown placeholder panics.
+`page-number` and `document-title` are templates, so a translation can reorder them (`"Seite {current} von {total}"`). A missing required or unknown placeholder panics.
 
 ### Part labels
 
@@ -611,7 +612,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
 | `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |
 | `themes` | The built-in themes. |
-| `maps-providers` | Map link templates for `mapsProvider`. |
+| `maps-providers` | Map link templates for `maps-provider`. |
 | `avatar-placeholder` | A generic silhouette for `basics.image`. |
 | `icon(name, ..)` | A glyph from the built-in icon set: `book`, `calendar`, `cubes`, `email`, `file`, `flask`, `folder`, `laptop-code`, `location`, `microphone`, `newspaper`, `phone`, `terminal` and the profile networks. |
 | `name(body)` | An accent-coloured organisation line. |

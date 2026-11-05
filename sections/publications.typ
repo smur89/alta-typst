@@ -1,5 +1,5 @@
 // Publications, grouped by `type` code (case-insensitive) under
-// icon-led subheadings named from `labels.publicationTypes`, or as
+// icon-led subheadings named from `labels.publication-types`, or as
 // first written for unknown codes. The CV owner is bold among
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib-entry` lays them out.
@@ -91,17 +91,17 @@
   )
 }
 
-// `publicationTypes` and `publicationIcons` arrive lowercase-keyed
+// `publication-types` and `publication-icons` arrive lowercase-keyed
 // (`_canonical-labels`, `_canonical-preferences`); a code with no icon
 // gets `file`. A list, so nothing between entries.
 #let _publications(pubs, ctx) = {
   let (labels, prefs, ..) = ctx
-  let headings = labels.publicationTypes
+  let headings = labels.publication-types
   _grouped-section(
     labels.publications,
     _group-by(pubs, _type-code),
     (code, items) => {
-      let group-icon = prefs.publicationIcons.at(code, default: "file")
+      let group-icon = prefs.publication-icons.at(code, default: "file")
       // An unknown code's entries all share a string `type`, so print
       // the first as written. Not `default:`, which is evaluated even
       // when the key exists.

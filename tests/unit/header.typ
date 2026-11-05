@@ -64,7 +64,7 @@
   ("github", "github.com/jane", "https://github.com/jane"),
 )
 
-// _profile-entry with `profileIcons`: the network as written wins
+// _profile-entry with `profile-icons`: the network as written wins
 // over its alias's key, which still covers the alias when the network
 // itself is unmapped.
 #let glyph(network, icons) = {
@@ -91,16 +91,16 @@
   "https://b.example",
 )
 
-// _linked-contacts: a `url` only where `linkContactInfo` links the
+// _linked-contacts: a `url` only where `link-contact-info` links the
 // channel. _header-image: an empty string path is absent.
 #let basics = (name: "Jane", email: "j@x.io", url: "https://x.io")
-#let prefs = _merge-options((:), (linkContactInfo: (email: false))).prefs
+#let prefs = _merge-options((:), (link-contact-info: (email: false))).prefs
 #assert.eq(
   _linked-contacts(basics, prefs).map(c => c.url),
   (none, "https://x.io"),
 )
 
-// printFullUrls: an unlinked profile shows its URL, scheme dropped, in
+// print-full-urls: an unlinked profile shows its URL, scheme dropped, in
 // place of its username; a linked one, the email (not a web channel)
 // and a profile without a `url` keep their value.
 #let profiles = (
@@ -109,7 +109,7 @@
 )
 #let values(link) = _linked-contacts(
   basics + (profiles: profiles),
-  _merge-options((:), (linkContactInfo: link, printFullUrls: true)).prefs,
+  _merge-options((:), (link-contact-info: link, print-full-urls: true)).prefs,
 ).map(c => c.value)
 #assert.eq(values(false), ("j@x.io", "x.io", "github.com/jane", "jane"))
 #assert.eq(values(true), ("j@x.io", "x.io", "jane", "jane"))

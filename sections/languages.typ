@@ -13,8 +13,8 @@
   items,
   lang => _rating-row(
     lang.language,
-    _term-rating(lang, "fluency", _fluency-terms, prefs.maxRating),
-    max: prefs.maxRating,
+    _term-rating(lang, "fluency", _fluency-terms, prefs.max-rating),
+    max: prefs.max-rating,
     fallback: _string-at(lang, "fluency"),
   ),
   // Short, uniform rows: the spacing without the rule.

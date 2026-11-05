@@ -1,4 +1,4 @@
-// `preferences.mapsProvider` accepts a URL template string (with a
+// `preferences.maps-provider` accepts a URL template string (with a
 // `{q}` placeholder for the URL-encoded location) or `none` to
 // suppress the link entirely. Built-in templates are exported as
 // `maps-providers.{google,apple,bing,duckduckgo,osm}`; any other URL
@@ -37,7 +37,7 @@
       location: "Cupertino, California",
     ),
   ),
-  preferences: (mapsProvider: maps-providers.apple),
+  preferences: (maps-provider: maps-providers.apple),
 )
 
 #pagebreak()
@@ -51,7 +51,7 @@
       location: "Redmond, Washington",
     ),
   ),
-  preferences: (mapsProvider: maps-providers.bing),
+  preferences: (maps-provider: maps-providers.bing),
 )
 
 #pagebreak()
@@ -65,7 +65,7 @@
       location: "Paoli, Pennsylvania",
     ),
   ),
-  preferences: (mapsProvider: maps-providers.duckduckgo),
+  preferences: (maps-provider: maps-providers.duckduckgo),
 )
 
 #pagebreak()
@@ -79,7 +79,7 @@
       location: "Dublin, Ireland",
     ),
   ),
-  preferences: (mapsProvider: maps-providers.osm),
+  preferences: (maps-provider: maps-providers.osm),
 )
 
 #pagebreak()
@@ -88,12 +88,12 @@
   (
     basics: (
       name: "No Link User",
-      label: "Plain text location — mapsProvider: none",
+      label: "Plain text location — maps-provider: none",
       email: "nolink@example.com",
       location: "Zürich, Switzerland",
     ),
   ),
-  preferences: (mapsProvider: none),
+  preferences: (maps-provider: none),
 )
 
 #pagebreak()
@@ -107,5 +107,5 @@
       location: "Yerevan, Armenia",
     ),
   ),
-  preferences: (mapsProvider: "https://yandex.com/maps/?text={q}"),
+  preferences: (maps-provider: "https://yandex.com/maps/?text={q}"),
 )

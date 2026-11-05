@@ -33,7 +33,7 @@ tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fiel
 
 Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ sections/*.typ` for a quick directory.
 
-Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); [JSON Resume](https://jsonresume.org/schema/) and preference keys keep their camelCase (`startDate`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `themes`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
+Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); option names (preferences, labels, colour roles, theme tokens) are kebab-case too (`column-ratio`), while [JSON Resume](https://jsonresume.org/schema/)'s data keeps its camelCase (`startDate`), section keys included (`"focusAreas"`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `themes`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Design conventions
 
@@ -49,7 +49,7 @@ The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec 
 
 ### New looks go through parts and theme tokens
 
-The default look is opinionated (only skills are pills). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences that exist (`skillLevelDisplay`, `imageShape`, `uppercaseName`, `justify`, …) predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, `dateFormat`, `mapsProvider`, `ownerNames`.
+The default look is opinionated (only skills are pills). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences that exist (`skill-level-display`, `image-shape`, `uppercase-name`, `justify`, …) predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, `date-format`, `maps-provider`, `owner-names`.
 
 - **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the README's [Part labels](README.md#part-labels).
 - **A replacement rule's `it` is opaque.** The README promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
@@ -59,9 +59,9 @@ The default look is opinionated (only skills are pills). A new alternative look 
 
 A Typst user should be able to style a CV the way they style any document. Where Typst already has a rule, an element or a value for something, the template uses it rather than an option of its own. [#381](https://github.com/smur89/alta-typst/issues/381) tracks bringing the older options in line.
 
-- **A setting Typst already has is Typst's, not a preference**: the language is `set text(lang: ..)`, which also picks the labels. The preferences that duplicate one (`paper`, `margin`, `font`, `bodySize`, `justify`) predate this rule ([#376](https://github.com/smur89/alta-typst/issues/376)); don't add more.
+- **A setting Typst already has is Typst's, not a preference**: the language is `set text(lang: ..)`, which also picks the labels. The preferences that duplicate one (`paper`, `margin`, `font`, `body-size`, `justify`) predate this rule ([#376](https://github.com/smur89/alta-typst/issues/376)); don't add more.
 - **An element Typst already has is restyled through that element, not a part**: the list bullet through `show list`, the line between entries through `show divider`. A part label is for what Typst has no element for.
-- **Typst's own values where they exist**: an alignment, a function or a `datetime`, not a name in a string. The string options that exist (`imagePosition`, `headerTextAlign`, treatments) predate this rule ([#377](https://github.com/smur89/alta-typst/issues/377)).
+- **Typst's own values where they exist**: an alignment, a function or a `datetime`, not a name in a string. The string options that exist (`image-position`, `header-text-align`, treatments) predate this rule ([#377](https://github.com/smur89/alta-typst/issues/377)).
 - **Moving to Typst's way doesn't break a CV.** The old form keeps working, rewritten in `internal/data/canonical.typ` where it needs one, the README marks it deprecated, and its removal is listed in [#239](https://github.com/smur89/alta-typst/issues/239) for the next major.
 
 ## Development loop
@@ -155,7 +155,7 @@ A `chore:` line drops a PR from the notes entirely.
 
 ## Adding a profile-network icon
 
-This is the most common shape of contribution. A user can already draw any network with `preferences.profileIcons`; a built-in entry saves everyone the mapping. Two changes:
+This is the most common shape of contribution. A user can already draw any network with `preferences.profile-icons`; a built-in entry saves everyone the mapping. Two changes:
 
 1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (`_profile-network` in `internal/data/cv.typ` lowercases the network before the lookup) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
 2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").

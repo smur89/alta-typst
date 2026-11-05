@@ -2,7 +2,7 @@
 // before `alta()` renders the headings, months and "I láthair" in
 // Irish from the package's own translation, with no `labels`. A
 // caller's label goes over it (`skills`), and an untranslated key
-// stays English (`publicationTypes.book`, "Books").
+// stays English (`publication-types.book`, "Books").
 
 #import "../lib.typ": alta
 

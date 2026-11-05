@@ -1,27 +1,27 @@
-// `preferences.qrCode` renders a small QR matrix in the header on the
+// `preferences.qr-code` renders a small QR matrix in the header on the
 // side opposite the portrait — restoring one click of digital-PDF
 // affordance when the CV is printed. Documents exercise:
 //
 //   1. `auto` form — encodes `basics.url`, no portrait. QR lands on
-//      the side opposite `imagePosition` (default `right` → QR on
+//      the side opposite `image-position` (default `right` → QR on
 //      the left).
 //   2. Explicit URL string — distinct from `basics.url`, so the
 //      printed CV can point at a landing page tracked separately from
 //      the canonical homepage.
 //   3. QR + portrait together — the two ornaments occupy opposite
 //      sides with the header text filling the middle column.
-//   4. QR + portrait with `imagePosition: left` — confirms the QR
+//   4. QR + portrait with `image-position: left` — confirms the QR
 //      follows the photo and ends up on the right.
 //   5. QR themed by a custom `colours.accent` — exercises the
 //      `fill: accent` path through the QR helper.
 //   6. QR alongside a centred portrait — QR pins the top-left corner
 //      next to the photo (top row), with the centred-header text in a
 //      separate row below.
-//   7. QR with no portrait + `imagePosition: top` — top row is the
+//   7. QR with no portrait + `image-position: top` — top row is the
 //      header text; QR pins its top-left corner.
-//   8. Centred portrait + QR with `imagePosition: bottom` — text on
+//   8. Centred portrait + QR with `image-position: bottom` — text on
 //      top, photo trails below; QR pins the text row's top-left corner.
-//   9. Centred portrait + QR + `headerTextAlign: left` — orthogonal
+//   9. Centred portrait + QR + `header-text-align: left` — orthogonal
 //      case: photo + QR share the top row (photo centred page-wise,
 //      QR top-left), text sits flush-left in a row below.
 
@@ -31,12 +31,12 @@
   (
     basics: (
       name: "QR From basics.url",
-      label: "preferences.qrCode: auto",
+      label: "preferences.qr-code: auto",
       email: "qr@example.com",
       url: "https://example.com/cv",
     ),
   ),
-  preferences: (qrCode: auto),
+  preferences: (qr-code: auto),
 )
 
 #pagebreak()
@@ -45,12 +45,12 @@
   (
     basics: (
       name: "Explicit QR URL",
-      label: "preferences.qrCode: \"https://...\"",
+      label: "preferences.qr-code: \"https://...\"",
       email: "qr@example.com",
       url: "https://example.com/canonical",
     ),
   ),
-  preferences: (qrCode: "https://example.com/printed-cv"),
+  preferences: (qr-code: "https://example.com/printed-cv"),
 )
 
 #pagebreak()
@@ -65,7 +65,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (qrCode: auto),
+  preferences: (qr-code: auto),
 )
 
 #pagebreak()
@@ -80,7 +80,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (qrCode: auto, imagePosition: left),
+  preferences: (qr-code: auto, image-position: left),
 )
 
 #pagebreak()
@@ -94,7 +94,7 @@
       url: "https://example.com/cv",
     ),
   ),
-  preferences: (qrCode: auto, colours: (accent: rgb("#1976D2"))),
+  preferences: (qr-code: auto, colours: (accent: rgb("#1976D2"))),
 )
 
 #pagebreak()
@@ -110,9 +110,9 @@
     ),
   ),
   preferences: (
-    qrCode: auto,
-    imagePosition: top,
-    headerTextAlign: center,
+    qr-code: auto,
+    image-position: top,
+    header-text-align: center,
   ),
 )
 
@@ -128,9 +128,9 @@
     ),
   ),
   preferences: (
-    qrCode: auto,
-    imagePosition: top,
-    headerTextAlign: center,
+    qr-code: auto,
+    image-position: top,
+    header-text-align: center,
   ),
 )
 
@@ -140,16 +140,16 @@
   (
     basics: (
       name: "Centred Photo Below + QR",
-      label: "imagePosition: bottom — photo trails the text block",
+      label: "image-position: bottom — photo trails the text block",
       email: "qr@example.com",
       url: "https://example.com/cv",
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
   preferences: (
-    qrCode: auto,
-    imagePosition: bottom,
-    headerTextAlign: center,
+    qr-code: auto,
+    image-position: bottom,
+    header-text-align: center,
   ),
 )
 
@@ -166,8 +166,8 @@
     ),
   ),
   preferences: (
-    qrCode: auto,
-    imagePosition: top,
-    headerTextAlign: left,
+    qr-code: auto,
+    image-position: top,
+    header-text-align: left,
   ),
 )

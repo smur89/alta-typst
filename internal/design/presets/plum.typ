@@ -2,7 +2,7 @@
   colours: (
     name: rgb("#53245F"),
     heading: rgb("#5F2A6E"),
-    headingRule: rgb("#CDB3D4"),
+    heading-rule: rgb("#CDB3D4"),
     subheading: rgb("#75398A"),
     accent: rgb("#75398A"),
     emphasis: rgb("#2A2230"),

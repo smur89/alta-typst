@@ -8,13 +8,13 @@
 #import "../internal/components/keywords.typ": _keyword-rows, _label-rows
 #import "../internal/components/ratings.typ": _rating-dots
 
-// A group's `level` after its label, per `skillLevelDisplay`: dots
+// A group's `level` after its label, per `skill-level-display`: dots
 // where it has a rating (`auto`, `"rating"`), else its text.
 #let _level-mark(group, prefs) = {
-  let value = if prefs.skillLevelDisplay != "text" {
-    _term-rating(group, "level", _skill-levels, prefs.maxRating)
+  let value = if prefs.skill-level-display != "text" {
+    _term-rating(group, "level", _skill-levels, prefs.max-rating)
   }
-  if value != none { _rating-dots(value, prefs.maxRating) } else {
+  if value != none { _rating-dots(value, prefs.max-rating) } else {
     _field(group, "level")
   }
 }

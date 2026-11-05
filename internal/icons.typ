@@ -31,7 +31,7 @@
 // `_alt-figure` instead, the outer `box` keeping the figure inline.
 //
 // `glyph` is a raw FontAwesome name, unchecked here: `icon()` takes it
-// from the icon set, the contact bar from `preferences.profileIcons`
+// from the icon set, the contact bar from `preferences.profile-icons`
 // (checked against `_fa-glyphs` as the options merge). `solid` puts
 // the Free Solid font first; a brand glyph it lacks falls through to
 // Brands, so `solid: true` draws either kind. `part` labels the glyph

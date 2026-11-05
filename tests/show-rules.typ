@@ -84,5 +84,5 @@
       ),
     ),
   ),
-  preferences: (pageFooter: align(right)[Jane Doe · CV]),
+  preferences: (page-footer: align(right)[Jane Doe · CV]),
 )

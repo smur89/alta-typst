@@ -1,6 +1,6 @@
 // JSON Resume 1.7.0 `references[].relationship`, `organization` and
 // `date` render as one line under the referee's name, missing parts
-// dropping out with their separator. (`dateFormat` handling is
+// dropping out with their separator. (`date-format` handling is
 // covered in tests/unit/references.typ.)
 
 #import "../lib.typ": alta
