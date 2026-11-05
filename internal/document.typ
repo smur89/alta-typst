@@ -1,7 +1,7 @@
 // The document setup every page renders under: the render-time context
 // state, the body text, the page with its footer, and the paragraph,
 // list and heading rules. `alta()` applies it, and so does the
-// component gallery (`tests/components.typ`), so the gallery shows
+// component gallery (`tests/visual/components/test.typ`), so the gallery shows
 // components exactly as a CV does.
 
 #import "design/styles.typ": _content-styles, _part

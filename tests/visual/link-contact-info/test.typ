@@ -1,0 +1,38 @@
+// `preferences.linkContactInfo` accepts a boolean (apply uniformly) or
+// a partial dict keyed by channel ("email", "phone", "location",
+// "profiles"). Three documents exercise the relevant shapes:
+//
+//   1. Bool `false` — no channel linked; icons + plain text only.
+//   2. Dict overriding two channels — phone + location render plain,
+//      email + profiles stay linked.
+//   3. Bool `true` (default behaviour, asserted explicitly) — every
+//      channel linked.
+//
+// `printFullUrls`, which changes what an unlinked entry shows, is
+// print-full-urls.
+
+#import "/lib.typ": alta
+#import "/tests/visual/_links.typ": assert-links
+#import "/tests/fixtures/contacts.typ": cv
+
+#alta(cv, preferences: (linkContactInfo: false))
+#assert-links(())
+
+#pagebreak()
+
+#alta(cv, preferences: (
+  // Only phone + location go plain; email and the GitHub profile
+  // stay linked. Omitted channels default to true.
+  linkContactInfo: (phone: false, location: false),
+))
+#assert-links(("mailto:jane@example.com", "https://github.com/janedoe"))
+
+#pagebreak()
+
+#alta(cv, preferences: (linkContactInfo: true))
+#assert-links((
+  "mailto:jane@example.com",
+  "tel:+35315550100",
+  "https://www.google.com/maps?q=Dublin%2C%20Ireland",
+  "https://github.com/janedoe",
+))

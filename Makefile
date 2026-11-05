@@ -16,6 +16,7 @@ TYPST     ?= typst ## the typst binary
 # and use system fonts.
 FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
+TT        ?= tt ## the tytanic binary (test-visual)
 IMG2WEBP  ?= img2webp ## the img2webp binary (libwebp; preview-webp)
 PNGQUANT  ?= pngquant ## the pngquant binary (in the pinned image)
 ROOT      := .
@@ -55,7 +56,7 @@ render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1
 # consumer) skip the page-1 PNG sweep.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
 EXAMPLES_PNG  := $(filter-out examples/example-full.typ examples/preview-frames.typ,$(EXAMPLES))
-TESTS         := $(wildcard tests/*.typ)
+TESTS         := $(wildcard tests/visual/*/test.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 # `assert`-based checks of the side-effect-free helpers; underscore files are
 # shared helpers, not tests.
@@ -65,7 +66,6 @@ UNIT_TESTS    := $(filter-out tests/unit/_%.typ,$(wildcard tests/unit/*.typ))
 EXAMPLE_FULL_PDF := examples/example_full.pdf
 PDFS          := $(filter-out examples/example-full.pdf,$(EXAMPLES:.typ=.pdf)) $(EXAMPLE_FULL_PDF)
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
-TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # Everything `lib.typ` reads at compile time. Every render depends on
 # it, so a renderer edit can't leave stale outputs to be committed.
 LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*/*.typ) \
@@ -85,7 +85,7 @@ PACKAGE_FILES := \
   examples/example_full-1.png examples/example_full-2.png \
   examples/labels-ga.toml
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test test-compile test-fixtures test-panics test-unit test-template test-visual test-refs check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml,
 # from main only; bump the tag here, once the new image is published,
@@ -93,7 +93,7 @@ PACKAGE_FILES := \
 # (image.yml derives the same tag).
 DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0-tt-0.4.1-pq-3.0.3-r0 ## the pinned CI image
 
-# `--platform linux/amd64` keeps output byte-identical to CI on any
+# `--platform linux/amd64` keeps renders identical on any
 # host (Apple Silicon emulates: slow but reproducible).
 #
 # The image bakes no @preview cache and `-u` leaves HOME unwritable
@@ -106,7 +106,8 @@ DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /wor
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
   -e FONT_PATHS=/usr/share/fonts/lato:/usr/share/fonts/fontawesome
 
-all: pdfs cv test-pdfs thumbnail ## build every example PDF, the cv preview and every fixture PDF
+
+all: pdfs cv thumbnail ## build every example PDF and the cv preview
 
 preview-webp: examples/preview.webp ## build the animated README hero (needs img2webp)
 
@@ -140,20 +141,6 @@ $(TEMPLATE_SRC): template/cv.typ
 pdfs: $(PDFS) ## build a PDF for every examples/*.typ
 
 previews: $(PNGS) ## build a page-1 PNG for every examples/*.typ
-
-# One tracked PDF per fixture, so reviewers can browse renders without
-# rebuilding. `--creation-timestamp 0` pins CreationDate so rebuilds
-# are byte-identical — otherwise the CI drift check always fails.
-test-pdfs: $(TEST_PDFS) ## render every tests/*.typ fixture into examples/tests/*.pdf
-
-examples/tests:
-	mkdir -p $@
-
-examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
-	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) $< $@
-
-# Coarse but self-maintaining: any fixture-data edit rebuilds every test PDF.
-$(TEST_PDFS): $(wildcard tests/fixtures/*)
 
 examples/%.pdf: examples/%.typ $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) $< $@
@@ -255,16 +242,17 @@ $(PANIC_CHECKS): check/panic/%:
 	fi
 
 # Every check CI's lint job runs, so a green `make test` locally means
-# it will pass too. CI renders the fixtures with `test-pdfs` instead of
-# `test-fixtures`, which would compile them a second time.
-test: test-compile test-fixtures test-panics test-unit ## compile examples, fixtures and template; run panic and unit checks
+# it will pass too.
+test: test-compile test-fixtures test-panics test-unit test-visual ## compile examples, fixtures and template; run panic, unit and visual tests
 
 # The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
 # template/cv.typ's `@preview/altacv` import won't resolve locally — a
 # broken starter trips here before release).
 test-compile: $(COMPILE_CHECKS) ## compile every example and the template
 
-test-fixtures: $(FIXTURE_CHECKS) ## compile every tests/*.typ fixture, output discarded
+# tytanic doesn't check PDF standards, so this keeps the fixtures
+# under `PDF_STANDARDS`.
+test-fixtures: $(FIXTURE_CHECKS) ## compile every tests/visual/ fixture, output discarded
 
 test-unit: $(UNIT_CHECKS) ## run the helper checks under tests/unit/
 
@@ -273,11 +261,28 @@ test-panics: $(PANIC_CHECKS) ## check each tests/panics/*.typ fails with its `//
 # A quick check after editing template/cv.typ; `test-compile` covers it.
 test-template: check/compile/$(TEMPLATE_SRC) ## compile-check template/cv.typ on its own
 
+# tytanic compares each tests/visual/<name>/ render against its
+# committed ref/*.png, and compile-checks the template as `@template`,
+# its `@preview/altacv` import resolved to this tree. The references
+# match only the pinned Lato and FontAwesome builds, so it reads the
+# copies in tests/fonts/ and nothing else; tytanic bundles its own
+# Typst, so any host then renders as CI does.
+TT_RUN = TYPST_IGNORE_SYSTEM_FONTS=true TYPST_FONT_PATHS=$(TEST_FONTS) $(TT)
+TEST_FONTS := tests/fonts/lato:tests/fonts/fontawesome
+
+test-visual: ## compare tests/visual/ renders with their reference PNGs (tytanic)
+	$(TT_RUN) run --no-fail-fast
+
+# Rewrites only the references whose render changed, so an unchanged
+# page keeps its bytes.
+test-refs: ## update the tests/visual/ reference PNGs (tytanic)
+	$(TT_RUN) update
+
 # Fail if any tracked render under DRIFT_PATHS differs from HEAD. The
 # CI drift gates run this right after regenerating with `make -B` (see
 # `docker-preview-images` below for why `-B`).
 #
-#   make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'
+#   make check-drift DRIFT_PATHS='examples/cv.png' DRIFT_FIX='make docker-preview-images'
 #
 # Entries are single-quoted so git expands the pathspec (a shell glob
 # misses deleted files). `git status` also catches untracked files,
@@ -324,10 +329,10 @@ package-tarball: ## build the release tarball from the staged package
 	@test -n "$(PACKAGE_TARBALL)" || { echo "package-tarball: PACKAGE_TARBALL=/path.tar.gz required" >&2; exit 2; }
 	tar czf "$(PACKAGE_TARBALL)" $(PACKAGE_FILES)
 
-# Also removes tracked renders (thumbnail.png, the fixture PDFs, …);
-# `git checkout` restores them.
+# Also removes tracked renders (thumbnail.png, …); `git checkout`
+# restores them.
 clean: ## remove generated PDFs and PNGs
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/preview.webp examples/.preview-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
+	rm -f $(PDFS) $(PNGS) examples/cv.pdf examples/cv.png examples/preview.webp examples/.preview-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
 
 help: ## list these targets and the variables you can override
 	@awk -F':[^=]*## ' '/^[a-zA-Z0-9_.-]+:[^=]*## /{printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -340,13 +345,12 @@ help: ## list these targets and the variables you can override
 in-image: ## run `make $(TARGETS)` in the pinned image
 	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make $(TARGETS)
 
-# Regenerate every committed PDF/PNG fixture inside the pinned CI
-# image. Use before committing any change that affects rendering
-# (icon glyphs, lib.typ, sections/*.typ, font setup) — the CI's
-# "examples/tests/*.pdf in sync" guard fails otherwise. `-B` because
-# a merge or checkout gives tracked outputs fresh mtimes, so make
-# would skip them and the stale bytes surface later as CI drift.
-docker-pdfs: ## regenerate every committed render in the pinned CI image
+# Regenerate the committed example renders inside the pinned CI image,
+# which pins Typst as well as the fonts. The visual tests' references
+# need no image: `make test-refs`. `-B` because a merge or checkout
+# gives tracked outputs fresh mtimes, so make would skip them and
+# commit stale bytes.
+docker-pdfs: ## regenerate the committed example renders in the pinned CI image
 	$(MAKE) in-image TARGETS='-B all'
 
 # Just the tracked thumbnail: raster output only reproduces in the
