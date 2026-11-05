@@ -166,6 +166,12 @@
   )
   // In `em` of the section title: the theme's spacing over the body's.
   let em(v) = v / ty.headline.size * 1em
+  // Typst sets a heading `above` what precedes it, and the rule below
+  // the title too, as the rule's block inherits it: 1.8× the body at
+  // level 1, 1.44× at level 2 (`tests/unit/headings.typ`). Standalone's
+  // sections are level 2, so level 2's puts a section where standalone
+  // does.
+  show heading.where(level: 1): set block(above: em(1.44))
   show heading.where(level: 1): it => block(sticky: true, {
     v(em(above))
     case(_part("section-title", it.body))

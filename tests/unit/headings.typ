@@ -32,3 +32,19 @@
   17pt,
   message: "Typst's built-in title size changed: update `_level-headings`",
 )
+
+// The space above a heading: 1.8× the body at level 1, 1.44× at level 2,
+// which `_level-headings` sets for its level-1 sections to sit where
+// standalone's level-2 ones do.
+#let aboves = state("heading-aboves", ())
+#show heading: it => context {
+  let above = block.above.to-absolute()
+  aboves.update(a => a + (above,))
+}
+= One
+== Two
+#context assert.eq(
+  aboves.final(),
+  (18pt, 14.4pt),
+  message: "Typst's built-in heading spacing changed: update `_level-headings`",
+)
