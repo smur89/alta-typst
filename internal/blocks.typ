@@ -85,28 +85,32 @@
     .before(here())
     .after(parent.location())
   // `alta()` joins a section's entries with the divider, so none
-  // precedes the first of a section or group. At a page top the
-  // divider keeps its space, the rule hidden, where `alta()`'s drops
-  // both: dropping it moved what follows, which moved the next
-  // divider, and a CV of a few pages ran out of Typst's five layout
-  // passes. Hidden, it moves nothing.
-  if query(siblings).len() > 0 { _divider(true, at-top: hide) }
-  block(breakable: false, _entry(
-    // The icons' alt text, in the document's language.
-    _labels(),
-    title: title,
-    url: url,
-    org: org,
-    org-url: org-url,
-    roles: roles,
-    // One side, as written: `_range` joins only the present sides.
-    period: (date,),
-    location: (location,),
-    details: details,
-    body: body,
-    keywords: keywords,
-    level: parent.level + 1,
-  ))
+  // precedes the first of a section or group. The divider sits in the
+  // entry's unbreakable block, so an entry pushed to the next page
+  // takes it along rather than leaving a rule at the page's foot.
+  // At a page top the divider keeps its space, the rule hidden, where
+  // `alta()`'s drops both: dropping it moved what follows, which moved
+  // the next divider, and a CV of a few pages ran out of Typst's five
+  // layout passes. Hidden, it moves nothing.
+  block(breakable: false, {
+    if query(siblings).len() > 0 { _divider(true, at-top: hide) }
+    _entry(
+      // The icons' alt text, in the document's language.
+      _labels(),
+      title: title,
+      url: url,
+      org: org,
+      org-url: org-url,
+      roles: roles,
+      // One side, as written: `_range` joins only the present sides.
+      period: (date,),
+      location: (location,),
+      details: details,
+      body: body,
+      keywords: keywords,
+      level: parent.level + 1,
+    )
+  })
 }
 
 // Content's text, for alt text, which takes a string: `document.title`
