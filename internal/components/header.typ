@@ -81,14 +81,15 @@
   }
 }
 
-// `name`, which arrives labelled (`_page-header`). In the template
-// (`title`), the document's `title` element, which the template's
-// `show title` rules style and space (`_level-headings`), so a user's
-// `show title` rule restyles it. Standalone, the CV's one level-1
-// heading, so tagged PDF and the bookmarks nest the sections under the
-// person, and a user's `show heading.where(level: 1)` rule restyles it
-// (its font, say) as `heading.where(level: 2)` does the sections; its
-// styles are `set` around `name`.
+// The name line. Inside the template (`title`), the document's `title`
+// element, which the template's `show title` rules style and space
+// (`_level-headings`), so a user's `show title` rule restyles it.
+// Standalone, the CV's one level-1 heading with its own styles, so
+// tagged PDF and the bookmarks nest the sections under the person,
+// and a user's `show heading.where(level: 1)` rule restyles it (its
+// font, say) as `heading.where(level: 2)` does the sections; its
+// styles are `set` around `name`. `name` arrives labelled
+// (`_page-header`).
 #let _name-line(name, theme, body-size, title: false) = if title {
   std.title(name)
 } else {

@@ -1,6 +1,6 @@
-// Typst's built-in heading text sizes, which `_content-styles`
+// Typst's built-in heading text sizes, which `_label-headings`
 // (`design/styles.typ`) divides out to read the body size inside a
-// heading. Typst doesn't document them, so a release that changes
+// heading, and `_level-headings` sets the theme's sizes over. Typst doesn't document them, so a release that changes
 // them fails here rather than silently resizing every CV.
 
 #set text(10pt)
@@ -16,7 +16,7 @@
 #context assert.eq(
   sizes.final().map(s => s.to-absolute()),
   (14pt, 12pt, 10pt, 10pt),
-  message: "Typst's built-in heading sizes changed: update `_content-styles`",
+  message: "Typst's built-in heading sizes changed: update `_label-headings` and `_level-headings`",
 )
 
 // The title element's: 1.7em, bold.
