@@ -89,13 +89,12 @@
 
 // The term row's frame: indented text under an entry's heading.
 #let _term-row(body) = context {
-  let body-size = text.size
   let (below, inset) = _theme-state.get().term
   block(
     above: 0pt,
-    below: below * body-size,
-    inset: (left: inset * body-size),
-    text(body-size, body),
+    below: below * text.size,
+    inset: (left: inset * text.size),
+    body,
   )
 }
 
@@ -142,7 +141,6 @@
 ///   last pill, so the row doesn't end on a gap.
 /// -> content
 #let tag(body, label: false, trailing: true) = context {
-  let body-size = text.size
   let theme = _theme-state.get()
   let accent = theme.colours.accent
   let (
@@ -162,19 +160,18 @@
     fill: accent.lighten(if label { label-fill } else { fill }),
     stroke: theme.stroke-width.thin + accent.lighten(stroke-lighten),
     radius: radius,
-    inset: (x: inset.x * body-size, y: inset.y * body-size),
-    outset: (y: outset-y * body-size),
+    inset: (x: inset.x * text.size, y: inset.y * text.size),
+    outset: (y: outset-y * text.size),
     // The box's look is the theme's; only its text is a `_part`. The
     // `[]` gives the label its own element, so a body that is already
     // a part (`tag(it)` in a `show <alta-keyword>` rule) keeps its label.
     text(
-      body-size,
       fill: accent.darken(text-darken),
       weight: text-weight,
       _part(if label { "pill-label" } else { "pill" }, [#body#[]]),
     ),
   )
-  if trailing { _tag-gap(theme, body-size) }
+  if trailing { _tag-gap(theme, text.size) }
 }
 
 // The page's top margin as an absolute length. Typst's `auto` margin is
@@ -194,11 +191,10 @@
 // it tracks `preferences.margin`. `rule: false` keeps the spacing
 // without the line (`_divider-space`).
 #let _divider(rule) = context {
-  let body-size = text.size
   let theme = _theme-state.get()
   let (gap, dash, clearance) = theme.divider
   if here().position().y < _top-margin() + clearance { return }
-  v(gap * body-size)
+  v(gap * text.size)
   if rule {
     // Typst's `divider`. The stroke is `set` around it, so a user's
     // `set line(...)` rule on the divider overrides it; its block
@@ -211,7 +207,7 @@
     show divider: set block(spacing: par.spacing)
     _part("divider", std.divider())
   }
-  v(gap * body-size)
+  v(gap * text.size)
 }
 
 /// The dashed grey rule altacv draws between entries.
