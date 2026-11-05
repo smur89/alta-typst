@@ -26,10 +26,10 @@
   if version and v != none { " (" + v + ")" }
 }
 
-// `page-footer` takes precedence; `last-modified-footer` is sugar that
-// applies only when `page-footer` is `none`.
-#let _footer(cv, (labels, prefs, ..)) = {
-  let details = _cv-details(cv, labels)
+// From the CV's `_cv-details`. `page-footer` takes precedence;
+// `last-modified-footer` is sugar that applies only when `page-footer`
+// is `none`.
+#let _footer(details, prefs) = {
   let page-footer = prefs.page-footer
   if page-footer != none {
     if page-footer == auto {

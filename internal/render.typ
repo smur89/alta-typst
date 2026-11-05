@@ -26,7 +26,9 @@
 // `format-date` formats a date per the preferences and labels; `owner`
 // is the CV owner's name, and `owners` every spelling of it
 // (`preferences.owner-names` too), trimmed and lowercased, to bold among
-// publication authors.
+// publication authors. `details` is what a footer prints of the CV
+// (`sections/footer.typ`), for the `<alta-cv>` marker and the
+// standalone footer alike.
 #let _prepare(cv, labels, preferences) = {
   let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
   let (cv, sections) = _read-cv(cv, prefs)
@@ -37,14 +39,19 @@
     owner: cv.basics.name,
     owners: (cv.basics.name, ..prefs.owner-names).map(n => lower(n.trim())),
   )
-  (cv: cv, sections: sections, ctx: ctx)
+  (
+    cv: cv,
+    sections: sections,
+    ctx: ctx,
+    details: _cv-details(cv, labels),
+  )
 }
 
 // The CV itself, from `_prepare`, in both of `alta()`'s forms.
-#let _cv-content((cv, sections, ctx)) = {
+#let _cv-content((cv, sections, ctx, details)) = {
   _max-rating-state.update(ctx.prefs.max-rating)
-  // What the footer helpers print (`sections/footer.typ`).
-  [#metadata(_cv-details(cv, ctx.labels))<alta-cv>]
+  // What the footer helpers print.
+  [#metadata(details)<alta-cv>]
   show: _justify.with(ctx.prefs.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
@@ -74,9 +81,9 @@
 // the footer among them, around the CV.
 #let _alta-standalone(cv, labels: (:), preferences: (:)) = context {
   let prepared = _prepare(cv, labels, preferences)
-  let (cv, sections, ctx) = prepared
+  let (cv, sections, ctx, details) = prepared
   set document(.._pdf-metadata(cv, sections, ctx.labels))
-  show: _standalone.with(ctx.prefs, ctx.labels, _footer(cv, ctx))
+  show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
   _cv-content(prepared)
 }
 
