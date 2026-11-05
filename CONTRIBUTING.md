@@ -37,7 +37,7 @@ Identifiers and `.typ` file names are kebab-case, matching Typst's standard libr
 
 ## Design conventions
 
-Two rules decide what a change may add. Reviews hold new work to them.
+Three rules decide what a change may add. Reviews hold new work to them.
 
 ### The data is JSON Resume, whichever way it arrives
 
@@ -49,12 +49,20 @@ The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec 
 
 ### New looks go through parts and theme tokens
 
-The default look is opinionated (only skills are pills). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences that exist (`skillLevelDisplay`, `imageShape`, `uppercaseName`, `justify`, …) predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, the paper, `dateFormat`, `mapsProvider`, `ownerNames`.
+The default look is opinionated (only skills are pills). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences that exist (`skillLevelDisplay`, `imageShape`, `uppercaseName`, `justify`, …) predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, `dateFormat`, `mapsProvider`, `ownerNames`.
 
 - **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the README's [Part labels](README.md#part-labels).
-- **An element Typst already has is restyled through that element, not a part**: the list bullet through `show list`, the line between entries through `show divider`. A part label is for what Typst has no element for.
 - **A replacement rule's `it` is opaque.** The README promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
 - **A theme token for any value the default fixes**: a separator, size or treatment (`separator.keywords`, `treatment.link: emph`). A token holds a value, never a choice of component: not `keywords: "pills"`.
+
+### Work with Typst, not around it
+
+A Typst user should be able to style a CV the way they style any document. Where Typst already has a rule, an element or a value for something, the template uses it rather than an option of its own. [#381](https://github.com/smur89/alta-typst/issues/381) tracks bringing the older options in line.
+
+- **A setting Typst already has is Typst's, not a preference**: the language is `set text(lang: ..)`, which also picks the labels. The preferences that duplicate one (`paper`, `margin`, `font`, `bodySize`, `justify`) predate this rule ([#376](https://github.com/smur89/alta-typst/issues/376)); don't add more.
+- **An element Typst already has is restyled through that element, not a part**: the list bullet through `show list`, the line between entries through `show divider`. A part label is for what Typst has no element for.
+- **Typst's own values where they exist**: an alignment, a function or a `datetime`, not a name in a string. The string options that exist (`imagePosition`, `headerTextAlign`, treatments) predate this rule ([#377](https://github.com/smur89/alta-typst/issues/377)).
+- **Moving to Typst's way doesn't break a CV.** The old form keeps working, rewritten in `internal/data/canonical.typ` where it needs one, the README marks it deprecated, and its removal is listed in [#239](https://github.com/smur89/alta-typst/issues/239) for the next major.
 
 ## Development loop
 
