@@ -13,6 +13,7 @@
   labels.certificates,
   certs,
   cert => _entry(
+    labels,
     title: cert.name,
     url: _field(cert, "url"),
     org: _field(cert, "issuer"),

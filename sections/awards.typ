@@ -10,6 +10,7 @@
   labels.awards,
   entries,
   award => _entry(
+    labels,
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),

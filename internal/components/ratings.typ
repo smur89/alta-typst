@@ -5,7 +5,7 @@
 // and a gradient gives a sharper edge than a transparent overlay.
 
 #import "../design/styles.typ": _inline, _part
-#import "../context.typ": _body-size-state, _max-rating-state, _theme-state
+#import "../context.typ": _max-rating-state, _theme-state
 #import "../util/checks.typ": _check, _check-rating, _positive-int-rule
 
 #let _half-fill(accent, border) = gradient.linear(
@@ -34,7 +34,7 @@
 // Unchecked: `rating` checks its arguments, and `_read-cv` the CV's
 // ratings.
 #let _rating-dots(value, max) = context {
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let theme = _theme-state.get()
   let (accent, border, ..) = theme.colours
   let (radius, gap, ..) = theme.rating

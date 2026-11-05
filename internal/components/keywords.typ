@@ -2,7 +2,7 @@
 // name as a label pill and the keywords wrapping under the first of
 // them; interests' as a line of text.
 
-#import "../context.typ": _body-size-state, _theme-state
+#import "../context.typ": _theme-state
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
@@ -13,7 +13,7 @@
 // column hangs nothing, so its keywords keep room to wrap. A group's
 // optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
-  let body-size = _body-size-state.get()
+  let body-size = text.size
   let theme = _theme-state.get()
   let (gap, dash, indent-max) = theme.keyword-row
   let row-gap = gap * body-size

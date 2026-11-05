@@ -6,10 +6,11 @@
 // override tokens (`_token-prefs`), over `_tokens` and builds, once per
 // render, into the state components read (`_theme-state`).
 //
-// Type sizes and `space` multiply the body size; public helpers
-// (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
-// they may sit outside `alta()`. `em` roles follow their own text;
-// `pt` and `cm` lengths don't scale.
+// Type sizes and `space` multiply the text size where a part renders
+// (`text.size`, read in context), the body's inside `alta()`, so the
+// public helpers (`tag`, `term`, `divider`, `rating`, `icon`) follow
+// the text they sit in. `em` roles follow their own text; `pt` and
+// `cm` lengths don't scale.
 
 #import "../util/values.typ": _deep-merge
 #import "presets/teal.typ"
@@ -148,7 +149,7 @@
     ),
     column-gutter: 12pt,
     // `name-below` (`name()` is public), `row-gap` and `facts-below`
-    // scale with body size; the rest are `em`.
+    // scale with the text size; the rest are `em`.
     entry: (
       name-below: sp.small,
       subtitle-below: sp.small * 1em,

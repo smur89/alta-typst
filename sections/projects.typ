@@ -12,6 +12,7 @@
 // The client or company (`entity`) leads the facts line, as an
 // organisation does; it mirrors `publications[].publisher`.
 #let _render-project(project, (labels, format-date, ..)) = _entry(
+  labels,
   title: project.name,
   url: _field(project, "url"),
   org: _field(project, "entity"),
