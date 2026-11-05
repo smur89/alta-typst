@@ -138,6 +138,48 @@ The file is validated against the [JSON Resume schema](https://jsonresume.org/sc
 
 Your own `set` and `show` rules go between the two lines and win. Only `basics.name` is required. Fields that take "string or content" also accept Typst markup (`[Led the *platform* team]`); keep to plain strings if the data also lives in a `resume.json`, as JSON can't carry markup. The [data schema](#data-schema) lists every section and field.
 
+### Write the CV in markup
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.8.0": altacv, contact, cv-header, entry, skills
+
+#set document(title: "Jane Doe", author: "Jane Doe")
+#show: altacv.with()
+
+#cv-header(
+  tagline: "Senior Software Engineer",
+  contacts: (contact("email", "jane@example.com", link: "mailto:jane@example.com"),),
+)
+
+#grid(
+  columns: (2fr, 1fr),
+  column-gutter: 12pt,
+  [
+    = Experience
+
+    #entry(title: "Senior Software Engineer", org: "Acme Corp", date: "2022 – Present")[
+      - Led the migration…
+    ]
+  ],
+  [
+    = Skills
+
+    #skills("Languages", ("Scala", "Python"), level: "Expert")
+  ],
+)
+```
+<!-- x-release-please-end -->
+
+The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way, and the [exports](#exports) list the blocks.
+
+A few things to know:
+
+- A `===` heading isn't styled as a group, and an `entry` under one panics.
+- An `entry` right after `#alta(cv)` continues its last section; start your own with `= ...`.
+- A `publication` without a `url` links its title to its first DOI, arXiv or PMID identifier.
+- Group headings in markup carry no icon, where `alta()`'s publication and project groups do. Add one yourself: `== #icon("microphone") Talks`.
+
 ## Customising
 
 Put `#show: altacv.with(theme: ..)` above the CV, then your own `set` and `show` rules: `#set page(paper: "us-letter")`, `#set text(font: "Inter", lang: "de")`, `#show heading: ..`. `alta(cv)` on its own still works as before; the template form replaces it in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
@@ -210,13 +252,13 @@ To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")
 
 Set the font family (or a fallback array) with `#set text(font: "Inter")` after the show line, over the theme's (`preferences.font` standalone). Any installed font works.
 
-To set the name or headings in a different face, add a show rule after the show line. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
+To set the name or headings in a different face, add a show rule after the show line. Inside the template, the name is Typst's `title` element (`show title: ..`) and section titles are level-1 headings (`show heading.where(level: 1): ..`); group and entry titles are deeper. Standalone `alta()` keeps the old levels, the name a level-1 heading and section titles level 2, until the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)):
 
 ```typst
 // A slab-serif name and section headings over a sans body:
 #show: altacv.with()
 #set text(font: "Source Sans 3")
-#show heading.where(level: 1).or(heading.where(level: 2)): set text(font: "Roboto Slab")
+#show selector(title).or(heading.where(level: 1)): set text(font: "Roboto Slab")
 #alta(cv)
 ```
 
@@ -657,6 +699,12 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
+| `cv-header(tagline:, objective:, contacts:, photo:, photo-side:, qr:, uppercase:)` | The header of a CV written in markup: the document's title as the name, a tagline, an objective, the contact bar, a portrait and a QR code. |
+| `contact(icon, value, link: none, alt: auto)` | One contact-bar entry for `cv-header`. |
+| `entry(title:, org:, roles:, date:, location:, keywords:, .., body)` | An entry under a section or group heading, with the divider between entries. |
+| `publication(title:, url:, authors:, source:, date:, identifiers:, body)` | A publication as a bibliography item; the document's author is set apart among the authors. |
+| `skills(name, keywords, level: none)` | A skill group's row of pills, with its level as dots or text. |
+| `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->
