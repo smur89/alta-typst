@@ -3,7 +3,9 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
-#import "data/options.typ": _check-template-preferences, _merge-options
+#import "data/options.typ": (
+  _check-template-preferences, _checked-theme, _merge-options,
+)
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
@@ -89,8 +91,7 @@
 /// - body (content): The document.
 /// -> content
 #let altacv(theme: themes.teal, body) = {
-  // Checked and canonicalised as `preferences.theme` is.
-  let theme = _merge-options((:), (theme: theme)).prefs.theme
+  let theme = _checked-theme(theme)
   show: _document.with(_theme-for(theme, (:)), _default-preferences.margin)
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none

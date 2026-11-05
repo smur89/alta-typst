@@ -239,14 +239,12 @@
 
 // A theme is `_tokens` overrides, any of them, and so are the
 // preferences that override it (`_token-prefs`: `font`, `colours`).
+#let _check-theme(theme) = {
+  _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
+  _check-tokens(theme, _tokens, "theme")
+}
 #let _validate-theme(prefs) = {
-  _check-type(
-    "theme",
-    prefs.theme,
-    (dictionary,),
-    "a theme (e.g. themes.altacv)",
-  )
-  _check-tokens(prefs.theme, _tokens, "theme")
+  _check-theme(prefs.theme)
   _check-tokens(_token-prefs(prefs), _tokens, "")
 }
 
