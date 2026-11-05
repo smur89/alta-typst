@@ -20,7 +20,7 @@ lib.typ           # public entry — re-exports only (`alta()` is in internal/re
 internal/         # wiring (the registry, render-time context) and the shared primitives and icons
 internal/util/    # generic helpers: field reads, joins, checks, date formatting
 internal/data/    # reading and checking the CV, labels and preferences, and their defaults
-internal/design/  # the theme, document-wide styles, built-in themes and palettes, the icon set
+internal/design/  # the theme, document-wide styles, built-in themes (one file each in presets/) and palettes, the icon set
 internal/components/ # the layout components sections map onto
 sections/         # one renderer per part of the CV: the header, then each section
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)

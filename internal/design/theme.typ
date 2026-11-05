@@ -12,6 +12,8 @@
 // `pt` and `cm` lengths don't scale.
 
 #import "../util/values.typ": _deep-merge
+#import "colour.typ": _contrast
+#import "presets/teal.typ"
 
 // The roles the deprecated top-level `accent` colours with one
 // colour, as the built-in themes did before each took its own shades.
@@ -22,23 +24,6 @@
   subheading: accent,
   name: accent,
 )
-
-// A built-in theme's colours: tones of one hue (`presets.typ`), the
-// group titles in its `accent` and the tagline in its `emphasis`.
-#let _hue-colours(colours) = (
-  colours + (subheading: colours.accent, tagline: colours.emphasis)
-)
-
-// WCAG's contrast ratio of `c` on the white page.
-#let _contrast(c) = {
-  let (r, g, b) = rgb(c)
-    .components(alpha: false)
-    .map(v => {
-      let x = v / 100%
-      if x <= 0.04045 { x / 12.92 } else { calc.pow((x + 0.055) / 1.055, 2.4) }
-    })
-  1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
-}
 
 #let _tokens = (
   // The family, or a fallback array of them. Must be installed on the
@@ -58,17 +43,10 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // The colour roles (`preferences.colours`), the teal theme's (the
-  // default): see `presets.typ` for how a theme's roles relate.
-  // `emphasis` and `body` follow Bootstrap's roles.
-  colours: _hue-colours((
-    name: rgb("#0A4F48"),
-    heading: rgb("#00796B"),
-    headingRule: rgb("#8EC5BD"),
-    accent: rgb("#00796B"),
-    emphasis: rgb("#1D2B29"),
-    body: rgb("#53605D"),
-  )),
+  // The colour roles (`preferences.colours`): the default theme's
+  // (`presets/teal.typ`). `emphasis` and `body` follow Bootstrap's
+  // roles.
+  colours: teal.theme.colours,
   // `Manager, Pied Piper · 2024`: `items` within a group (a location's
   // parts too), `facts` between groups; `label` after an interest
   // group's name (`Music: Trad, Jazz`) and the footer's "Last
