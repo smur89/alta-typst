@@ -181,11 +181,13 @@
     }
     v(em(below))
   })
-  // Groups and entries share levels 2 and 3, so one rule per level
-  // tells them apart by the entry's label.
+  // Level 2 is a group or an entry under a section, told apart by the
+  // entry's label. Level 3 is only ever an entry under a group, so an
+  // unlabelled `===` the user writes keeps Typst's own style.
+  let entry-3 = selector(heading.where(level: 3)).and(<alta-internal-entry>)
   show heading.where(level: 2): set text(size: ty.title.size / 1.2 * 1em)
-  show heading.where(level: 3): set text(size: ty.title.size * 1em)
-  show heading.where(level: 2).or(heading.where(level: 3)): set text(
+  show entry-3: set text(size: ty.title.size * 1em)
+  show heading.where(level: 2): set text(
     fill: colours.subheading,
     weight: subheading.group.weight,
   )
@@ -195,6 +197,7 @@
   )
   show heading.where(level: 2).or(heading.where(level: 3)): it => {
     let entry = it.at("label", default: none) == <alta-internal-entry>
+    if it.level == 3 and not entry { return it }
     let (role, part) = if entry { (subheading.entry, "entry-title") } else {
       (subheading.group, "group-title")
     }
