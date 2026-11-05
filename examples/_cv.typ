@@ -23,7 +23,7 @@
 // anti-bias hiring practices both discourage it — so the animation
 // alternates between with-photo and without-photo frames to reflect
 // what most users actually ship). `in-irish` returns it with its
-// prose in Irish, for the frames rendered with `labels-ga.toml`.
+// prose in Irish, for the frames rendered in Irish.
 
 #import "/.template-src.typ": cv
 
@@ -34,11 +34,11 @@
 // statement sequence.
 #let no-image(cv) = cv + (basics: cv.basics + (image: none))
 
-// The CV's prose in Irish, for the frames rendered with
-// `labels-ga.toml`, so the content reads in the same language as the
-// headings. Dates, links and names (products, certificates,
-// technologies) stay as they are, and so do the language fluencies,
-// which the template maps to rating dots.
+// The CV's prose in Irish, for the frames rendered in Irish, so the
+// content reads in the same language as the headings. Dates, links and
+// names (products, certificates, technologies) stay as they are, and
+// so do the language fluencies, which the template maps to rating
+// dots.
 #let _ga = (
   basics: (
     label: "Innealtóir Bogearraí Sinsearach",

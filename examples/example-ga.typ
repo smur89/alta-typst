@@ -1,11 +1,8 @@
-// Showcase of the file-based labels workflow. Demonstrates that a
-// caller can supply a complete translation as a separate TOML file
-// and have it picked up by the template via `labels: toml(...)`.
-//
-// Body content is in Irish too so the rendered document reads
-// end-to-end; the labels file (`labels-ga.toml`) supplies section
-// headings, the "I láthair" suffix for open-ended date ranges, and
-// abbreviated Irish month names.
+// A CV in Irish. `set text(lang: "ga")` picks the package's Irish
+// labels (`internal/data/labels-ga.toml`): the section headings, the
+// "I láthair" suffix for open-ended date ranges and abbreviated Irish
+// month names. The content is in Irish too, so the document reads
+// end-to-end.
 //
 // Build locally with:
 //   typst compile --root .. example-ga.typ example-ga.pdf
@@ -51,7 +48,7 @@
       position: "Príomh-innealtóir",
       location: "Baile Átha Cliath, Éire",
       startDate: "2022-01",
-      // endDate omitted → renders as "I láthair" from labels-ga.toml
+      // endDate omitted → renders as "I láthair", the Irish `present`
       highlights: (
         [Dhear córas Kafka don eagraíocht agus laghdaigh moill p99 faoi leath.],
         [Threoraigh foireann ardáin trí cheithre tháirge a sheoladh.],
@@ -98,4 +95,5 @@
   ),
 )
 
-#alta(cv, labels: toml("labels-ga.toml"))
+#set text(lang: "ga")
+#alta(cv)

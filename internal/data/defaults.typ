@@ -1,13 +1,16 @@
 // The defaults the caller's labels and preferences merge over: the
-// labels, kept in `labels-en.toml` so translators edit a plain resource
-// file rather than Typst source, and the preferences, with the
-// `maps-providers` presets for `mapsProvider`.
+// labels, kept in `labels-en.toml` and its translations so translators
+// edit a plain resource file rather than Typst source, and the
+// preferences, with the `maps-providers` presets for `mapsProvider`.
 
 #import "../design/icon-set.typ": _network-icons, _publication-icons
 #import "../design/presets.typ": themes
 #import "sections.typ": _keys-for-column
 
 #let _default-labels = toml("labels-en.toml")
+// The bundled translations, by ISO 639 code: each sets only the labels
+// it changes, over `_default-labels` (`_merge-options`).
+#let _translations = (ga: toml("labels-ga.toml"))
 
 /// Map deep-link URL templates for `preferences.mapsProvider`; `{q}`
 /// becomes the URL-encoded `basics.location`.

@@ -25,6 +25,8 @@
     font: theme.font,
     weight: theme.type.body.weight,
     fill: theme.colours.body,
+    // `text.lang` unless the deprecated `labels.lang` is set; drop with
+    // it (#239).
     lang: labels.lang,
   )
   set page(

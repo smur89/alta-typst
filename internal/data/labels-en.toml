@@ -5,11 +5,11 @@
 # Keys mirror JSON Resume's section keys; values are editorial
 # ("Experience" reads better than "Work" as a heading).
 #
-# Translators: copy and translate this file, then pass
-#   #alta(cv, labels: toml("labels-de.toml"))
+# A translation (`labels-ga.toml`) sets only what it changes, over
+# these; add one to `_translations` (`defaults.typ`).
 
-# Lowercase ISO 639 code. Drives hyphenation, smart quotes and the
-# PDF language tag (read by screen readers).
+# Deprecated (#239): use `set text(lang: ..)`. Drop with the `lang:`
+# in `_document`'s `set text`.
 lang = "en"
 
 # Section headings.
