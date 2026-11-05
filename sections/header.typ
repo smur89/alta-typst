@@ -151,6 +151,7 @@
   _page-header(
     name: basics.name,
     headline: _field(basics, "label"),
+    objective: _field(cv, "objective"),
     contacts: _contact-rows(
       _linked-contacts(basics, prefs, location-alt: labels.location),
     ),

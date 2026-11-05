@@ -78,6 +78,10 @@
 
 == Page header: a QR code, and a contact bar that wraps
 #variant(header(qr-url: "https://example.com"))
+// The objective under the headline.
+#variant(header(
+  objective: [Lead a platform team building reliable data systems.],
+))
 // Each entry wraps whole: no line starts with a bare value.
 #variant(header(contacts: (contacts * 4,)))
 
@@ -85,7 +89,6 @@
 
 == Intro
 #_intro-block(
-  objective: [Lead a platform team building reliable data systems.],
   summary: [Backend engineer with eight years of distributed systems.],
 )
 

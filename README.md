@@ -172,7 +172,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 
 | Role | Colours |
 |---|---|
-| `accent` | Organisation names, tags, rating dots, contact icons, the objective's rule, publication titles, the QR code. |
+| `accent` | Organisation names, tags, rating dots, contact icons, publication titles, the QR code. |
 | `emphasis` | Entry titles and interest group names. |
 | `body` | Body text and icons. Dates, dividers and empty rating dots take lighter shades of it. |
 | `heading` | Section titles. |
@@ -352,7 +352,7 @@ The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). Missing or 
 
 `basics`, `objective`, `work`, `volunteer`, `education`, `skills`, `languages`, `projects`, `publications`, `certificates`, `awards`, `interests`, `references`, `custom` ([extensions](#extensions)), `meta` ([PDF metadata](#pdf-metadata-pdfa-and-accessibility)), `$schema` (accepted, not rendered), and the deprecated `focusAreas`. Any other key panics, so a misspelt section (`publication`) fails rather than vanishing.
 
-`objective` ([JSON Resume](https://jsonresume.org/schema/) 1.4.0) is a short career goal, a string or content, shown between the header and the first section, above the summary and set off like a pull quote.
+`objective` ([JSON Resume](https://jsonresume.org/schema/) 1.4.0) is a short career goal, a string or content, shown in the header under the tagline (`basics.label`), in italics, aligned with the rest of the header.
 
 #### Dates
 
@@ -572,6 +572,7 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 |---|---|---|
 | `<alta-name>` | text | The name. |
 | `<alta-headline>` | text | The tagline under the name (`basics.label`). |
+| `<alta-objective>` | text | The objective, under the tagline. It is also an `<alta-summary>` part. |
 | `<alta-section-title>` | text | A section's heading (Experience, Skills, …). |
 | `<alta-entry-title>` | text | An entry's title: a role, qualification, project or award. |
 | `<alta-group-title>` | text | A group's heading within a section: a publication type, a project type. |
