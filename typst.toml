@@ -2,7 +2,7 @@
 name = "altacv"
 version = "1.8.0"
 entrypoint = "lib.typ"
-authors = ["Shane Murphy"]
+authors = ["Shane Murphy <@smur89>"]
 license = "MIT"
 description = "Curriculum vitae driven by a JSON Resume-style data dict."
 repository = "https://github.com/smur89/alta-typst"
