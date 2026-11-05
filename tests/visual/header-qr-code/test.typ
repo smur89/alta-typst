@@ -12,7 +12,7 @@
 //      sides with the header text filling the middle column.
 //   4. QR + portrait with `imagePosition: "left"` — confirms the QR
 //      follows the photo and ends up on the right.
-//   5. QR themed by a custom `accent` colour — exercises the
+//   5. QR themed by a custom `colours.accent` — exercises the
 //      `fill: accent` path through the QR helper.
 //   6. QR alongside a centred portrait — QR pins the top-left corner
 //      next to the photo (top row), with the centred-header text in a
@@ -89,12 +89,12 @@
   (
     basics: (
       name: "Accent-Themed QR",
-      label: "QR inherits preferences.accent",
+      label: "QR inherits preferences.colours.accent",
       email: "qr@example.com",
       url: "https://example.com/cv",
     ),
   ),
-  preferences: (qrCode: auto, accent: rgb("#1976D2")),
+  preferences: (qrCode: auto, colours: (accent: rgb("#1976D2"))),
 )
 
 #pagebreak()

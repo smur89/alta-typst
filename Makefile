@@ -60,7 +60,7 @@ PDFS          := $(filter-out examples/example-full.pdf,$(EXAMPLES:.typ=.pdf)) $
 PNGS          := $(EXAMPLES_PNG:.typ=.png)
 # Everything `lib.typ` reads at compile time. Every render depends on
 # it, so a renderer edit can't leave stale outputs to be committed.
-LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ) \
+LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*/*.typ) \
   $(wildcard internal/*/*.toml) \
   $(wildcard sections/*.typ) $(wildcard assets/*)
 

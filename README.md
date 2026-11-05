@@ -8,64 +8,62 @@
   <a href="https://github.com/smur89/alta-typst/stargazers"><img alt="Number of GitHub stargazers for altacv" src="https://img.shields.io/github/stars/smur89/alta-typst?style=flat-square"></a>
 </p>
 
-<p align="center">A Typst CV template inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX). Data-driven from a <a href="https://jsonresume.org/">JSON Resume</a>-style dict; configurable theme, labels, and sections.</p>
+<p align="center">A two-column CV template for Typst, inspired by LianTze Lim's <a href="https://github.com/liantze/AltaCV">AltaCV</a> (LaTeX).<br>Write your CV once as <a href="https://jsonresume.org/">JSON Resume</a> data; pick a theme, a layout and a language.</p>
 
-<!-- Relative path so the GIF tracks the codebase: GitHub renders the README from main, Universe renders it from the package version's snapshot — each context sees the matching frame set. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml), so the file lives next to README on Universe without bloating the import payload. -->
+<!-- Relative path so the GIF tracks the codebase: GitHub renders the README from main, Universe from the package version's snapshot. examples/ ships in the typst/packages submission but is `exclude`d from the compiler bundle (see typst.toml). -->
 <p align="center">
-  <img alt="Animated preview of the altacv template — seven frames covering each accent palette plus a centred-portrait variant, each combining several customisations (column arrangement, image position, header alignment, date format, single-column layout, header QR code) to show what's tunable" src="examples/preview.gif">
+  <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.gif">
 </p>
+<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column, a CV in Irish, and show rules restyling the ratings and keywords.</sub></p>
 
-## Contents
+## Highlights
 
-- [Features](#features)
-- [Gallery](#gallery)
-- [Getting started](#getting-started)
-- [Fonts](#fonts)
-- [Data schema](#data-schema)
-- [Configuration](#configuration)
-- [Header QR code](#header-qr-code-preferencesqrcode)
-- [Restyling parts](#restyling-parts)
-- [PDF metadata](#pdf-metadata)
-- [PDF/A](#pdfa)
-- [Helpers](#helpers)
-- [Building the examples](#building-the-examples)
-- [Credits](#credits)
-- [License](#license)
+- **Data, not layout.** Your CV is a [JSON Resume](https://jsonresume.org/schema/) dict, inline in Typst or loaded from a `resume.json`. Empty sections disappear, and a misspelt key or a wrong type stops the build with a message naming it.
+- **Built-in themes**, every colour role overridable, plus theme tokens for the font, type scale, spacing and separators.
+- **Any layout.** Two columns at any ratio, any section in either column, the side panel left or right, or a single column for applicant-tracking systems (ATS).
+- **A rich header.** Portrait (circle, rounded or square; left, right or centred), contact bar with icons for common networks, and an optional QR code to your homepage for printed copies.
+- **Ratings as dots.** Language fluency and skill levels from LinkedIn-style terms (`Native`, `Expert`) or exact numbers, in half-dot steps.
+- **Every string translatable**, including month names and the document language; a [worked Irish translation](examples/labels-ga.toml) is included.
+- **Print- and archive-ready.** PDF metadata comes from your data, and the output compiles as PDF/A and PDF/UA-1 (tagged, with alt text).
 
-## Features
-
-- **Data-driven from [JSON Resume](https://jsonresume.org/).** Round-trips a canonical `resume.json` with three optional extensions (focus areas, a numeric language rating and an award link), read from JSON Resume's `custom.altacv` namespace (or, through `alta-from-json`, their deprecated top-level forms; see [From an existing `resume.json`](#from-an-existing-resumejson)).
-- **Single-column ATS mode** (`columnRatio: 1`) alongside the default two-column layout, plus inverted variants with the side panel on either side.
-- **Six accent palettes** — `teal`, `navy`, `crimson`, `forest`, `plum`, `charcoal` — or any `rgb(...)` value.
-- **Full label localisation** via inline dict or TOML file. Every display string is overridable; see [`examples/labels-ga.toml`](examples/labels-ga.toml) for a worked Irish translation.
-- **PDF metadata baked in** — title, author, subject, keywords (auto-derived from skills), and document date populate from the same data dict.
-- **Optional header QR code** linking to `basics.url` (or any URL), restoring one click of digital-PDF affordance for printed CVs.
-
-## Gallery
-
-Every documented section rendered in a single multi-page CV. Source: [`examples/example-full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version -->; rendered output: [`examples/example_full.pdf`](examples/example_full.pdf).
+The full example, every section in use, over two pages ([source](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version -->, [PDF](examples/example_full.pdf)):
 
 | Page 1 | Page 2 |
 | :---: | :---: |
-| ![Alta CV page 1: header, experience, side-panel sections.](examples/example_full-1.png) | ![Alta CV page 2: projects, publications grouped by type, certificates, awards.](examples/example_full-2.png) |
+| ![Alta CV page 1: header, experience, side-panel sections.](examples/example_full-1.png) | ![Alta CV page 2: publications grouped by type, interests, certificates, awards, references.](examples/example_full-2.png) |
 
-## Getting started
+## Contents
 
-Pick the path that matches how your data lives.
+- [Quick start](#quick-start)
+- [Customising](#customising): [themes](#themes-and-colours), [fonts](#fonts), [layout](#layout), [portrait and contacts](#portrait-contact-bar-and-qr-code), [translation](#translating-labels), [restyling](#restyling-parts), [PDF output](#pdf-metadata-pdfa-and-accessibility)
+- [Reference](#reference): [data schema](#data-schema), [preferences](#preferences), [theme tokens](#theme-tokens), [labels](#labels), [part labels](#part-labels), [exports](#exports)
+- [Contributing](#contributing) · [Credits](#credits) · [License](#license)
 
-### Scaffold a new project
+## Quick start
 
-Best when you are starting from scratch. Copies a working starter into your project.
+### Requirements
+
+- **Typst 0.15.0** or later.
+- **Fonts:** [Lato](https://fonts.google.com/specimen/Lato) (the default font) and the **FontAwesome 7 desktop** fonts (for icons). The Typst web app has both. Locally:
+
+  ```bash
+  # macOS (Homebrew)
+  brew install --cask font-lato font-fontawesome
+  ```
+
+  Elsewhere, install Lato from Google Fonts and the FontAwesome 7 desktop OTFs from [fontawesome.com/download](https://fontawesome.com/download). Debian/Ubuntu's `fonts-font-awesome` is v6, which isn't read. Run `typst fonts` to check: without FontAwesome, icons render as empty boxes.
+
+Package dependencies download automatically.
+
+### Start a new CV
 
 ```bash
 typst init @preview/altacv
 ```
 
-The starter is [`template/cv.typ`](template/cv.typ) — an inline data dict you fill in.
+This copies [`template/cv.typ`](template/cv.typ), a complete example CV, into a new project. Edit the data in place and compile.
 
-### From an existing `resume.json`
-
-Best when your CV already lives in a canonical `resume.json` ([JSON Resume schema](https://jsonresume.org/schema/)). `alta-from-json` reads, validates, and renders it in one call:
+### Render an existing `resume.json`
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -75,21 +73,18 @@ Best when your CV already lives in a canonical `resume.json` ([JSON Resume schem
 ```
 <!-- x-release-please-end -->
 
-Validation runs through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import). Dates must be ISO 8601 (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`); altacv's [extensions](#extensions) are optional, so a vanilla `resume.json` validates without edits. The `custom.altacv` forms don't validate on this route yet: gairm-import 0.9.0 rejects `custom` ([#217](https://github.com/smur89/alta-typst/issues/217)), so a `resume.json` still uses the deprecated top-level `focusAreas`, `languages[].rating` and `awards[].url` here.
-
-To inspect or transform the parsed dict before rendering, use `from-json-resume` directly:
+The file is validated against the [JSON Resume schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits. Both routes take the same data: anything an inline dict can hold, altacv's [extensions](#extensions) included, a `resume.json` can too. Dates must be ISO 8601 (`2024`, `2024-06`, `2024-06-15`). To inspect or change the data before rendering, parse it yourself with `from-json-resume`:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, from-json-resume
+#import "@preview/altacv:1.8.0": alta, from-json-resume, themes
 
-#alta(from-json-resume(path("resume.json")), preferences: (accent: rgb("#0a4")))
+#alta(from-json-resume(path("resume.json")), preferences: (theme: themes.forest))
 ```
 <!-- x-release-please-end -->
 
-### From an inline dict
 
-Best when you want the CV data in Typst alongside the call. Import into an existing `.typ`:
+### Write the data in Typst
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -103,63 +98,108 @@ Best when you want the CV data in Typst alongside the call. Import into an exist
     email: "jane@example.com",
     phone: "+353 1 555 0100",
     location: "Dublin, Ireland",
+    url: "https://janedoe.dev",
     profiles: (
-      (network: "LinkedIn", username: "janedoe",     url: "https://linkedin.com/in/janedoe"),
-      (network: "GitHub",   username: "janedoe",     url: "https://github.com/janedoe"),
-      (network: "Website",  username: "janedoe.dev", url: "https://janedoe.dev"),
+      (network: "GitHub",   username: "janedoe", url: "https://github.com/janedoe"),
+      (network: "LinkedIn", username: "janedoe", url: "https://linkedin.com/in/janedoe"),
     ),
   ),
   work: (
     (
-      name: "Acme Corp",
-      url: "https://acme.example.com", // optional — wraps the company name in a link
       position: "Senior Software Engineer",
+      name: "Acme Corp",
+      url: "https://acme.example.com",  // links the company name
       location: "Dublin, Ireland",
-      startDate: "Jan 2022",
-      // omit endDate → renders as "Present"
+      startDate: "2022-01",             // no endDate: "Present"
       highlights: ([Led the migration…], [Designed the platform…]),
+      keywords: ("Python", "Go", "Rust"),
     ),
   ),
   skills: (
-    (name: "Languages", keywords: ("Scala", "Python")),
+    (name: "Languages", level: "Expert", keywords: ("Scala", "Python")),
     (name: "Infra",     keywords: ("Kafka", "AWS", "Kubernetes")),
   ),
   languages: (
     (language: "English", fluency: "Native"),
     (language: "Irish",   fluency: "Professional Working"),
   ),
-  // … education, certificates, publications
+  // education, projects, publications, certificates, awards, …
 )
 
 #alta(cv)
 ```
 <!-- x-release-please-end -->
 
-For a multi-page demo exercising every section and input form, see [`examples/example-full.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version --> (rendered in [Gallery](#gallery) above).
+Only `basics.name` is required. Fields that take "string or content" also accept Typst markup (`[Led the *platform* team]`); keep to plain strings if the data also lives in a `resume.json`, as JSON can't carry markup. The [data schema](#data-schema) lists every section and field.
 
-## Fonts
+## Customising
 
-altacv needs two fonts available wherever you compile:
+`alta()` takes the CV and two optional dicts, each merged over the defaults:
 
-- **Lato** — the default body font. Overridable via `preferences.font`.
-- **FontAwesome v7 desktop set** — read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for the contact-bar and section icons.
-
-Neither is vendored in the package. The Typst web app has both preinstalled.
-
-On macOS, Homebrew covers Typst plus both fonts:
-
-```bash
-brew install typst
-brew install --cask font-lato font-fontawesome
+```typst
+#alta(cv, labels: (:), preferences: (:))
 ```
 
-On other platforms, install Lato from [Google Fonts](https://fonts.google.com/specimen/Lato) and the FontAwesome v7 desktop OTFs from [fontawesome.com/download](https://fontawesome.com/download). The Debian/Ubuntu `fonts-font-awesome` package ships v6, which the Typst package does not read by default.
+Set only the keys you want to change. An unknown key or a wrong type panics with a message naming it. The full list is under [Preferences](#preferences) and [Labels](#labels). The snippets below assume the `cv` dict and import from [Quick start](#write-the-data-in-typst); the common settings:
 
-Run `typst fonts` to confirm both are visible; if FontAwesome is missing, icons render as tofu. Any other body font works: `#alta(cv, preferences: (font: "Inter"))`.
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.8.0": alta, maps-providers, themes
 
-### Heading fonts
+#alta(cv, preferences: (
+  theme: themes.navy,
+  paper: "us-letter",
+  dateFormat: "short",              // 06/2024
+  imagePosition: "left",
+  linkContactInfo: (phone: false),  // everything linked but the phone
+  mapsProvider: maps-providers.osm, // OpenStreetMap for basics.location
+  rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
+))
+```
+<!-- x-release-please-end -->
 
-The body font is `preferences.font`. To set the name or headings in a different face, add a Typst show rule before `#alta(...)`. The name is the level-1 `heading`, the section headings are level 2, and the group and entry titles are deeper, so each rule picks its own scope:
+Settings layer in order: the theme, then `preferences.colours` and `preferences.font`, then any [show rules](#restyling-parts), which win over both.
+
+### Themes and colours
+
+`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
+
+`preferences.colours` then recolours any role over the theme's:
+
+```typst
+#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))
+```
+
+| Role | Colours |
+|---|---|
+| `accent` | Organisation names, tags, rating dots, contact icons, publication titles, the QR code. |
+| `emphasis` | Entry titles and interest group names. |
+| `body` | Body text and icons. Dates, dividers and empty rating dots take lighter shades of it. |
+| `heading` | Section titles. |
+| `headingRule` | The rule under each section title. |
+| `subheading` | Group titles, such as a publication type. |
+| `name` | `basics.name`. |
+| `tagline` | `basics.label`, under the name. |
+
+Any `rgb(...)` value works; roles that colour text should stay dark enough to read on white.
+
+A theme can also set the font, the type sizes and weights, the spacing and the separators. A theme of your own sets only what it changes; the rest comes from the default theme:
+
+```typst
+#alta(cv, preferences: (theme: (
+  font: "Libertinus Serif",
+  type: (headline: (size: 1.2)),  // section titles
+  separator: (facts: " | "),
+)))
+```
+
+To adjust a built-in theme, add to it: `themes.navy + (font: "Libertinus Serif")`. Typst's `+` merges only the top level, so `themes.navy + (colours: (accent: …))` replaces all of navy's colours; set a few roles with `preferences.colours` instead. Every token is listed under [Theme tokens](#theme-tokens).
+
+### Fonts
+
+`preferences.font` sets the font family (or a fallback array), over the theme's: `#alta(cv, preferences: (font: "Inter"))`. Any installed font works.
+
+To set the name or headings in a different face, add a show rule before `#alta(...)`. The name is a level-1 heading and section titles are level 2; group and entry titles are deeper:
 
 ```typst
 // A slab-serif name and section headings over a sans body:
@@ -167,435 +207,23 @@ The body font is `preferences.font`. To set the name or headings in a different 
 #alta(cv, preferences: (font: "Source Sans 3"))
 ```
 
-A plain `show heading: …` reaches the group and entry titles too. The body font can't be set the same way: `alta()` sets the document's font, size, colour and language itself (from `preferences.font`, `preferences.bodySize`, the theme and `labels.lang`), and those win over a `set text(...)` outside it. Every other text setting you make outside `alta()` (tracking, number styles, OpenType features) still applies. Like any font, these must be installed.
+A plain `show heading: …` reaches group and entry titles too. A `set text(font: …)` outside `alta()` doesn't change the body: `alta()` sets the body's font, size, colour and language itself. Other text settings (tracking, number styles, OpenType features) still apply.
 
-## Data schema
+### Layout
 
-The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). An empty or missing `endDate` renders as `Present` (localisable via `labels.present`). Sections with empty input are skipped — no orphan headings. Unknown top-level keys panic.
+`preferences.columnRatio` is the left column's share of the page width. `leftColumnSections` and `rightColumnSections` choose which sections go where, in order; by default long-form sections (experience, projects, publications) take the wide left column and the rest the right (see [Page and layout](#page-and-layout)). A section left out of both isn't rendered, even when it has data.
 
-Fields typed "string or content" also accept Typst markup (`[Led the *platform* team]`). JSON can't carry markup, so keep to plain strings if the data also lives in a `resume.json`.
-
-### Extensions
-
-Four optional fields layered on top of JSON Resume. They have no spec field, so they live in JSON Resume's [`custom`](https://jsonresume.org/schema) object (root, `basics` and every section entry; added in 1.4.0) under altacv's own `altacv` namespace:
-
-```typst
-(
-  custom: (altacv: (focusAreas: ([Distributed systems], [Developer tooling]))),
-  languages: ((language: "German", fluency: "Fluent", custom: (altacv: (rating: 3.5))),),
-  awards: ((title: "Best Paper", custom: (altacv: (url: "https://example.com/paper"))),),
-)
-```
-
-- **`custom.altacv.focusAreas`** (root) — array of prose items, rendered as a bulleted "Areas of Focus" section. Distinct from JSON Resume's `interests` (structured `{name, keywords}` — also supported). The section key in `leftColumnSections` / `rightColumnSections` and `labels.focusAreas` stay `focusAreas`.
-- **`languages[].custom.altacv.rating`** — numeric 0–`preferences.maxRating` (default 5). JSON Resume uses a `fluency` string; supplying a rating enables half-dot precision and wins over `fluency` when both are present. Fractions must be in 0.5 increments (anything else panics — the renderer only expresses full or half dots). Without a rating, LinkedIn's `fluency` terms (matched case-insensitively: `Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Native` fills every dot). Other `fluency` strings render as text in place of the dots, so a canonical `resume.json` with `"fluency": "Fluent"` works without edits. An entry with neither a rating nor `fluency` panics.
-- **`skills[].custom.altacv.rating`** — numeric 0–`preferences.maxRating`, in 0.5 increments: a skill group's exact level, which wins over its `level` (see [Skills](#skills)).
-- **`awards[].custom.altacv.url`** — links the award title (see [Awards](#awards)).
-
-JSON Resume says themes are "not expected to render" `custom`; altacv reads only its own `altacv` namespace and ignores every other key under `custom`.
-
-**Deprecated:** the top-level forms `focusAreas`, `languages[].rating` and `awards[].url` are still read, but `custom.altacv` wins when both are set. Move them under `custom.altacv`; the top-level forms are removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
-
-### Top-level keys
-
-Recognised: `basics`, `objective` (see below), `custom` (see [Extensions](#extensions)), `focusAreas` (deprecated), `work`, `volunteer`, `skills`, `languages`, `education`, `certificates`, `awards`, `projects`, `publications`, `interests`, `references`, `meta` (PDF metadata only — see [PDF metadata](#pdf-metadata)), and `$schema` (accepted, not rendered). Any other key panics, naming it, so a misspelt section (`publication` for `publications`) fails instead of silently dropping the section.
-
-### Objective
-
-`objective` (JSON Resume 1.4.0) is a short, forward-looking career goal, separate from `basics.summary`, which describes background. It renders between the header and the first section, above the summary when both are set, set off like a pull quote so the goal reads apart from the background summary. A string or `[...]` content (empty or missing renders nothing); anything else panics. Like the other JSON Resume 1.4+ fields, it reaches `alta-from-json` once [#217](https://github.com/smur89/alta-typst/issues/217) upgrades the validator; `alta()` renders it now.
-
-```typst
-#alta((
-  basics: (name: "Jane Doe", summary: "Backend engineer with eight years' experience."),
-  objective: "Seeking a senior backend role in climate tech.",
-))
-```
-
-### Dates
-
-ISO 8601 strings (`"2024"`, `"2024-06"`, `"2024-06-15"` — the JSON Resume canonical shape) are formatted according to `preferences.dateFormat` (default `"long"`: e.g. `"Jun 2024"`). Strings that do not parse as ISO (e.g. `"Jan 2022"`, `"May 2016 – Jul 2017"`) pass through verbatim, so pre-formatted data keeps rendering identically.
-
-### `basics`
-
-`basics.pronouns` is accepted and ignored. JSON Resume 1.4.0 shipped it by accident and [removes it](https://github.com/jsonresume/jsonresume.org/pull/629) after 1.7.0, so altacv no longer renders it; a `resume.json` that still carries it compiles unchanged.
-
-`basics.url` (JSON Resume's "personal homepage" field) renders in the contact bar with a generic `link` icon, shown without its scheme (`https://jane.dev/` reads `jane.dev`) but linking the full URL, alongside `email`, `phone`, `location`, and `profiles`. It is distinct from a `basics.profiles` entry with `network: "Website"` (a profile *on* a third-party site); supply both if you want both rendered. The same `basics.url` also drives the header QR matrix when `preferences.qrCode: auto` is set — see [Header QR code](#header-qr-code-preferencesqrcode).
-
-`basics.location` accepts a plain string or JSON Resume's structured dict `{address, postalCode, city, countryCode, region}`. A string flows verbatim into the contact bar and the maps deep link. A dict is collapsed by joining `city`, `region`, `countryCode` with `", "`, skipping missing fields — `(city: "Dublin", region: "Leinster", countryCode: "IE")` → `Dublin, Leinster, IE`; `(city: "Tokyo")` → `Tokyo`. `address` and `postalCode` are accepted for `resume.json` round-tripping but not rendered (a CV header is not a mailing label). Unknown keys panic. The joined string also drives the maps link, so display and link stay in sync.
-
-#### Portrait (`basics.image`)
-
-Setting `basics.image` adds a circular portrait to the header. Three accepted source forms:
-
-```typst
-// Recommended: a path() (Typst 0.15.0+). Resolution is anchored to
-// the file where path() is called — your own cv.typ — so the lookup
-// stays correct even though image() ultimately runs inside the
-// package.
-basics: (
-  image: path("avatar.png"),
-  ...
-)
-
-// Equivalent: load the bytes in your own typ file. Same resolution
-// guarantee, embedded as bytes instead of a reference.
-basics: (
-  image: read("avatar.png", encoding: none),
-  ...
-)
-
-// Also accepted: a root-relative path (leading "/", anchored to the
-// `--root` dir passed to `typst compile`). Bare relative strings
-// without a leading "/" resolve relative to an internal package
-// file and are not portable — prefer path() instead.
-basics: (
-  image: "/avatar.png",
-  ...
-)
-```
-
-JSON Resume's spec calls for a URL here, but Typst does not fetch remote URLs at compile time — vendor the asset locally.
-
-Move the portrait with `preferences.imagePosition` (`"left"` / `"right"` for the two-column header, or `"center"` to stack it above/below the text block via `preferences.imageStackOrder`). Size via `preferences.imageSize` (default `6em`); the image is fit with `cover` and clipped to `preferences.imageShape` (default a circle), so rectangular sources crop centred rather than distort.
-
-### Section reference
-
-Each per-section entry follows JSON Resume's schema; the tables list what each section reads. Every entry section lays its entries out in the same order: the title with its date at the right edge, then the organisation and the entry's other short facts (roles, a credential ID) with the location at the right edge, `summary`, highlights, then keywords. Absent fields drop their line, and a title or organisation links to the entry's URL when one is set. How each part looks is the template's internal theme; the user-facing knobs are the [preferences](#preferences) (`accent`, `font`, `bodySize`, …).
-
-**Deprecated:** `description` in `work[]`, `volunteer[]` and `projects[]` is read as an alias of `summary` (which wins when both are set). Rename it to `summary`; the alias is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
-
-#### Shared fields
-
-These mean the same in every section that reads them:
-
-| Field | Type | Meaning |
-|---|---|---|
-| `location` | string or dict | Where. A string, or a dict in the same forms as [`basics.location`](#basics). |
-| `startDate` / `endDate` | string | When, formatted as in [Dates](#dates); omit `endDate` for "Present". A single `date` is one date. |
-| `summary` | string or content | A short paragraph of context. |
-| `highlights` | array of content | Accomplishments, as a bulleted list. |
-| `keywords`, `courses` | array of strings | In entry sections (projects, education), one line at the end of the entry, joined with ` · `. Skills and interests show their `keywords` their own way (see below). |
-
-#### Work
-
-Also reads `location`, `startDate` / `endDate`, `summary` and `highlights` ([shared fields](#shared-fields)).
-
-| Field | Type | Effect |
-|---|---|---|
-| `position` | string | Job title; the entry's title. |
-| `name` | string | Company / employer; the organisation. |
-| `url` | string | Links the organisation. |
-| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume uses `work[].description` for a different field, a description of the company (e.g. "Social Media Company"). |
-
-#### Volunteer
-
-Also reads `location`, `startDate` / `endDate`, `summary` and `highlights` ([shared fields](#shared-fields)).
-
-| Field | Type | Effect |
-|---|---|---|
-| `position` | string | Role title; the entry's title. |
-| `organization` | string | The organisation. |
-| `url` | string | Links the organisation. |
-| `description` | string or content | **Deprecated** alias of `summary` (see above). Not a JSON Resume field. |
-
-By default `volunteer` renders in the left column directly below `work`, so it reads as a continuation of the experience block. Move it via `preferences.leftColumnSections` / `preferences.rightColumnSections`.
-
-#### Education
-
-Also reads `location`, `startDate` / `endDate` and `courses` ([shared fields](#shared-fields)).
-
-| Field | Type | Effect |
-|---|---|---|
-| `studyType` | string | Qualification (e.g. "Bachelor", "M.Sc."); the entry's title. Falls back to `area` if absent. |
-| `area` | string | Field of study (e.g. "Engineering"). Leads the score line, `Engineering · Distinction`, or is the title when `studyType` is missing. |
-| `institution` | string | School name; the organisation. |
-| `url` | string | Links the institution. |
-| `summary` | string or content | Thesis topic, honours or other context. |
-| `score` | string | Grade / classification, after `area` on its own line above the `courses`. |
-
-#### Projects
-
-Also reads `startDate` / `endDate`, `summary`, `highlights` and `keywords` ([shared fields](#shared-fields)).
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | Project title. Missing / empty `name` → entry silently skipped. |
-| `entity` | string | The company or client the project belonged to; leads the line under the title, as an organisation does. |
-| `url` | string | Links the title. |
-| `roles` | array of strings | Your role(s) on the project, after `entity` on the line under the title (`Acme Corp · Lead, Architect`). |
-| `description` | string or content | **Deprecated** alias of `summary` (see above). JSON Resume deprecated it in 1.6.0. |
-| `type` | string | Optional grouping key. When any entry sets it, projects cluster under `type` subheadings, each led by its [project icon](#project-icons) (first-occurrence order; untyped entries pool under `labels.otherProjects`, default "Other"). An all-untyped list renders flat, with no subheadings. |
-
-#### Awards
-
-`url` is an altacv extension on top of JSON Resume, read from `custom.altacv.url` (see [Extensions](#extensions)).
-
-| Field | Type | Effect |
-|---|---|---|
-| `title` | string | Award name. Missing / empty `title` → entry silently skipped. |
-| `awarder` | string | The granting organisation. |
-| `date` | string | When it was awarded. |
-| `custom.altacv.url` | string | Links the title: a paper, conference page or write-up. |
-| `url` | string | **Deprecated** form of `custom.altacv.url` (which wins when both are set). |
-| `summary` | string or content | What the award was for. |
-
-#### Publications
-
-A bibliography list rather than entries: the title, then a line each for the authors, the source (publisher and citation) with its date, the identifiers and the summary.
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | Publication title. |
-| `url` | string | Links the title. Without it, the title links to the first resolvable identifier (DOI, then arXiv, then PMID). |
-| `authors` | array of strings | JSON Resume 1.7.0 author list in published order. The CV owner's own entry (matching `basics.name`, or one of `preferences.ownerNames`, ignoring case and surrounding spaces) is set apart. |
-| `publisher` | string | Where it was published. |
-| `volume` / `issue` / `pages` | string | JSON Resume 1.7.0 journal citation, after the publisher as `12(3), 45–67`. Each part is optional and takes its punctuation with it; a hyphen or run of hyphens in `pages` becomes one en dash. |
-| `releaseDate` | string | Publication date. |
-| `identifiers` | object | JSON Resume 1.7.0 persistent IDs keyed by scheme, listed as `DOI 10.1000/182 · arXiv 2101.00001`: `doi`, `arxiv` and `pmid` link to doi.org, arxiv.org and PubMed, `isbn` prints as is, and other schemes print as given. Empty or non-string values are skipped. |
-| `summary` | string or content | What the publication is about. |
-| `type` | string | Optional grouping key: `article`, `book`, `patent`, `thesis` or `talk`, headed by `labels.publicationTypes` (matched case-insensitively). Untyped entries count as `article`. Free-text values (`"Articles"`, `"Talks"`) still work, and the common plurals group with their code; deprecated, removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)). |
-
-All fields are optional — omitted fields drop their line.
-
-#### Certificates
-
-The date sits at the title's right edge; the issuer and credential ID share the line under it.
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | Certificate name; the entry's title. Missing / empty `name` → entry silently skipped. |
-| `issuer` | string | Granting organisation. |
-| `date` | string | Date the certificate was issued. |
-| `expiryDate` | string | Date the certificate expires, making the date a range (`Mar 2024 – Mar 2027`). Leave it out for a certificate that doesn't expire: the date stays single, with no `Present`. |
-| `url` | string | Links the name to the credential. |
-| `credentialId` | string | Licence or certification number, so a reader can verify the certificate. Shown as given. |
-| `summary` | string or content | What the certificate covers. |
-
-#### Skills
-
-A `{name, keywords}` group per entry: the name as a label pill, then the keywords as pills.
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | The group's label. |
-| `keywords` | array of strings | The skills, as pills. Groups with an empty `keywords` array are skipped. |
-| `level` | string | After the label, as dots or as text, per `preferences.skillLevelDisplay`. The common terms (matched case-insensitively: `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert`, `Master`) turn into dots, scaled to `preferences.maxRating` and rounded to the nearest half (`Master` fills every dot, `Intermediate` three of five); other strings show as text. `custom.altacv.rating` overrides it with an exact value. |
-
-```typst
-skills: (
-  (name: "Backend", level: "Master", keywords: ("Scala", "Kafka")),
-  (name: "Frontend", custom: (altacv: (rating: 2.5)), keywords: ("React",)),
-  (name: "Data", level: "Comfortable", keywords: ("SQL",)),  // shows "Comfortable"
-)
-```
-
-#### Interests
-
-A `{name, keywords}` category per entry, shown as a line of text: the category in bold, then its keywords (`Music: Trad, Jazz`). Use for personal interests / hobbies; reach for `custom.altacv.focusAreas` instead when you want prose-style bullets.
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | The category. |
-| `keywords` | array of strings | Items in the category. Entries with an empty `keywords` array are silently skipped. |
-
-```typst
-interests: (
-  (name: "Music", keywords: ("Trad", "Jazz")),
-  (name: "Sport", keywords: ("Hurling", "Climbing")),
-)
-```
-
-#### References
-
-| Field | Type | Effect |
-|---|---|---|
-| `name` | string | Referee name; the entry's title. Omitted entries render the quote anonymously. |
-| `reference` | string or content | The referee's quote. Missing / empty `reference` → entry silently skipped (no orphan heading), unless `availableOnRequest` is set. |
-| `relationship` | string | JSON Resume 1.7.0. How the referee knows you (`Manager`, `Thesis advisor`). Leads a line under the name: `Manager, Pied Piper · Mar 2024`. |
-| `organization` | string | JSON Resume 1.7.0. Where you worked together, after `relationship` on the same line. |
-| `date` | string | JSON Resume 1.7.0. Formatted as in [Dates](#dates), closing the same line. Missing parts drop out with their separator; with none, there is no line. |
-| `availableOnRequest` | bool | JSON Resume 1.7.0. `true` shows `labels.referencesAvailableOnRequest` (localisable) in place of the quote, so the quote is never published. When every entry sets it, the section is just that one line, with no names. |
-
-The [`referencesAvailableOnRequest` preference](#deprecated-preferences) is deprecated in favour of `availableOnRequest`.
-
-### Profile networks
-
-The `network` field of each `basics.profiles` entry is matched case-insensitively against a curated icon set. Built-in networks: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (alias: `X`), `Website`. Use `Link` as a generic fallback for any URL without a brand. Unknown networks panic with a list of the supported set.
-
-For a network outside that set, map it to a FontAwesome glyph name in [`preferences.profileIcons`](#profile-icons). To add one to the built-in set, map the new key to its glyph in `_network-icons` (`internal/design/icon-set.typ`) — see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-profile-network-icon).
-
-Icons are resolved via [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome), which renders glyphs from the desktop FontAwesome fonts. See [Fonts](#fonts) for local installation; on typst.app they are preinstalled.
-
-### Unrendered JSON Resume fields
-
-A verbatim `resume.json` round-trips without panicking — fields altacv doesn't use are accepted and ignored rather than erroring. The `volunteer`, `projects`, and `meta` extras once listed here now all render, so none are currently outstanding. If you supply a field that isn't rendered and want it surfaced, open or upvote an issue.
-
-## Configuration
-
-### `alta()` arguments
-
-```typst
-#alta(cv, labels: (:), preferences: (:))
-```
-
-`cv` is the data dict; `labels` and `preferences` are partial dicts merged over the built-in defaults: a key you set replaces the default, except `labels.publicationTypes` and `preferences.publicationIcons`, which merge entry by entry. Unknown keys panic — catches typos. Values are type-checked as well, and each CV section must be an array of entries, so a wrong shape panics with a message naming the key instead of failing somewhere inside the template.
-
-### Preferences
-
-Override any subset of the keys below.
-
-#### Look
-
-| Key | Default | Effect |
-|---|---|---|
-| `font` | `"Lato"` | Primary font family, or a fallback array of families. Must be installed. |
-| `bodySize` | `10pt` | Base text size: a positive absolute length (`1em` or a bare `10` panics). Sub-elements scale via em-multipliers. |
-| `accent` | `palettes.teal` | Theme colour for headings, group labels, organisation lines, accent rules, tags, dots. A built-in preset — `palettes.{teal,navy,crimson,forest,plum,charcoal}` — or any `rgb(...)` value; it colours text, so pick one dark enough to read on white, as the presets are. |
-| `publicationIcons` | built-ins | Icons per `publications[].type`. See [Publication icons](#publication-icons). |
-| `projectIcons` | `(:)` | Icons per `projects[].type` (`folder` when unmapped). See [Project icons](#project-icons). |
-| `profileIcons` | built-ins | FontAwesome glyphs per `basics.profiles[].network`. See [Profile icons](#profile-icons). |
-
-#### Header
-
-| Key | Default | Effect |
-|---|---|---|
-| `uppercaseName` | `true` | When `true`, `basics.name` renders in uppercase. Set to `false` for scripts where uppercase is a different glyph set (Turkish dotless-i, etc.), scripts with no case, or when the loud look is not wanted. |
-| `headerTextAlign` | `"left"` | Horizontal alignment of the header text (name, label, contact bar). One of `"left"`, `"right"`, `"center"`. Applies whether or not `basics.image` is set. |
-| `imageSize` | `6em` | Width and height of the portrait (its diameter when circular). Ignored when no `basics.image`. |
-| `imageShape` | `"circle"` | How the portrait is clipped: `"circle"`, `"rounded"` (a square with rounded corners) or `"square"`, for a logo or a photo framed square. Ignored when no `basics.image`. |
-| `imagePosition` | `"right"` | Portrait position in the header — `"left"` / `"right"` (two-column header) or `"center"` (own centred row, stacked with the text block). Ignored when no `basics.image`. |
-| `imageStackOrder` | `"above"` | When `imagePosition` is `"center"`: `"above"` / `"below"` the name/label/contact block. Ignored otherwise. |
-| `qrCode` | `none` | `none` (skip), `auto` (encode `basics.url`), or any non-empty URL string. See [Header QR code](#header-qr-code-preferencesqrcode). |
-
-#### Page and layout
-
-| Key | Default | Effect |
-|---|---|---|
-| `paper` | `"a4"` | Paper size string passed to Typst's `set page(paper: ...)`. `"a4"`, `"us-letter"`, `"a5"`, `"us-legal"`, and the rest of [Typst's named papers](https://typst.app/docs/reference/layout/page/#parameters-paper). |
-| `margin` | `(x: 0.9cm, y: 1.5cm)` | Page margins: a length, `auto`, or a dict of them keyed by side, as `set page(margin: ...)` takes. |
-| `columnRatio` | `0.65` | Left column's share of the page width, in `(0, 1]`. The right column gets the rest; both columns give up a proportional share of a fixed gutter. Use `1 - r` to invert the layout, or `1` for a [single-column layout](#single-column-layout). |
-| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections to render in the left column, in order. Defaults put long-form / bulleted sections on the wider left. |
-| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections to render in the right column, in order. Defaults put compact / horizontal sections (pill rows, dot ratings, short metadata) on the right. |
-
-Both column arrays draw from the same section keys: `"work"`, `"volunteer"`, `"focusAreas"`, `"skills"`, `"languages"`, `"education"`, `"certificates"`, `"awards"`, `"projects"`, `"publications"`, `"interests"`, `"references"`. Sections omitted from both are not rendered even if their data is present; sections listed in both render twice. Unknown keys panic. Renderers are width-agnostic — combined with `columnRatio`, this enables layouts like an inverted CV where the side-panel sections take the narrow left column.
-
-#### Footer
-
-| Key | Default | Effect |
-|---|---|---|
-| `pageFooter` | `none` | Optional page footer. `none` — no footer. `auto` (or the deprecated string `"auto"`) — multi-page documents only, `basics.name` flush left and `Page N / M` (`labels.pageNumber`) flush right, `0.8em` body colour. Any **content** value (`[…]`, `align(...)`, etc.) — rendered verbatim on every page. Anything else panics. When non-`none`, takes precedence over `lastModifiedFooter`. |
-| `lastModifiedFooter` | `false` | When `true` and `meta.lastModified` is set, renders a small right-aligned `<labels.lastModified>: <meta.lastModified>` line in the page footer (timestamp passed through verbatim). PDF metadata is enriched independently — see [PDF metadata](#pdf-metadata). |
-| `footerVersion` | `false` | When `true` and `meta.version` is set, appends it in parentheses to the `lastModifiedFooter` line — e.g. `Last updated: 2026-06-12 (v1.0.0)`. The version renders verbatim (no `v` is prepended). No effect unless `lastModifiedFooter` is also `true`; PDF Keywords carry `meta.version` regardless — see [PDF metadata](#pdf-metadata). |
-
-#### Formatting and links
-
-| Key | Default | Effect |
-|---|---|---|
-| `justify` | `false` | When `true`, running text (summaries, highlights, focus areas, quotes) is justified and hyphenated by `labels.lang`, which evens out the ragged right edge in narrow columns. Everything else, such as headings, the header, facts lines, author lists and pill rows, stays ragged. |
-| `dateFormat` | `"long"` | `"long"` (`"Jun 2024"`), `"short"` (`"06/2024"`), `"iso"` (passthrough), a bracketed [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) template, or a closure `(year, month, day) => str`. Non-ISO source strings pass through verbatim. |
-| `linkContactInfo` | `true` | `true` / `false` for uniform linking, or a partial dict keyed by `"email"` / `"phone"` / `"location"` / `"url"` / `"profiles"` to opt out per channel. |
-| `printFullUrls` | `false` | For a printed CV: an unlinked `"url"` or `"profiles"` entry shows its URL without the scheme (`github.com/jane`) in place of its username. The homepage already shows its URL, so this changes profiles only. |
-| `mapsProvider` | `maps-providers.google` | URL template for the `basics.location` deep link; `{q}` is replaced with the URL-encoded location. Built-in: `maps-providers.{google,apple,bing,duckduckgo,osm}`. `none` suppresses the link (icon + text still render). |
-| `maxRating` | `5` | Number of dots on the language scale. Positive integer. Set `6` for a CEFR-style scale, `4` for ILR-style, etc. LinkedIn `fluency` strings scale to it, rounded to the nearest half. |
-| `skillLevelDisplay` | `auto` | How `skills[].level` shows. `auto`: dots where the level maps to a rating (or `custom.altacv.rating` is set), its text otherwise. `"rating"`: always dots; a level that can't be mapped panics, naming the terms that can. `"text"`: always the level's text. |
-| `ownerNames` | `()` | Other spellings of `basics.name` that also mark the CV owner among `publications[].authors`, matched the same way: e.g. `("J. Doe", "Jane Smith")` for initials or a former name. |
-
-#### Deprecated preferences
-
-Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
-
-| Key | Default | Effect |
-|---|---|---|
-| `groupCertificates` | `true` | Ignored: certificates render as entries, each showing its own issuer. |
-| `showPronouns` | `false` | Ignored: `basics.pronouns` is no longer rendered — see [`basics`](#basics). |
-| `referencesAvailableOnRequest` | `false` | Use [`references[].availableOnRequest`](#references) instead. When `true` and `references[]` is empty (or every entry has no `reference` quote), renders the conventional `labels.referencesAvailableOnRequest` line under the References heading instead of suppressing the section. |
-
-#### Publication icons
-
-`preferences.publicationIcons` maps `publications[].type` values to the icon leading their subheading, matched case-insensitively. Values are names from the built-in icon set (the keys `icon()` accepts, e.g. `"book"`, `"microphone"`, `"newspaper"`, `"file"`); an unknown name panics. The dict merges entry by entry over the built-ins, so set only a custom type or a remapped one:
-
-```typst
-#alta(cv, preferences: (publicationIcons: (patent: "book", podcast: "microphone")))
-```
-
-| `type` value | Built-in icon |
-|---|---|
-| `article` / `articles` / `blog post` / `blog posts` | `newspaper` |
-| `book` / `books` / `thesis` / `theses` | `book` |
-| `talk` / `talks` / `presentation` / `presentations` | `microphone` |
-| `paper` / `papers` / `conference paper` / `conference papers` | `newspaper` |
-| anything else | `file` |
-
-The plural and free-text keys exist for the deprecated free-text `type` headings.
-
-#### Project icons
-
-`preferences.projectIcons` maps `projects[].type` values to the icon leading their subheading, matched case-insensitively, with values from the same icon set. A type it doesn't map gets `folder`:
-
-```typst
-#alta(cv, preferences: (projectIcons: (application: "laptop-code", library: "cubes")))
-```
-
-Icons that suit project kinds include `laptop-code`, `cubes`, `terminal` and `flask`.
-
-#### Profile icons
-
-`preferences.profileIcons` maps `basics.profiles[].network` values, case-insensitively, to the glyph drawn beside them in the contact bar. Its default is the [built-in set](#profile-networks); your entries merge over it, so you can add a network or redraw a built-in one. A mapping for `twitter` also covers its alias `X`, unless `x` is mapped too.
-
-Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawesome.com/search), not icon-set keys: brand marks (`"kaggle"`, `"researchgate"`) and Free Solid glyphs (`"flask"`) both work. A name FontAwesome doesn't know panics; a Pro-only one draws only with the Pro fonts installed.
-
-```typst
-#alta(cv, preferences: (profileIcons: (kaggle: "kaggle", researchgate: "researchgate", github: "square-github")))
-```
-
-#### Examples
-
-Reorder the right-column sections, switch to navy, and use US Letter:
-
-<!-- x-release-please-start-version -->
-```typst
-#import "@preview/altacv:1.8.0": alta, maps-providers, palettes
-
-#alta(cv, preferences: (
-  paper: "us-letter",
-  accent: palettes.navy,
-  imageSize: 7em,
-  linkContactInfo: false,           // contact bar as plain text
-  mapsProvider: maps-providers.osm, // OpenStreetMap for `basics.location`
-  // Move education above skills; hide publications.
-  rightColumnSections: ("focusAreas", "education", "skills", "languages", "certificates"),
-))
-```
-<!-- x-release-please-end -->
-
-Invert the template (side panel on the narrow left, experience on the wide right):
+Invert the layout, side panel on the narrow left:
 
 ```typst
 #alta(cv, preferences: (
-  // columnRatio is the LEFT column's width; 0.35 = complement of the default 0.65.
   columnRatio: 0.35,
   leftColumnSections: ("focusAreas", "skills", "languages", "education", "certificates"),
   rightColumnSections: ("work", "publications"),
 ))
 ```
 
-Opt out of links per channel (everything stays linked except phone):
-
-```typst
-#alta(cv, preferences: (
-  linkContactInfo: (phone: false),
-))
-```
-
-### Single-column layout
-
-Set `columnRatio: 1` to collapse the grid to a single full-width column — useful for ATS parsers that struggle with multi-column PDFs. Sections from both `leftColumnSections` and `rightColumnSections` stream top-to-bottom in left-then-right order. With the defaults: `work → volunteer → projects → publications → focusAreas → skills → languages → education → certificates → awards → interests → references`.
-
-```typst
-#alta(cv, preferences: (columnRatio: 1))
-```
-
-Reorder by overriding either array; both are concatenated in order:
+**Single column.** `columnRatio: 1` stacks every section in one full-width column, left list first, then right. Useful for applicant-tracking systems that misread multi-column PDFs:
 
 ```typst
 #alta(cv, preferences: (
@@ -605,17 +233,312 @@ Reorder by overriding either array; both are concatenated in order:
 ))
 ```
 
-Drop the portrait via `basics.image: none` for a fully text-only header.
+Page size and margins: `paper` (any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper)) and `margin`. For a footer with your name and page numbers on multi-page CVs, set `pageFooter: auto`.
+
+### Portrait, contact bar and QR code
+
+**Portrait.** Set `basics.image` to add one. Pass it as a `path()`, which resolves relative to your own file, or as bytes:
+
+```typst
+basics: (
+  image: path("avatar.png"),                 // recommended
+  // image: read("avatar.png", encoding: none),
+  // image: "/avatar.png",                   // relative to the --root dir
+  // image: avatar-placeholder,              // built-in silhouette; import it from the package
+  // …other basics fields
+)
+```
+
+A bare relative string without the leading `/` resolves inside the package, so use `path()`. [JSON Resume](https://jsonresume.org/schema/) calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
+
+Position it with `imagePosition` (`"right"`, `"left"`, or `"center"` with `imageStackOrder` `"above"` / `"below"` the text), size it with `imageSize` and shape it with `imageShape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `headerTextAlign` aligns the name and contact bar.
+
+**Contact bar.** Built from `basics.email`, `phone`, `location`, `url` and `profiles`, each linked (`mailto:`, `tel:`, a maps search, the URL). `linkContactInfo` turns linking off globally or per channel. For paper, turn linking off and set `printFullUrls: true` to print profile URLs in place of usernames.
+
+**QR code.** For printed copies, `qrCode` adds a QR code to your homepage on the side opposite the portrait:
+
+```typst
+#alta(cv, preferences: (qrCode: auto))                         // encodes basics.url
+#alta(cv, preferences: (qrCode: "https://janedoe.dev/cv"))     // any URL
+```
+
+### Translating labels
+
+Every string the template prints is a label. Override any subset; the rest stay English:
+
+```typst
+#alta(cv, labels: (
+  lang:         "de",
+  work:         "Berufserfahrung",
+  skills:       "Kenntnisse",
+  education:    "Ausbildung",
+  present:      "Heute",
+  months: ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
+))
+```
+
+Set `lang` alongside any translation: it drives hyphenation, smart quotes and the PDF's language tag. For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml) next to your CV (say as `labels-de.toml`), translate the values and load it:
+
+```typst
+#alta(cv, labels: toml("labels-de.toml"))
+```
+
+See [`examples/labels-ga.toml`](examples/labels-ga.toml) and [`examples/example-ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version --> for a complete Irish translation. Every key is under [Labels](#labels).
+
+### Restyling parts
+
+Parts of the CV carry Typst labels (`<alta-…>`) that show rules can target, to restyle one part without touching the rest. Put the rules before `#alta(...)`:
+
+```typst
+#show <alta-contact>: set text(font: "IBM Plex Mono")
+#show <alta-date>: set text(style: "italic")
+#show <alta-divider>: set line(stroke: (paint: gray))  // keeps the dash
+#show <alta-rating-full>: [★]                          // stars for dots
+#show <alta-rating-empty>: [☆]
+#alta(cv)
+```
+
+A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`, and a glyph that replaces one takes its colour: the accent, or the border colour for an empty dot. A paragraph part, the line that lays out a row of items, takes `set par(…)`. Every part is listed under [Part labels](#part-labels), with its kind: the rules it takes, not the element it is. A replacement rule's `it` is the part as content, whatever builds it (text, a sequence, a `context`, an `align`), so use it whole (`tag(it)`, `emph(it)`), not `it.text`.
+
+An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()`, drop the separator between them, and space the `<alta-keywords>` line as skill rows are (0.8em, the default `keyword-row` gap) from its wrapped rows and the line above:
+
+<!-- x-release-please-start-version -->
+```typst
+#import "@preview/altacv:1.8.0": alta, tag
+
+#show <alta-keyword>: it => tag(it)
+#show <alta-keywords>: set par(leading: 0.8em, spacing: 0.8em)
+#alta(cv, preferences: (theme: (separator: (keywords: ""))))
+```
+<!-- x-release-please-end -->
+
+The list bullet is Typst's `list`, so change it with a show-set rule: `#show list: set list(marker: [–])`. A plain `#set list(...)` doesn't reach inside `alta()`.
+
+### PDF metadata, PDF/A and accessibility
+
+The PDF's document properties are filled from your data:
+
+| PDF field | Source |
+|---|---|
+| Title | `labels.documentTitle` (default `"{name} — CV"`) |
+| Author | `basics.name` |
+| Subject | `basics.summary` |
+| Keywords | Every `skills[].keywords`, de-duplicated, then `meta.canonical` and `meta.version` |
+| Date | `meta.lastModified` (ISO 8601), else the compile time |
+
+```typst
+meta: (
+  lastModified: "2026-06-12",               // PDF date; footer with lastModifiedFooter: true
+  canonical: "https://example.com/cv.json", // PDF Keywords
+  version: "v1.0.0",                        // PDF Keywords; footer with footerVersion: true
+)
+```
+
+For an archival (PDF/A) or accessible (PDF/UA-1) PDF, ask the compiler. The template needs no setting:
+
+```sh
+typst compile --pdf-standard a-2b,ua-1 cv.typ
+```
+
+The output has a tagged structure with nested headings, a document title, alt text for the portrait and meaningful icons, and the language from `labels.lang`.
+
+## Reference
+
+### Data schema
+
+The `cv` dict follows [JSON Resume](https://jsonresume.org/schema/). Missing or empty sections are skipped, with no orphan headings. Spec fields altacv doesn't render (`basics.pronouns`, which JSON Resume [is removing](https://github.com/jsonresume/jsonresume.org/pull/629); a location's `address` and `postalCode`) are accepted and ignored, so a `resume.json` from elsewhere compiles unchanged.
+
+#### Top-level keys
+
+`basics`, `objective`, `work`, `volunteer`, `education`, `skills`, `languages`, `projects`, `publications`, `certificates`, `awards`, `interests`, `references`, `custom` ([extensions](#extensions)), `meta` ([PDF metadata](#pdf-metadata-pdfa-and-accessibility)), `$schema` (accepted, not rendered), and the deprecated `focusAreas`. Any other key panics, so a misspelt section (`publication`) fails rather than vanishing.
+
+`objective` ([JSON Resume](https://jsonresume.org/schema/) 1.4.0) is a short career goal, a string or content, shown in the header under the tagline (`basics.label`), in italics, aligned with the rest of the header.
+
+#### Dates
+
+ISO 8601 dates (`"2024"`, `"2024-06"`, `"2024-06-15"`) are formatted per `preferences.dateFormat`; other strings (`"Jan 2022"`) print as given. A missing or empty `endDate` reads `Present` (`labels.present`).
+
+#### Extensions
+
+altacv reads four optional fields the [JSON Resume schema](https://jsonresume.org/schema/) has no place for, from its own namespace in the schema's `custom` object. Other keys under `custom` are ignored.
+
+```typst
+(
+  custom: (altacv: (focusAreas: ([Distributed systems], [Developer tooling]))),
+  languages: ((language: "German", fluency: "Fluent", custom: (altacv: (rating: 3.5))),),
+  skills: ((name: "Frontend", keywords: ("React",), custom: (altacv: (rating: 2.5))),),
+  awards: ((title: "Best Paper", custom: (altacv: (url: "https://example.com/paper"))),),
+)
+```
+
+| Field | Effect |
+|---|---|
+| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section and label key is `focusAreas`. |
+| `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.maxRating` in 0.5 steps; wins over `fluency`. |
+| `skills[].custom.altacv.rating` | The same for a skill group; wins over `level`. |
+| `awards[].custom.altacv.url` | Links the award title. |
+
+**Deprecated:** the top-level `focusAreas`, `languages[].rating` and `awards[].url` are still read (`custom.altacv` wins when both are set) and are removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
+#### `basics`
+
+| Field | Effect |
+|---|---|
+| `name` | Required. The name, in uppercase unless `preferences.uppercaseName: false`. |
+| `label` | The tagline under the name. |
+| `summary` | The introduction under the header. |
+| `image` | The portrait; see [Portrait](#portrait-contact-bar-and-qr-code). |
+| `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qrCode: auto` encodes. |
+| `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`; the address and postcode aren't shown. |
+| `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
+
+#### Sections
+
+Every entry section has the same layout: the title with its date at the right edge; the organisation and short facts with the location at the right edge; then the summary, highlights and keywords. Absent fields drop their line, and the title or organisation links to the entry's `url` when set.
+
+These fields mean the same in every entry section:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `location` | string or dict | As in [`basics.location`](#basics). |
+| `startDate` / `endDate` | string | A period, per [Dates](#dates); a single `date` is one date. |
+| `summary` | string or content | A short paragraph of context. |
+| `highlights` | array of content | A bulleted list of accomplishments. |
+| `keywords`, `courses` | array of strings | One line at the end of the entry, joined with ` · `. Skills and interests show keywords their own way (below). |
+
+**Deprecated:** `description` in `work`, `volunteer` and `projects` is read as `summary` (which wins); removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
+| Section | Title | Facts line | Also reads |
+|---|---|---|---|
+| `work` | `position` | `name` (linked by `url`) | `location`, dates, `summary`, `highlights`, `keywords` |
+| `volunteer` | `position` | `organization` (linked by `url`) | `location`, dates, `summary`, `highlights` |
+| `education` | `studyType`, else `area` | `institution` (linked by `url`) | `location`, dates, `summary`, `courses`; a line above the courses with `area` (when `studyType` is the title) and `score` |
+| `projects` | `name` (linked by `url`) | `entity · roles` | dates, `summary`, `highlights`, `keywords`, `type` |
+| `certificates` | `name` (linked by `url`) | `issuer · credentialId` | `date`, `expiryDate` (makes the date a range), `summary` |
+| `awards` | `title` (linked by `custom.altacv.url`) | `awarder` | `date`, `summary` |
+
+An entry without its title field (`name` for projects and certificates, `title` for awards) is skipped.
+
+**Projects** with a `type` are grouped under a subheading per type, each with its [project icon](#preferences); untyped projects pool under `labels.otherProjects` ("Other"). If no project has a type, the list is flat.
+
+**Publications** render as a bibliography: the `name` (linked by `url`, else by the first DOI, arXiv or PMID identifier), then the `authors`, the source with its `releaseDate`, the identifiers and the `summary`.
+
+| Field | Effect |
+|---|---|
+| `authors` | Author list. The CV owner's entry, matching `basics.name` or any of `preferences.ownerNames` (ignoring case), is set apart. |
+| `publisher`, `volume`, `issue`, `pages` | The citation: `ACM 12(3), 45–67`. Hyphens in `pages` become an en dash. |
+| `identifiers` | Persistent IDs keyed by scheme: `DOI 10.1000/182 · arXiv 2101.00001`. `doi`, `arxiv` and `pmid` are linked; others print as given. |
+| `type` | Groups publications under a subheading per type, each with its icon. `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publicationTypes`); any other type is headed as written unless you add it there. Untyped entries are articles. Plural free-text types (`"Talks"`) still group with their code but are deprecated ([#239](https://github.com/smur89/alta-typst/issues/239)). |
+
+**Skills** are `{name, level, keywords}` groups: the name as a label pill, then the keywords as pills. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `preferences.maxRating`; any other level shows as text. `preferences.skillLevelDisplay` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
+
+**Languages** are `{language, fluency}`. LinkedIn's fluency terms (`Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`, any case) show as dots; other strings show as text. An exact [rating extension](#extensions) wins. An entry with neither a rating nor `fluency` panics.
+
+**Interests** are `{name, keywords}` lines: `Music: Trad, Jazz`. For prose bullets, use `focusAreas`.
+
+**References** show the `reference` quote under the referee's `name`, with a line of `relationship`, `organization` and `date`. `availableOnRequest: true` prints `labels.referencesAvailableOnRequest` in place of the quote; if every entry sets it, the section is just that one line. Entries with neither a quote nor `availableOnRequest` are skipped.
+
+#### Profile networks
+
+`basics.profiles[].network` is matched, ignoring case, against: `Bluesky`, `GitHub`, `GitLab`, `Link`, `LinkedIn`, `Mastodon`, `Medium`, `ORCID`, `Stackoverflow`, `Twitter` (or `X`), `Website`. `Link` is a generic fallback. Any other network panics unless you give it an icon with `preferences.profileIcons`:
+
+```typst
+#alta(cv, preferences: (profileIcons: (kaggle: "kaggle", researchgate: "researchgate")))
+```
+
+Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawesome.com/search); free brand and solid glyphs work, Pro ones need the Pro fonts.
+
+### Preferences
+
+#### Look
+
+| Key | Default | Effect |
+|---|---|---|
+| `theme` | `themes.teal` | The theme: see [Themes and colours](#themes-and-colours). |
+| `colours` | `(:)` | Colour roles over the theme's. |
+| `font` | `auto` | Font family or fallback array, over the theme's (Lato by default). |
+| `bodySize` | `10pt` | Base text size, an absolute length. Everything else scales from it. |
+| `publicationIcons` | built-ins | Icon per `publications[].type`, from the [icon set](#exports); merged over the built-ins (`article` → `newspaper`, `book` and `thesis` → `book`, `talk` → `microphone`, others `file`). |
+| `projectIcons` | `(:)` | Icon per `projects[].type` (e.g. `laptop-code`, `cubes`, `terminal`, `flask`); `folder` when unmapped. |
+| `profileIcons` | built-ins | FontAwesome glyph per profile network; merged over the [built-ins](#profile-networks). |
+
+#### Header
+
+| Key | Default | Effect |
+|---|---|---|
+| `uppercaseName` | `true` | Set `false` for scripts without case, or where uppercasing changes letters (Turkish dotless i). |
+| `headerTextAlign` | `"left"` | `"left"`, `"right"` or `"center"`. |
+| `imageSize` | `6em` | The portrait's width and height. |
+| `imageShape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
+| `imagePosition` | `"right"` | `"left"`, `"right"`, or `"center"` (its own row). |
+| `imageStackOrder` | `"above"` | With `"center"`: the portrait `"above"` or `"below"` the text. |
+| `qrCode` | `none` | `auto` (encode `basics.url`; panics without one) or a URL string. |
+
+#### Page and layout
+
+| Key | Default | Effect |
+|---|---|---|
+| `paper` | `"a4"` | Any [Typst paper name](https://typst.app/docs/reference/layout/page/#parameters-paper). |
+| `margin` | `(x: 0.9cm, y: 1.5cm)` | As `set page(margin: …)` takes. |
+| `columnRatio` | `0.65` | The left column's share of the width, in `(0, 1]`; `1` for a single column. |
+| `leftColumnSections` | `("work", "volunteer", "projects", "publications")` | Sections in the left column, in order. |
+| `rightColumnSections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
+
+#### Footer
+
+| Key | Default | Effect |
+|---|---|---|
+| `pageFooter` | `none` | `auto`: on multi-page CVs, the name on the left and `labels.pageNumber` on the right. Or any content, on every page. Takes precedence over `lastModifiedFooter`. |
+| `lastModifiedFooter` | `false` | Shows `labels.lastModified: meta.lastModified` in the footer. |
+| `footerVersion` | `false` | Appends `(meta.version)` to that line. |
+
+#### Formatting and links
+
+| Key | Default | Effect |
+|---|---|---|
+| `justify` | `false` | Justify and hyphenate running text (summaries, highlights, quotes). |
+| `dateFormat` | `"long"` | `"long"` (`Jun 2024`), `"short"` (`06/2024`), `"iso"` (unchanged), a [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) pattern such as `"[day]/[month]/[year]"`, or a function `(year, month, day) => str`. |
+| `linkContactInfo` | `true` | `false` to unlink the contact bar, or a dict keyed by `email`, `phone`, `location`, `url`, `profiles`. |
+| `printFullUrls` | `false` | Unlinked profiles show their URL (`github.com/jane`) in place of the username. |
+| `mapsProvider` | `maps-providers.google` | The location link: `maps-providers.{google,apple,bing,duckduckgo,osm}`, a template with `{q}`, or `none`. |
+| `maxRating` | `5` | Dots per rating scale. |
+| `skillLevelDisplay` | `auto` | `auto` (dots when the level maps, else text), `"rating"` (an unmapped level panics) or `"text"`. |
+| `ownerNames` | `()` | Other spellings of your name among publication authors, e.g. `("J. Doe",)`. |
+
+#### Deprecated
+
+Still accepted; removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
+
+| Key | Use instead |
+|---|---|
+| `accent` | `theme`, or `colours` for a custom colour. |
+| `referencesAvailableOnRequest` | `references[].availableOnRequest`. |
+| `groupCertificates`, `showPronouns` | Nothing: both are ignored. |
+
+### Theme tokens
+
+A theme dict may set any of these; unset tokens keep the default. A wrong key or type panics with its path (`theme.type.headline.size must be a number`).
+
+| Key | Default | Sets |
+|---|---|---|
+| `font` | `"Lato"` | The font family, or a fallback array. |
+| `colours` | the teal theme's | The [colour roles](#themes-and-colours). |
+| `type` | `display` 2.5 bold, `headline` 1.4 bold, `title` 1.2 semibold, `body` regular | Each role's `size` (a multiple of `bodySize`) and `weight`: `display` the name, `headline` a section title, `title` an entry title or the tagline under the name, `body` the rest. |
+| `font-weight` | `regular`, `bold` | The weights used for emphasis within a role. |
+| `space` | `xx-small` 0.15, `x-small` 0.3, `small` 0.5, `medium` 0.8, `large` 1.2 | The spacing scale, in multiples of `bodySize`. |
+| `stroke-width` | `thin` 0.5, `thick` 1 | Rule and border widths, in pt. |
+| `leading` | 0.55 | Line spacing, in `em`. |
+| `separator` | `facts` `" · "`, `items` `", "`, `label` `": "`, `range` `" – "`, `keywords` `" · "` | Between groups of facts, between items in a group, after a label (`Music: Trad`), between two dates, and between an entry's keywords. |
+| `treatment` | `preamble` `"italic"`, `link` `"emph"`, `owner` `"strong"`, `label` `"strong"` | How a summary, a publication title, your name among authors and an interest's name stand out: `"italic"`, `"emph"`, `"strong"`, `"upper"` or `"none"`. |
+| `citation` | `issue` `("(", ")")`, `pages` `", "`, `source` `" "`, `page-range` `"–"` | The punctuation of `ACM 12(3), 45–67`. |
 
 ### Labels
 
-All display strings the template emits. Override any subset via `labels:`; the rest fall back to English defaults. Unknown keys panic. Use for translation or local renaming.
-
-Label keys match the JSON Resume section keys (`work`, `certificates`, …) — the data-field name and the heading-override key are the same. The default *values* still read "Experience" and "Certifications" — that is editorial.
+Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml). Section labels share the section's key.
 
 | Key | Default |
 |---|---|
-| `lang` | `"en"` |
+| `lang` | `"en"`, an ISO 639 code (two or three lowercase letters) |
 | `work` | `"Experience"` |
 | `volunteer` | `"Volunteer"` |
 | `focusAreas` | `"Areas of Focus"` |
@@ -629,220 +552,82 @@ Label keys match the JSON Resume section keys (`work`, `certificates`, …) — 
 | `interests` | `"Interests"` |
 | `references` | `"References"` |
 | `referencesAvailableOnRequest` | `"References available upon request."` |
-| `articles` | `"Articles"` (deprecated: use `publicationTypes.article`; still honoured when set, removed in [#239](https://github.com/smur89/alta-typst/issues/239)) |
+| `otherProjects` | `"Other"`, the group for untyped projects |
 | `present` | `"Present"` |
-| `date` | `"Date"` |
-| `location` | `"Location"` |
+| `date`, `location` | `"Date"`, `"Location"`: read aloud by screen readers before an entry's date and location, not printed |
 | `lastModified` | `"Last updated"` |
-| `pageNumber` | `"Page {current} / {total}"` |
-| `documentTitle` | `"{name} — CV"` |
-| `months` | `("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")` |
-| `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")` |
-| `publicationIcons` | `(:)` (deprecated, see below) |
+| `pageNumber` | `"Page {current} / {total}"` (`{total}` optional) |
+| `documentTitle` | `"{name} — CV"`, the PDF title |
+| `months` | `("Jan", "Feb", …, "Dec")`, exactly twelve |
+| `publicationTypes` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")`, merged entry by entry; other types print as given |
+| `articles`, `publicationIcons` | Deprecated: use `publicationTypes.article` and `preferences.publicationIcons` ([#239](https://github.com/smur89/alta-typst/issues/239)) |
 
-`labels.pageNumber` and `labels.documentTitle` are templates, so a translation can reorder the parts (`"Seite {current} von {total}"`, `"Lebenslauf — {name}"`). `pageNumber` is the counter in the `pageFooter: auto` footer: `{current}` is required, `{total}` optional. `documentTitle` is the PDF Title metadata: `{name}` (required) is `basics.name`, and the value must be a plain string. A missing required placeholder or an unknown one (e.g. a misspelt `{totl}`) panics.
+`pageNumber` and `documentTitle` are templates, so a translation can reorder them (`"Seite {current} von {total}"`). A missing required or unknown placeholder panics.
 
-`labels.lang` is the document language, an ISO 639 code (two or three lowercase letters: `"de"`, `"ga"`). It drives hyphenation and smart quotes, and is written to the PDF as its language tag, which screen readers use to pick a voice. Set it alongside any full translation; anything other than a lowercase 2–3 letter code panics.
+### Part labels
 
-`labels.date` and `labels.location` are the alt text of the calendar and location icons beside an entry's date and location (`location` also labels the contact bar's location). They aren't printed: a screen reader reads them before the value, so it says which is which. The icons of a `term()` in your own layout stay decorative.
+Show-rule targets for [restyling](#restyling-parts). They are public API and change only in a major release; labels prefixed `alta-internal-` may change at any time, so don't target them.
 
-`labels.months` is the twelve abbreviated month names (January–December). Consumed by the `dateFormat: "long"` formatter and the `[month repr:long]` / `[month repr:short]` template tokens. Override to localise; must keep length 12.
-
-`labels.publicationTypes` maps JSON Resume's `publications[].type` codes to subheadings, matched case-insensitively; untyped entries use `article`. Overrides layer over the defaults, so a translation sets just the codes it uses: `publicationTypes: (article: "Artikel", talk: "Vorträge")`. A type with no entry prints as given.
-
-`labels.publicationIcons` is deprecated: icons are styling, not text to translate, so they moved to [`preferences.publicationIcons`](#publication-icons). A set label table is still honoured, beneath the preference, which wins key by key; it is removed in the next major release ([#239](https://github.com/smur89/alta-typst/issues/239)).
-
-Example — German, plus renaming "Skills" to "Core Technologies":
-
-```typst
-#alta(cv, labels: (
-  lang:         "de",
-  work:         "Berufserfahrung",
-  focusAreas:   "Schwerpunkte",
-  skills:       "Core Technologies",
-  languages:    "Sprachen",
-  education:    "Ausbildung",
-  certificates: "Zertifikate",
-  publications: "Veröffentlichungen",
-  present:      "Heute",
-  months: ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
-))
-```
-
-#### Translation workflow
-
-The defaults live in [`internal/data/labels-en.toml`](internal/data/labels-en.toml) — a plain resource file a translator can be handed without learning Typst syntax. For full translations, copy that file, translate the values, and load it at the call site with the built-in `toml(...)`:
-
-```typst
-// Inline partial overrides — best for one-off renames or a few keys.
-#alta(cv, labels: (work: "Berufserfahrung", skills: "Core Technologies"))
-
-// File-based — best for full translations or strings owned by a translator.
-#alta(cv, labels: toml("labels-ga.toml"))
-```
-
-`toml(...)` resolves the path relative to the calling `.typ` file, so the translation lives next to the CV source. The returned dict flows through the same `labels:` argument and merges over the English defaults by the same rules (each key replaces its default, while `publicationTypes` merges entry by entry), so unknown keys still panic and partial files still work. See [`examples/labels-ga.toml`](examples/labels-ga.toml) and the demo CV in [`examples/example-ga.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version --> for a worked Irish translation.
-
-## Header QR code (`preferences.qrCode`)
-
-Printed CVs lose the clickability of digital PDFs. A QR matrix in the header rescues one link (the homepage) so a phone camera takes the reader straight there. Off by default; opt in via `preferences.qrCode`:
-
-```typst
-#alta(
-  (basics: (
-    name: "Jane Doe",
-    url: "https://janedoe.dev",  // canonical home page
-    // …
-  )),
-  preferences: (qrCode: auto),  // encode basics.url
-)
-```
-
-`preferences.qrCode` accepts three shapes:
-
-- `none` (default) — no QR rendered.
-- `auto` — encode `basics.url`. Panics if `basics.url` is missing or empty.
-- any non-empty string — treat it as the URL to encode directly. Useful when the printed CV should point at a tracked landing page distinct from `basics.url`.
-
-The QR sits on the side of the header opposite the portrait (so the default `imagePosition: "right"` puts the QR on the left). With `imagePosition: "center"`, the QR pins the header's top-left corner, riding the photo row when the photo is on top and the text row otherwise. The matrix inherits `preferences.accent`, renders at roughly `3.5em`, and is wrapped in `link()` so digital readers can click through.
-
-QR generation is delegated to [`@preview/zebra`](https://typst.app/universe/package/zebra).
-
-## Restyling parts
-
-Parts of the CV carry labels that a Typst show rule can target, so you can restyle one part without touching the rest. Put the rules before `#alta(...)`:
-
-```typst
-#show <alta-contact>: set text(font: "IBM Plex Mono", weight: "regular")
-#show <alta-date>: set text(style: "italic")
-#alta(cv)
-```
-
-A rule on a text part overrides any text setting the template gives it: font, size, colour, weight, style or tracking. It doesn't reach the part's icon, except a group title's icon, which takes the title's colour. The two line parts take `set line(...)` instead; a partial stroke keeps the rest of the template's, so `set line(stroke: (paint: gray))` recolours a divider and leaves it dashed.
-
-The marker parts (the date and location icons and the three rating-dot states) can be recoloured or replaced. A replacement keeps the marker's place: an icon's fixed box and alt text, and a dot's centring in its row.
-
-```typst
-#show <alta-date-icon>: set text(fill: gray)  // recolour
-#show <alta-location-icon>: fa-icon("map-pin", solid: true)  // another glyph (@preview/fontawesome)
-#show <alta-rating-full>: [★]  // stars for dots
-#show <alta-rating-half>: [⯪]
-#show <alta-rating-empty>: [☆]
-```
-
-A replacement glyph has to be in one of your fonts. `<alta-rating-full>` and its siblings also take `set circle(fill: ...)`, which recolours the dots and keeps their shape.
-
-The list bullet isn't a label: it's Typst's `list`, so a show-set rule changes it. A plain `#set list(...)` before `#alta(...)` doesn't, because the template's own `set list` is applied inside `alta()` and the innermost setting wins.
-
-```typst
-#show list: set list(marker: [–])
-```
-
-The labels in this table are public API and follow semver: a rename or removal is a breaking change, made only in a major release. Labels prefixed `alta-internal-` are the template's own and may change at any time, so don't target them.
-
-| Label | Part |
-|---|---|
-| `<alta-name>` | The name. |
-| `<alta-headline>` | The headline under the name (`basics.label`). |
-| `<alta-section-title>` | A section's heading (Experience, Skills, …). |
-| `<alta-entry-title>` | An entry's title: a role, qualification, project or award. |
-| `<alta-group-title>` | A group's heading within a section: a publication type, a project type. |
-| `<alta-contact>` | Each contact-bar entry: email, phone, location, URL, profiles. |
-| `<alta-org>` | An entry's organisation: an employer, institution, issuer or awarder. |
-| `<alta-facts>` | The line under an entry's title: the organisation with its roles and details. The organisation keeps its own colour; `<alta-org>` changes it. |
-| `<alta-date>` | An entry's date or date range. |
-| `<alta-location>` | An entry's location (the header's location is a contact entry). |
-| `<alta-summary>` | A summary: the CV's, the objective, or an entry's. |
-| `<alta-pill>` | A skill pill. |
-| `<alta-pill-label>` | A skill group's label pill. |
-| `<alta-rating-label>` | A language's name beside its rating. |
-| `<alta-footer>` | The page footer. |
-| `<alta-section-rule>` | The line under a section's heading. |
-| `<alta-divider>` | The dashed line between entries (and `divider()`). |
-| `<alta-date-icon>` | The icon before an entry's date (and in `term()`). |
-| `<alta-location-icon>` | The icon before an entry's location (and in `term()`). |
-| `<alta-rating-full>` | A filled rating dot, in a language row, a skill level or `rating()`. |
-| `<alta-rating-half>` | A half-filled rating dot. |
-| `<alta-rating-empty>` | An empty rating dot. |
-
-The name and headings are also `heading` elements, so `show heading` rules reach them as well (see [Heading fonts](#heading-fonts)), but only for settings the template leaves unset, such as the font. Use the labels to change anything else. A pill's box (its fill and border) is the theme's, not a text setting, so `<alta-pill>` restyles only its text.
-
-## PDF metadata
-
-The rendered PDF carries metadata in its document properties — what your OS shows in "Get Info" / "Properties" and what indexing services read. Fields populate from the data dict; each is only written when its source is non-empty.
-
-| PDF field | Source | Notes |
+| Label | Kind | Part |
 |---|---|---|
-| Title | `labels.documentTitle` with `{name}` → `basics.name` (default `"<name> — CV"`) | Always set. |
-| Author | `basics.name` | Always set; canonical (ignores `preferences.uppercaseName`). |
-| Subject | `basics.summary` | Same content rendered in the document header. |
-| Keywords | `skills[].keywords`, then `meta.canonical`, `meta.version` | Skill keywords flattened across groups, de-duplicated, insertion order preserved; `meta.canonical` (document URL) and `meta.version` are appended verbatim when present. Typst exposes no dedicated PDF field for either, so Keywords is their machine-readable home. |
-| Date (CreationDate / ModDate) | `meta.lastModified` | ISO 8601 — `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SSZ`; only the calendar part is used. Falls back to compile time when absent or unparseable. |
+| `<alta-name>` | text | The name. |
+| `<alta-headline>` | text | The tagline under the name (`basics.label`). |
+| `<alta-objective>` | text | The objective, under the tagline. It is also an `<alta-summary>` part. |
+| `<alta-section-title>` | text | A section's heading (Experience, Skills, …). |
+| `<alta-entry-title>` | text | An entry's title: a role, qualification, project or award. |
+| `<alta-group-title>` | text | A group's heading within a section: a publication type, a project type. |
+| `<alta-contact>` | text | Each contact-bar entry. |
+| `<alta-org>` | text | An entry's organisation: employer, institution, issuer or awarder. |
+| `<alta-facts>` | text | The line under an entry's title: the organisation with its roles and details (`<alta-org>` sets the organisation's own colour). |
+| `<alta-date>` | text | An entry's date or date range. |
+| `<alta-location>` | text | An entry's location. |
+| `<alta-summary>` | text | A summary: the CV's, the objective, or an entry's. |
+| `<alta-pill>` | text | A skill pill's text (its box is the theme's). |
+| `<alta-pill-label>` | text | A skill group's label pill. |
+| `<alta-keyword>` | text | One of an entry's keywords: a work or project keyword, an education's course. |
+| `<alta-keywords>` | paragraph | An entry's keyword line, a paragraph of its `<alta-keyword>` parts (not a skill or interest row). |
+| `<alta-rating-label>` | text | A language's name beside its rating. |
+| `<alta-footer>` | text | The page footer. |
+| `<alta-section-rule>` | line | The line under a section's heading. |
+| `<alta-divider>` | line | The dashed line between entries (and `divider()`). |
+| `<alta-date-icon>`, `<alta-location-icon>` | marker | The icon before an entry's date or location (and in `term()`). |
+| `<alta-rating-full>`, `<alta-rating-half>`, `<alta-rating-empty>` | marker | A filled, half-filled or empty rating dot. |
 
-To also surface "last updated" in the rendered document, set `preferences.lastModifiedFooter: true` (and `preferences.footerVersion: true` to append `meta.version`).
+### Exports
 
-```typst
-meta: (
-  lastModified: "2026-06-12",              // → PDF date + optional footer
-  canonical: "https://example.com/cv.json", // → PDF Keywords
-  version: "v1.0.0",                         // → PDF Keywords + optional footer suffix (footerVersion)
-)
-```
+Everything the package exports. The building blocks from `icon` to `styled-link` are what `alta()` draws with; import them to compose a section of your own. Each export has a doc comment, shown on hover in Tinymist and other Typst editors.
 
-## PDF/A
-
-Some application portals and archives ask for PDF/A, the archival form of PDF. Typst produces it at compile time, so the template needs no setting for it:
-
-```sh
-typst compile --pdf-standard a-2b cv.typ
-```
-
-`a-2b` is the usual choice; `a-1b` and `a-3b` are also available. Typst embeds the fonts and rejects non-conforming output at compile time.
-
-For an accessible PDF, add PDF/UA-1, the accessibility standard: `--pdf-standard a-2b,ua-1`. altacv's output is built for it: a tagged structure, headings nested name → section → group → entry, a document title (`labels.documentTitle`), alt text for the portrait and for icons that carry meaning, and the document language from `labels.lang`. altacv's compile checks (`make test`, and the examples and starter in CI) run as `a-2b,ua-1`.
-
-## Helpers
-
-`alta()` uses these internally; importing them lets you compose a custom section, or preview a single helper in isolation:
-
-| Helper | Purpose |
+| Export | Purpose |
 |---|---|
-| `icon(name, ..)` | A FontAwesome glyph from the built-in icon set; decorative in tagged PDF unless given `alt`. |
-| `name(body)` | An accent-coloured line, for an organisation on a line of its own. |
-| `term(period, location: none)` | A date and an optional location on one row, each led by its icon. |
-| `rating(label, value, max: auto)` | A label with rating dots at the right edge, as the language rows draw them; pass the value yourself. |
-| `tag(body, ..)` | A pill, as the skill rows draw them. |
+| `alta(cv, labels:, preferences:)` | Renders the CV. |
+| `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
+| `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |
+| `themes` | The built-in themes. |
+| `maps-providers` | Map link templates for `mapsProvider`. |
+| `avatar-placeholder` | A generic silhouette for `basics.image`. |
+| `icon(name, ..)` | A glyph from the built-in icon set: `book`, `calendar`, `cubes`, `email`, `file`, `flask`, `folder`, `laptop-code`, `location`, `microphone`, `newspaper`, `phone`, `terminal` and the profile networks. |
+| `name(body)` | An accent-coloured organisation line. |
+| `term(period, location: none)` | A date and optional location, each with its icon. |
+| `rating(label, value, max: auto)` | A label with rating dots. |
+| `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `palettes` | The accent presets, for `accent: palettes.navy`. |
-| `maps-providers` | Map deep-link templates, for `mapsProvider: maps-providers.osm`. |
-| `avatar-placeholder` | A generic silhouette for `basics.image`. |
-
-Every export, `alta` included, has a doc comment with its parameters, which Tinymist and other Typst editors show on hover and in autocomplete.
+| `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, tag, divider, palettes, maps-providers
+#import "@preview/altacv:1.8.0": alta, tag, divider, themes
 ```
 <!-- x-release-please-end -->
 
-The contact bar is rendered from `basics.email`, `basics.phone`, `basics.location`, `basics.url`, `basics.profiles`. Visual separators are stripped from the `tel:` dialable part. Suppress or swap deep links via `preferences.linkContactInfo` and `preferences.mapsProvider`.
+## Contributing
 
-## Building the examples
-
-```sh
-typst compile --root . examples/example-full.typ examples/example_full.pdf
-```
-
-To regenerate the preview artefacts (the canonical CV render, the animated GIF that cycles through preference variations, the multi-page gallery PNGs, and the Universe package-card thumbnail):
-
-`make cv`, `make example-full`, `make thumbnail` and `make preview-gif` (which needs ffmpeg); `make help` describes each.
-
-The GIF is sourced from `examples/preview-frames.typ` — one page per variation, each rendering the `template/cv.typ` starter's CV, stitched by ffmpeg with `palettegen` / `paletteuse` for higher-quality colour quantisation. Add a frame by appending a preferences dict to the `frames` array in that file.
+Bug reports and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits
 
 - **[LianTze Lim — AltaCV](https://github.com/liantze/AltaCV)** (LPPL). The visual ancestor: the two-column layout, accent palette, and section structure originate in LianTze's LaTeX class.
+- **[Catppuccin](https://github.com/catppuccin/catppuccin)** (MIT). `themes.catppuccin` uses the Latte flavour's colours.
 - **[George Honeywood — alta-typst](https://github.com/GeorgeHoneywood/alta-typst)** (MIT, © 2023). Prior Typst implementation; the grid layout, pill tags, and half-fill skill dots originate there.
 
 ## License

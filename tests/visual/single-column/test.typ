@@ -2,8 +2,8 @@
 // `columnRatio: 1` alone is enough — the layout merges every section
 // from both `leftColumnSections` and `rightColumnSections` into a
 // single full-width stream (left-then-right order), so callers don't
-// need to redistribute the defaults. See the README's "Single-column
-// layout" section.
+// need to redistribute the defaults. See the README's "Layout"
+// section.
 
 #import "/lib.typ": alta
 

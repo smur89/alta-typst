@@ -7,7 +7,7 @@
 #import "../internal/util/fields.typ": (
   _array-or-empty, _dict-or-empty, _field, _string-at,
 )
-#import "../internal/util/values.typ": _group-by, _join-present, _present-str
+#import "../internal/util/values.typ": _group-by, _present-str
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/frame.typ": _grouped-section
@@ -60,21 +60,6 @@
   if hit != none { hit.url }
 }
 
-// Journal-style `12(3), 45–67`; each part takes its punctuation with
-// it, and hyphens in `pages` become one en dash.
-#let _citation(pub) = {
-  let part(key) = _string-at(pub, key)
-  let issue = part("issue")
-  let pages = part("pages")
-  _join-present(
-    (
-      (part("volume"), if issue != none { "(" + issue + ")" }).join(),
-      if pages != none { pages.replace(regex("-+"), "–") },
-    ),
-    ", ",
-  )
-}
-
 // `authors` in published order, trimmed, each flagged when it's one
 // of `owners` (`ctx.owners`: trimmed, lowercased), ignoring case.
 // Read leniently: anything but an array reads as none, and a
@@ -87,11 +72,6 @@
     .map(a => (name: a, owner: lower(a) in owners))
 )
 
-#let _source(pub) = _join-present(
-  (_field(pub, "publisher"), _citation(pub)),
-  " ",
-)
-
 #let _render-publication(pub, (format-date, owners, ..)) = {
   let refs = _identifier-refs(_identifiers(pub))
   let url = _field(pub, "url")
@@ -99,7 +79,12 @@
     pub.name,
     url: if url != none { url } else { _identifier-url(refs) },
     authors: _authors(pub, owners),
-    source: _source(pub),
+    publisher: _field(pub, "publisher"),
+    citation: (
+      volume: _string-at(pub, "volume"),
+      issue: _string-at(pub, "issue"),
+      pages: _string-at(pub, "pages"),
+    ),
     date: format-date(_field(pub, "releaseDate")),
     identifiers: refs,
     summary: _field(pub, "summary"),

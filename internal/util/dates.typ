@@ -157,13 +157,12 @@
   _apply-date-template(template, parts, months)
 }
 
-// `start – end`, each side through `format-date` (a bound
-// `_format-date`); a missing side drops out with its dash. `open-end`
-// stands in for a missing end — `none` suits ranges with no end, such
-// as a certificate that doesn't expire. Callers read the sides with
-// `_field`, so `none` is the only absent form here.
-#let _format-date-span(start, end, format-date, open-end: none) = {
-  let start-text = if start != none { format-date(start) }
-  let end-text = if end != none { format-date(end) } else { open-end }
-  _join-present((start-text, end-text), [ – ])
-}
+// A range's two sides, `(start, end)`, each through `format-date` (a
+// bound `_format-date`), for `_range` to join; an absent side is
+// `none`. `open-end` stands in for a missing end — `none` suits ranges
+// with no end, such as a certificate that doesn't expire. Callers read
+// the sides with `_field`, so `none` is the only absent form here.
+#let _date-span(start, end, format-date, open-end: none) = (
+  if start != none { format-date(start) },
+  if end != none { format-date(end) } else { open-end },
+)

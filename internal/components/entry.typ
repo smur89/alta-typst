@@ -3,17 +3,20 @@
 // and the entry's other facts with its location at the right edge.
 
 #import "../design/styles.typ": _part, _subheading-block
-#import "../design/theme.typ": _theme
-#import "../context.typ": _body-size-state, _icon-alts-state
-#import "../util/values.typ": _join-present, _present
+#import "../context.typ": _body-size-state, _icon-alts-state, _theme-state
+#import "../util/values.typ": _present
 #import "../primitives.typ": (
-  _accent-text, _date-fact, _fact-line, _link-if, _location-fact, _preamble,
+  _accent-text, _date-fact, _fact-line, _joined, _link-if, _location-fact,
+  _preamble, _range,
 )
 
-// A small line under an entry's heading: a referee's attribution.
-// Absent bodies render nothing.
-#let _subtitle(body) = if _present(body) {
-  block(below: _theme.entry.subtitle-below, body)
+// A small line under an entry's heading, a referee's attribution, from
+// fact groups; nothing when none of their parts is present.
+#let _subtitle(groups) = {
+  let line = _fact-line(..groups)
+  if line != none {
+    context block(below: _theme-state.get().entry.subtitle-below, line)
+  }
 }
 
 // An entry's first lines as one grid: the title (or, without one,
@@ -27,12 +30,13 @@
 // entry; after a facts line, `entry.facts-below`.
 #let _entry-head(title, facts, date, location) = context {
   let body-size = _body-size-state.get()
-  let (side-gap, side-max, facts-below, row-gap) = _theme.entry
+  let theme = _theme-state.get()
+  let (side-gap, side-max, facts-below, row-gap) = theme.entry
   let (lead, lead-size, under) = if title != none {
     (
       // Level 3, or 4 under a group (`components/frame.typ`).
       [#heading(depth: 3, title)<alta-internal-entry>],
-      _theme.type.title.size * body-size,
+      theme.type.title.size * body-size,
       facts,
     )
   } else { (facts, body-size, none) }
@@ -76,10 +80,10 @@
     })
   if rows.len() == 0 { return }
   let below = if title == none or rows.len() > 1 { facts-below } else {
-    _theme.subheading.entry.below
+    theme.subheading.entry.below
   }
   _subheading-block(
-    _theme.subheading.entry + (below: below),
+    theme.subheading.entry + (below: below),
     body-size,
     layout(size => {
       // Stacked, each side takes its own line, undropped.
@@ -99,34 +103,49 @@
   )
 }
 
+// An entry's closing lines, the keywords lead then the keywords, as
+// paragraphs a line's leading apart. The keyword line is the
+// `<alta-keywords>` part, so a show rule can set its paragraph.
+#let _entry-keywords(lead, line) = context {
+  set par(spacing: par.leading)
+  if lead != none { par(lead) }
+  if line != none { _part("keywords", par(line)) }
+}
+
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
 // `_bib-entry`); an absent slot renders nothing. The title keeps the
 // plain heading style whether or not it links.
 //
 // The facts line under the title joins the organisation (in the
-// accent), the person's `roles` and short `details` (a credential ID)
-// with ` · `; the date and `location` sit at the right edge beside
+// accent), the person's `roles` and short `details` (a credential
+// ID); the `period` and the `location` sit at the right edge beside
 // the title and the facts line. Without a title, the facts line
-// leads.
+// leads. The `keywords` (a project's stack, education's courses) end
+// the entry as one line; `keywords-lead` is a line of its own above
+// them (education's area and score), so it doesn't read as one of
+// them.
 //
-// The `keywords` (a project's stack, education's courses) end the
-// entry as one line joined with ` · `; `keywords-lead` is a line of
-// its own above them (education's area and score), so it doesn't read as one
-// of them.
+// Every fact is data, which the entry joins with the theme's
+// separators. Each slot's shape, `()` when absent:
+// - `roles`, `details`, `keywords`: items, each a fact of its own.
+// - `period`: a range's two sides (`_date-span`), joined by `range`.
+// - `location`: one place's parts, joined by `items`.
+// - `subtitle`, `keywords-lead`: fact groups, as `_fact-line` takes:
+//   an array of arrays, `items` within a group and `facts` between.
 #let _entry(
   title: none,
   url: none,
   org: none,
   org-url: none,
-  subtitle: none,
+  subtitle: (),
   roles: (),
-  period: none,
-  location: none,
+  period: (),
+  location: (),
   details: (),
   summary: none,
   highlights: (),
-  keywords-lead: none,
+  keywords-lead: (),
   keywords: (),
 ) = {
   let org = if _present(org) {
@@ -136,17 +155,15 @@
   _entry-head(
     if _present(title) { _link-if(url, title) },
     facts,
-    period,
-    location,
+    _range(period),
+    _fact-line(location),
   )
   _subtitle(subtitle)
   _preamble(summary)
   for bullet in highlights [- #bullet]
-  _join-present(
-    (
-      keywords-lead,
-      _join-present(keywords, _theme.separator.facts),
-    ),
-    [\ ],
+  _entry-keywords(
+    _fact-line(..keywords-lead),
+    // Filtered first: a labelled `""` counts as present.
+    _joined("keywords", keywords.filter(_present).map(_part.with("keyword"))),
   )
 }

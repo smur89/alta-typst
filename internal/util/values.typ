@@ -54,3 +54,19 @@
 #let _display-url(url) = (
   url.replace(regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "").trim("/", at: end)
 )
+
+// `overrides` merged into `base`, key by key where both hold a
+// dictionary; any other value replaces the base's.
+#let _deep-merge(base, overrides) = (
+  base
+    + overrides
+      .pairs()
+      .map(((k, v)) => (
+        k,
+        if type(v) == dictionary
+          and type(base.at(k, default: none)) == dictionary {
+          _deep-merge(base.at(k), v)
+        } else { v },
+      ))
+      .to-dict()
+)

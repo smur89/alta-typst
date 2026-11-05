@@ -2,13 +2,14 @@
 // preferences, to everything that renders. Typst `state` cells, read
 // inside `context { }`, because the public helpers (`tag`, `term`,
 // `divider`, `rating`, `icon`) can sit anywhere in a user's document
-// and can't be passed the preferences. The theme's fixed values live
-// in `design/theme.typ`.
+// and can't be passed the preferences. The theme's tokens and roles
+// live in `design/theme.typ`.
 
-#import "design/presets.typ": palettes
+#import "design/theme.typ": _default-theme
 
 #let _body-size-state = state("alta-body-size", 10pt)
-#let _accent-state = state("alta-accent", palettes.teal)
+// The built theme (`_theme-for`).
+#let _theme-state = state("alta-theme", _default-theme)
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.maxRating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)

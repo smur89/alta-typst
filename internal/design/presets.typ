@@ -1,15 +1,43 @@
-// The accent palettes, re-exported from `lib.typ`.
+// The colour themes and the deprecated accent palettes, re-exported
+// from `lib.typ`. A theme is `_tokens` overrides (`theme.typ`), any
+// subset of them; the built-in ones, one file each under `presets/`,
+// set every colour role.
 
-// Each dark enough to stay legible beside the grey body text and to
-// survive a B&W photocopy as a distinct mid-tone.
-/// The built-in accent colours for `preferences.accent`.
+#import "presets/teal.typ"
+#import "presets/navy.typ"
+#import "presets/crimson.typ"
+#import "presets/forest.typ"
+#import "presets/plum.typ"
+#import "presets/charcoal.typ"
+#import "presets/altacv.typ"
+#import "presets/rust.typ"
+#import "presets/bauhaus.typ"
+#import "presets/riso.typ"
+#import "presets/phosphor.typ"
+#import "presets/catppuccin.typ"
+
+/// The built-in themes for `preferences.theme`.
 /// -> dictionary
-#let palettes = (
-  teal: rgb("#00796B"),
-  navy: rgb("#1A3A6C"),
-  crimson: rgb("#9E2A2B"),
-  forest: rgb("#2E5E3A"),
-  plum: rgb("#5F2A6E"),
-  charcoal: rgb("#3B3B3B"),
+#let themes = (
+  teal: teal.theme,
+  navy: navy.theme,
+  crimson: crimson.theme,
+  forest: forest.theme,
+  plum: plum.theme,
+  charcoal: charcoal.theme,
+  altacv: altacv.theme,
+  rust: rust.theme,
+  bauhaus: bauhaus.theme,
+  riso: riso.theme,
+  phosphor: phosphor.theme,
+  catppuccin: catppuccin.theme,
 )
 
+/// The heading colours of the original six themes, `teal` to
+/// `charcoal`, frozen when it was deprecated. Deprecated: use `themes`.
+/// -> dictionary
+#let palettes = (
+  ("teal", "navy", "crimson", "forest", "plum", "charcoal")
+    .map(k => (k, themes.at(k).colours.heading))
+    .to-dict()
+)

@@ -1,7 +1,8 @@
 // JSON Resume `projects` section, flat (untyped) layout. Covers the
-// practical field set: linked title, `entity` subtitle, description,
-// date range, highlights, `roles` pills, keyword pills. Includes a
-// minimal entry (name only) and skipped entries (missing / null name).
+// practical field set: linked title, `entity` as the organisation,
+// description, date range, highlights, `roles` pills, keyword pills.
+// Includes a minimal entry (name only) and skipped entries (missing /
+// null name).
 // Grouping by `type` is exercised separately in projects-grouped.
 
 #import "/lib.typ": alta

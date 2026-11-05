@@ -17,9 +17,9 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 
 | Layer | Path | Holds | May import |
 |---|---|---|---|
-| util | `util/` | generic helpers: presence checks, joins, grouping, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
-| design | `design/` | the theme, document styles, palettes, icon set | util |
-| data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_format-location`, `_entry-period` in `cv.typ`) | util, design |
+| util | `util/` | generic helpers: presence checks, joins, grouping, a deep merge, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
+| design | `design/` | the theme, document styles, the built-in themes and palettes, icon set | util |
+| data | `data/` | reading and checking the CV, labels and preferences; their defaults; the readers that know JSON Resume's shape (`_location-parts`, `_entry-period` in `cv.typ`) | util, design |
 | context | `context.typ` | render-time `state` set by `alta()` | design |
 | document | `document.typ` | the document setup shared by `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
@@ -27,9 +27,9 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | sections | `sections/` (root) | one renderer per CV part, mapping its data onto components | all of the above |
 | root | `registry.typ`, `render.typ`; `lib.typ` (repository root) | renderers bound to section keys; the render pipeline; the public API, as re-exports only | everything |
 
-The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (palettes, the icon set), with no rendering code.
+The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (themes, palettes, the icon set), with no rendering code.
 
-Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
+Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it; a paragraph part (`<alta-keywords>`) labels the `par` that lays out a row, so `set par(...)` reaches it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's where `_document` sets the page. A helper that may receive a part puts its own label on a new element, so the part keeps its label: a keyword drawn by `tag()` is both `<alta-keyword>` and `<alta-pill>`. `_part` never skips labelled content, which would unlabel a user's own labelled values. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
 
 ## Sections and components
 
@@ -39,25 +39,26 @@ A section reads fields and fills a component's slots:
 // sections/awards.typ
 #let _awards(entries, (labels, format-date, ..)) = _section(
   labels.awards,
-  entries.filter(a => _field(a, "title") != none),
+  entries,
   award => _entry(
     title: award.title,
     url: _altacv(award, "url"),
     org: _field(award, "awarder"),
-    period: format-date(_field(award, "date")),
+    period: (format-date(_field(award, "date")),),
     summary: _field(award, "summary"),
   ),
 )
 ```
 
-Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`), the CV `owner` and `owners` (every spelling of the owner's name, normalised). A section doesn't check or filter its input: step 2 checked every field it draws and dropped the entries that don't render, so it only maps values onto slots. A few fields are read leniently instead, by design; the `_section-specs` comment lists them. Column sections are registered twice: their spec (field, default column, accepted entries, field types, which entries render, other checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly, with the same `(cv, ctx)`. A section may also build styled leaf content from primitives to pass as a slot (a reference's attribution line, the header's portrait).
+Renderers take their entries and `ctx`: the labels, the preferences, `format-date` (bound to `dateFormat` and `labels.months`), the CV `owner` and `owners` (every spelling of the owner's name, normalised). A section doesn't check or filter its input: step 2 checked every field it draws and dropped the entries that don't render, so it only maps values onto slots. A few fields are read leniently instead, by design; the `_section-specs` comment lists them. Column sections are registered twice: their spec (field, default column, accepted entries, field types, which entries render, other checks) in `data/sections.typ`, their renderer in `registry.typ`. The header, intro and footer aren't columns; `alta()` calls them directly, with the same `(cv, ctx)`. Facts reach the entry components as data, not joined lines: `_entry` takes its organisation as a value and its roles, details, period, location, subtitle, keywords-lead and keywords as parts or fact groups, `_bib-entry` its authors, citation and identifiers as records, and each does every join with the theme's separators. A section may still build styled leaf content from primitives to pass as a slot, e.g. the header's portrait and contact values (the location joined there) and the references' on-request note.
 
 ## The look
 
-- **`design/theme.typ`**: plain data. `_tokens` are the scales: Material 3 type roles (`display` … `body`), Bootstrap colour roles (`body`, `secondary`, `emphasis`, `border`), CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
-- **`context.typ`**: the accent, body size and rating scale, as `state`, for public helpers (`tag`, `rating`, …) used anywhere in a user's document.
+- **`design/theme.typ`**: plain data. `_tokens` are the font, the scales and their defaults: Material 3 type roles (`display` … `body`), the colour roles (the default theme's), separators and treatments, CSS size keywords for `space`, plus weights, stroke widths and leading. `_build-theme` maps them onto component roles, deriving `secondary` and `border` from `body`. `_theme-for` builds the theme to render with, once per render in `_document`: the chosen theme's tokens, then the preferences that override them (`_token-prefs`: `font`, `colours`), deep-merged over `_tokens`. Every component reads it from state in `context`. Helpers that return `none` for an empty line (`_fact-line`, `_preamble`) decide that from their parts first, outside `context`, and read the theme only to format what's there. Sizes multiply the body size; `_treat` (`design/styles.typ`) applies the named treatments.
+- **`design/presets.typ`**: the built-in `themes`, one file each under `design/presets/` (the default colours in `_tokens` are `presets/teal.typ`'s), and the deprecated `palettes`, built from them. Each theme is a set of `_tokens` overrides; the built-in ones set every colour role. A caller's theme may set any tokens, any subset of them: validation (`_check-tokens`) checks it against `_tokens`' shape, so an unknown key or a value of the wrong kind panics with its path.
+- **`context.typ`**: the built theme, body size and rating scale, as `state`. Components and the public helpers (`tag`, `rating`, …), which may sit anywhere in a user's document, read the theme from it in `context`; `_content-styles` takes it from `_document` directly.
 
-Users style through [preferences](README.md#preferences); the theme isn't configurable yet. When it is, `alta()` deep-merges token overrides, rebuilds, then merges role overrides.
+Users style through [preferences](README.md#preferences) and show rules, in that order of precedence: `theme` picks a theme (`themes.teal` unless set), `font` and `colours` override its font and colour roles, and a show rule on a labelled part overrides all of them. A new look is a part or a theme token, not a preference ([design conventions](CONTRIBUTING.md#design-conventions)).
 
 ## Deprecations
 

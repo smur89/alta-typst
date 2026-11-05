@@ -8,8 +8,7 @@
 #import "design/icon-set.typ": _icon-glyphs, _solid-names
 #import "util/checks.typ": _check, _enum-rule
 #import "design/styles.typ": _inline, _part
-#import "design/theme.typ": _theme
-#import "context.typ": _body-size-state
+#import "context.typ": _body-size-state, _theme-state
 
 // `body` with `alt` as its alt text in tagged PDF. `figure` is Typst's
 // carrier for alt text on non-image content, as `box` and `link` take
@@ -49,8 +48,9 @@
   part: none,
 ) = context {
   let body-size = _body-size-state.get()
+  let theme = _theme-state.get()
   let resolved-size = if size == auto { body-size } else { size }
-  let resolved-fill = if fill == auto { _theme.colour.body } else { fill }
+  let resolved-fill = if fill == auto { theme.colours.body } else { fill }
   let mark = box(baseline: shift, _inline(to: "baseline", box(
     width: resolved-size,
     height: resolved-size,
@@ -59,7 +59,7 @@
       let drawn = fa-icon(
         glyph,
         solid: solid,
-        size: _theme.icon.glyph * resolved-size,
+        size: theme.icon.glyph * resolved-size,
       )
       if part == none { drawn } else { _part(part, drawn) }
     }),
@@ -67,7 +67,7 @@
   if alt == none { pdf.artifact(mark) } else {
     box(_alt-figure(mark, alt))
   }
-  h(_theme.icon.gap * body-size)
+  h(theme.icon.gap * body-size)
 }
 
 // An icon-set key's glyph, unchecked, with `_glyph`'s other arguments:

@@ -1,6 +1,6 @@
 // The page body: the column sections side by side.
 
-#import "../design/theme.typ": _theme
+#import "../context.typ": _theme-state
 
 // `left` and `right` are the rendered sections of each column, `ratio`
 // the left column's share of the width. A ratio of 1, or no right-hand
@@ -10,9 +10,9 @@
 } else {
   // The fr columns split what the gutter leaves, so both sides give up
   // a proportional share of it.
-  grid(
+  context grid(
     columns: (ratio * 1fr, (1 - ratio) * 1fr),
-    column-gutter: _theme.column-gutter,
+    column-gutter: _theme-state.get().column-gutter,
     left.join(), right.join(),
   )
 }

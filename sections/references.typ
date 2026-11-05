@@ -6,14 +6,15 @@
 
 #import "../internal/util/fields.typ": _field, _string-at
 #import "../internal/data/cv.typ": _on-request
-#import "../internal/primitives.typ": _fact-line, _preamble
+#import "../internal/primitives.typ": _preamble
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section, _section-frame
 
-// Who, then when, each part optional: "Manager, Pied Piper · 2024".
+// Who, then when, each part optional, as the entry's `subtitle` fact
+// groups: "Manager, Pied Piper · 2024".
 #let _attribution(entry, format-date) = {
   let date = _string-at(entry, "date")
-  _fact-line(
+  (
     ("relationship", "organization").map(k => _string-at(entry, k)),
     (if date != none { format-date(date) },),
   )

@@ -45,6 +45,11 @@
     ),
   ),
 
+  // A short career goal, shown in the header under the tagline.
+  objective: [
+    Lead a platform team building reliable, event-driven systems.
+  ],
+
   custom: (
     altacv: (
       focusAreas: (

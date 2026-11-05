@@ -78,6 +78,10 @@
 
 == Page header: a QR code, and a contact bar that wraps
 #variant(header(qr-url: "https://example.com"))
+// The objective under the headline.
+#variant(header(
+  objective: [Lead a platform team building reliable data systems.],
+))
 // Each entry wraps whole: no line starts with a bare value.
 #variant(header(contacts: (contacts * 4,)))
 
@@ -85,7 +89,6 @@
 
 == Intro
 #_intro-block(
-  objective: [Lead a platform team building reliable data systems.],
   summary: [Backend engineer with eight years of distributed systems.],
 )
 
@@ -97,14 +100,14 @@
   url: "https://example.com",
   org: "Acme",
   org-url: "https://acme.example.com",
-  subtitle: "Platform team",
+  subtitle: (("Manager", "Acme"), ("2024",)),
   // The empty role and keyword drop out rather than leave a separator.
   roles: ("", "Lead", "Architect"),
-  period: "Jan 2022 – Present",
-  location: "Dublin, IE",
+  period: ("Jan 2022", "Present"),
+  location: ("Dublin", "IE"),
   summary: [Owns the event platform.],
   highlights: ([Cut p99 latency in half.], [Mentored four engineers.]),
-  keywords-lead: "First class",
+  keywords-lead: (("Engineering",), ("First class",)),
   keywords: ("Scala", "", "Kafka"),
 ))
 
@@ -112,8 +115,8 @@
 #block(width: 30%, _entry(
   title: "Staff Engineer",
   org: "Acme",
-  period: "Jan 2022 – Present",
-  location: "Dublin, IE",
+  period: ("Jan 2022", "Present"),
+  location: ("Dublin", "IE"),
 ))
 
 == Entry: issuer and details
@@ -122,7 +125,7 @@
   url: "https://example.com",
   org: "CNCF",
   details: ("CKA-123",),
-  period: "Mar 2024 – Mar 2027",
+  period: ("Mar 2024", "Mar 2027"),
   summary: [Cluster administration.],
 ))
 
@@ -131,7 +134,7 @@
   "Grouped",
   (Books: (1,), Talks: (1, 2)),
   (key, _) => key,
-  _ => _entry(title: "An item", period: "2024"),
+  _ => _entry(title: "An item", period: ("2024",)),
   separator: none,
 )
 
@@ -140,7 +143,8 @@
   "A Paper Title",
   url: "https://doi.org/10.1000/182",
   authors: ((name: "A. Smith", owner: false), (name: "Jane Doe", owner: true)),
-  source: "ACM 12(3), 45–67",
+  publisher: "ACM",
+  citation: (volume: "12", issue: "3", pages: "45-67"),
   date: "Jun 2024",
   identifiers: (
     (name: "DOI", id: "10.1000/182", url: "https://doi.org/10.1000/182"),

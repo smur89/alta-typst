@@ -5,6 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
@@ -169,7 +170,26 @@
   }
 }
 
+// #239: the top-level `accent` colours the accent roles with one
+// colour (`_accent-roles`), beneath the caller's `colours`.
+// It's dropped even when `colours` isn't a dictionary, so the check
+// names `colours` rather than an unknown `accent`; a non-dictionary
+// `preferences` passes through for `_strict-merge` to reject.
+#let _fold-accent(overrides) = {
+  if type(overrides) != dictionary or "accent" not in overrides {
+    overrides
+  } else {
+    let colours = overrides.at("colours", default: (:))
+    let folded = if type(colours) == dictionary {
+      _accent-roles(overrides.accent) + colours
+    } else { colours }
+    let rest = overrides.pairs().filter(((k, _)) => k != "accent").to-dict()
+    rest + (colours: folded)
+  }
+}
+
 // Runs before the merge over the defaults. #239: the deprecated
+// top-level `accent` becomes `colours` (`_fold-accent`), and the
 // free-text icons, then a set `labels.publicationIcons`, sit beneath
 // the caller's `publicationIcons`, all lowercased, so the merge sees
 // one table. `projectIcons` and `profileIcons` are lowercased too.
@@ -177,6 +197,7 @@
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
 #let _canonical-preferences(overrides, labels) = {
+  let overrides = _fold-accent(overrides)
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("pageFooter", default: none) == "auto"

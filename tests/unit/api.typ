@@ -21,5 +21,6 @@
     "styled-link",
     "tag",
     "term",
+    "themes",
   ),
 )

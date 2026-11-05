@@ -24,9 +24,7 @@
     let version-suffix = if prefs.footerVersion and version != none {
       " (" + version + ")"
     } else { "" }
-    _updated-footer({
-      labels.lastModified
-      ": "
+    _updated-footer(labels.lastModified, {
       last-modified
       version-suffix
     })

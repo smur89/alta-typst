@@ -22,6 +22,7 @@
         [Halved p99 latency on the checkout path.],
         [Mentored three engineers from mid to senior level.],
       ),
+      keywords: ("Python", "Go"),
     ),
     (
       // Plain-string summary, no highlights.
@@ -30,6 +31,15 @@
       startDate: "Jun 2019",
       endDate: "Dec 2021",
       summary: "Built and shipped the first version of a SaaS product.",
+    ),
+    (
+      // Summary and keywords, but no highlights: keywords should render on a new line.
+      name: "Keywords Corp",
+      position: "Software Engineer",
+      startDate: "Jun 2019",
+      endDate: "Dec 2021",
+      summary: "Created keywords to improve the Curriculum Vitae.",
+      keywords: ("Python", "Go"),
     ),
     (
       // Description-only — exporters that map JSON Resume's optional

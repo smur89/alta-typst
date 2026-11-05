@@ -5,11 +5,10 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _display-url, _group-by, _url-encode
-#import "../internal/data/cv.typ": _format-location, _profile-glyph
+#import "../internal/data/cv.typ": _location-parts, _profile-glyph
 #import "../internal/data/validation.typ": _contact-channels, _text-aligns
 #import "../internal/design/icon-set.typ": _icon-glyphs, _network-icons
-#import "../internal/design/theme.typ": _theme
-#import "../internal/primitives.typ": _portrait
+#import "../internal/primitives.typ": _fact-line, _portrait
 #import "../internal/components/header.typ": _page-header
 
 // Fully populated per channel, so callers can `link-config.at(channel)`
@@ -53,9 +52,9 @@
 ) = {
   let email = _field(basics, "email")
   let phone = _field(basics, "phone")
-  // One collapsed value feeds both display and maps link, so they
-  // cannot drift.
-  let location = _format-location(basics)
+  // The display and the maps link's query join the same parts, so
+  // they can't drift; only the display takes the theme's separator.
+  let location = _location-parts(basics)
   let url = _field(basics, "url")
   let fields = (
     if email != none {
@@ -76,16 +75,16 @@
         url: "tel:" + phone.replace(regex("[\s()\-.]"), ""),
       )
     },
-    if location != none {
+    if location != () {
       (
         channel: "location",
         glyph: _icon-glyphs.location,
         alt: location-alt,
-        value: location,
+        value: _fact-line(location),
         url: if maps-provider != none {
           // A plain replace, not `_fill-template`: a provider's other
           // `{…}` text isn't a placeholder.
-          maps-provider.replace("{q}", _url-encode(location))
+          maps-provider.replace("{q}", _url-encode(location.join(", ")))
         },
       )
     },
@@ -152,6 +151,7 @@
   _page-header(
     name: basics.name,
     headline: _field(basics, "label"),
+    objective: _field(cv, "objective"),
     contacts: _contact-rows(
       _linked-contacts(basics, prefs, location-alt: labels.location),
     ),
@@ -159,8 +159,7 @@
     uppercase: prefs.uppercaseName,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
-      let radius = _theme.header.portrait-radius.at(prefs.imageShape)
-      _portrait(image, prefs.imageSize, basics.name, radius: radius)
+      _portrait(image, prefs.imageSize, basics.name, shape: prefs.imageShape)
     },
     photo-at: if prefs.imagePosition == "center" {
       prefs.imageStackOrder

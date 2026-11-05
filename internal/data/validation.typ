@@ -3,10 +3,12 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": _theme
+#import "../design/theme.typ": (
+  _default-theme, _token-prefs, _tokens, _treatment-names,
+)
 #import "../util/checks.typ": (
-  _bool-rule, _check, _check-rules, _check-type, _check-unknown-keys,
-  _enum-rule, _list-rule, _positive-int-rule, _type-rule,
+  _bool-rule, _check, _check-keys, _check-rules, _check-type,
+  _check-unknown-keys, _enum-rule, _list-rule, _positive-int-rule, _type-rule,
 )
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
@@ -22,8 +24,7 @@
 // merge entry by entry, so a partial override keeps the rest; any
 // other key is replaced whole, dictionary or not (`margin`).
 #let _strict-merge(defaults, overrides, name, tables: ()) = {
-  _check-type(name, overrides, (dictionary,), "a dictionary")
-  _check-unknown-keys(overrides.keys(), defaults.keys(), name)
+  _check-keys(name, overrides, defaults.keys())
   let merge-key(key, value) = {
     let default = defaults.at(key)
     if key in tables {
@@ -45,8 +46,19 @@
 } else { _is-margin-side(v) }
 
 // A family name, or a fallback list of names / `(name, covers)` dicts.
+// A dictionary entry is Typst's `(name: …, covers: …)`; a stray key,
+// or a missing or non-string `name`, would otherwise fail only at
+// `set text`.
+#let _is-font-entry(f) = (
+  type(f) == str
+    or (
+      type(f) == dictionary
+        and type(f.at("name", default: none)) == str
+        and f.keys().all(k => k in ("name", "covers"))
+    )
+)
 #let _is-font-list(v) = (
-  type(v) == array and v.len() > 0 and v.all(f => type(f) in (str, dictionary))
+  type(v) == array and v.len() > 0 and v.all(_is-font-entry)
 )
 #let _is-font(v) = type(v) == str or _is-font-list(v)
 
@@ -82,22 +94,16 @@
 }
 
 // The single-value preferences, in `_default-preferences`' order. The
-// rest are checked in `_validate-preferences`, or for the icon tables
-// in `_merge-options`; `groupCertificates` and `showPronouns` are
+// rest are checked in `_validate-preferences` (`font` and `colours`
+// with the theme's tokens), or for the icon tables in
+// `_merge-options`; `groupCertificates` and `showPronouns` are
 // ignored, so they aren't checked.
 #let _preference-rules = (
-  font: (_is-font, "a font family name or a non-empty array of them"),
   bodySize: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
-  // Only a colour supports `lighten` / `darken`; a palette name string
-  // is the common slip.
-  accent: _type-rule(
-    (color,),
-    "a colour (e.g. palettes.navy or rgb(\"#1A3A6C\"))",
-  ),
   uppercaseName: _bool-rule,
   headerTextAlign: _enum-rule(_text-aligns.keys()),
   imageSize: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
-  imageShape: _enum-rule(_theme.header.portrait-radius.keys()),
+  imageShape: _enum-rule(_default-theme.header.portrait-radius.keys()),
   imagePosition: _enum-rule(("left", "right", "center")),
   // Checked even when unused, so a typo surfaces before it matters.
   imageStackOrder: _enum-rule(("above", "below")),
@@ -141,10 +147,112 @@
   referencesAvailableOnRequest: _bool-rule,
 )
 
+// Only a colour supports `lighten` / `darken`; a palette name string
+// is the common slip.
+#let _colour-rule = _type-rule(
+  (color,),
+  "a colour (e.g. rgb(\"#1A3A6C\"))",
+)
+
+#let _font-rule = (_is-font, "a font family name or a non-empty array of them")
+// Typst's weight names, or a number from 100 to 900, as `text` takes.
+#let _weight-names = (
+  "thin",
+  "extralight",
+  "light",
+  "regular",
+  "medium",
+  "semibold",
+  "bold",
+  "extrabold",
+  "black",
+)
+#let _weight-rule = (
+  v => v in _weight-names or (type(v) == int and v >= 100 and v <= 900),
+  "a font weight (\"regular\", \"bold\", … or 100 to 900)",
+)
+// The scales: sizes, leading and strokes must be positive; a space may
+// be zero.
+#let _positive-number-rule = (
+  v => type(v) in (int, float) and v > 0,
+  "a positive number",
+)
+#let _space-rule = (
+  v => type(v) in (int, float) and v >= 0,
+  "a number, zero or more",
+)
+// Joined into content, so a separator may be content or a symbol too
+// (`[ | ]`, `sym.bullet`).
+#let _separator-rule = _type-rule(
+  (str, content, symbol),
+  "a string, content or a symbol",
+)
+
+// Tokens whose rule isn't their default's kind, by the first segment
+// of their path (`treatment`), else by its last (`weight`).
+#let _token-rules = (
+  font: _font-rule,
+  treatment: _enum-rule(_treatment-names),
+  separator: _separator-rule,
+  font-weight: _weight-rule,
+  weight: _weight-rule,
+  space: _space-rule,
+)
+
+// A token of `default`'s kind: a colour, a positive number, strings as
+// many as its own (the citation's issue brackets), or a string.
+#let _kind-rule(default) = if type(default) == color { _colour-rule } else if (
+  type(default) in (int, float)
+) { _positive-number-rule } else if type(default) == array {
+  let (is-strings, _) = _list-rule((str,), "")
+  (
+    v => is-strings(v) and v.len() == default.len(),
+    "an array of " + str(default.len()) + " strings",
+  )
+} else { _type-rule((str,), "a string") }
+
+#let _token-rule(path, default) = _token-rules.at(
+  path.first(),
+  default: _token-rules.at(path.last(), default: _kind-rule(default)),
+)
+
+// `value` as overrides of `defaults` (some of `_tokens`, at `path`), any
+// subset at any depth: no key `defaults` lacks, a dictionary where it
+// has one, and each value by `_token-rule`. `prefix` leads the path in
+// messages (`theme.type.title.size`).
+#let _check-tokens(value, defaults, prefix, path: ()) = {
+  let name(at) = {
+    let parts = ((prefix,) + at).filter(s => s != "")
+    if parts == () { "preferences" } else { parts.join(".") }
+  }
+  _check-keys(name(path), value, defaults.keys())
+  for (key, v) in value {
+    let at = path + (key,)
+    let default = defaults.at(key)
+    if type(default) == dictionary {
+      _check-tokens(v, default, prefix, path: at)
+    } else { _check(name(at), v, _token-rule(at, default)) }
+  }
+}
+
+// A theme is `_tokens` overrides, any of them, and so are the
+// preferences that override it (`_token-prefs`: `font`, `colours`).
+#let _validate-theme(prefs) = {
+  _check-type(
+    "theme",
+    prefs.theme,
+    (dictionary,),
+    "a theme (e.g. themes.altacv)",
+  )
+  _check-tokens(prefs.theme, _tokens, "theme")
+  _check-tokens(_token-prefs(prefs), _tokens, "")
+}
+
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.
 #let _validate-preferences(prefs, section-keys) = {
   _check-rules(prefs, _preference-rules)
+  _validate-theme(prefs)
   let link-contact-info = prefs.linkContactInfo
   _check-type(
     "linkContactInfo",

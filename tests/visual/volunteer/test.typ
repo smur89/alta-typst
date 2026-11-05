@@ -44,5 +44,13 @@
       startDate: "2019",
       endDate: "2020",
     ),
+    (
+      // Keywords should not render for volunteer entries.
+      organization: "The Hidden Keywords",
+      position: "Keywords Tester",
+      startDate: "2019",
+      endDate: "2020",
+      keywords: ("Python", "Go"),
+    ),
   ),
 ))

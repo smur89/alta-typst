@@ -1,19 +1,45 @@
-// The template's look. `_tokens` are the scales (type, colour,
-// spacing, strokes); `_build-theme` maps them onto the roles components
-// read and derives `secondary` and `border` from `body`. A role exists
-// only where components differ by design; otherwise they read tokens.
-//
-// Not configurable yet. When it is, `alta()` deep-merges token
-// overrides (the tokens nest), rebuilds, then merges role overrides.
-// Token values are numbers and strings (hex colours, widths in pt), so
-// a theme could load from TOML.
+// The template's look. `_tokens` are the font and the scales, with
+// their defaults; `_build-theme` maps them onto the roles components
+// read. A role exists only where components differ by design;
+// otherwise they read tokens. A theme (`presets.typ`) overrides any of
+// the tokens: `_theme-for` merges it, then the preferences that
+// override tokens (`_token-prefs`), over `_tokens` and builds, once per
+// render, into the state components read (`_theme-state`).
 //
 // Type sizes and `space` multiply the body size; public helpers
 // (`tag`, `term`, `divider`, `rating`, `icon`) read it from state, as
 // they may sit outside `alta()`. `em` roles follow their own text;
 // `pt` and `cm` lengths don't scale.
 
+#import "../util/values.typ": _deep-merge
+#import "presets/teal.typ"
+
+// The roles the deprecated top-level `accent` colours with one
+// colour, as the built-in themes did before each took its own shades.
+#let _accent-roles(accent) = (
+  accent: accent,
+  heading: accent,
+  headingRule: accent,
+  subheading: accent,
+  name: accent,
+)
+
+// WCAG's contrast ratio of `c` on the white page.
+#let _contrast(c) = {
+  let (r, g, b) = rgb(c)
+    .components(alpha: false)
+    .map(v => {
+      let x = v / 100%
+      if x <= 0.04045 { x / 12.92 } else { calc.pow((x + 0.055) / 1.055, 2.4) }
+    })
+  1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
+}
+
 #let _tokens = (
+  // The family, or a fallback array of them. Must be installed on the
+  // build host (CI installs it: apt in setup-typst, apk in the pinned
+  // image).
+  font: "Lato",
   // Material Design 3's type roles: `display` the name, `headline` a
   // section title, `title` a heading, `body` the rest (quieter lines
   // differ by colour, not size).
@@ -21,14 +47,42 @@
     display: (size: 2.5, weight: "bold"),
     headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
-    // Always 1: `bodySize` sets it.
-    body: (size: 1, weight: "regular"),
+    // No size: `bodySize` is the body's. The weight is the body text's
+    // (`_document`) and the pills'.
+    body: (weight: "regular"),
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // Bootstrap's colour roles; `secondary` and `border` derive from
-  // `body` unless set.
-  colour: (body: "#666666", emphasis: "#2E2E2E"),
+  // The colour roles (`preferences.colours`): the default theme's
+  // (`presets/teal.typ`). `emphasis` and `body` follow Bootstrap's
+  // roles.
+  colours: teal.theme.colours,
+  // `Manager, Pied Piper · 2024`: `items` within a group (a location's
+  // parts too), `facts` between groups; `label` after an interest
+  // group's name (`Music: Trad, Jazz`) and the footer's "Last
+  // updated"; `range` between a period's dates; `keywords` between an
+  // entry's keywords (a project's stack, education's courses).
+  separator: (
+    facts: " · ",
+    items: ", ",
+    label: ": ",
+    range: " – ",
+    keywords: " · ",
+  ),
+  // A publication's citation, `ACM 12(3), 45–67`: the brackets around
+  // the issue, before the pages, between the publisher and the rest,
+  // and the dash that replaces hyphens in a page range (unspaced, where
+  // `separator.range` between dates is spaced).
+  citation: (issue: ("(", ")"), pages: ", ", source: " ", page-range: "–"),
+  // For a summary, a `styled-link` title, the CV owner among
+  // publication authors, and an interest group's name.
+  treatment: (
+    // A plain setting, not `emph`: the summary is a `_part`.
+    preamble: "italic",
+    link: "emph",
+    owner: "strong",
+    label: "strong",
+  ),
   // CSS's size keywords.
   space: (
     xx-small: 0.15,
@@ -44,29 +98,27 @@
 
 #let _build-theme(tokens) = {
   let (type: ty, font-weight: fw, space: sp, stroke-width: sw) = tokens
-  let colour = tokens.colour.pairs().map(((k, v)) => (k, rgb(v))).to-dict()
   (
+    font: tokens.font,
     type: ty,
     font-weight: fw,
-    colour: (
-      secondary: colour.body.lighten(35%),
-      // Dividers, empty rating dots.
-      border: colour.body.lighten(65%),
-    )
-      + colour,
     stroke-width: sw.pairs().map(((k, v)) => (k, v * 1pt)).to-dict(),
-    // `Manager, Pied Piper · 2024`: `items` within a group, `facts`
-    // between groups; `label` after an interest group's name
-    // (`Music: Trad, Jazz`).
-    separator: (facts: " · ", items: ", ", label: ": "),
-    // For a summary, a `styled-link` title, the CV owner among
-    // publication authors, and an interest group's name.
-    treatment: (
-      // A plain setting, not `emph`: the summary is a `_part`.
-      preamble: "italic",
-      link: "emph",
-      owner: "strong",
-      label: "strong",
+    separator: tokens.separator,
+    citation: tokens.citation,
+    treatment: tokens.treatment,
+    // `secondary` (the quietest lines) and `border` (dividers, empty
+    // rating dots) derive from `body`: `secondary` its palest tint, up
+    // to 35%, that keeps WCAG AA's 4.5:1 on white (`body` itself if
+    // none does).
+    colours: (
+      tokens.colours
+        + (
+          secondary: range(35, -1, step: -1)
+            .map(p => tokens.colours.body.lighten(p * 1%))
+            .filter(c => _contrast(c) >= 4.5)
+            .at(0, default: tokens.colours.body),
+          border: tokens.colours.body.lighten(65%),
+        )
     ),
     par: (leading: tokens.leading * 1em, spacing: sp.medium * 1em),
     list: (body-indent: sp.x-small, spacing: tokens.leading * 1em),
@@ -101,11 +153,13 @@
       side-max: 50%,
     ),
     term: (below: sp.medium, inset: sp.x-small),
-    // Fills lighten the accent, the text darkens it.
+    // Fills and the outline lighten the accent, the text darkens it:
+    // a soft outline, so a row of pills reads as one band of tint.
     tag: (
       fill: 85%,
       label-fill: 70%,
-      text-darken: 15%,
+      stroke-lighten: 45%,
+      text-darken: 25%,
       radius: 2.5pt,
       inset: (x: sp.x-small, y: sp.xx-small),
       outset-y: sp.xx-small,
@@ -121,6 +175,8 @@
     header: (
       name-below: sp.large,
       headline-below: sp.medium,
+      // Between the headline and the objective under it.
+      objective-gap: sp.small,
       // The contact bar's text and icons, below body so they don't
       // compete with the name.
       contact-size: 0.9,
@@ -132,13 +188,8 @@
       // The QR code's side.
       qr: 3.5,
     ),
-    // Around the intro and the objective's pull-quote.
-    intro: (
-      above: sp.medium,
-      inset: (left: sp.medium, y: sp.xx-small),
-      gap: sp.x-small,
-      below: sp.x-small,
-    ),
+    // Around the intro (the summary).
+    intro: (above: sp.medium, below: sp.x-small),
     // `radius` and `row-height` (every rating row's, dots or text) are
     // geometry.
     rating: (radius: 0.45, gap: sp.x-small, row-height: 1.14),
@@ -147,4 +198,24 @@
   )
 }
 
-#let _theme = _build-theme(_tokens)
+// The theme with no overrides: the state's default, for public helpers
+// used outside `alta()`.
+#let _default-theme = _build-theme(_tokens)
+
+// The preferences that override a theme's tokens, as tokens: `colours`,
+// and `font` unless `auto` (the theme's).
+#let _token-prefs(prefs) = (
+  (colours: prefs.colours)
+    + if prefs.font != auto { (font: prefs.font) } else { (:) }
+)
+
+// The names `_treat` (`styles.typ`) applies, for a theme's
+// `treatment` tokens.
+#let _treatment-names = ("emph", "italic", "strong", "upper", "none")
+
+// The theme to render with: the chosen theme's tokens, then
+// `overrides` (`_token-prefs`), over `_tokens`. Either may set only
+// some tokens.
+#let _theme-for(theme, overrides) = _build-theme(
+  (theme, overrides).fold(_tokens, _deep-merge),
+)
