@@ -12,9 +12,8 @@ TYPST     ?= typst ## the typst binary
 # bundles), never the system's, so a render doesn't depend on what else
 # the machine has installed: a font both bundled and installed (DejaVu
 # Sans Mono, say) would otherwise resolve differently per machine.
-# `DOCKER_RUN` sets it, so every render in the pinned image (`make
-# in-image`, which CI runs) uses only the image's fonts; host runs
-# leave it empty and use system fonts.
+# `DOCKER_RUN` sets it for the pinned image; host runs leave it empty
+# and use system fonts.
 FONT_PATHS ?= ## colon-separated font directories; when set, the only fonts besides Typst's own
 TYPSTYLE  ?= typstyle ## the typstyle binary
 IMG2WEBP  ?= img2webp ## the img2webp binary (libwebp; preview-webp)
@@ -100,8 +99,8 @@ DOCKER_IMAGE ?= ghcr.io/smur89/alta-typst-ci:typst-0.15.1-fa-7.0.0-lato-2.015-r0
 # The image bakes no @preview cache and `-u` leaves HOME unwritable
 # ("Permission denied" on first download), so the cache lives in the
 # bind mount (`.typst-cache/`, gitignored) and persists across runs.
-# `-e GITHUB_ACTIONS` forwards the host's value only when it's set, so
-# the checks inside still emit CI's log groups and annotations.
+# `-e GITHUB_ACTIONS` (forwarded only when set) keeps CI's log groups
+# and annotations.
 DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /work \
   -e GITHUB_ACTIONS \
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
@@ -195,16 +194,14 @@ examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) exampl
 	$(IMG2WEBP) -loop 0 -lossy -q 75 -m 6 -d $(PREVIEW_DELAY) examples/.preview-frame-*.png -o $@
 	rm -f examples/.preview-frame-*.png
 
-# One check per file, each its own target, so `make -j` runs them in
-# parallel and `-k` reports every broken file in one run. On GitHub
-# Actions each adds a log group and `::error file=` annotations (CI
-# runs `-O`, so a group's lines stay together). `$(TEMPLATE_SRC)` is
-# reported as template/cv.typ, the file people edit.
+# One target per checked file, so `make -j` parallelises them and `-k`
+# reports every failure. On GitHub Actions each check is a log group
+# with `::error file=` annotations; `$(TEMPLATE_SRC)` is reported as
+# template/cv.typ, the file people edit.
 #
-# `compile-one` compiles a file to /dev/null against the PDF standards
-# in `$(2)` (default `PDF_STANDARDS`: PDF/A-2b and PDF/UA-1, which back
-# the README's PDF/A and accessibility notes); the output is
-# discarded, so the committed renders are unaffected.
+# `compile-one` compiles to /dev/null against `$(2)`, the PDF standards
+# (default `PDF_STANDARDS`: PDF/A-2b and PDF/UA-1, which back the
+# README's PDF/A and accessibility notes).
 #   $(call compile-one,<file>[,<pdf standards>])
 define compile-one
 @name=$(1); [ "$(1)" = "$(TEMPLATE_SRC)" ] && name=template/cv.typ; \
@@ -225,11 +222,9 @@ UNIT_CHECKS    := $(addprefix check/unit/,$(UNIT_TESTS))
 PANIC_CHECKS   := $(addprefix check/panic/,$(PANIC_TESTS))
 .PHONY: $(COMPILE_CHECKS) $(FIXTURE_CHECKS) $(UNIT_CHECKS) $(PANIC_CHECKS)
 
-# Static pattern rules, as make skips implicit-rule search for .PHONY
-# targets (a plain `check/compile/%:` rule would never fire). The
-# examples read the template through `$(TEMPLATE_SRC)`
-# (preview-frames.typ, via examples/_cv.typ), so every compile check
-# waits for it.
+# Static pattern rules: make skips implicit rules for .PHONY targets.
+# The compile checks wait for `$(TEMPLATE_SRC)`, which the examples
+# read (preview-frames.typ, via examples/_cv.typ).
 $(COMPILE_CHECKS): check/compile/%: $(TEMPLATE_SRC)
 	$(call compile-one,$*)
 $(FIXTURE_CHECKS): check/fixture/%:
@@ -339,9 +334,9 @@ help: ## list these targets and the variables you can override
 	@echo 'Overrides (make VAR=value):'
 	@awk -F' *[?]= *| *## ' '/^[A-Z_]+ *[?]=.*## /{printf "  %-22s %s (default %s)\n", $$1, $$3, $$2}' $(MAKEFILE_LIST)
 
-# Runs `make $(TARGETS)` in the pinned image, as CI's render jobs do:
+# `make $(TARGETS)` in the pinned image, as CI runs it:
 #   make in-image TARGETS='-k -j4 test'
-# `-u` keeps outputs owned by the host user rather than root on Linux.
+# `-u` keeps outputs owned by the host user, not root.
 in-image: ## run `make $(TARGETS)` in the pinned image
 	$(DOCKER_RUN) -u "$(shell id -u):$(shell id -g)" $(DOCKER_IMAGE) make $(TARGETS)
 
@@ -354,15 +349,14 @@ in-image: ## run `make $(TARGETS)` in the pinned image
 docker-pdfs: ## regenerate every committed render in the pinned CI image
 	$(MAKE) in-image TARGETS='-B all'
 
-# Just the tracked thumbnail PNG, the fix the build job's drift check
-# names. Raster output is environment-sensitive, so the pinned image is
-# its only canonical source. `-B` for the same mtime reason as above.
+# Just the tracked thumbnail: raster output only reproduces in the
+# pinned image. `-B` for the same mtime reason as above.
 docker-preview-images: ## regenerate thumbnail.png in the pinned image
 	$(MAKE) in-image TARGETS='-B thumbnail'
 
-# The release artifacts in the pinned image: CI's build, package-check
-# and release jobs. `-B` so the tracked thumbnail re-renders for the
-# build job's drift check (checkout mtimes could make it look fresh).
+# The release artifacts in the pinned image, for CI's build,
+# package-check and release jobs. `-B` so the thumbnail re-renders for
+# the drift check.
 docker-release-artifacts: ## build the release artifacts in the pinned image
 	$(MAKE) in-image TARGETS='-B -j4 release-artifacts'
 

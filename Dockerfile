@@ -33,8 +33,8 @@ ARG PNGQUANT_APK_VERSION=3.0.3-r0
 # callers choose (`make in-image` passes `-u`).
 USER root
 
-# `bash` is `make docker-shell`'s shell, and `git` lets `make fmt` and
-# the drift checks run there too. The rest installs Lato and FA.
+# `bash` and `git` for `make docker-shell`. The rest installs Lato and
+# FA.
 RUN apk add --no-cache \
       bash \
       ca-certificates \

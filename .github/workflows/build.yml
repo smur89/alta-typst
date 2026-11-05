@@ -39,15 +39,11 @@ jobs:
         with:
           persist-credentials: false
 
-      # In the pinned image the fixtures are committed from (`make
-      # docker-pdfs`), so there's no toolchain to install and the drift
-      # check compares like with like. Rendering the fixtures is also
-      # their compile check, standing in for `make test`'s
-      # `test-fixtures`. `-B`: tracked PDFs get checkout-order mtimes,
-      # so make could skip them and the gate would compare the committed
-      # files to themselves. `-k` reports every failure in one run;
-      # `-j4 -O` runs the checks across the runner's four cores, each
-      # check's log kept together.
+      # In the image the fixtures are committed from, so the drift check
+      # compares like with like. Rendering the fixtures doubles as their
+      # compile check (`test-fixtures`). `-B`: checkout mtimes could make
+      # the tracked PDFs look fresh. `-k`: report every failure. `-j4
+      # -O`: four cores, each check's log kept together.
       - name: Render test fixtures, compile examples + template, run panic and unit checks
         run: make in-image TARGETS='-k -B -j4 -O test-pdfs test-compile test-panics test-unit'
 
@@ -67,8 +63,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # Cached per version: a release download every run is slower, and
-      # a GitHub 504 on it would fail the job.
+      # Cached per version: saves a download, and a 504 on it.
       - name: Restore typstyle
         id: typstyle-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -99,10 +94,8 @@ jobs:
         with:
           persist-credentials: false
 
-      # In the pinned image, as the committed renders are, so the
-      # thumbnail can be checked for drift below. Separate uploads so a
-      # reviewer downloads one small, named file rather than a bundled
-      # zip.
+      # In the pinned image, so the thumbnail can be drift-checked.
+      # Separate uploads, so a reviewer downloads one small named file.
       - name: Build cv.pdf + cv.png + example_full.pdf + thumbnail.png
         run: make docker-release-artifacts
 
@@ -152,10 +145,8 @@ jobs:
         with:
           persist-credentials: false
 
-      # The release artifacts, the tarball's renders among them, in the
-      # pinned image. Also fills .typst-cache (the image's package
-      # cache) with @preview deps, which the validate step mounts into
-      # the check container.
+      # Also fills .typst-cache with the @preview deps the validate step
+      # mounts.
       - name: Render the release artifacts
         run: make docker-release-artifacts
 
