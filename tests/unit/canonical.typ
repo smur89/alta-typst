@@ -110,7 +110,7 @@
   merged(preferences: (leftColumnSections: ("focusAreas",)))
     .prefs
     .left-column-sections,
-  ("focusAreas",),
+  ("focus-areas",),
 )
 #assert.eq(
   merged(labels: (pageNumber: "P {current}")).labels.page-number,
@@ -128,4 +128,21 @@
     .colours
     .heading-rule,
   red,
+)
+
+// JSON Resume's camelCase fields read as kebab-case for rendering, at
+// any depth (#390); keys that are data (`identifiers` schemes, other
+// `custom` namespaces) keep their spelling.
+#import "/internal/data/read.typ": _kebab-fields
+#assert.eq(
+  _kebab-fields((
+    work: ((startDate: "2020", location: (countryCode: "IE")),),
+    publications: ((identifiers: (arXiv: "2101.00001")),),
+    custom: (altacv: (focusAreas: ([A],)), other: (fooBar: 1)),
+  )),
+  (
+    work: ((start-date: "2020", location: (country-code: "IE")),),
+    publications: ((identifiers: (arXiv: "2101.00001")),),
+    custom: (altacv: (focus-areas: ([A],)), other: (fooBar: 1)),
+  ),
 )

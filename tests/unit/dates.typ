@@ -109,7 +109,7 @@
 #assert.eq(_date-span(none, none, long), (none, none))
 #assert.eq(join-range(_date-span(none, none, long)), none)
 #assert.eq(
-  plain(join-range(_entry-period((startDate: "2020"), long, labels.present))),
+  plain(join-range(_entry-period((start-date: "2020"), long, labels.present))),
   "2020 – " + labels.present,
 )
 #assert.eq(_entry-period((:), long, labels.present), (none, none))

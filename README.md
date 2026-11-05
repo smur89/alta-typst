@@ -153,7 +153,7 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
   image-position: left,
   link-contact-info: (phone: false),  // everything linked but the phone
   maps-provider: maps-providers.osm, // OpenStreetMap for basics.location
-  right-column-sections: ("focusAreas", "education", "skills", "languages", "certificates"),
+  right-column-sections: ("focus-areas", "education", "skills", "languages", "certificates"),
 ))
 ```
 <!-- x-release-please-end -->
@@ -218,7 +218,7 @@ Invert the layout, side panel on the narrow left:
 ```typst
 #alta(cv, preferences: (
   column-ratio: 0.35,
-  left-column-sections: ("focusAreas", "skills", "languages", "education", "certificates"),
+  left-column-sections: ("focus-areas", "skills", "languages", "education", "certificates"),
   right-column-sections: ("work", "publications"),
 ))
 ```
@@ -378,7 +378,7 @@ altacv reads four optional fields the [JSON Resume schema](https://jsonresume.or
 
 | Field | Effect |
 |---|---|
-| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section key is `focusAreas`, its label `focus-areas`. |
+| `custom.altacv.focusAreas` (root) | An "Areas of Focus" section of prose bullets. Its section key and label are `focus-areas`. |
 | `languages[].custom.altacv.rating` | An exact rating, 0 to `preferences.max-rating` in 0.5 steps; wins over `fluency`. |
 | `skills[].custom.altacv.rating` | The same for a skill group; wins over `level`. |
 | `awards[].custom.altacv.url` | Links the award title. |
@@ -439,7 +439,7 @@ An entry without its title field (`name` for projects and certificates, `title` 
 
 **Languages** are `{language, fluency}`. LinkedIn's fluency terms (`Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`, any case) show as dots; other strings show as text. An exact [rating extension](#extensions) wins. An entry with neither a rating nor `fluency` panics.
 
-**Interests** are `{name, keywords}` lines: `Music: Trad, Jazz`. For prose bullets, use `focusAreas`.
+**Interests** are `{name, keywords}` lines: `Music: Trad, Jazz`. For prose bullets, use `custom.altacv.focusAreas`.
 
 **References** show the `reference` quote under the referee's `name`, with a line of `relationship`, `organization` and `date`. `availableOnRequest: true` prints `labels.references-available-on-request` in place of the quote; if every entry sets it, the section is just that one line. Entries with neither a quote nor `availableOnRequest` are skipped.
 
@@ -486,7 +486,7 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 | `margin` | `(x: 0.9cm, y: 1.5cm)` | As `set page(margin: …)` takes. |
 | `column-ratio` | `0.65` | The left column's share of the width, in `(0, 1]`; `1` for a single column. |
 | `left-column-sections` | `("work", "volunteer", "projects", "publications")` | Sections in the left column, in order. |
-| `right-column-sections` | `("focusAreas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
+| `right-column-sections` | `("focus-areas", "skills", "languages", "education", "certificates", "awards", "interests", "references")` | Sections in the right column, in order. |
 
 #### Footer
 
@@ -515,7 +515,8 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 
 | Key | Use instead |
 |---|---|
-| camelCase option names (`columnRatio`, `labels.pageNumber`, `colours.headingRule`) | The kebab-case name (`column-ratio`, `labels.page-number`, `colours.heading-rule`). Data stays JSON Resume's camelCase (`startDate`), and so do section keys (`"focusAreas"`). |
+| camelCase option names (`columnRatio`, `labels.pageNumber`, `colours.headingRule`) | The kebab-case name (`column-ratio`, `labels.page-number`, `colours.heading-rule`). Data stays JSON Resume's camelCase (`startDate`). |
+| The section key `"focusAreas"` in a column list | `"focus-areas"`. The data stays at `custom.altacv.focusAreas`. |
 | `accent` | `theme`, or `colours` for a custom colour. |
 | `references-available-on-request` | `references[].availableOnRequest`. |
 | `image-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
@@ -543,7 +544,7 @@ A theme dict may set any of these; unset tokens keep the default. A wrong key or
 
 ### Labels
 
-Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](internal/data/labels-ga.toml)). Section labels take the section's key in kebab-case (`focus-areas` for `focusAreas`).
+Defaults from [`internal/data/labels-en.toml`](internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](internal/data/labels-ga.toml)). Section labels share the section's key (`focus-areas`).
 
 | Key | Default |
 |---|---|

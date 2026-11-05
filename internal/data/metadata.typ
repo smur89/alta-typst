@@ -29,7 +29,7 @@
       )
   )
   let description = _field(cv.basics, "summary")
-  let date = _iso-datetime(meta.at("lastModified", default: none))
+  let date = _iso-datetime(meta.at("last-modified", default: none))
   (
     title: _fill-template(labels.document-title, (name: cv.basics.name)),
     author: cv.basics.name,

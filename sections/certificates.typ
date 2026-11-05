@@ -7,7 +7,7 @@
 #import "../internal/primitives.typ": _divider-space
 #import "../internal/components/frame.typ": _section
 
-// No `open-end`: a cert without `expiryDate` doesn't expire, so it
+// No `open-end`: a cert without `expiry-date` doesn't expire, so it
 // never reads "Present".
 #let _certificates(certs, (labels, format-date, ..)) = _section(
   labels.certificates,
@@ -17,10 +17,10 @@
     title: cert.name,
     url: _field(cert, "url"),
     org: _field(cert, "issuer"),
-    details: (_field(cert, "credentialId"),),
+    details: (_field(cert, "credential-id"),),
     period: _date-span(
       _field(cert, "date"),
-      _field(cert, "expiryDate"),
+      _field(cert, "expiry-date"),
       format-date,
     ),
     summary: _field(cert, "summary"),

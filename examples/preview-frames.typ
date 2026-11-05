@@ -59,7 +59,7 @@
     "interests",
   ),
   right-column-sections: (
-    "focusAreas",
+    "focus-areas",
     "skills",
     "languages",
     "education",
@@ -106,7 +106,7 @@
           "awards",
         ),
         right-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "education",
@@ -132,7 +132,7 @@
         left-column-sections: (
           "skills",
           "languages",
-          "focusAreas",
+          "focus-areas",
           "education",
           "certificates",
           "interests",
@@ -161,7 +161,7 @@
           let quarter = int((parts.month - 1) / 3) + 1
           "Q" + str(quarter) + " " + str(parts.year)
         },
-        left-column-sections: ("focusAreas", "skills", "languages", "work"),
+        left-column-sections: ("focus-areas", "skills", "languages", "work"),
         right-column-sections: ("projects", "education"),
       ),
   ),
@@ -181,7 +181,7 @@
         image-position: left,
         qr-code: auto,
         left-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "education",
@@ -215,7 +215,7 @@
         right-column-sections: (
           "work",
           "volunteer",
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
         ),
@@ -245,7 +245,7 @@
           "awards",
         ),
         right-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "projects",
@@ -267,7 +267,7 @@
         column-ratio: 0.42,
         uppercase-name: false,
         left-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "education",
@@ -316,7 +316,7 @@
         column-ratio: 0.3,
         header-text-align: right,
         left-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "certificates",
@@ -353,7 +353,7 @@
           "awards",
         ),
         right-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "education",
@@ -376,7 +376,7 @@
         column-ratio: 0.45,
         date-format: "[year]-[month]",
         left-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "education",
@@ -415,7 +415,7 @@
           "publications",
         ),
         right-column-sections: (
-          "focusAreas",
+          "focus-areas",
           "skills",
           "languages",
           "projects",

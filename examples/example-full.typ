@@ -344,7 +344,7 @@
       "interests",
     ),
     right-column-sections: (
-      "focusAreas",
+      "focus-areas",
       "skills",
       "languages",
       "education",

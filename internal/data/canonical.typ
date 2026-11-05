@@ -308,10 +308,25 @@
 // #239: the string `page-footer: "auto"` becomes `auto`. A
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
+// #390: the section key `"focusAreas"` in a column list reads as
+// `"focus-areas"`, as the section is named inside.
+#let _section-aliases = (focusAreas: "focus-areas")
+#let _canonical-columns(overrides) = (
+  ("left-column-sections", "right-column-sections").fold(overrides, (
+    acc,
+    key,
+  ) => {
+    let v = _dict-or-empty(acc).at(key, default: none)
+    if type(v) != array { acc } else {
+      acc + ((key): v.map(k => _named(_section-aliases, k)))
+    }
+  })
+)
+
 #let _canonical-preferences(overrides, labels) = {
-  let overrides = _canonical-treatments(
+  let overrides = _canonical-columns(_canonical-treatments(
     _canonical-alignments(_fold-accent(overrides)),
-  )
+  ))
   let overrides = if (
     type(overrides) == dictionary
       and overrides.at("page-footer", default: none) == "auto"

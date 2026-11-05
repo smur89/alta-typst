@@ -43,7 +43,7 @@
     "education",
     "languages",
     "skills",
-    "focusAreas",
+    "focus-areas",
   ),
 ))
 
@@ -62,7 +62,7 @@
 #alta(cv, preferences: (
   column-ratio: 0.35,
   left-column-sections: (
-    "focusAreas",
+    "focus-areas",
     "skills",
     "languages",
     "education",
