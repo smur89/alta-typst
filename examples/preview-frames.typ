@@ -1,10 +1,10 @@
 // Source for `examples/preview.gif` — the animated README hero.
-// Seven frames, each layering a small override on top of the
-// shared `base` preferences below so the GIF reads as "the
-// template with one or two knobs turned" rather than seven
+// One frame per built-in theme, each layering a small override on
+// top of the shared `base` preferences below so the GIF reads as
+// "the template with one or two knobs turned" rather than
 // independent configurations.
 //
-// Frame 1 is the baseline minus the portrait. Frames 2-7 each
+// Frame 1 is the baseline minus the portrait. The later frames each
 // re-arrange the section columns (moving work to the right,
 // pulling volunteer or interests in, dropping one section in
 // favour of another) on top of their accent / image / date /
@@ -13,13 +13,13 @@
 //
 // Image presence alternates frame-to-frame: odd frames render
 // without a portrait (realistic for ATS / anti-bias CVs), even
-// frames render with one in a different position (centred above,
-// left, right). The alternation reinforces that the portrait is
+// frames render with one in a different position, shape or size
+// (centred above, left, right; circle, rounded, square). The alternation reinforces that the portrait is
 // optional — one more knob among many, not the visual anchor.
 //
 // The theme also changes every frame, one built-in theme each: the
 // `altacv` theme (dark red headings over a gold rule) leads, then the
-// other six, no two neighbours alike.
+// others.
 //
 // `imageStackOrder: "below"` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
@@ -220,7 +220,7 @@
   // Single-column layout (`columnRatio: 1`) stacks every section
   // vertically — needs an aggressive section trim to fit one page.
   // Closure-formatted quarterly date labels ("Q3 2024") round out
-  // the frame. Navy completes the cycle of built-in themes.
+  // the frame.
   (
     no-image(cv),
     base
@@ -234,6 +234,98 @@
         },
         leftColumnSections: ("work",),
         rightColumnSections: ("skills", "languages", "education"),
+      ),
+    (:),
+  ),
+
+  // ── Frame 8 ─ rust + rounded portrait left + justified ──────────
+  // The portrait on the left with rounded corners, and body text
+  // justified to both edges.
+  (
+    cv,
+    base
+      + (
+        theme: themes.rust,
+        imagePosition: "left",
+        imageShape: "rounded",
+        justify: true,
+      ),
+    (:),
+  ),
+
+  // ── Frame 9 ─ bauhaus + no image + centred + equal columns ──────
+  // A centred header over two columns of equal width
+  // (`columnRatio: 0.5`), work and projects on the left.
+  (
+    no-image(cv),
+    base
+      + (
+        theme: themes.bauhaus,
+        headerTextAlign: "center",
+        columnRatio: 0.5,
+        leftColumnSections: ("work", "projects"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "awards",
+        ),
+      ),
+    (:),
+  ),
+
+  // ── Frame 10 ─ riso + square portrait right + wide main column ──
+  // A square-cropped portrait, and a wider main column
+  // (`columnRatio: 0.7`) for work and volunteer.
+  (
+    cv,
+    base
+      + (
+        theme: themes.riso,
+        imageShape: "square",
+        columnRatio: 0.7,
+        leftColumnSections: ("work", "volunteer", "projects"),
+        rightColumnSections: ("focusAreas", "skills", "languages", "education"),
+      ),
+    (:),
+  ),
+
+  // ── Frame 11 ─ phosphor + no image + ISO dates ──────────────────
+  // ISO 8601 dates (`2024-03`), suiting the terminal look.
+  (
+    no-image(cv),
+    base
+      + (
+        theme: themes.phosphor,
+        dateFormat: "[year]-[month]",
+        leftColumnSections: ("work", "projects", "publications"),
+        rightColumnSections: (
+          "focusAreas",
+          "skills",
+          "languages",
+          "education",
+          "certificates",
+          "interests",
+        ),
+      ),
+    (:),
+  ),
+
+  // ── Frame 12 ─ catppuccin + large portrait right + full URLs ───
+  // A larger portrait (`imageSize: 8em`) on the right, and the
+  // contact bar set up for paper: unlinked, profiles printed as URLs
+  // (`github.com/…`) in place of usernames.
+  (
+    cv,
+    base
+      + (
+        theme: themes.catppuccin,
+        imageSize: 8em,
+        linkContactInfo: false,
+        printFullUrls: true,
+        leftColumnSections: ("work", "volunteer", "projects"),
+        rightColumnSections: ("focusAreas", "skills", "languages", "education"),
       ),
     (:),
   ),

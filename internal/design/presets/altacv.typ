@@ -1,6 +1,6 @@
 #let theme = (
   colours: (
-    name: rgb("#1C1414"),
+    name: rgb("#291F1F"),
     heading: rgb("#4A0E0E"),
     headingRule: rgb("#D9BE73"),
     subheading: rgb("#8F0D0D"),

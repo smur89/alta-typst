@@ -10,6 +10,11 @@
 #import "presets/plum.typ"
 #import "presets/charcoal.typ"
 #import "presets/altacv.typ"
+#import "presets/rust.typ"
+#import "presets/bauhaus.typ"
+#import "presets/riso.typ"
+#import "presets/phosphor.typ"
+#import "presets/catppuccin.typ"
 
 /// The built-in themes for `preferences.theme`.
 /// -> dictionary
@@ -21,15 +26,18 @@
   plum: plum.theme,
   charcoal: charcoal.theme,
   altacv: altacv.theme,
+  rust: rust.theme,
+  bauhaus: bauhaus.theme,
+  riso: riso.theme,
+  phosphor: phosphor.theme,
+  catppuccin: catppuccin.theme,
 )
 
-/// Each built-in theme's heading colour, `altacv` aside. Deprecated:
-/// use `themes`.
+/// The heading colours of the original six themes, `teal` to
+/// `charcoal`, frozen when it was deprecated. Deprecated: use `themes`.
 /// -> dictionary
 #let palettes = (
-  themes
-    .pairs()
-    .filter(((k, _)) => k != "altacv")
-    .map(((k, t)) => (k, t.colours.heading))
+  ("teal", "navy", "crimson", "forest", "plum", "charcoal")
+    .map(k => (k, themes.at(k).colours.heading))
     .to-dict()
 )
