@@ -162,7 +162,7 @@ Settings layer in order: the theme, then `preferences.colours` and `preferences.
 
 ### Themes and colours
 
-`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum` and `charcoal`, each one accent over grey text, and `themes.altacv`, dark red headings over a gold rule.
+`preferences.theme` picks the look. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal` and `altacv`.
 
 `preferences.colours` then recolours any role over the theme's:
 
@@ -611,7 +611,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `palettes` | Deprecated: the single-accent themes' accents. Use `themes`. |
+| `palettes` | Deprecated: the built-in themes' heading colours. Use `themes`. |
 
 <!-- x-release-please-start-version -->
 ```typst

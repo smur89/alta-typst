@@ -12,9 +12,10 @@
 // `pt` and `cm` lengths don't scale.
 
 #import "../util/values.typ": _deep-merge
+#import "presets/teal.typ"
 
-// The roles a single-accent theme colours with its accent; the
-// deprecated top-level `accent` sets them too.
+// The roles the deprecated top-level `accent` colours with one
+// colour, as the built-in themes did before each took its own shades.
 #let _accent-roles(accent) = (
   accent: accent,
   heading: accent,
@@ -22,6 +23,17 @@
   subheading: accent,
   name: accent,
 )
+
+// WCAG's contrast ratio of `c` on the white page.
+#let _contrast(c) = {
+  let (r, g, b) = rgb(c)
+    .components(alpha: false)
+    .map(v => {
+      let x = v / 100%
+      if x <= 0.04045 { x / 12.92 } else { calc.pow((x + 0.055) / 1.055, 2.4) }
+    })
+  1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
+}
 
 #let _tokens = (
   // The family, or a fallback array of them. Must be installed on the
@@ -41,17 +53,10 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // The colour roles (`preferences.colours`): a teal accent over grey
-  // text, the default theme. `emphasis` and `body` follow Bootstrap's
+  // The colour roles (`preferences.colours`): the default theme's
+  // (`presets/teal.typ`). `emphasis` and `body` follow Bootstrap's
   // roles.
-  colours: (
-    _accent-roles(rgb("#00796B"))
-      + (
-        emphasis: rgb("#2E2E2E"),
-        body: rgb("#666666"),
-        tagline: rgb("#2E2E2E"),
-      )
-  ),
+  colours: teal.theme.colours,
   // `Manager, Pied Piper · 2024`: `items` within a group (a location's
   // parts too), `facts` between groups; `label` after an interest
   // group's name (`Music: Trad, Jazz`) and the footer's "Last
@@ -102,11 +107,16 @@
     citation: tokens.citation,
     treatment: tokens.treatment,
     // `secondary` (the quietest lines) and `border` (dividers, empty
-    // rating dots) derive from `body`.
+    // rating dots) derive from `body`: `secondary` its palest tint, up
+    // to 35%, that keeps WCAG AA's 4.5:1 on white (`body` itself if
+    // none does).
     colours: (
       tokens.colours
         + (
-          secondary: tokens.colours.body.lighten(35%),
+          secondary: range(35, -1, step: -1)
+            .map(p => tokens.colours.body.lighten(p * 1%))
+            .filter(c => _contrast(c) >= 4.5)
+            .at(0, default: tokens.colours.body),
           border: tokens.colours.body.lighten(65%),
         )
     ),
@@ -143,11 +153,13 @@
       side-max: 50%,
     ),
     term: (below: sp.medium, inset: sp.x-small),
-    // Fills lighten the accent, the text darkens it.
+    // Fills and the outline lighten the accent, the text darkens it:
+    // a soft outline, so a row of pills reads as one band of tint.
     tag: (
       fill: 85%,
       label-fill: 70%,
-      text-darken: 15%,
+      stroke-lighten: 45%,
+      text-darken: 25%,
       radius: 2.5pt,
       inset: (x: sp.x-small, y: sp.xx-small),
       outset-y: sp.xx-small,

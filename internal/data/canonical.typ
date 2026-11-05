@@ -170,8 +170,8 @@
   }
 }
 
-// #239: the top-level `accent` sets the roles a single-accent theme
-// colours with it (`_accent-roles`), beneath the caller's `colours`.
+// #239: the top-level `accent` colours the accent roles with one
+// colour (`_accent-roles`), beneath the caller's `colours`.
 // It's dropped even when `colours` isn't a dictionary, so the check
 // names `colours` rather than an unknown `accent`; a non-dictionary
 // `preferences` passes through for `_strict-merge` to reject.
