@@ -56,7 +56,7 @@
   owners: (" j. doe", "ALEX ROE"),
 )[]
 #context assert.eq(owners.get(), ([jane doe], [Jane Doe], [J. Doe], [Alex Roe]))
-#publication(title: "D", authors: ("Jane Doe",), owners: ())[]
+#publication(title: "D", authors: ("Jane Doe",), owners: ())
 #context assert.eq(owners.get().len(), 4)
 
 = Skills

@@ -1,5 +1,5 @@
 // The markup blocks' context logic: an entry's heading level and the
-// divider before it.
+// divider before it. An entry's body is optional.
 
 #import "/lib.typ": altacv, entry
 
@@ -20,14 +20,14 @@
 }
 
 = Experience
-#entry(title: "A")[]
-#entry(title: "B")[]
+#entry(title: "A")
+#entry(title: "B")[- With a body]
 = Publications
 == Talks
-#entry(title: "C")[]
-#entry(title: "D")[]
+#entry(title: "C")
+#entry(title: "D")
 == Articles
-#entry(title: "E")[]
+#entry(title: "E")
 
 #context assert.eq(levels.final(), (2, 2, 3, 3, 3))
 // Between A and B, and C and D: not before the first of a section or
