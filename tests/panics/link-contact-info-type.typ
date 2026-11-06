@@ -1,4 +1,4 @@
-// expect: link-contact-info must be a bool or a dict
+// expect: link-contact-info must be a bool or a dict, got: "yes"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

@@ -1,4 +1,4 @@
-// expect: basics.url must be a non-empty URL string when preferences.qr-code is `auto`
+// expect: basics.url must be a non-empty URL string when preferences.qr-code is `auto`, got: none
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

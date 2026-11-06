@@ -1,4 +1,4 @@
-// expect: image-stack-order must be "above" or "below"
+// expect: image-stack-order must be "above" or "below", got: "over"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

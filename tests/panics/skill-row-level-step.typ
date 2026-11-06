@@ -1,4 +1,4 @@
-// expect: skill-row() level must be a multiple of 0.5
+// expect: skill-row() level must be a multiple of 0.5, got: 2.3
 #import "/lib.typ": altacv, skill-row
 
 #show: altacv

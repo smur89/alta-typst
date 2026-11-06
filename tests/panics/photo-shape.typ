@@ -1,4 +1,4 @@
-// expect: photo-shape must be "circle", "rounded", or "square"
+// expect: photo-shape must be "circle", "rounded", or "square", got: "oval"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

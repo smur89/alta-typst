@@ -1,4 +1,4 @@
-// expect: preferences.theme isn't an alta() preference: theme the CV with `#show: altacv.with(theme: themes.navy)`
+// expect: preferences.theme isn't an alta() preference: theme the CV with `#show: altacv.with(theme: themes.navy)` before `#alta(cv)`, and recolour a theme as `themes.navy + (colours: (..themes.navy.colours, accent: ..))`.
 #import "/lib.typ": alta, themes
 
 #let cv = (basics: (name: "Jane Doe"))

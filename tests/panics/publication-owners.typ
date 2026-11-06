@@ -1,4 +1,4 @@
-// expect: publication() owners must be auto or an array of strings
+// expect: publication() owners must be auto or an array of strings, got: "Jane Doe"
 #import "/lib.typ": altacv, publication
 
 #show: altacv

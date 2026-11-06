@@ -1,4 +1,4 @@
-// expect: column-ratio must be a number in (0, 1]
+// expect: column-ratio must be a number in (0, 1], got: 1.5
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

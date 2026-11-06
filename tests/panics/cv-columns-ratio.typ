@@ -1,4 +1,4 @@
-// expect: cv-columns() ratio must be a number in (0, 1]
+// expect: cv-columns() ratio must be a number in (0, 1], got: 0
 #import "/lib.typ": altacv, cv-columns
 
 #show: altacv
