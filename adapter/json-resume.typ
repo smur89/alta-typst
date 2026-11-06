@@ -441,7 +441,8 @@
 /// - cv (dictionary): The CV, validated JSON Resume (camelCase fields)
 ///   plus altacv's `custom.altacv` extensions: gairm-import's
 ///   `parse(path("resume.json"))`, or the CV `alta()` has checked. Its
-///   field types aren't checked again here.
+///   field types aren't checked again here: a raw `json(..)` with a
+///   wrong-typed field is only tolerated through `alta()`.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …), merged over
 ///   its defaults and checked (`adapter.preferences()`).

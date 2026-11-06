@@ -204,7 +204,7 @@ Then render your copy under the template, and edit it from there:
 ```
 <!-- x-release-please-end -->
 
-`resume(cv)` takes validated JSON Resume: [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse` checks a `resume.json` against the schema first, and `alta()` hands it the CV it has checked. The mapping reads the fields as the schema types them and doesn't check them again, so a raw `json(..)` with a wrong type fails inside it rather than naming the field.
+`resume(cv)` takes validated JSON Resume: [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse` checks a `resume.json` against the schema first, and `alta()` hands it the CV it has checked. The mapping reads the fields as the schema types them and doesn't check them again: a raw `json(..)` with a wrong-typed field is only tolerated through `alta()`, and fails inside `resume()` rather than naming the field.
 
 `resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences, merged over its defaults and checked as `alta()` checks them (`adapter.preferences`). Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
 
