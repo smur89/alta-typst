@@ -1,9 +1,9 @@
 // The header: sections/header.typ's image and QR URL resolution,
 // and the `cv-header` block. The document's title is the name, set
-// once as Typst's `title` element, unless a mapping passes `name`;
-// the photo frames the user's image, at `alta()`'s size and shape
-// unless given; contacts' alt text reads as `alta()`'s does; the
-// text follows the surrounding alignment. The contact entries
+// once as Typst's `title` element (a mapping's `name:` is in
+// header-name.typ); the photo frames the user's image, at `alta()`'s
+// size and shape unless given; contacts' alt text reads as `alta()`'s
+// does; the text follows the surrounding alignment. The contact entries
 // `alta()` draws are `adapter.basics-contacts`'s, in adapter.typ.
 
 #import "/lib.typ": altacv, avatar-placeholder, contact, cv-header
@@ -96,16 +96,6 @@
   if it.clip { frames.update(fs => fs + ((it.width, it.radius),)) }
   it
 }
-
-// A name in place of the document's title; as given, `uppercase`
-// aside.
-#cv-header(name: "Jane Doe", uppercase: false)
-#cv-header(name: [Seán O'Neil], uppercase: false)
-#metadata(none)<named>
-#context assert.eq(
-  titles.at(locate(<named>)).slice(-2),
-  ([Jane Doe], [Seán O'Neil]),
-)
 
 // `auto` is `alta()`'s default `photo-size` and `photo-shape`.
 #cv-header(name: "A", photo: image(avatar-placeholder))
