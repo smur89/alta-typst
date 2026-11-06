@@ -89,11 +89,18 @@
   )
 }
 
-// The single-value preferences, in `_default-preferences`' order. The
-// rest are checked in `_validate-preferences` (`font` and `colours`
-// with the theme's tokens), or for the icon tables in
-// `_merge-options`; `group-certificates` and `show-pronouns` are
-// ignored, so they aren't checked.
+// A column's section keys; a bare string (`"work"`) is the common
+// slip for `("work",)`.
+#let _column-sections-rule = _list-rule(
+  (str,),
+  "an array of section keys (e.g. (\"work\",))",
+)
+
+// The preferences' rules, in `_default-preferences`' order. The rest
+// are checked in `_validate-preferences` (`font` and `colours` with
+// the theme's tokens), or for the icon tables in `_merge-options`;
+// `group-certificates` and `show-pronouns` are ignored, so they aren't
+// checked.
 #let _preference-rules = (
   body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercase-name: _bool-rule,
@@ -119,6 +126,8 @@
     v => type(v) in (int, float) and v > 0 and v <= 1,
     "a number in (0, 1]",
   ),
+  left-column-sections: _column-sections-rule,
+  right-column-sections: _column-sections-rule,
   page-footer: (
     v => v == none or v == auto or type(v) == content,
     "`none`, `auto`, or a content value",

@@ -12,8 +12,6 @@
   "font",
   "theme",
   "colours",
-  "left-column-sections",
-  "right-column-sections",
   "link-contact-info",
   "group-certificates",
   "show-pronouns",
