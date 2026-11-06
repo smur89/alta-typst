@@ -25,9 +25,11 @@
     .to-dict()
 } else if type(v) == array { v.map(_kebab-fields) } else { v }
 
-// `(cv, sections)`: the canonical CV and each column section's entries,
-// their field names kebab-case for rendering (`_kebab-fields`), after
-// every check has named the fields as the caller wrote them.
+// `(cv, sections, json-resume)`: the canonical CV and each column
+// section's entries, their field names kebab-case for rendering
+// (`_kebab-fields`), after every check has named the fields as the
+// caller wrote them; and the canonical CV as checked, in JSON Resume's
+// camelCase, for the template's mapping (`adapter/json-resume.typ`).
 #let _read-cv(cv, prefs) = {
   _check-type("cv", cv, (dictionary,), "a CV data dictionary")
   // The only required field.
@@ -42,5 +44,9 @@
   _check-unknown-keys(cv.keys(), _cv-keys, "CV top-level")
   let cv = _canonical-cv(cv, prefs)
   _check-root(cv, prefs)
-  (cv: _kebab-fields(cv), sections: _kebab-fields(_read-sections(cv, prefs)))
+  (
+    cv: _kebab-fields(cv),
+    sections: _kebab-fields(_read-sections(cv, prefs)),
+    json-resume: cv,
+  )
 }

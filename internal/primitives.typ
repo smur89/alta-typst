@@ -240,6 +240,14 @@
     )
   } #body]
 
+// `source` with a bare string path made a `path` anchored here, in
+// `internal/`, where `_portrait` resolves one, so a caller in another
+// directory (the JSON Resume mapping) frames the same image. Anything
+// else, an empty string included, comes back as it is.
+#let _internal-path(source) = if type(source) == str and source != "" {
+  path(source)
+} else { source }
+
 // The portrait, clipped to a square with the theme's corner radius for
 // `shape` (a `preferences.image-shape`). `image()` resolves a bare string path from
 // the file that calls it, so this stays in `internal/`, where a bare
