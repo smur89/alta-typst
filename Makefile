@@ -78,7 +78,7 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*
 # to commit? What to exclude?"): `examples/cv.png` is a release asset,
 # not a README image, so it stays out.
 PACKAGE_FILES := \
-  typst.toml lib.typ internal sections assets template \
+  typst.toml lib.typ internal sections adapter assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.webp \
   $(EXAMPLE_FULL_PDF) \

@@ -1,0 +1,504 @@
+// The JSON Resume mapping: a CV dictionary in the JSON Resume schema
+// turned into altacv's public markup blocks (`cv-header`, `entry`,
+// `publication`, `skills`, …). It is what `alta(cv)` renders inside
+// `#show: altacv.with(..)`, written to be read and copied (#370).
+//
+// It reads JSON Resume's own field names, camelCase as
+// `json("resume.json")` gives them (`startDate`, `studyType`), plus
+// altacv's extensions under `custom.altacv` (`focusAreas`, a language's
+// `rating`, an award's `url`).
+//
+// To adapt it, copy this file into your project, replace the imports
+// below with one
+//
+//   #import "@preview/altacv:<version>": adapter, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+//
+// and edit what it draws. Then, in your CV:
+//
+//   #import "json-resume.typ": resume
+//   #show: altacv
+//   #let cv = json("resume.json")
+//   #set document(title: cv.basics.name, author: cv.basics.name)
+//   #resume(cv)
+//
+// `cv-header` shows the document's title as the name, and `publication`
+// sets the document's author apart among a publication's authors, as
+// `alta()` sets the CV's owner. A bare `basics.image` path resolves
+// from this file, as `image()` resolves from the file that calls it.
+//
+// The names below are the public API (`lib.typ` re-exports exactly
+// these); this file imports them from the modules that define them
+// because `alta()`, which renders it, sits inside `lib.typ`.
+
+#import "../internal/blocks.typ": (
+  cv-header, entry, label-row, publication, skills,
+)
+#import "../internal/components/ratings.typ": rating
+#import "../internal/data/defaults.typ": maps-providers
+#import "../internal/icons.typ": icon
+#import "../internal/primitives.typ": divider
+#import "../internal/adapter.typ" as adapter
+
+// A field's value, or `none` when it's absent, empty or blank content,
+// as `alta()` reads a field.
+#let _field(obj, key) = {
+  let value = obj.at(key, default: none)
+  if value not in (none, "", []) { value }
+}
+
+// A field that's a non-empty string, else `none`: the fields `alta()`
+// reads leniently (a reference's attribution, a citation's parts).
+#let _string(obj, key) = {
+  let value = obj.at(key, default: none)
+  if type(value) == str and value != "" { value }
+}
+
+// One of altacv's own fields, in the entry's `custom.altacv`.
+#let _altacv(obj, key, default: none) = {
+  let custom = obj.at("custom", default: none)
+  let ns = if type(custom) == dictionary {
+    custom.at("altacv", default: none)
+  }
+  if type(ns) == dictionary { ns.at(key, default: default) } else { default }
+}
+
+// An entry's `type` as `alta()` reads it, trimmed, or `none` when it's
+// untyped: the adapter's grouping of the one entry.
+#let _type(entry) = adapter.group-by-type((entry,)).first().first()
+
+// A `==` group heading led by its icon, in the heading's colour. The
+// icon's box is the heading's text size; the gap after it the body's,
+// `1em / 1.2` in the heading (1.2: the default theme's title size).
+#let _icon-heading(name, body) = [#context text(
+    size: 1em / 1.2,
+    icon(name, size: 1.2em, fill: text.fill),
+  ) #body]
+
+// A section: its `=` heading, then `body`; nothing, not even the
+// heading, when it has no entries.
+#let _frame(title, entries, body) = if entries.len() > 0 {
+  [= #title]
+  body
+}
+
+// A section of one block per entry.
+#let _section(title, entries, render) = _frame(
+  title,
+  entries,
+  entries.map(render).join(),
+)
+
+/// The CV as `alta(cv)` renders it in the template: the header, the
+/// intro, then the column sections side by side.
+///
+/// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
+///   fields) plus altacv's `custom.altacv` extensions.
+/// - labels (dictionary): Display strings, by `alta()`'s kebab-case
+///   label keys (`work`, `other-projects`, `publication-types`, …);
+///   a missing key reads alta's English default.
+/// - preferences (dictionary): Settings, by `alta()`'s kebab-case
+///   preference keys (`column-ratio`, `date-format`, …); a missing key
+///   reads alta's default.
+///
+/// The name is the document's title and the owner among publication
+/// authors its author: `#set document(title: .., author: ..)` first.
+/// -> content
+#let resume(cv, labels: (:), preferences: (:)) = {
+  let basics = cv.basics
+  let max-rating = preferences.at("max-rating", default: 5)
+
+  // A date as `alta()` shows it, per `date-format` and the months.
+  let date(value) = if value != none {
+    adapter.format-date(
+      value,
+      format: preferences.at("date-format", default: "long"),
+      months: labels.at("months", default: auto),
+    )
+  }
+  // `entry`'s `(start, end)` pair: the end, else "Present" when there's
+  // a start. A `none` "Present" is `entry`'s own, in the document's
+  // language.
+  let period(obj) = {
+    let start = _field(obj, "startDate")
+    let end = _field(obj, "endDate")
+    (
+      date(start),
+      if end != none { date(end) } else if start != none {
+        labels.at("present", default: none)
+      },
+    )
+  }
+  let location(obj) = adapter
+    .location-text(obj.at("location", default: none))
+    .join(", ")
+  // Highlights as a list, the entry's body.
+  let bullets(obj) = obj.at("highlights", default: ()).map(h => [- #h]).join()
+
+  // work[] and volunteer[]: the same entry, the organisation under a
+  // different key; only work has keywords.
+  let role(org-key) = e => entry(
+    title: _field(e, "position"),
+    org: _field(e, org-key),
+    org-url: _field(e, "url"),
+    date: period(e),
+    location: location(e),
+    summary: _field(e, "summary"),
+    keywords: e.at("keywords", default: ()),
+    bullets(e),
+  )
+
+  let project(p) = entry(
+    title: p.name,
+    url: _field(p, "url"),
+    org: _field(p, "entity"),
+    roles: p.at("roles", default: ()),
+    date: period(p),
+    summary: _field(p, "summary"),
+    keywords: p.at("keywords", default: ()),
+    bullets(p),
+  )
+
+  let sections = (
+    work: () => _section(
+      labels.at("work", default: "Experience"),
+      cv.at("work", default: ()),
+      role("name"),
+    ),
+    volunteer: () => _section(
+      labels.at("volunteer", default: "Volunteer"),
+      cv.at("volunteer", default: ()),
+      e => role("organization")(e + (keywords: ())),
+    ),
+    // Under a heading per `type`, in the order each first appears,
+    // only when some project has one; the untyped under "Other".
+    projects: () => {
+      let projects = cv
+        .at("projects", default: ())
+        .filter(p => _field(p, "name") != none)
+      if projects.all(p => _type(p) == none) {
+        _section(labels.at("projects", default: "Projects"), projects, project)
+      } else {
+        let other = labels.at("other-projects", default: "Other")
+        let icons = preferences.at("project-icons", default: (:))
+        let groups = adapter.group-by-type(projects.map(p => (
+          p + (type: if _type(p) == none { other } else { _type(p) })
+        )))
+        let group((kind, items)) = {
+          let name = icons.at(lower(kind), default: "folder")
+          [== #_icon-heading(name, kind)]
+          items.map(project).join()
+        }
+        _section(labels.at("projects", default: "Projects"), groups, group)
+      }
+    },
+    // Under a heading per `type` code, matched ignoring case, the
+    // untyped among the articles; a code with no label is headed as
+    // first written.
+    publications: () => {
+      let pubs = cv
+        .at("publications", default: ())
+        .filter(p => _field(p, "name") != none)
+      let code-of(p) = if _type(p) == none { "article" } else {
+        lower(_type(p))
+      }
+      let headings = labels.at("publication-types", default: (
+        article: "Articles",
+        book: "Books",
+        patent: "Patents",
+        thesis: "Theses",
+        talk: "Talks",
+      ))
+      let icons = preferences.at("publication-icons", default: (
+        article: "newspaper",
+        book: "book",
+        thesis: "book",
+        talk: "microphone",
+      ))
+      _section(
+        labels.at("publications", default: "Publications"),
+        adapter.group-by-type(pubs.map(p => p + (type: code-of(p)))),
+        ((code, items)) => {
+          let heading = if code in headings { headings.at(code) } else {
+            _type(pubs.find(p => code-of(p) == code))
+          }
+          [== #_icon-heading(icons.at(code, default: "file"), heading)]
+          items
+            .map(p => {
+              // The citation, `12(3), 45–60`, after the publisher.
+              let issue = _string(p, "issue")
+              let pages = _string(p, "pages")
+              let citation = (
+                (_string(p, "volume"), if issue != none { "(" + issue + ")" })
+                  .filter(x => x != none)
+                  .join(),
+                if pages != none { pages.replace(regex("-+"), "–") },
+              )
+                .filter(x => x != none)
+                .join(", ")
+              let summary = _field(p, "summary")
+              let ids = p.at("identifiers", default: none)
+              publication(
+                title: p.name,
+                url: _field(p, "url"),
+                authors: p
+                  .at("authors", default: ())
+                  .filter(a => type(a) == str and a.trim() != ""),
+                source: (_field(p, "publisher"), citation)
+                  .filter(x => x != none)
+                  .join(" "),
+                date: date(_field(p, "releaseDate")),
+                identifiers: if type(ids) == dictionary {
+                  ids
+                    .pairs()
+                    .filter(((_, id)) => type(id) == str and id != "")
+                    .to-dict()
+                } else { (:) },
+                if summary != none [#summary] else [],
+              )
+            })
+            .join()
+        },
+      )
+    },
+    focus-areas: () => {
+      let items = _altacv(cv, "focusAreas", default: ())
+      _frame(
+        labels.at("focus-areas", default: "Areas of Focus"),
+        items,
+        list(..items),
+      )
+    },
+    // A level a term rates as dots; `skill-level-display: "text"`
+    // keeps it text, as content, which `skills` shows as written.
+    skills: () => _section(
+      labels.at("skills", default: "Skills"),
+      cv
+        .at("skills", default: ())
+        .filter(g => g.at("keywords", default: ()).len() > 0),
+      g => {
+        let level = _field(g, "level")
+        skills(g.name, g.keywords, level: if (
+          level != none
+            and preferences.at("skill-level-display", default: auto) == "text"
+        ) { [#level] } else { level })
+      },
+    ),
+    // Dots for a rated fluency, else the fluency as text; the rows
+    // spaced as entries are, without the rule.
+    languages: () => {
+      let langs = cv
+        .at("languages", default: ())
+        .filter(l => _field(l, "language") != none)
+      _frame(labels.at("languages", default: "Languages"), langs, {
+        show std.divider: none
+        langs
+          .map(l => {
+            let value = adapter.fluency-rating(l, max: max-rating)
+            block(breakable: false, if value != none {
+              rating(l.language, value, max: max-rating)
+            } else {
+              // `rating`'s row with the text in place of the dots, the
+              // row the height of the dots' (1.14em, centred on the
+              // x-height).
+              context {
+                let strut = box(height: 1.14em)
+                let x = measure(text(
+                  top-edge: "x-height",
+                  bottom-edge: "baseline",
+                  "x",
+                )).height
+                box(baseline: (measure(strut).height - x) / 2, strut)
+              }
+              [#l.language<alta-rating-label>]
+              h(1fr)
+              _string(l, "fluency")
+              linebreak()
+            })
+          })
+          .join(divider())
+      })
+    },
+    // The area leads the score when it isn't the title; the courses
+    // end the entry.
+    education: () => _section(
+      labels.at("education", default: "Education"),
+      cv.at("education", default: ()),
+      e => {
+        let study-type = _field(e, "studyType")
+        let area = _field(e, "area")
+        entry(
+          title: if study-type != none { study-type } else { area },
+          org: _field(e, "institution"),
+          org-url: _field(e, "url"),
+          date: period(e),
+          location: location(e),
+          summary: _field(e, "summary"),
+          keywords-lead: (
+            (if study-type != none { area },),
+            (_field(e, "score"),),
+          ),
+          keywords: e.at("courses", default: ()),
+        )[]
+      },
+    ),
+    // Short rows: the spacing between them without the rule. A
+    // certificate without an expiry has no end, not "Present".
+    certificates: () => {
+      show std.divider: none
+      _section(
+        labels.at("certificates", default: "Certifications"),
+        cv
+          .at("certificates", default: ())
+          .filter(c => _field(c, "name") != none),
+        c => {
+          let expiry = _field(c, "expiryDate")
+          entry(
+            title: c.name,
+            url: _field(c, "url"),
+            org: _field(c, "issuer"),
+            details: (_field(c, "credentialId"),),
+            date: if expiry != none {
+              (date(_field(c, "date")), date(expiry))
+            } else {
+              date(_field(c, "date"))
+            },
+            summary: _field(c, "summary"),
+          )[]
+        },
+      )
+    },
+    awards: () => _section(
+      labels.at("awards", default: "Awards"),
+      cv.at("awards", default: ()).filter(a => _field(a, "title") != none),
+      a => entry(
+        title: a.title,
+        url: _altacv(a, "url"),
+        org: _field(a, "awarder"),
+        date: date(_field(a, "date")),
+        summary: _field(a, "summary"),
+      )[],
+    ),
+    // One row per group, kept together as `alta()`'s one paragraph of
+    // them keeps its lines: the first row with the second (no orphan at
+    // a page's foot), the last with the one before (no widow at the top).
+    interests: () => {
+      let groups = cv
+        .at("interests", default: ())
+        .filter(g => g.at("keywords", default: ()).len() > 0)
+      _frame(
+        labels.at("interests", default: "Interests"),
+        groups,
+        groups
+          .enumerate()
+          .map(((i, g)) => {
+            set block(
+              sticky: (
+                i < groups.len() - 1 and (i == 0 or i == groups.len() - 2)
+              ),
+            )
+            label-row(g.name, g.keywords)
+          })
+          .join(),
+      )
+    },
+    // A quote under the referee's name and attribution; on request,
+    // the on-request line in its place, and when every reference is
+    // on request, that line alone.
+    references: () => {
+      let on-request = labels.at(
+        "references-available-on-request",
+        default: "References available upon request.",
+      )
+      let requested(r) = r.at("availableOnRequest", default: false) == true
+      let refs = cv
+        .at("references", default: ())
+        .filter(r => requested(r) or _field(r, "reference") != none)
+      let title = labels.at("references", default: "References")
+      if refs.len() > 0 and refs.all(requested) {
+        _frame(title, refs, entry(summary: on-request)[])
+      } else {
+        _section(title, refs, r => entry(
+          title: _field(r, "name"),
+          subtitle: (
+            (_string(r, "relationship"), _string(r, "organization")),
+            (date(_string(r, "date")),),
+          ),
+          summary: if requested(r) { on-request } else { r.reference },
+        )[])
+      }
+    },
+  )
+
+  // Lists justified per `justify`, as `alta()` sets them.
+  show list: set par(justify: preferences.at("justify", default: false))
+
+  // The header: `basics.image` framed when it's set (a path, or a
+  // non-empty string or bytes); the QR code `basics.url` when `auto`.
+  let image-src = basics.at("image", default: none)
+  let qr-code = preferences.at("qr-code", default: none)
+  cv-header(
+    tagline: _field(basics, "label"),
+    objective: _field(cv, "objective"),
+    // The location's alt text from `labels.location`, as `alta()` reads
+    // it; `cv-header` reads the document language's otherwise.
+    contacts: adapter
+      .basics-contacts(
+        basics,
+        link: preferences.at("link-contact-info", default: true),
+        maps-provider: preferences.at(
+          "maps-provider",
+          default: maps-providers.google,
+        ),
+        full-urls: preferences.at("print-full-urls", default: false),
+        icons: preferences.at("profile-icons", default: auto),
+      )
+      .map(c => if (
+        type(c) == dictionary and c.icon == "location" and "location" in labels
+      ) { c + (alt: labels.location) } else { c }),
+    photo: if (
+      type(image-src) == path or (image-src != none and image-src.len() > 0)
+    ) { image(image-src) },
+    photo-side: preferences.at("image-position", default: right),
+    qr: if qr-code == auto { basics.url } else { qr-code },
+    uppercase: preferences.at("uppercase-name", default: true),
+  )
+
+  // The intro: `basics.summary`, spaced as the default theme spaces it
+  // (`0.8em` above, `0.3em` below).
+  let summary = _field(basics, "summary")
+  if summary != none {
+    v(0.8em)
+    par[#summary<alta-summary>]
+    v(0.3em)
+  }
+
+  // The columns: the left sections beside the right, the left taking
+  // `column-ratio` of what the gutter (the default theme's 12pt)
+  // leaves; one column when the ratio is 1 or no section is on the
+  // right.
+  let ratio = preferences.at("column-ratio", default: 0.65)
+  let left = preferences.at(
+    "left-column-sections",
+    default: ("work", "volunteer", "projects", "publications"),
+  )
+  let right = preferences.at("right-column-sections", default: (
+    "focus-areas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+    "awards",
+    "interests",
+    "references",
+  ))
+  let column(keys) = keys.map(key => (sections.at(key))()).join()
+  if ratio == 1 or right.len() == 0 {
+    column(left + right)
+  } else {
+    grid(
+      columns: (ratio * 1fr, (1 - ratio) * 1fr),
+      column-gutter: 12pt,
+      column(left), column(right),
+    )
+  }
+}
