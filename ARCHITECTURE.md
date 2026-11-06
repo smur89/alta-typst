@@ -22,7 +22,7 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | util | `util/` | generic helpers: presence checks, joins, grouping, a deep merge, checks, date formatting; the dict readers (`_field`, `_string-at`) in `fields.typ` | — |
 | design | `design/` | the theme and its checks, document styles, the built-in themes and palettes, icon set | util |
 | data | `data/` | reading and checking the CV, labels and preferences; their defaults; the contact bar's entries from `basics` (`contacts.typ`); the readers that know JSON Resume's shape (`_location-parts`, `_entry-period`, a publication's `_authors` and its identifiers (`_identifiers`, `_identifier-refs`, `_identifier-url`), a skill's `_skill-rating`, in `cv.typ`), shared by the sections and the markup blocks | util, design |
-| context | `context.typ` | render-time `state` set by `alta()` and `altacv` | design |
+| context | `context.typ` | render-time `state` set by `alta()` and `altacv` | design, data |
 | document | `document.typ` | the document setup shared by `altacv`, standalone `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, tags, the term row, the divider, `icon()` | util, design, context |
 | components | `components/` | layout that takes slots: entry, bibliography, header, footer, … | util, design, context, primitives |
