@@ -1,4 +1,4 @@
-// The template's page footers, `alta-footer` and `alta-updated-footer`,
+// The template's page footers, `cv-footer` and `cv-updated-footer`,
 // for the user's own `set page(footer: ..)`: what they print of the CV
 // (`_cv-details`), read from the `<alta-cv>` marker `alta()` leaves,
 // else from the document. Standalone `alta()` maps the same details
@@ -60,7 +60,7 @@
 /// Typst's page counter, so a `counter(page).update(..)` that restarts
 /// it changes what counts as one page.
 /// -> content
-#let alta-footer() = context {
+#let cv-footer() = context {
   let details = _footer-details()
   _part("footer", _auto-page-footer(details.owner, details.page-number))
 }
@@ -73,9 +73,9 @@
 /// - date (str, content, none): The date shown, as written, in place
 ///   of `alta()`'s `meta.lastModified`.
 /// -> content
-#let alta-updated-footer(version: false, date: none) = {
+#let cv-updated-footer(version: false, date: none) = {
   _check-type(
-    "alta-updated-footer() date",
+    "cv-updated-footer() date",
     date,
     (str, content, type(none)),
     "a string or content",

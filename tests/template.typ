@@ -2,13 +2,13 @@
 // rules, which win over the template's, then the CV and more content.
 // The page is US letter, the text 11pt Libertinus Serif in Irish (the
 // headings and months come from the Irish labels), section titles in
-// red, and a page footer from `alta-footer()`, on two pages: the CV,
+// red, and a page footer from `cv-footer()`, on two pages: the CV,
 // then a page of the user's own content.
 
-#import "../lib.typ": alta, alta-footer, altacv, themes
+#import "../lib.typ": alta, altacv, cv-footer, themes
 
 #show: altacv.with(theme: themes.navy)
-#set page(paper: "us-letter", footer: alta-footer())
+#set page(paper: "us-letter", footer: cv-footer())
 #set text(11pt, lang: "ga", font: "Libertinus Serif")
 #show heading.where(level: 1): set text(fill: rgb("#b03a2e"))
 

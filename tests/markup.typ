@@ -6,13 +6,13 @@
 // (one row's level as dots), `rating` and `label-row`.
 
 #import "../lib.typ": (
-  alta-footer, altacv, avatar-placeholder, contact, cv-columns, cv-header,
-  entry, label-row, publication, rating, skills, themes,
+  altacv, avatar-placeholder, contact, cv-columns, cv-footer, cv-header, entry,
+  label-row, publication, rating, skills, themes,
 )
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with(theme: themes.navy)
-#set page(footer: alta-footer())
+#set page(footer: cv-footer())
 
 #cv-header(
   tagline: "Senior Software Engineer",

@@ -1,19 +1,19 @@
 // The footer helpers in a CV written in markup, with no `alta()` to
 // read: the name from `document.author`, the labels in the document's
-// language, and `alta-updated-footer` printing only with a `date:`.
+// language, and `cv-updated-footer` printing only with a `date:`.
 // Each string is counted per page through a show rule.
 
-#import "/lib.typ": alta-footer, alta-updated-footer, altacv
+#import "/lib.typ": altacv, cv-footer, cv-updated-footer
 
 #set document(title: "Doc Title", author: "Jane Doe")
 #show: altacv
 #set text(lang: "ga")
 #set page(
   header: {
-    alta-updated-footer()
-    alta-updated-footer(date: "Samhain 2026", version: true)
+    cv-updated-footer()
+    cv-updated-footer(date: "Samhain 2026", version: true)
   },
-  footer: alta-footer(),
+  footer: cv-footer(),
 )
 
 #let count(s) = {
