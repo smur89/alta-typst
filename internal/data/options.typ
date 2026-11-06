@@ -6,6 +6,7 @@
   _label-tables, _preference-tables,
 )
 #import "../util/fields.typ": _dict-or-empty
+#import "../util/values.typ": _deep-merge
 #import "defaults.typ": _default-labels, _default-preferences, _translations
 #import "validation.typ": (
   _check-preference, _strict-merge, _validate-labels, _validate-preferences,
@@ -30,23 +31,28 @@
 // translation for `lang` (if any), then each layer of overrides in
 // turn, kebab-cased, canonicalised and merged; validated. The layers
 // are the templates' (`altacv.with(labels: ..)`, outermost first),
-// then a call's (`alta(cv, labels: ..)`), so a later layer wins.
+// then a call's (`alta(cv, labels: ..)`), so a later layer wins. The
+// bundled labels ship checked (`tests/unit/labels.typ`), so with no
+// overrides there's nothing to check: `lang` is then `text.lang`,
+// which Typst has checked.
 #let _resolve-labels(lang, ..layers) = {
   // A non-string `labels.lang` has no translation; validation names it.
   let translation = if type(lang) == str {
     _translations.at(lang, default: (:))
   } else { (:) }
-  let merge(labels, layer) = _strict-merge(
-    labels,
-    layer,
-    "labels",
-    tables: _label-tables,
-  )
-  let merged = layers
+  let layers = layers
     .pos()
     .map(layer => _canonical-labels(_kebab-keys("labels")(layer)))
-    .fold(merge(_default-labels, translation + (lang: lang)), merge)
-  _validate-labels(merged)
+  let merged = layers.fold(
+    _deep-merge(_default-labels, translation + (lang: lang)),
+    (labels, layer) => _strict-merge(
+      labels,
+      layer,
+      "labels",
+      tables: _label-tables,
+    ),
+  )
+  if layers.any(layer => layer != (:)) { _validate-labels(merged) }
   merged
 }
 
