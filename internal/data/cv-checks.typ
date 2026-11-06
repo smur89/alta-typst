@@ -133,7 +133,7 @@
     _require(
       key + "[].level",
       level,
-      _term-rating(entry, "level", _skill-levels, prefs.max-rating) != none,
+      _term-rating(level, _skill-levels, prefs.max-rating) != none,
       _skill-level-expected,
     )
   }

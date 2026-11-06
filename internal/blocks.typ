@@ -4,8 +4,8 @@
 
 #import "data/defaults.typ": _default-preferences
 #import "data/cv.typ": (
-  _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
-  _owner-keys, _skill-levels, _term-rating,
+  _authors, _identifier-refs, _identifier-url, _identifiers, _owner-keys,
+  _period, _skill-levels, _term-rating,
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
@@ -161,11 +161,7 @@
         // present sides.
         period: if type(date) == array {
           let (start, end) = date
-          _entry-period(
-            (start-date: start, end-date: end),
-            d => d,
-            labels.present,
-          )
+          _period(start, end, d => d, labels.present)
         } else { (date,) },
         location: if type(location) == array { location } else { (location,) },
         details: details,
@@ -416,7 +412,7 @@
   context {
     // `alta()`'s readers, over the arguments in its CV shape; an
     // author given as content is matched and shown as its text.
-    let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
+    let refs = _identifier-refs(_identifiers(identifiers))
     // `document.author` is an array of strings: Typst wraps an author
     // set as a string, and leaves it empty when unset.
     let owners = _owner-keys(
@@ -427,7 +423,7 @@
     block(width: 100%, breakable: false, _bib-entry(
       title,
       url: if url != none { url } else { _identifier-url(refs) },
-      authors: _authors((authors: authors.map(_plain)), owners),
+      authors: _authors(authors.map(_plain), owners),
       publisher: source,
       citation: citation,
       date: date,
@@ -463,7 +459,7 @@
         keywords: keywords,
         mark: _rating-mark(
           if numeric { level } else {
-            _term-rating((level: level), "level", _skill-levels, max)
+            _term-rating(level, _skill-levels, max)
           },
           max,
           fallback: level,

@@ -5,10 +5,8 @@
 
 #import "../design/icon-set.typ": _network-aliases
 #import "../util/dates.typ": _date-span
-#import "../util/fields.typ": (
-  _array-or-empty, _dict-or-empty, _field, _string-at,
-)
-#import "../util/values.typ": _present, _present-str, _round-half
+#import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../util/values.typ": _present, _round-half
 
 // A `references[]` entry's flag: only a real boolean counts, so a
 // stray `"yes"` doesn't hide a quote. Rendering reads it kebab-case
@@ -73,22 +71,20 @@
   "region",
 )
 #let _location-display-order = ("city", "region", "country-code")
-// `obj`'s `location` (an entry's or `basics`') as its present parts,
-// for `_fact-line` to join with the theme's separator; `()` when
-// there are none. It has passed `_check-location` (`cv-checks.typ`).
-#let _location-parts(obj) = {
-  let value = obj.at("location", default: none)
+// A `location` (an entry's or `basics`') as its present parts, for
+// `_fact-line` to join with the theme's separator; `()` when there are
+// none. It has passed `_check-location` (`cv-checks.typ`).
+#let _location-parts(value) = {
   if not _present(value) { return () }
   if type(value) == str { return (value,) }
   _location-display-order.map(k => _field(value, k)).filter(_present)
 }
 
-// A `start-date` / `end-date` entry's period as `_date-span` sides, a
-// missing end reading `present` (`labels.present`); a fully undated
-// entry has neither side, not a bare "Present".
-#let _entry-period(entry, format-date, present) = {
-  let start = _field(entry, "start-date")
-  let end = _field(entry, "end-date")
+// A period from `start` to `end` as `_date-span` sides, an absent
+// (`_present`) end reading `present` (`labels.present`); a fully
+// undated one has neither side, not a bare "Present".
+#let _period(start, end, format-date, present) = {
+  let (start, end) = (start, end).map(v => if _present(v) { v })
   if start == none and end == none { return (none, none) }
   _date-span(start, end, format-date, open-end: present)
 }
@@ -113,17 +109,22 @@
   "Master": 1.0,
 )
 
-// An entry's rating on a scale of `max`: its `custom.altacv.rating`,
-// else its `field` (one of `terms`) scaled and rounded to the half,
-// else `none`.
-#let _term-rating(entry, field, terms, max) = {
-  let value = _altacv(entry, "rating")
-  if value != none { return value }
-  let term = _field(entry, field)
+// A `term` (one of `terms`) as a rating on a scale of `max`, rounded
+// to the half; `none` for anything else.
+#let _term-rating(term, terms, max) = {
   if type(term) != str { return none }
   let key = lower(term.trim())
   let match = terms.pairs().find(((t, _)) => lower(t) == key)
   if match != none { _round-half(match.last() * max) }
+}
+
+// An entry's rating on a scale of `max`: its `custom.altacv.rating`,
+// else its `field`'s `_term-rating`.
+#let _entry-rating(entry, field, terms, max) = {
+  let value = _altacv(entry, "rating")
+  if value != none { value } else {
+    _term-rating(entry.at(field, default: none), terms, max)
+  }
 }
 
 // A `projects[]` or `publications[]` entry's `type`, trimmed, or
@@ -158,21 +159,20 @@
 // `skill-level-display`: where it has one (`auto`, `"rating"`), else
 // `none`, so the level shows as text.
 #let _skill-rating(group, prefs) = if prefs.skill-level-display != "text" {
-  _term-rating(group, "level", _skill-levels, prefs.max-rating)
+  _entry-rating(group, "level", _skill-levels, prefs.max-rating)
 }
 
 // Names as the publication owners are matched: trimmed, lowercased.
 #let _owner-keys(names) = names.map(n => lower(n.trim()))
 
-// A publication's `authors` in published order, trimmed, each flagged
-// when it's one of `owners` (`_owner-keys`), ignoring case. Read
-// leniently: anything but an array reads as none, and a non-string or
-// empty author is dropped.
-#let _authors(pub, owners) = (
-  _array-or-empty(pub.at("authors", default: none))
-    .filter(a => type(a) == str)
+// A publication's `authors`, strings, in published order, trimmed,
+// each flagged when it's one of `owners` (`_owner-keys`), ignoring
+// case; an empty one is dropped. A CV's have only strings left
+// (`_lenient-fields`).
+#let _authors(authors, owners) = (
+  authors
     .map(a => a.trim())
-    .filter(_present-str)
+    .filter(a => a != "")
     .map(a => (name: a, owner: lower(a) in owners))
 )
 
@@ -189,13 +189,13 @@
   default: (name: scheme, url: none),
 )
 
-// A publication's `identifiers` as `(scheme, id)` pairs, the scheme
-// lowercased. Read leniently, as the README documents: anything but a
-// dictionary reads as none, and a non-string or empty ID is skipped.
-#let _identifiers(pub) = (
-  _dict-or-empty(pub.at("identifiers", default: none))
+// A publication's `identifiers`, string IDs by scheme, as
+// `(scheme, id)` pairs, the scheme lowercased; an empty ID is skipped.
+// A CV's have only string IDs left (`_lenient-fields`).
+#let _identifiers(ids) = (
+  ids
     .pairs()
-    .filter(((_, id)) => _present-str(id))
+    .filter(((_, id)) => id != "")
     .map(((scheme, id)) => (lower(scheme), id))
 )
 

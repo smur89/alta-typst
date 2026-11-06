@@ -13,12 +13,12 @@
 #import "../internal/components/frame.typ": _grouped-section
 
 #let _render-publication(pub, (format-date, owners, ..)) = {
-  let refs = _identifier-refs(_identifiers(pub))
+  let refs = _identifier-refs(_identifiers(pub.at("identifiers", default: (:))))
   let url = _field(pub, "url")
   _bib-entry(
     pub.name,
     url: if url != none { url } else { _identifier-url(refs) },
-    authors: _authors(pub, owners),
+    authors: _authors(pub.at("authors", default: ()), owners),
     publisher: _field(pub, "publisher"),
     citation: (
       volume: _string-at(pub, "volume"),

@@ -57,7 +57,7 @@
   let phone = _field(basics, "phone")
   // The display and the maps link's query join the same parts, so
   // they can't drift; only the display takes the theme's separator.
-  let location = _location-parts(basics)
+  let location = _location-parts(basics.at("location", default: none))
   let url = _field(basics, "url")
   let fields = (
     if email != none {

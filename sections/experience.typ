@@ -7,7 +7,7 @@
 // cannot have a `keywords` section
 
 #import "../internal/util/fields.typ": _field, _texts-at
-#import "../internal/data/cv.typ": _entry-period, _location-parts
+#import "../internal/data/cv.typ": _location-parts, _period
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
@@ -15,8 +15,13 @@
   title: _field(entry, "position"),
   org: _field(entry, org-key),
   org-url: _field(entry, "url"),
-  period: _entry-period(entry, format-date, labels.present),
-  location: _location-parts(entry),
+  period: _period(
+    entry.at("start-date", default: none),
+    entry.at("end-date", default: none),
+    format-date,
+    labels.present,
+  ),
+  location: _location-parts(entry.at("location", default: none)),
   summary: _field(entry, "summary"),
   highlights: entry.at("highlights", default: ()),
 )

@@ -70,6 +70,28 @@
   time,
 )
 
+// The fields 1.8.0 read leniently (`_lenient-fields`) keep only what
+// their readers draw, so those readers needn't check types again.
+#let pub = _canonical-cv(
+  (
+    basics: (name: "A"),
+    publications: (
+      (
+        authors: ("A. Smith", 3),
+        identifiers: (doi: "10.1/x", pmid: 7),
+        volume: 4,
+      ),
+      (authors: "A. Smith", identifiers: "10.1/x"),
+    ),
+  ),
+  prefs((:)),
+).publications
+#assert.eq(
+  pub.first(),
+  (authors: ("A. Smith",), identifiers: (doi: "10.1/x")),
+)
+#assert.eq(pub.last(), (authors: (), identifiers: (:)))
+
 // A deliberate `none` the alignments don't touch keeps its meaning.
 #assert.eq(prefs((maps-provider: none)).maps-provider, none)
 #assert.eq(

@@ -3,7 +3,7 @@
 // Distinction`). `courses` end the entry as one line, under it.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/data/cv.typ": _entry-period, _location-parts
+#import "../internal/data/cv.typ": _location-parts, _period
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
 
@@ -19,8 +19,13 @@
       title: if study-type != none { study-type } else { area },
       org: _field(edu, "institution"),
       org-url: _field(edu, "url"),
-      period: _entry-period(edu, format-date, labels.present),
-      location: _location-parts(edu),
+      period: _period(
+        edu.at("start-date", default: none),
+        edu.at("end-date", default: none),
+        format-date,
+        labels.present,
+      ),
+      location: _location-parts(edu.at("location", default: none)),
       summary: _field(edu, "summary"),
       keywords-lead: (
         (if study-type != none { area },),

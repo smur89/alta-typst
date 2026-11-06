@@ -1,15 +1,17 @@
-// Unit checks for `_term-rating` (data/cv.typ), with language fluency
-// and skill level terms.
+// Unit checks for `_entry-rating` and `_term-rating` (data/cv.typ),
+// with language fluency and skill level terms.
 
-#import "/internal/data/cv.typ": _fluency-terms, _skill-levels, _term-rating
+#import "/internal/data/cv.typ": (
+  _entry-rating, _fluency-terms, _skill-levels, _term-rating,
+)
 
-#let _resolve-rating(entry, max) = _term-rating(
+#let _resolve-rating(entry, max) = _entry-rating(
   entry,
   "fluency",
   _fluency-terms,
   max,
 )
-#let _skill-rating(group, max) = _term-rating(
+#let _skill-rating(group, max) = _entry-rating(
   group,
   "level",
   _skill-levels,
@@ -46,3 +48,8 @@
 )
 #assert.eq(_skill-rating((level: "Comfortable"), 5), none)
 #assert.eq(_skill-rating((:), 5), none)
+
+// _term-rating: the term alone; anything but a string is `none`.
+#assert.eq(_term-rating("Expert", _skill-levels, 5), 5.0)
+#assert.eq(_term-rating([Expert], _skill-levels, 5), none)
+#assert.eq(_term-rating(none, _skill-levels, 5), none)

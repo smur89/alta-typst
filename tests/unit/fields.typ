@@ -35,19 +35,17 @@
 // city / region / country-code parts in that order (the names
 // rendering reads, `_kebab-fields`), absent values drop
 // out.
-#assert.eq(_location-parts((location: "Cork, Ireland")), ("Cork, Ireland",))
+#assert.eq(_location-parts("Cork, Ireland"), ("Cork, Ireland",))
 #assert.eq(
   _location-parts((
-    location: (
-      city: "Cork",
-      region: "Munster",
-      country-code: "IE",
-      address: "1 Main St",
-    ),
+    city: "Cork",
+    region: "Munster",
+    country-code: "IE",
+    address: "1 Main St",
   )),
   ("Cork", "Munster", "IE"),
 )
-#assert.eq(_location-parts((location: (city: "", country-code: "IE"))), ("IE",))
-#assert.eq(_location-parts((location: (postal-code: "T12"))), ())
-#assert.eq(_location-parts((location: "")), ())
-#assert.eq(_location-parts((:)), ())
+#assert.eq(_location-parts((city: "", country-code: "IE")), ("IE",))
+#assert.eq(_location-parts((postal-code: "T12")), ())
+#assert.eq(_location-parts(""), ())
+#assert.eq(_location-parts(none), ())

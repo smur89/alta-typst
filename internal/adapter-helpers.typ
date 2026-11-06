@@ -9,7 +9,7 @@
 #import "util/dates.typ": _check-date-template, _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
-  _altacv, _entry-type, _fluency-terms, _location-parts, _term-rating,
+  _altacv, _entry-rating, _entry-type, _fluency-terms, _location-parts,
   _type-groups,
 )
 #import "data/cv-checks.typ": (
@@ -62,7 +62,7 @@
     "location-parts() location",
     rule: _location-text-rule,
   )
-  _location-parts((location: _kebab-fields(location)))
+  _location-parts(_kebab-fields(location))
 }
 
 /// The contact bar `alta()` draws from `basics`, as `contact`-shaped
@@ -150,7 +150,7 @@
 /// - entry (dictionary): A `languages[]` entry.
 /// - max (int): The scale's top.
 /// -> int, float, none
-#let fluency-rating(entry, max: 5) = _term-rating(
+#let fluency-rating(entry, max: 5) = _entry-rating(
   entry,
   "fluency",
   _fluency-terms,

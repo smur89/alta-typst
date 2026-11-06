@@ -16,9 +16,9 @@
 // What a renderer needs to draw an entry (its title, name, a keyword).
 #let _has(field) = entry => _field(entry, field) != none
 
-#let _period = (startDate: _text-rule, endDate: _text-rule)
+#let _period-fields = (startDate: _text-rule, endDate: _text-rule)
 #let _role = (
-  _period
+  _period-fields
     + (
       position: _text-rule,
       url: _string-rule,
@@ -80,7 +80,7 @@
   ),
   education: (
     column: "right",
-    fields: _period
+    fields: _period-fields
       + (
         institution: _text-rule,
         url: _string-rule,
@@ -118,7 +118,7 @@
   ),
   projects: (
     column: "left",
-    fields: _period
+    fields: _period-fields
       + (
         name: _text-rule,
         url: _string-rule,

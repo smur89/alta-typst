@@ -3,7 +3,7 @@
 // renders flat. Entries without a `name` are skipped.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/data/cv.typ": _entry-period, _entry-type, _type-groups
+#import "../internal/data/cv.typ": _entry-type, _period, _type-groups
 #import "../internal/components/entry.typ": _entry
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
@@ -16,7 +16,12 @@
   url: _field(project, "url"),
   org: _field(project, "entity"),
   roles: project.at("roles", default: ()),
-  period: _entry-period(project, format-date, labels.present),
+  period: _period(
+    project.at("start-date", default: none),
+    project.at("end-date", default: none),
+    format-date,
+    labels.present,
+  ),
   summary: _field(project, "summary"),
   highlights: project.at("highlights", default: ()),
   keywords: project.at("keywords", default: ()),
