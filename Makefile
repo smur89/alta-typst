@@ -133,8 +133,11 @@ $(TEMPLATE_SRC): template/cv.typ
 
 # One tracked PDF per fixture, so reviewers can browse renders without
 # rebuilding. `--creation-timestamp 0` pins CreationDate so rebuilds
-# are byte-identical — otherwise the CI drift check always fails.
+# are byte-identical — otherwise the CI drift check always fails. The
+# recipe deletes the PDF of a renamed or removed fixture, so the drift
+# check sees it go.
 test-pdfs: $(TEST_PDFS) ## render every tests/*.typ fixture into examples/tests/*.pdf
+	rm -f $(filter-out $(TEST_PDFS),$(wildcard examples/tests/*.pdf))
 
 examples/tests:
 	mkdir -p $@
