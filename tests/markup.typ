@@ -1,6 +1,6 @@
 // A CV written in markup, with no data dictionary: the name from
 // `set document(title: ..)` shown by `cv-header` with a portrait and
-// QR code, a two-column `grid`, `=` sections, a `==` group, and the
+// QR code, a two-column `grid` (the template's gutter), `=` sections, a `==` group, and the
 // blocks: `entry` (dividers only between entries), `publication`
 // (the document's author set apart), `skills` (one row's level as
 // dots), `rating` and `label-row`.
@@ -28,7 +28,6 @@
 
 #grid(
   columns: (2fr, 1fr),
-  column-gutter: 12pt,
   [
     = Experience
 

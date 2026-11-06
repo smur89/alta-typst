@@ -43,6 +43,7 @@
     "fluency-rating",
     "format-date",
     "group-by-type",
+    "labels",
     "location-text",
   ),
 )

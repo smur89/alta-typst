@@ -13,6 +13,7 @@
 )
 #import "data/cv-checks.typ": _check-location
 #import "data/defaults.typ": _default-labels, maps-providers
+#import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/validation.typ": _preference-rules
 #import "design/icon-set.typ": _network-icons
@@ -158,3 +159,19 @@
 /// - items (array): Entries with an optional `type`.
 /// -> array
 #let group-by-type(items) = _type-groups(items)
+
+/// The labels `alta()` renders with, in the document's language: its
+/// bundled translation over the English, `overrides` over both, merged
+/// and checked as `alta(labels: ..)`'s are. Keys are `alta()`'s
+/// kebab-case label names (`work`, `present`, `other-projects`);
+/// `months` is the twelve month names, `publication-types` a heading
+/// per publication `type` code, lowercase. Call it in `context`, where
+/// the document's language is known.
+///
+/// - overrides (dictionary): Labels to override, as `alta()`'s
+///   `labels:` takes them; a `publication-types` entry overrides that
+///   one heading.
+/// -> dictionary
+#let labels(overrides: (:)) = (
+  _merge-options(overrides, (:), lang: text.lang).labels
+)

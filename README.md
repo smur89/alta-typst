@@ -154,7 +154,6 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 
 #grid(
   columns: (2fr, 1fr),
-  column-gutter: 12pt,
   [
     = Experience
 
@@ -171,7 +170,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 ```
 <!-- x-release-please-end -->
 
-The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way; the blocks are under [Exports](#exports).
+The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below; the template sets its gutter, and a `set grid(column-gutter: ..)` after it changes it. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way; the blocks are under [Exports](#exports).
 
 A few things to know:
 
@@ -698,17 +697,17 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `icon(name, ..)` | A glyph from the built-in icon set: `book`, `calendar`, `cubes`, `email`, `file`, `flask`, `folder`, `laptop-code`, `location`, `microphone`, `newspaper`, `phone`, `terminal` and the profile networks. |
 | `name(body)` | An accent-coloured organisation line. |
 | `term(period, location: none)` | A date and optional location, each with its icon. |
-| `rating(label, value, max: auto)` | A label with rating dots. |
+| `rating(label, value, max: auto)` | A label with rating dots, or with a text value in their place. |
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `cv-header(tagline:, objective:, contacts:, photo:, photo-side:, qr:, uppercase:)` | The header of a CV written in markup: the document's title as the name, a tagline, an objective, the contact bar, a portrait and a QR code. |
+| `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-side:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a portrait and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
 | `contact(icon, value, link: none, alt: auto)` | One contact-bar entry for `cv-header`. |
 | `entry(title:, org:, roles:, date:, location:, keywords:, .., body)` | An entry under a section or group heading, with the divider between entries. |
-| `publication(title:, url:, authors:, source:, date:, identifiers:, body)` | A publication as a bibliography item; the document's author is set apart among the authors. |
-| `skills(name, keywords, level: none)` | A skill group's row of pills, with its level as dots or text. |
+| `publication(title:, url:, authors:, owners: auto, source:, date:, identifiers:, body)` | A publication as a bibliography item; the `owners` (the document's author by default) are set apart among the authors. |
+| `skills(name, keywords, level: none, max: auto)` | A skill group's row of pills, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
-| `adapter` | A module of the readers `alta()` maps a CV with, for a mapping of your own: `adapter.format-date(value, format:, months:)`, `adapter.location-text(location)`, `adapter.basics-contacts(basics, link:, maps-provider:, full-urls:, icons:)`, `adapter.fluency-rating(entry, max:)`, `adapter.group-by-type(items)`. |
+| `adapter` | A module of the readers `alta()` maps a CV with, for a mapping of your own: `adapter.format-date(value, format:, months:)`, `adapter.location-text(location)`, `adapter.basics-contacts(basics, link:, maps-provider:, full-urls:, icons:)`, `adapter.fluency-rating(entry, max:)`, `adapter.group-by-type(items)`, `adapter.labels(overrides:)` (in `context`). |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->

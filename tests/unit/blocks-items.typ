@@ -1,8 +1,9 @@
-// The item blocks' own decisions: a publication's owner is the
-// document's author, and a skill level is dots when it's a rating term,
-// else its text.
+// The item blocks' own decisions: a publication's owners are the
+// document's author unless given, a skill level is dots when it's a
+// number or a rating term, else its text, and a rating's text value
+// takes the dots' place.
 
-#import "/lib.typ": altacv, label-row, publication, skills
+#import "/lib.typ": altacv, label-row, publication, rating, skills
 #import "/internal/blocks.typ": _plain
 
 #set document(author: "Jane Doe")
@@ -18,6 +19,16 @@
 #let full-dots = state("full-dots", 0)
 #show <alta-rating-full>: it => {
   full-dots.update(n => n + 1)
+  it
+}
+#let empty-dots = state("empty-dots", 0)
+#show <alta-rating-empty>: it => {
+  empty-dots.update(n => n + 1)
+  it
+}
+#let half-dots = state("half-dots", 0)
+#show <alta-rating-half>: it => {
+  half-dots.update(n => n + 1)
   it
 }
 #let levels = state("levels", 0)
@@ -38,14 +49,52 @@
 #assert.eq(_plain([T#h(-0.1em)eX]), "TeX")
 #publication(title: "B", authors: ([Jane#h(0.3em)Doe],))[]
 #context assert.eq(owners.get(), ([jane doe], [Jane Doe]))
+// `owners` replaces the document's author, matched the same way.
+#publication(
+  title: "C",
+  authors: ("Jane Doe", "J. Doe", "Alex Roe"),
+  owners: (" j. doe", "ALEX ROE"),
+)[]
+#context assert.eq(owners.get(), ([jane doe], [Jane Doe], [J. Doe], [Alex Roe]))
+#publication(title: "D", authors: ("Jane Doe",), owners: ())[]
+#context assert.eq(owners.get().len(), 4)
 
 = Skills
 #skills("Typst", ("Markup",), level: "Expert")
 #context assert.eq(full-dots.get(), 5)
 #skills("Rust", ("Traits",), level: "Fluent-ish")
 // No more dots, and the level as written.
-#context assert.eq(full-dots.final(), 5)
-#context assert.eq(levels.final(), 1)
+#context assert.eq(full-dots.get(), 5)
+#context assert.eq(levels.get(), 1)
+// A number is that many dots, halves too, out of `max`; a term is its
+// share of `max`.
+#skills("Go", ("Channels",), level: 2.5, max: 4)
+#context assert.eq(
+  (full-dots.get(), half-dots.get(), empty-dots.get()),
+  (7, 1, 1),
+)
+#skills("Zig", ("Comptime",), level: "Expert", max: 3)
+#context assert.eq((full-dots.get(), empty-dots.get()), (10, 1))
+// `max: auto` is `rating()`'s: 5 outside `alta()`.
+#skills("C", ("Pointers",), level: 1)
+#context assert.eq((full-dots.get(), empty-dots.get()), (11, 5))
+
+= Languages
+// A text value in the dots' place, labelled as a rating row is.
+#let rating-labels = state("rating-labels", 0)
+#show <alta-rating-label>: it => {
+  rating-labels.update(n => n + 1)
+  it
+}
+#let fluent = state("fluent", 0)
+#show "Conversational": it => {
+  fluent.update(n => n + 1)
+  it
+}
+#rating("Irish", "Conversational")
+#rating("French", [Conversational])
+#context assert.eq((rating-labels.get(), fluent.get()), (2, 2))
+#context assert.eq((full-dots.get(), empty-dots.get()), (11, 5))
 
 = Interests
 #label-row("Music", ("Trad", "Jazz"))

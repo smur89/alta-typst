@@ -120,6 +120,18 @@
     _default-preferences.margin,
   )
   show: _level-headings.with(built)
+  // The columns' gutter, for a grid laid out in the template (the
+  // JSON Resume mapping's, a markup CV's); a `set grid(..)` after it
+  // wins. The template's own grids set theirs.
+  set grid(column-gutter: built.column-gutter)
+  // The intro under the header (the JSON Resume mapping's
+  // `<alta-intro>`): a paragraph's spacing, and the theme's `intro`
+  // spacing on top, as `alta()` spaces it. A `show <alta-intro>: set
+  // block(..)` after the template wins.
+  show <alta-intro>: set block(
+    above: built.par.spacing + built.intro.above * 1em,
+    below: built.par.spacing + built.intro.below * 1em,
+  )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
   show <alta-internal-cv>: it => _alta-content(

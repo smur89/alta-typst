@@ -101,3 +101,34 @@
 // No linebreak with only one group.
 #assert.eq(adapter.basics-contacts((email: "j@d.ie")).len(), 1)
 #assert.eq(adapter.basics-contacts((:)), ())
+
+// labels: the document language's, as `alta()` resolves them: its
+// translation over the English, nested tables too, `overrides` over
+// both, camelCase read as `alta()` reads it.
+#context {
+  let en = adapter.labels()
+  assert.eq(en.work, "Experience")
+  assert.eq(en.months.first(), "Jan")
+  assert.eq(en.publication-types.talk, "Talks")
+}
+#[
+  #set text(lang: "ga")
+  #context {
+    let ga = adapter.labels()
+    assert.eq(ga.work, "Taithí Oibre")
+    assert.eq(ga.present, "I láthair")
+    assert.eq(ga.publication-types.article, "Ailt")
+    // A table key the translation leaves out keeps the English.
+    assert.eq(ga.publication-types.patent, "Patents")
+    let ours = adapter.labels(overrides: (
+      work: "Obair",
+      otherProjects: "Eile",
+      publication-types: (Talk: "Cainteanna"),
+    ))
+    assert.eq(ours.work, "Obair")
+    assert.eq(ours.other-projects, "Eile")
+    assert.eq(ours.publication-types.talk, "Cainteanna")
+    assert.eq(ours.publication-types.article, "Ailt")
+    assert.eq(ours.present, "I láthair")
+  }
+]

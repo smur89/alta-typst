@@ -21,10 +21,12 @@
 //   #set document(title: cv.basics.name, author: cv.basics.name)
 //   #resume(cv)
 //
-// `cv-header` shows the document's title as the name, and `publication`
-// sets the document's author apart among a publication's authors, as
-// `alta()` sets the CV's owner. A bare `basics.image` path resolves
-// from this file, as `image()` resolves from the file that calls it.
+// The `set document` is the PDF's metadata: the header shows
+// `basics.name`, and `publication` sets it apart among a publication's
+// authors with `owner-names`, as `alta()` sets the CV's owner. A bare
+// `basics.image` path resolves from this file, as `image()` resolves
+// from the file that calls it. The labels are the document language's
+// (`set text(lang: ..)`), as `alta()`'s are.
 //
 // The names below are the public API (`lib.typ` re-exports exactly
 // these); this file imports them from the modules that define them
@@ -66,13 +68,9 @@
 // untyped: the adapter's grouping of the one entry.
 #let _type(entry) = adapter.group-by-type((entry,)).first().first()
 
-// A `==` group heading led by its icon, in the heading's colour. The
-// icon's box is the heading's text size; the gap after it the body's,
-// `1em / 1.2` in the heading (1.2: the default theme's title size).
-#let _icon-heading(name, body) = [#context text(
-    size: 1em / 1.2,
-    icon(name, size: 1.2em, fill: text.fill),
-  ) #body]
+// A `==` group heading led by its icon, in the heading's colour: the
+// icon's box and the gap after it in the heading's own `em`.
+#let _icon-heading(name, body) = [#context icon(name, fill: text.fill) #body]
 
 // A section: its `=` heading, then `body`; nothing, not even the
 // heading, when it has no entries.
@@ -93,18 +91,29 @@
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
 ///   fields) plus altacv's `custom.altacv` extensions.
-/// - labels (dictionary): Display strings, by `alta()`'s kebab-case
-///   label keys (`work`, `other-projects`, `publication-types`, …);
-///   a missing key reads alta's English default.
+/// - labels (auto, dictionary): Display strings, by `alta()`'s
+///   kebab-case label keys (`work`, `other-projects`,
+///   `publication-types`, …), over the document language's
+///   (`adapter.labels()`); `auto` is those alone.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …); a missing key
 ///   reads alta's default.
 ///
-/// The name is the document's title and the owner among publication
-/// authors its author: `#set document(title: .., author: ..)` first.
+/// The name is `basics.name`, else the document's title; the owners
+/// set apart among publication authors are it and `owner-names`, else
+/// the document's author.
 /// -> content
-#let resume(cv, labels: (:), preferences: (:)) = {
+#let resume(cv, labels: auto, preferences: (:)) = context {
   let basics = cv.basics
+  let labels = adapter.labels(
+    overrides: if labels == auto { (:) } else { labels },
+  )
+  let name = _field(basics, "name")
+  // The names set apart among publication authors, as `alta()` sets
+  // them apart: the CV's name and `owner-names`; with neither, `auto`,
+  // the document's author.
+  let owner-names = preferences.at("owner-names", default: ())
+  let owners = if name != none { (name, ..owner-names) } else { owner-names }
   let max-rating = preferences.at("max-rating", default: 5)
 
   // A date as `alta()` shows it, per `date-format` and the months.
@@ -112,19 +121,18 @@
     adapter.format-date(
       value,
       format: preferences.at("date-format", default: "long"),
-      months: labels.at("months", default: auto),
+      months: labels.months,
     )
   }
   // `entry`'s `(start, end)` pair: the end, else "Present" when there's
-  // a start. A `none` "Present" is `entry`'s own, in the document's
-  // language.
+  // a start.
   let period(obj) = {
     let start = _field(obj, "startDate")
     let end = _field(obj, "endDate")
     (
       date(start),
       if end != none { date(end) } else if start != none {
-        labels.at("present", default: none)
+        labels.present
       },
     )
   }
@@ -160,12 +168,12 @@
 
   let sections = (
     work: () => _section(
-      labels.at("work", default: "Experience"),
+      labels.work,
       cv.at("work", default: ()),
       role("name"),
     ),
     volunteer: () => _section(
-      labels.at("volunteer", default: "Volunteer"),
+      labels.volunteer,
       cv.at("volunteer", default: ()),
       e => role("organization")(e + (keywords: ())),
     ),
@@ -176,9 +184,9 @@
         .at("projects", default: ())
         .filter(p => _field(p, "name") != none)
       if projects.all(p => _type(p) == none) {
-        _section(labels.at("projects", default: "Projects"), projects, project)
+        _section(labels.projects, projects, project)
       } else {
-        let other = labels.at("other-projects", default: "Other")
+        let other = labels.other-projects
         let icons = preferences.at("project-icons", default: (:))
         let groups = adapter.group-by-type(projects.map(p => (
           p + (type: if _type(p) == none { other } else { _type(p) })
@@ -188,7 +196,7 @@
           [== #_icon-heading(name, kind)]
           items.map(project).join()
         }
-        _section(labels.at("projects", default: "Projects"), groups, group)
+        _section(labels.projects, groups, group)
       }
     },
     // Under a heading per `type` code, matched ignoring case, the
@@ -201,13 +209,7 @@
       let code-of(p) = if _type(p) == none { "article" } else {
         lower(_type(p))
       }
-      let headings = labels.at("publication-types", default: (
-        article: "Articles",
-        book: "Books",
-        patent: "Patents",
-        thesis: "Theses",
-        talk: "Talks",
-      ))
+      let headings = labels.publication-types
       let icons = preferences.at("publication-icons", default: (
         article: "newspaper",
         book: "book",
@@ -215,7 +217,7 @@
         talk: "microphone",
       ))
       _section(
-        labels.at("publications", default: "Publications"),
+        labels.publications,
         adapter.group-by-type(pubs.map(p => p + (type: code-of(p)))),
         ((code, items)) => {
           let heading = if code in headings { headings.at(code) } else {
@@ -243,6 +245,7 @@
                 authors: p
                   .at("authors", default: ())
                   .filter(a => type(a) == str and a.trim() != ""),
+                owners: if owners.len() > 0 { owners } else { auto },
                 source: (_field(p, "publisher"), citation)
                   .filter(x => x != none)
                   .join(" "),
@@ -263,24 +266,32 @@
     focus-areas: () => {
       let items = _altacv(cv, "focusAreas", default: ())
       _frame(
-        labels.at("focus-areas", default: "Areas of Focus"),
+        labels.focus-areas,
         items,
         list(..items),
       )
     },
-    // A level a term rates as dots; `skill-level-display: "text"`
-    // keeps it text, as content, which `skills` shows as written.
+    // The group's `custom.altacv.rating` as dots, else its level, a
+    // term `skills` rates as dots; `skill-level-display: "text"` keeps
+    // the level text, as content, which `skills` shows as written.
     skills: () => _section(
-      labels.at("skills", default: "Skills"),
+      labels.skills,
       cv
         .at("skills", default: ())
         .filter(g => g.at("keywords", default: ()).len() > 0),
       g => {
         let level = _field(g, "level")
-        skills(g.name, g.keywords, level: if (
-          level != none
-            and preferences.at("skill-level-display", default: auto) == "text"
-        ) { [#level] } else { level })
+        let as-text = (
+          preferences.at("skill-level-display", default: auto) == "text"
+        )
+        skills(
+          g.name,
+          g.keywords,
+          level: if as-text {
+            if level != none [#level]
+          } else { _altacv(g, "rating", default: level) },
+          max: max-rating,
+        )
       },
     ),
     // Dots for a rated fluency, else the fluency as text; the rows
@@ -289,31 +300,16 @@
       let langs = cv
         .at("languages", default: ())
         .filter(l => _field(l, "language") != none)
-      _frame(labels.at("languages", default: "Languages"), langs, {
+      _frame(labels.languages, langs, {
         show std.divider: none
         langs
           .map(l => {
             let value = adapter.fluency-rating(l, max: max-rating)
-            block(breakable: false, if value != none {
-              rating(l.language, value, max: max-rating)
-            } else {
-              // `rating`'s row with the text in place of the dots, the
-              // row the height of the dots' (1.14em, centred on the
-              // x-height).
-              context {
-                let strut = box(height: 1.14em)
-                let x = measure(text(
-                  top-edge: "x-height",
-                  bottom-edge: "baseline",
-                  "x",
-                )).height
-                box(baseline: (measure(strut).height - x) / 2, strut)
-              }
-              [#l.language<alta-rating-label>]
-              h(1fr)
-              _string(l, "fluency")
-              linebreak()
-            })
+            block(breakable: false, rating(
+              l.language,
+              if value != none { value } else { _string(l, "fluency") },
+              max: max-rating,
+            ))
           })
           .join(divider())
       })
@@ -321,7 +317,7 @@
     // The area leads the score when it isn't the title; the courses
     // end the entry.
     education: () => _section(
-      labels.at("education", default: "Education"),
+      labels.education,
       cv.at("education", default: ()),
       e => {
         let study-type = _field(e, "studyType")
@@ -346,7 +342,7 @@
     certificates: () => {
       show std.divider: none
       _section(
-        labels.at("certificates", default: "Certifications"),
+        labels.certificates,
         cv
           .at("certificates", default: ())
           .filter(c => _field(c, "name") != none),
@@ -368,7 +364,7 @@
       )
     },
     awards: () => _section(
-      labels.at("awards", default: "Awards"),
+      labels.awards,
       cv.at("awards", default: ()).filter(a => _field(a, "title") != none),
       a => entry(
         title: a.title,
@@ -386,7 +382,7 @@
         .at("interests", default: ())
         .filter(g => g.at("keywords", default: ()).len() > 0)
       _frame(
-        labels.at("interests", default: "Interests"),
+        labels.interests,
         groups,
         groups
           .enumerate()
@@ -405,15 +401,12 @@
     // the on-request line in its place, and when every reference is
     // on request, that line alone.
     references: () => {
-      let on-request = labels.at(
-        "references-available-on-request",
-        default: "References available upon request.",
-      )
+      let on-request = labels.references-available-on-request
       let requested(r) = r.at("availableOnRequest", default: false) == true
       let refs = cv
         .at("references", default: ())
         .filter(r => requested(r) or _field(r, "reference") != none)
-      let title = labels.at("references", default: "References")
+      let title = labels.references
       if refs.len() > 0 and refs.all(requested) {
         _frame(title, refs, entry(summary: on-request)[])
       } else {
@@ -434,13 +427,16 @@
 
   // The header: `basics.image` framed when it's set (a path, or a
   // non-empty string or bytes); the QR code `basics.url` when `auto`.
+  // Its text follows the alignment around it, `header-text-align`'s
+  // when that's set.
   let image-src = basics.at("image", default: none)
   let qr-code = preferences.at("qr-code", default: none)
-  cv-header(
+  let header = cv-header(
+    name: if name != none { name } else { auto },
     tagline: _field(basics, "label"),
     objective: _field(cv, "objective"),
     // The location's alt text from `labels.location`, as `alta()` reads
-    // it; `cv-header` reads the document language's otherwise.
+    // it.
     contacts: adapter
       .basics-contacts(
         basics,
@@ -452,30 +448,30 @@
         full-urls: preferences.at("print-full-urls", default: false),
         icons: preferences.at("profile-icons", default: auto),
       )
-      .map(c => if (
-        type(c) == dictionary and c.icon == "location" and "location" in labels
-      ) { c + (alt: labels.location) } else { c }),
+      .map(c => if type(c) == dictionary and c.icon == "location" {
+        c + (alt: labels.location)
+      } else { c }),
     photo: if (
       type(image-src) == path or (image-src != none and image-src.len() > 0)
     ) { image(image-src) },
     photo-side: preferences.at("image-position", default: right),
+    photo-size: preferences.at("image-size", default: auto),
+    photo-shape: preferences.at("image-shape", default: auto),
     qr: if qr-code == auto { basics.url } else { qr-code },
     uppercase: preferences.at("uppercase-name", default: true),
   )
+  let text-align = preferences.at("header-text-align", default: none)
+  if text-align != none { align(text-align, header) } else { header }
 
-  // The intro: `basics.summary`, spaced as the default theme spaces it
-  // (`0.8em` above, `0.3em` below).
+  // The intro: `basics.summary`, in a block the template spaces from
+  // the header and the columns (`show <alta-intro>: set block(..)`).
   let summary = _field(basics, "summary")
-  if summary != none {
-    v(0.8em)
-    par[#summary<alta-summary>]
-    v(0.3em)
-  }
+  if summary != none [#block(par[#summary<alta-summary>])<alta-intro>]
 
   // The columns: the left sections beside the right, the left taking
-  // `column-ratio` of what the gutter (the default theme's 12pt)
-  // leaves; one column when the ratio is 1 or no section is on the
-  // right.
+  // `column-ratio` of what the gutter (the template's, a `set grid`
+  // after it) leaves; one column when the ratio is 1 or no section is
+  // on the right.
   let ratio = preferences.at("column-ratio", default: 0.65)
   let left = preferences.at(
     "left-column-sections",
@@ -497,7 +493,6 @@
   } else {
     grid(
       columns: (ratio * 1fr, (1 - ratio) * 1fr),
-      column-gutter: 12pt,
       column(left), column(right),
     )
   }

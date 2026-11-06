@@ -11,9 +11,12 @@
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
+#import "data/validation.typ": _preference-rules
 #import "util/checks.typ": (
-  _check, _check-type, _dict-rule, _enum-rule, _list-rule,
+  _check, _check-rating, _check-type, _dict-rule, _enum-rule, _list-rule,
+  _positive-int-rule,
 )
+#import "context.typ": _max-rating-state
 #import "primitives.typ": _divider, _portrait
 #import "components/bibliography.typ": _bib-entry
 #import "components/entry.typ": _entry
@@ -204,10 +207,13 @@
   (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: link, alt: alt)
 }
 
-/// The CV's header: your name (the document's title, rendered with
-/// Typst's `title` element), a tagline, an objective, the contact bar,
-/// and an optional portrait and QR code.
+/// The CV's header: your name (rendered with Typst's `title`
+/// element), a tagline, an objective, the contact bar, and an optional
+/// portrait and QR code. Its text follows the surrounding alignment:
+/// `#align(center, cv-header(..))` centres it.
 ///
+/// - name (auto, content, str): Your name. `auto` is the document's
+///   title (`#set document(title: ..)`).
 /// - tagline (content, str, none): Under the name.
 /// - objective (content, str, none): A short goal, under the tagline.
 /// - contacts (array): `contact(..)` entries, wrapping as one row of
@@ -217,18 +223,32 @@
 /// - photo (content, none): The portrait: content, typically an
 ///   `image(..)`, loaded in your file, so its path is yours.
 /// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
+/// - photo-size (auto, length, ratio, relative): The portrait's side.
+///   `auto` is `alta()`'s default `image-size`.
+/// - photo-shape (auto, str): The portrait's frame: `"circle"`,
+///   `"rounded"` or `"square"`. `auto` is `alta()`'s default
+///   `image-shape`.
 /// - qr (str, none): A URL to encode as a QR code, opposite the photo.
 /// - uppercase (bool): Set the name in capitals.
 /// -> content
 #let cv-header(
+  name: auto,
   tagline: none,
   objective: none,
   contacts: (),
   photo: none,
   photo-side: right,
+  photo-size: auto,
+  photo-shape: auto,
   qr: none,
   uppercase: true,
 ) = {
+  _check-type(
+    "cv-header() name",
+    name,
+    (content, str, type(auto)),
+    "content, a string or auto",
+  )
   _check("cv-header() photo-side", photo-side, _enum-rule((
     left,
     right,
@@ -241,15 +261,28 @@
     (content, type(none)),
     "content or none",
   )
+  // The photo's `key` (`size`, `shape`): `auto` reads `alta()`'s
+  // default `image-{key}`, anything else is checked as that preference.
+  let photo-option(key, value) = if value == auto {
+    _default-preferences.at("image-" + key)
+  } else {
+    _check(
+      "cv-header() photo-" + key,
+      value,
+      _preference-rules.at("image-" + key),
+    )
+    value
+  }
+  let photo-size = photo-option("size", photo-size)
+  let photo-shape = photo-option("shape", photo-shape)
   context {
-    let name = document.title
+    let name = if name != auto { name } else { document.title }
     if name == none {
       panic(
-        "cv-header() shows the document's title as your name: `#set document(title: \"Jane Doe\")` first",
+        "cv-header() shows the document's title as your name: `#set document(title: \"Jane Doe\")` first, or pass `name:`",
       )
     }
     let labels = _labels()
-    let prefs = _default-preferences
     _page-header(
       name: name,
       headline: tagline,
@@ -267,16 +300,14 @@
               },
             )
         ))),
+      // The surrounding alignment's horizontal part: `start`, unless
+      // an `align` around the header says otherwise.
+      text-align: align.alignment.x,
       uppercase: uppercase,
-      // Framed as `alta()` frames `basics.image`, at its default size
-      // and shape; `alt` is the person's name.
+      // Framed as `alta()` frames `basics.image`; `alt` is the
+      // person's name.
       photo: if photo != none {
-        _portrait(
-          photo,
-          prefs.image-size,
-          _plain(name),
-          shape: prefs.image-shape,
-        )
+        _portrait(photo, photo-size, _plain(name), shape: photo-shape)
       },
       photo-at: photo-side,
       qr-url: qr,
@@ -294,8 +325,11 @@
 /// - url (str, none): Its link; with none, the first linkable
 ///   identifier's (DOI, then arXiv, then PMID), as `alta()` links.
 /// - authors (array): Author names (strings or content, shown as
-///   their text), in order. The one matching the document's author
-///   (`#set document(author: ..)`), ignoring case, is set apart.
+///   their text), in order. The one matching an owner, ignoring case
+///   and surrounding spaces, is set apart.
+/// - owners (auto, array): The names to set apart among the authors,
+///   as `alta()` sets apart the CV's name and `owner-names`. `auto` is
+///   the document's author (`#set document(author: ..)`).
 /// - source (content, str, none): The publisher or venue.
 /// - date (content, str, none): When, as written.
 /// - identifiers (dictionary): ID strings by scheme (`doi`, `arxiv`,
@@ -306,6 +340,7 @@
   title: none,
   url: none,
   authors: (),
+  owners: auto,
   source: none,
   date: none,
   identifiers: (:),
@@ -323,13 +358,22 @@
     identifiers,
     _dict-rule((str,), "a dictionary of strings"),
   )
+  if owners != auto {
+    _check(
+      "publication() owners",
+      owners,
+      _list-rule((str,), "auto or an array of strings"),
+    )
+  }
   context {
     // `alta()`'s readers, over the arguments in its CV shape; an
     // author given as content is matched and shown as its text.
     let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
     // `document.author` is an array of strings: Typst wraps an author
     // set as a string, and leaves it empty when unset.
-    let owners = _owner-keys(document.author)
+    let owners = _owner-keys(
+      if owners == auto { document.author } else { owners },
+    )
     // One unbreakable block per item, as `alta()` lays them out.
     block(breakable: false, _bib-entry(
       title,
@@ -344,24 +388,36 @@
 }
 
 /// A skill group's row: its name as a label pill, then its keywords as
-/// pills, with an optional level: a term such as "Expert" shows as dots,
-/// any other text as written.
+/// pills, with an optional level: a number or a term such as "Expert"
+/// shows as dots, any other text as written.
 ///
 /// - name (content, str): The group's name.
 /// - keywords (array): Its keywords, each a pill.
-/// - level (str, content, none): Its level, after the name: a rating
-///   term (`"Beginner"`, `"Intermediate"`, `"Advanced"`, `"Expert"`, …)
-///   as dots out of 5, anything else as written.
+/// - level (int, float, str, content, none): Its level, after the name:
+///   a number as that many dots, from 0 to `max` in steps of 0.5, as
+///   `alta()` shows a `custom.altacv.rating`; a rating term
+///   (`"Beginner"`, `"Intermediate"`, `"Advanced"`, `"Expert"`, …) as
+///   its share of `max` dots; anything else as written.
+/// - max (auto, int): The dots in the row; `auto` is `rating()`'s: the
+///   enclosing `alta()`'s `preferences.max-rating`, else 5.
 /// -> content
-#let skills(name, keywords, level: none) = {
-  let prefs = _default-preferences
+#let skills(name, keywords, level: none, max: auto) = context {
+  let max = if max == auto { _max-rating-state.get() } else { max }
+  _check("skills() max", max, _positive-int-rule)
+  let numeric = type(level) in (int, float)
+  if numeric { _check-rating("skills() level", level, max) }
   _keyword-rows((
     (
       name: name,
       keywords: keywords,
       mark: _rating-mark(
-        _skill-rating((level: level), prefs),
-        prefs.max-rating,
+        if numeric { level } else {
+          _skill-rating(
+            (level: level),
+            _default-preferences + (max-rating: max),
+          )
+        },
+        max,
         fallback: level,
       ),
     ),

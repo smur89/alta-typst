@@ -1,5 +1,5 @@
-// A label and a row of dots on a scale (the public `rating`), or the
-// label with a text in their place (`_rating-row`).
+// A label and a row of dots on a scale, or the label with a text in
+// their place: the public `rating`, and `_rating-row` over it.
 //
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
@@ -60,19 +60,25 @@
 }
 
 /// A label with a row of rating dots at the right edge: filled,
-/// half-filled, then empty.
+/// half-filled, then empty. A text value takes the dots' place, the row
+/// as tall as the dots', as `alta()` shows a fluency it can't rate.
 ///
 /// - label (content, str): The row's label.
-/// - value (int, float): The rating, from 0 to `max`, in steps of 0.5.
+/// - value (int, float, str, content): The rating, from 0 to `max`, in
+///   steps of 0.5; or a text (`"Conversational"`) shown as written.
 /// - max (auto, int): The dots in the row; `auto` is the enclosing
 ///   `alta()`'s `preferences.max-rating`.
 /// -> content
 #let rating(label, value, max: auto) = context {
-  let max-rating = if max == auto { _max-rating-state.get() } else { max }
-  // The state is validated as `max-rating`; an explicit `max` isn't.
-  _check("rating() max", max-rating, _positive-int-rule)
-  _check-rating("rating value", value, max-rating)
-  _label-row(_theme(), label, _rating-dots(value, max-rating))
+  if type(value) in (str, content) {
+    _label-row(_theme(), label, value)
+  } else {
+    let max-rating = if max == auto { _max-rating-state.get() } else { max }
+    // The state is validated as `max-rating`; an explicit `max` isn't.
+    _check("rating() max", max-rating, _positive-int-rule)
+    _check-rating("rating value", value, max-rating)
+    _label-row(_theme(), label, _rating-dots(value, max-rating))
+  }
 }
 
 // `value` as dots on a scale of `max` or, with no `value`, the
@@ -83,8 +89,8 @@
 
 // The label's rating as dots on a scale of `max` or, with no `value`,
 // the `fallback` text in their place.
-#let _rating-row(label, value, max: auto, fallback: none) = if (
-  value != none
-) { rating(label, value, max: max) } else {
-  context _label-row(_theme(), label, fallback)
-}
+#let _rating-row(label, value, max: auto, fallback: none) = rating(
+  label,
+  if value != none { value } else { fallback },
+  max: max,
+)
