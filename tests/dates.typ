@@ -6,6 +6,8 @@
 // - closure formatter (caller-supplied date => str)
 // - bracketed template (Typst `datetime.display()`-style tokens)
 // - labels.months override (German abbreviations) feeding "long"
+// - every shape of the range: both dates, no end ("Present"), no
+//   start (no leading dash), neither (no term row)
 //
 // Each invocation is a separate alta() call so a panic in one variant
 // doesn't mask the others. Multi-page output (one CV per preference)
@@ -134,3 +136,39 @@
     present: "Heute",
   ),
 )
+
+#pagebreak()
+
+// 7. Every shape of the date range, on pre-formatted strings: both dates
+//    (a range with an en dash), no endDate ("Present"), no startDate (no
+//    leading dash), and neither (no term row).
+#alta((
+  basics: (name: "Jane Doe", email: "jane@example.com"),
+  work: (
+    (
+      name: "Both Dates Ltd",
+      position: "Engineer",
+      startDate: "Jan 2020",
+      endDate: "Dec 2021",
+      highlights: ([Did things.],),
+    ),
+    (
+      name: "Still Here Inc",
+      position: "Engineer",
+      startDate: "Jan 2022",
+      // endDate omitted → "Present"
+      highlights: ([Doing things.],),
+    ),
+    (
+      name: "End Only Corp",
+      position: "Engineer",
+      endDate: "Mar 2019",
+      highlights: ([Past role.],),
+    ),
+    (
+      name: "Undated Co",
+      position: "Engineer",
+      highlights: ([No dates at all.],),
+    ),
+  ),
+))

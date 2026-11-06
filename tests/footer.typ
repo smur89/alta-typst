@@ -1,9 +1,12 @@
 // `preferences.page-footer` — two documents covering the API surface:
 //
-//   1. `auto` on a multi-page CV — emits name + "Page N / M" on
-//      every page. The auto renderer reactively reads the final page
-//      counter, so growth in the body propagates without any caller
-//      change.
+//   1. `auto` on a long CV that overflows a single page — emits name +
+//      "Page N / M" on every page. The auto renderer reactively reads
+//      the final page counter, so growth in the body propagates
+//      without any caller change. The overflow also exercises the
+//      breakable / sticky behaviour: section headings stay with their
+//      first entry, individual work entries stay together, and the
+//      dashed dividers between entries flow naturally across pages.
 //   2. A user-supplied content footer — rendered verbatim on every
 //      page, regardless of page count. Demonstrates the escape hatch
 //      for callers who want a custom footer (e.g. a confidentiality
@@ -33,8 +36,9 @@
       name: "Jane Doe",
       label: "Staff Software Engineer",
       summary: [
-        Long CV that overflows a single page so the auto footer
-        renders "Page N / M" with N spanning more than one value.
+        Two decades of platform engineering across payments, logistics,
+        and developer tools. This fixture deliberately overflows a single
+        page to exercise the template's page-break behaviour.
       ],
       email: "jane@example.com",
       location: "Dublin, Ireland",
@@ -148,8 +152,30 @@
     ),
     certificates: (
       (name: "Certified Kubernetes Administrator", issuer: "CNCF"),
+      (name: "Certified Kubernetes Application Developer", issuer: "CNCF"),
       (name: "AWS Solutions Architect — Professional", issuer: "AWS"),
+      (name: "AWS DevOps Engineer — Professional", issuer: "AWS"),
       (name: "Hashicorp Terraform Associate", issuer: "Hashicorp"),
+    ),
+    publications: (
+      (
+        name: "Event Sourcing in Practice",
+        type: "article",
+        releaseDate: "Jun 2024",
+        url: "https://example.com/posts/event-sourcing",
+      ),
+      (
+        name: "Idempotent Kafka Consumers",
+        type: "article",
+        releaseDate: "Mar 2024",
+        url: "https://example.com/posts/idempotent-consumers",
+      ),
+      (
+        name: "Designing for Failure",
+        type: "talk",
+        releaseDate: "Sep 2023",
+        url: "https://example.com/talks/failure",
+      ),
     ),
   ),
   preferences: (page-footer: auto),
