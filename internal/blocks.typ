@@ -6,8 +6,8 @@
   _default-labels, _default-preferences, _translations,
 )
 #import "data/cv.typ": (
-  _authors, _identifier-refs, _identifier-url, _identifiers, _owner-keys,
-  _skill-rating,
+  _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
+  _owner-keys, _skill-rating,
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
@@ -36,7 +36,7 @@
 )
 
 /// An entry: a role, a qualification, a project. Its facts are named
-/// arguments; its prose (a summary, a list of highlights) is the body.
+/// arguments; its prose (a list of highlights) is the body.
 /// Its heading sits one level below the section or group before it, and
 /// the theme's divider separates it from the entry before it in the
 /// same section or group. It needs a section (`=`) or group (`==`)
@@ -50,25 +50,48 @@
 /// - url (str, none): A link for the title.
 /// - org (content, str, none): The organisation, in the accent.
 /// - org-url (str, none): A link for the organisation.
+/// - subtitle (array): A small line under the heading (a referee's
+///   attribution): groups of facts, an array of arrays, the facts in a
+///   group joined by the theme's item separator and the groups by its
+///   fact separator: `(("Manager", "Acme"), ("2024",))`.
 /// - roles (array): Further roles, after the organisation.
-/// - date (content, str, none): The date or range, at the right edge, as written.
+/// - date (content, str, array, none): At the right edge. Content or
+///   a string shows as written; a `(start, end)` pair as `alta()`
+///   shows a period: the two joined by the theme's range separator, a
+///   `none` end reading the document language's "Present", a `none`
+///   start leaving the end alone; `(none, none)` shows nothing.
 /// - location (content, str, none): Under the date.
 /// - details (array): Short facts after the roles (a credential ID).
+/// - summary (content, str, none): A short summary, set apart (italic
+///   by default) before the body, as `alta()` sets a `summary`.
+/// - keywords-lead (array): A line of its own above the keywords
+///   (education's area and score), so it doesn't read as one of them:
+///   groups of facts, as `subtitle` takes.
 /// - keywords (array): A line of keywords ending the entry.
-/// - body (content): The summary and highlights.
+/// - body (content): The highlights, or any other prose.
 /// -> content
 #let entry(
   title: none,
   url: none,
   org: none,
   org-url: none,
+  subtitle: (),
   roles: (),
   date: none,
   location: none,
   details: (),
+  summary: none,
+  keywords-lead: (),
   keywords: (),
   body,
 ) = context {
+  if type(date) == array and date.len() != 2 {
+    panic(
+      "entry() date takes one date or a `(start, end)` pair, got "
+        + str(date.len())
+        + " dates",
+    )
+  }
   let parent = _parent-heading()
   if parent == none {
     panic(
@@ -95,21 +118,34 @@
   // `alta()`'s drops both: dropping it moved what follows, which moved
   // the next divider, and a CV of a few pages ran out of Typst's five
   // layout passes. Hidden, it moves nothing.
+  let labels = _labels()
   block(breakable: false, {
     if query(siblings).len() > 0 { _divider(true, at-top: hide) }
     _entry(
       // The icons' alt text, in the document's language.
-      _labels(),
+      labels,
       title: title,
       url: url,
       org: org,
       org-url: org-url,
+      subtitle: subtitle,
       roles: roles,
-      // One side, as written: `_range` joins only the present sides.
-      period: (date,),
+      // A pair as `alta()` reads a period, its open end the language's
+      // "Present"; else one side, as written: `_range` joins only the
+      // present sides.
+      period: if type(date) == array {
+        let (start, end) = date
+        _entry-period(
+          (start-date: start, end-date: end),
+          d => d,
+          labels.present,
+        )
+      } else { (date,) },
       location: (location,),
       details: details,
+      summary: summary,
       body: body,
+      keywords-lead: keywords-lead,
       keywords: keywords,
       level: parent.level + 1,
     )
@@ -174,7 +210,10 @@
 ///
 /// - tagline (content, str, none): Under the name.
 /// - objective (content, str, none): A short goal, under the tagline.
-/// - contacts (array): `contact(..)` entries, wrapping as one bar.
+/// - contacts (array): `contact(..)` entries, wrapping as one row of
+///   the contact bar. A `linebreak()` among them starts a new row, as
+///   `alta()` sets its profiles under the other details
+///   (`adapter.basics-contacts` returns them so).
 /// - photo (content, none): The portrait: content, typically an
 ///   `image(..)`, loaded in your file, so its path is yours.
 /// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
@@ -215,19 +254,19 @@
       name: name,
       headline: tagline,
       objective: objective,
-      // One row, wrapping between entries as `alta()`'s rows do.
-      contacts: if contacts == () { () } else {
-        (
-          contacts.map(c => (
-            c
-              + (
-                alt: if c.alt == auto { _contact-alt(c.icon, labels) } else {
-                  c.alt
-                },
-              )
-          )),
-        )
-      },
+      // A row per run between `linebreak()`s, each wrapping between
+      // entries as `alta()`'s rows do; an empty run, none.
+      contacts: contacts
+        .split(linebreak())
+        .filter(row => row != ())
+        .map(row => row.map(c => (
+          c
+            + (
+              alt: if c.alt == auto { _contact-alt(c.icon, labels) } else {
+                c.alt
+              },
+            )
+        ))),
       uppercase: uppercase,
       // Framed as `alta()` frames `basics.image`, at its default size
       // and shape; `alt` is the person's name.
