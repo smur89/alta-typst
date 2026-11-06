@@ -19,12 +19,6 @@
   type(v) == array and v.all(x => type(x) in (str, content))
 ) { v }
 
-// A field's array of text, else `()`.
-#let _texts-at(obj, key) = {
-  let v = _texts(obj.at(key, default: none))
-  if v != none { v } else { () }
-}
-
 // `v` when it's a non-empty string, else `none`.
 #let _string(v) = if _present-str(v) { v }
 

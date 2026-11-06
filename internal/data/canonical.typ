@@ -329,15 +329,15 @@
 // `"focus-areas"`, as the section is named inside.
 #let _section-aliases = (focusAreas: "focus-areas")
 #let _canonical-columns(overrides) = (
-  ("left-column-sections", "right-column-sections").fold(
-    overrides,
-    (acc, key) => _map-at(
-      acc,
-      key,
-      kind: array,
-      v => v.map(k => _named(_section-aliases, k)),
-    ),
-  )
+  ("left-column-sections", "right-column-sections").fold(overrides, (
+    acc,
+    key,
+  ) => {
+    let v = _dict-or-empty(acc).at(key, default: none)
+    if type(v) != array { acc } else {
+      acc + ((key): v.map(k => _named(_section-aliases, k)))
+    }
+  })
 )
 
 #let _canonical-preferences(overrides, labels) = {
@@ -346,10 +346,10 @@
       overrides,
     ),
   ))
-  let overrides = _map-at(overrides, "page-footer", kind: str, v => _named(
-    ("auto": auto),
-    v,
-  ))
+  let overrides = if (
+    type(overrides) == dictionary
+      and overrides.at("page-footer", default: none) == "auto"
+  ) { overrides + (page-footer: auto) } else { overrides }
   // `publication-icons` is lowercased with its deprecated sources below.
   let overrides = _preference-tables
     .filter(t => t != "publication-icons")
