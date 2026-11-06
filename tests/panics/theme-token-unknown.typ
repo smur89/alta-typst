@@ -1,5 +1,4 @@
 // expect: Unknown theme.space key(s): "huge"
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (space: (huge: 2))))
+#show: altacv.with(theme: (space: (huge: 2)))

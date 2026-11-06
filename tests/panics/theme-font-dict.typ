@@ -1,5 +1,4 @@
 // expect: theme.font must be a font family name
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (font: ((unexpected: "Lato"),))))
+#show: altacv.with(theme: (font: ((unexpected: "Lato"),)))

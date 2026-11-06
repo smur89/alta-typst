@@ -32,7 +32,7 @@
     location: "Tallaght, Dublin",
     url: "https://seanomurchu.dev",
     // Replace with your own: `path("your-photo.png")` for a local
-    // file, `none` to drop the portrait, or keep `avatar-placeholder`
+    // file, `none` to drop the photo, or keep `avatar-placeholder`
     // (the built-in silhouette).
     image: avatar-placeholder,
     profiles: (
@@ -165,13 +165,13 @@
   ),
 )
 
-// Visual preferences for this starter. The portrait stacks above a
+// Visual preferences for this starter. The photo stacks above a
 // centred header; the rest takes the template's shipped defaults
 // (teal accent, two-column layout, long-form dates). Edit any
 // preference you like — `alta(cv, preferences: (...))` accepts any
 // subset, with unknown keys panicking so typos surface immediately.
 #let preferences = (
-  image-position: top,
+  photo-position: top,
   header-text-align: center,
 )
 
@@ -184,7 +184,7 @@
 // To load the same CV from JSON Resume instead, replace the
 // `#alta(cv, ..)` line above with the one below. `resume.json`, beside
 // this file, holds it in the standard schema (https://jsonresume.org),
-// so any JSON Resume tool can write it. Loading it drops the portrait,
+// so any JSON Resume tool can write it. Loading it drops the photo,
 // which is set here in Typst (`basics.image`).
 // #alta-from-json(path("resume.json"), preferences: preferences)
 //

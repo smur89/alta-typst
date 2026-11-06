@@ -1,5 +1,5 @@
 // `work[].keywords` read leniently, as 1.8.0 (which drew none) read
-// them: only an array of text draws pills; any other value draws none
+// them: only an array of text draws tags; any other value draws none
 // rather than failing. Standalone `alta()`; the template's mapping is
 // in work-keywords-template.typ.
 

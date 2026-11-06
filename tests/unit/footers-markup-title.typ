@@ -1,11 +1,11 @@
-// `alta-footer()` in a markup CV whose document has a title but no
+// `cv-footer()` in a markup CV whose document has a title but no
 // author: the title stands in for the name.
 
-#import "/lib.typ": alta-footer, altacv
+#import "/lib.typ": altacv, cv-footer
 
 #set document(title: "Jane Doe")
 #show: altacv
-#set page(footer: alta-footer())
+#set page(footer: cv-footer())
 
 #let names = state("names", 0)
 #show "Jane Doe": it => {

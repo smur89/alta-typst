@@ -60,10 +60,11 @@
 }
 
 // The CV itself, from `_prepare`, as standalone `alta()` draws it with
-// the section renderers.
+// the section renderers. In `context`: its prose is justified as the
+// paragraphs around the `alta()` call are (`_justify`).
 #let _cv-content((cv, sections, ctx, details)) = {
   _cv-marks(ctx.prefs, details)
-  show: _justify.with(ctx.prefs.justify)
+  show: _justify.with(par.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
   // Renderers are width-agnostic, so any section fits either column.
@@ -90,7 +91,7 @@
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
-  // The mapping justifies its own prose.
+  // The mapping's prose takes the caller's `set par(justify: ..)`.
   _cv-marks(ctx.prefs, details)
   _resume(json-resume, ctx.labels, ctx.prefs)
 }

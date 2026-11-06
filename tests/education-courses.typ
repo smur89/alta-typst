@@ -26,7 +26,7 @@
       courses: ("Algorithms", "Operating Systems", "Compilers", "Databases"),
     ),
     (
-      // No `courses` key — entry renders without the pill row.
+      // No `courses` key — entry renders without the tag row.
       institution: "Trinity College Dublin",
       area: "Mathematics",
       startDate: "2011",

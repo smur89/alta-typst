@@ -1,5 +1,4 @@
-// expect: Unknown colours key(s): "headingrule"
-#import "/lib.typ": alta
+// expect: Unknown theme.colours key(s): "headingrule"
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (colours: (headingrule: red)))
+#show: altacv.with(theme: (colours: (headingrule: red)))

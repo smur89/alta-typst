@@ -1,5 +1,5 @@
 // Low-level rendering pieces shared across sections: the text styles,
-// the term row, pills and tag rows, the divider and icon headings.
+// the term row, tags and their rows, the divider and icon headings.
 // `name`, `term`, `tag`, `divider`, `styled-link` are re-exported from `lib.typ` for
 // custom layouts; underscored helpers are internal.
 
@@ -7,6 +7,7 @@
 #import "context.typ": _theme
 #import "design/theme.typ": _as-is
 #import "util/values.typ": _join-present, _present
+#import "util/checks.typ": _check-type
 #import "icons.typ": _icon-glyph, icon
 
 // The accent text `name()` sets on its own line, for inline use (an
@@ -32,12 +33,12 @@
   body,
 ))
 
-// The gap `tag()` leaves after a pill, from the theme and the text
+// The gap `tag()` leaves after a tag, from the theme and the text
 // size the caller read in context.
 #let _tag-gap(theme, body-size) = h(theme.tag.gap * body-size)
 
 /// An accent-coloured line, for an organisation on a line of its own in
-/// a custom layout.
+/// a custom layout. Deprecated (#239): `entry(org:)`.
 ///
 /// - body (content): The text.
 /// -> content
@@ -73,7 +74,7 @@
 )
 
 // A summary as a paragraph of prose: the paragraph labelled
-// `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
+// `<alta-internal-prose>` for `_justify` (`design/styles.typ`), its text the
 // public `<alta-summary>` part.
 #let _prose(body, treatment: _as-is) = [#par(treatment(
   _part("summary", body),
@@ -119,7 +120,7 @@
 
 /// A date and an optional location on one row, each led by its icon.
 /// An absent side is left out, icon included; with neither, nothing
-/// renders.
+/// renders. Deprecated (#239): `entry(date:, location:)`.
 ///
 /// - period (content, str, none): The date or date range.
 /// - location (content, str, none): The place.
@@ -132,32 +133,25 @@
   })
 }
 
-/// A pill-style tag.
-///
-/// - body (content): The pill's text.
-/// - label (bool): The darker, bold category pill (a skill group's
-///   label).
-/// - trailing (bool): Leave the gap after the pill; `false` on a row's
-///   last pill, so the row doesn't end on a gap.
-/// -> content
-#let tag(body, label: false, trailing: true) = context {
+// `tag()`'s box, its arguments checked.
+#let _tag(body, category, trailing) = {
   let theme = _theme()
   let accent = theme.colours.accent
   let (
     fill,
-    label-fill,
+    category-fill,
     stroke-lighten,
     text-darken,
     radius,
     inset,
     outset-y,
     weight,
-    label-weight,
+    category-weight,
     ..,
   ) = theme.tag
-  let text-weight = if label { label-weight } else { weight }
+  let text-weight = if category { category-weight } else { weight }
   box(
-    fill: accent.lighten(if label { label-fill } else { fill }),
+    fill: accent.lighten(if category { category-fill } else { fill }),
     stroke: theme.stroke-width.thin + accent.lighten(stroke-lighten),
     radius: radius,
     inset: (x: inset.x * text.size, y: inset.y * text.size),
@@ -168,10 +162,30 @@
     text(
       fill: accent.darken(text-darken),
       weight: text-weight,
-      _part(if label { "pill-label" } else { "pill" }, [#body#[]]),
+      _part(if category { "tag-category" } else { "tag" }, [#body#[]]),
     ),
   )
   if trailing { _tag-gap(theme, text.size) }
+}
+
+/// A tag: a short text in a tinted box.
+///
+/// - body (content): The tag's text.
+/// - category (auto, bool): The darker, bold category tag (a skill group's
+///   name). `auto` is `false`.
+/// - label (auto, bool): Deprecated (#239): `category`.
+/// - trailing (bool): Leave the gap after the tag; `false` on a row's
+///   last tag, so the row doesn't end on a gap.
+/// -> content
+#let tag(body, category: auto, label: auto, trailing: true) = {
+  if category != auto and label != auto {
+    panic(
+      "tag() takes `category:`; `label:` is its deprecated name, so pass only `category:`",
+    )
+  }
+  let category = (category, label, false).find(v => v != auto)
+  _check-type("tag() category", category, (bool,), "a bool")
+  context _tag(body, category, trailing)
 }
 
 // The page's top margin as an absolute length. Typst's `auto` margin is
@@ -220,7 +234,7 @@
 #let divider() = _divider(true)
 #let _divider-space() = _divider(false)
 
-// A row of `tag()` pills, with no gap after the last.
+// A row of `tag()`s, with no gap after the last.
 #let _tag-row(items) = {
   for (i, item) in items.enumerate() {
     tag(item, trailing: i < items.len() - 1)
@@ -240,18 +254,18 @@
     )
   } #body]
 
-// The portrait, clipped to a square with the theme's corner radius for
-// `shape` (a `preferences.image-shape`). A bare `basics.image` arrives
+// The photo, clipped to a square with the theme's corner radius for
+// `shape` (a `preferences.photo-shape`). A bare `basics.image` arrives
 // as a `path` from `internal/` (`_read-cv`); `path` and `bytes` sources
 // let callers anchor resolution at their own .typ, as does an
 // `image(..)` passed as content (`cv-header`'s `photo`), framed by
 // `set` rules its own arguments override. `alt` becomes the image's
 // `/Alt` in tagged PDF output.
-#let _portrait(source, size, alt, shape: "circle") = context box(
+#let _photo(source, size, alt, shape: "circle") = context box(
   width: size,
   height: size,
   clip: true,
-  radius: _theme().header.portrait-radius.at(shape),
+  radius: _theme().header.photo-radius.at(shape),
   if type(source) == content {
     set image(fit: "cover", width: 100%, height: 100%, alt: alt)
     source
@@ -267,7 +281,8 @@
 }
 
 /// Text in altacv's entry-title style (the accent, italic), linked when
-/// `dest` is set; it looks the same either way.
+/// `dest` is set; it looks the same either way. Deprecated (#239):
+/// `entry(title:, url:)`.
 ///
 /// - content (content): The title.
 /// - dest (str, none): A URL to link it to.

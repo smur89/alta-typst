@@ -1,5 +1,4 @@
 // expect: theme.colours.name must be a colour
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (colours: (name: "black"))))
+#show: altacv.with(theme: (colours: (name: "black")))

@@ -1,6 +1,6 @@
 // The intro between the header and the first section: the CV's
 // summary, from the slot `sections/intro.typ` maps `basics.summary`
-// onto. (The objective sits in the header, under the headline.)
+// onto. (The objective sits in the header, under the tagline.)
 
 #import "../context.typ": _theme
 #import "../primitives.typ": _prose

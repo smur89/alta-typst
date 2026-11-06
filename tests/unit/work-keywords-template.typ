@@ -1,6 +1,6 @@
 // `work[].keywords` read leniently in the template's mapping, as
 // work-keywords.typ checks standalone `alta()`: only an array of text
-// draws pills.
+// draws tags.
 
 #import "/lib.typ": alta, altacv
 

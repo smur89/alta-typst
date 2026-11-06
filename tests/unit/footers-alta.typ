@@ -2,16 +2,16 @@
 // `meta.lastModified` over the document's author, with `labels` as
 // `alta()` merged them; a `date:` replaces the CV's.
 
-#import "/lib.typ": alta, alta-footer, alta-updated-footer, altacv
+#import "/lib.typ": alta, altacv, cv-footer, cv-updated-footer
 
 #set document(title: "Doc Title", author: "Doc Author")
 #show: altacv
 #set page(
   header: {
-    alta-updated-footer(version: true)
-    alta-updated-footer(date: "Nov 2026")
+    cv-updated-footer(version: true)
+    cv-updated-footer(date: "Nov 2026")
   },
-  footer: alta-footer(),
+  footer: cv-footer(),
 )
 
 #let count(s) = {

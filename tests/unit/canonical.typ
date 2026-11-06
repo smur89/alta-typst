@@ -39,12 +39,12 @@
 #let prefs(preferences) = _merge-options((:), preferences).prefs
 // #239: the string `page-footer: "auto"` reads as `auto`.
 #assert.eq(prefs((page-footer: "auto")).page-footer, auto)
-#assert.eq(prefs((:)).image-position, right)
-#assert.eq(prefs((image-position: top)).image-position, top)
-#assert.eq(prefs((image-position: "left")).image-position, left)
-#assert.eq(prefs((image-position: "center")).image-position, top)
+#assert.eq(prefs((:)).photo-position, right)
+#assert.eq(prefs((photo-position: top)).photo-position, top)
+#assert.eq(prefs((photo-position: "left")).photo-position, left)
+#assert.eq(prefs((photo-position: "center")).photo-position, top)
 #assert.eq(
-  prefs((image-position: "center", image-stack-order: "below")).image-position,
+  prefs((photo-position: "center", image-stack-order: "below")).photo-position,
   bottom,
 )
 #assert.eq(prefs((header-text-align: "center")).header-text-align, center)
@@ -107,6 +107,16 @@
   preferences,
 )
 #assert.eq(merged(preferences: (columnRatio: 0.5)).prefs.column-ratio, 0.5)
+// 1.8.0's `imagePosition` and `imageSize` read as the photo's
+// renamed preferences, the strings as alignments; the never-shipped
+// kebab `image-*` spellings are unknown.
+#assert.eq(
+  merged(preferences: (imagePosition: "center", imageStackOrder: "below"))
+    .prefs
+    .photo-position,
+  bottom,
+)
+#assert.eq(merged(preferences: (imageSize: 8em)).prefs.photo-size, 8em)
 #assert.eq(
   merged(preferences: (leftColumnSections: ("focusAreas",)))
     .prefs

@@ -1,6 +1,6 @@
 // The JSON Resume mapping: a CV dictionary in the JSON Resume schema
 // turned into altacv's public markup blocks (`cv-header`, `entry`,
-// `publication`, `skills`, …). It is what `alta(cv)` renders inside
+// `publication`, `skill-row`, …). It is what `alta(cv)` renders inside
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
 // It reads JSON Resume's camelCase fields (`startDate`) and altacv's
@@ -9,7 +9,7 @@
 // To adapt it, copy this file into your project, replace the imports
 // below with one
 //
-//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
 //
 // and edit what it draws. Then, in your CV:
 //
@@ -27,7 +27,7 @@
 // because `alta()`, which renders it, sits inside `lib.typ`.
 
 #import "../internal/blocks.typ": (
-  cv-columns, cv-header, entry, label-row, publication, skills,
+  cv-columns, cv-header, entry, label-row, publication, skill-row,
 )
 #import "../internal/components/ratings.typ": rating
 #import "../internal/data/defaults.typ": maps-providers
@@ -260,8 +260,8 @@
       )
     },
     // The group's `custom.altacv.rating` as dots, else its level, a
-    // term `skills` rates as dots; `skill-level-display: "text"` keeps
-    // the level text, as content, which `skills` shows as written.
+    // term `skill-row` rates as dots; `skill-level-display: "text"` keeps
+    // the level text, as content, which `skill-row` shows as written.
     skills: () => _section(
       labels.skills,
       cv
@@ -272,7 +272,7 @@
         let as-text = (
           preferences.at("skill-level-display", default: auto) == "text"
         )
-        skills(
+        skill-row(
           g.name,
           g.keywords,
           level: if as-text {
@@ -430,7 +430,7 @@
     contacts: adapter
       .basics-contacts(
         basics,
-        link: preferences.at("link-contact-info", default: true),
+        linked: preferences.at("link-contact-info", default: true),
         maps-provider: preferences.at(
           "maps-provider",
           default: maps-providers.google,
@@ -442,30 +442,30 @@
         c + (alt: labels.location)
       } else { c }),
     photo: if image-src != none { image(image-src) },
-    photo-side: preferences.at("image-position", default: right),
-    photo-size: preferences.at("image-size", default: auto),
-    photo-shape: preferences.at("image-shape", default: auto),
+    photo-position: preferences.at("photo-position", default: right),
+    photo-size: preferences.at("photo-size", default: auto),
+    photo-shape: preferences.at("photo-shape", default: auto),
     qr: if qr-code == auto { _field(basics, "url") } else { qr-code },
     uppercase: preferences.at("uppercase-name", default: true),
   )
   let text-align = preferences.at("header-text-align", default: none)
   if text-align != none { align(text-align, header) } else { header }
 
-  // Below the header, the paragraphs justified per `justify`: the
-  // intro, summaries, highlights and publications, as `alta()`
-  // justifies them. An entry's rows of facts and keywords, and the
-  // skill and interest rows, set their own off; the languages, below.
-  // Without the preference, the caller's own `set par` stands.
-  set par(justify: preferences.at("justify", default: false)) if (
-    "justify" in preferences
-  )
+  // The prose (the intro, summaries, highlights and publications)
+  // takes the caller's `set par(justify: ..)`. An entry's rows of facts
+  // and keywords, and the skill and interest rows, set their own off;
+  // the languages, below.
 
   // The intro: `basics.summary`, in a block the template spaces from
   // the header and the columns (`show <alta-intro>: set block(..)`).
   let summary = _field(basics, "summary")
   // The part label on a wrapper of its own, so a label the summary
-  // carries stays.
-  if summary != none [#block(par[#[#summary#[]]<alta-summary>])<alta-intro>]
+  // carries stays. Full width, so a justified summary stretches to the
+  // column rather than to its own widest line.
+  if summary != none [#block(
+    width: 100%,
+    par[#[#summary#[]]<alta-summary>],
+  )<alta-intro>]
 
   // The columns: the left sections beside the right, the left taking
   // `column-ratio`; one column when no section is on the right.

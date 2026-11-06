@@ -1,10 +1,15 @@
 // Typst's own values where an option once took a name in a string:
 // treatments as functions (the publication title in capitals, the
-// owner among its authors underlined, a summary bold), the portrait
+// owner among its authors underlined, a summary bold), the photo
 // centred `bottom` with the text `center`, and `datetime` dates, a
 // full date showing its day, beside a year-month string.
 
-#import "../lib.typ": alta
+#import "../lib.typ": alta, altacv, cv-updated-footer
+
+#show: altacv.with(
+  theme: (treatment: (link: upper, owner: underline, preamble: strong)),
+)
+#set page(footer: cv-updated-footer())
 
 #alta(
   (
@@ -40,11 +45,7 @@
     meta: (lastModified: datetime(year: 2026, month: 6, day: 12)),
   ),
   preferences: (
-    image-position: bottom,
+    photo-position: bottom,
     header-text-align: center,
-    last-modified-footer: true,
-    theme: (
-      treatment: (link: upper, owner: underline, preamble: strong),
-    ),
   ),
 )

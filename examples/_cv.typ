@@ -28,7 +28,7 @@
 #import "/.template-src.typ": cv
 
 // Returns the CV with `basics.image` suppressed — i.e. the header
-// renders without a portrait. Override-to-`none` rather than
+// renders without a photo. Override-to-`none` rather than
 // `.remove()` so the helper is idempotent (calling it twice doesn't
 // panic on a missing key) and reads as an expression rather than a
 // statement sequence.

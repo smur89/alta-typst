@@ -1,26 +1,26 @@
 // A CV written in markup, with no data dictionary: the name from
-// `set document(title: ..)` shown by `cv-header` with a portrait and
+// `set document(title: ..)` shown by `cv-header` with a photo and
 // QR code, two columns (`cv-columns`), `=` sections,
 // a `==` group, and the blocks: `entry` (dividers only between
-// entries), `publication` (the document's author set apart), `skills`
+// entries), `publication` (the document's author set apart), `skill-row`
 // (one row's level as dots), `rating` and `label-row`.
 
 #import "../lib.typ": (
-  alta-footer, altacv, avatar-placeholder, contact, cv-columns, cv-header,
-  entry, label-row, publication, rating, skills, themes,
+  altacv, avatar-placeholder, contact, cv-columns, cv-footer, cv-header, entry,
+  label-row, publication, rating, skill-row, themes,
 )
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with(theme: themes.navy)
-#set page(footer: alta-footer())
+#set page(footer: cv-footer())
 
 #cv-header(
   tagline: "Senior Software Engineer",
   objective: [Building reliable distributed systems for small teams.],
   contacts: (
-    contact("email", "jane@example.com", link: "mailto:jane@example.com"),
+    contact("email", "jane@example.com", url: "mailto:jane@example.com"),
     contact("location", "Dublin, Ireland"),
-    contact("github", "janedoe", link: "https://github.com/janedoe"),
+    contact("github", "janedoe", url: "https://github.com/janedoe"),
   ),
   photo: image(avatar-placeholder),
   qr: "https://example.com",
@@ -74,8 +74,8 @@
   [
     = Skills
 
-    #skills("Languages", ("Scala", "Python", "Go"), level: "Expert")
-    #skills("Infra", ("Kafka", "AWS", "Kubernetes"))
+    #skill-row("Languages", ("Scala", "Python", "Go"), level: "Expert")
+    #skill-row("Infra", ("Kafka", "AWS", "Kubernetes"))
 
     = Languages
 

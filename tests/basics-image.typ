@@ -1,7 +1,7 @@
 // Pages exercise each accepted source form (bytes, `path()`,
-// root-relative string), an `image-size` override, flipped/mirrored
+// root-relative string), a `photo-size` override, flipped/mirrored
 // layouts, centred header on a no-image CV, and the rounded and
-// square `image-shape`s.
+// square `photo-shape`s.
 
 #import "../lib.typ": alta
 
@@ -46,12 +46,12 @@
   (
     basics: (
       name: "Large Photo",
-      label: "image-size: 8em override",
+      label: "photo-size: 8em override",
       email: "large@example.com",
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (image-size: 8em),
+  preferences: (photo-size: 8em),
 )
 
 #pagebreak()
@@ -65,7 +65,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (image-position: left),
+  preferences: (photo-position: left),
 )
 
 #pagebreak()
@@ -80,7 +80,7 @@
     ),
   ),
   preferences: (
-    image-position: left,
+    photo-position: left,
     header-text-align: right,
   ),
 )
@@ -108,11 +108,11 @@
     (
       basics: (
         name: "Shaped Photo",
-        label: "image-shape: " + repr(shape),
+        label: "photo-shape: " + repr(shape),
         email: "shape@example.com",
         image: read("../assets/avatar-placeholder.svg", encoding: none),
       ),
     ),
-    preferences: (image-shape: shape),
+    preferences: (photo-shape: shape),
   )
 }

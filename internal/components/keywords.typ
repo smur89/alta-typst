@@ -1,5 +1,5 @@
-// `{name, keywords}` groups, one row each: skills' as pills, the
-// name as a label pill and the keywords wrapping under the first of
+// `{name, keywords}` groups, one row each: skills' as tags, the
+// name as a category tag and the keywords wrapping under the first of
 // them; interests' as a line of text.
 
 #import "../context.typ": _theme
@@ -8,7 +8,7 @@
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
 // bullet. The `_tag-gap` after it mirrors the gap `tag()` leaves on
-// its left, so the dash sits centred between the pills. The hanging
+// its left, so the dash sits centred between the tags. The hanging
 // indent is the label's measured width, so wrapped keywords line up
 // under the first; a label wider than `keyword-row.indent-max` of the
 // column hangs nothing, so its keywords keep room to wrap. A group's
@@ -20,7 +20,7 @@
   layout(size => for (name, keywords, ..group) in groups {
     let mark = group.at("mark", default: none)
     let label = {
-      tag(name, label: true)
+      tag(name, category: true)
       if mark != none {
         mark
         _tag-gap(theme, text.size)
@@ -44,7 +44,7 @@
 
 // `Music: Trad, Jazz`, one line per group, the name in the emphasis
 // colour and `treatment.label` (bold by default). Quieter than
-// `_keyword-rows`' pills, for groups a reader skims past.
+// `_keyword-rows`' tags, for groups a reader skims past.
 #let _label-rows(groups) = _unjustified(context {
   let (separator, treatment, colours) = _theme()
   par(

@@ -105,11 +105,11 @@
   body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercase-name: _bool-rule,
   header-text-align: _enum-rule((left, center, right)),
-  image-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
-  image-shape: _enum-rule(_default-theme.header.portrait-radius.keys()),
-  // The side of the header text the portrait takes.
-  image-position: _enum-rule((left, right, top, bottom)),
-  // Deprecated (#239): read into `image-position` with `"center"`, but
+  photo-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
+  photo-shape: _enum-rule(_default-theme.header.photo-radius.keys()),
+  // The side of the header text the photo takes.
+  photo-position: _enum-rule((left, right, top, bottom)),
+  // Deprecated (#239): read into `photo-position` with `"center"`, but
   // checked even when unused, so a typo surfaces before it matters.
   image-stack-order: _enum-rule(("above", "below")),
   // A typo (`qr-code: true`) fails here, not inside `qrcode(...)`.
@@ -134,7 +134,6 @@
   ),
   last-modified-footer: _bool-rule,
   footer-version: _bool-rule,
-  justify: _bool-rule,
   date-format: (
     _is-date-format,
     "\"long\", \"short\", \"iso\", a bracketed template "
@@ -246,15 +245,13 @@
 }
 
 // A theme is `_tokens` overrides, any of them, and so are the
-// preferences that override it (`_token-prefs`: `font`, `colours`).
+// preferences that override standalone `alta()`'s (`_token-prefs`:
+// `font`, and the deprecated `accent` as `colours`).
 #let _check-theme(theme) = {
   _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
   _check-tokens(theme, _tokens, "theme")
 }
-#let _validate-theme(prefs) = {
-  _check-theme(prefs.theme)
-  _check-tokens(_token-prefs(prefs), _tokens, "")
-}
+#let _validate-theme(prefs) = _check-tokens(_token-prefs(prefs), _tokens, "")
 
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.

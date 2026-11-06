@@ -17,7 +17,7 @@
 // module imports, so internal helpers stay behind `internal/render.typ`
 // rather than being imported here (see the README's Helpers section).
 #import "internal/render.typ": alta, alta-from-json, altacv
-#import "internal/footers.typ": alta-footer, alta-updated-footer
+#import "internal/footers.typ": cv-footer, cv-updated-footer
 #import "internal/data/defaults.typ": maps-providers
 #import "internal/data/json-resume.typ": from-json-resume
 #import "internal/design/presets.typ": palettes, themes
@@ -25,14 +25,14 @@
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
 #import "internal/blocks.typ": (
-  contact, cv-columns, cv-header, entry, label-row, publication, skills,
+  contact, cv-columns, cv-header, entry, label-row, publication, skill-row,
 )
 // A module: `adapter.format-date(..)`, the readers for a mapping of
 // your own.
 #import "internal/adapter.typ" as adapter
 
 /// A generic silhouette (SVG bytes) for `basics.image`, so a CV (the
-/// `typst init` starter's, say) compiles before its own portrait is
+/// `typst init` starter's, say) compiles before its own photo is
 /// added.
 /// -> bytes
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)

@@ -1,5 +1,5 @@
 // The `cv-header` block: the document's title is the name, set once
-// as Typst's `title` element; the portrait frames the user's image;
+// as Typst's `title` element; the photo frames the user's image;
 // contacts' alt text reads as `alta()`'s does.
 
 #import "/lib.typ": altacv, avatar-placeholder, contact, cv-header
@@ -28,9 +28,9 @@
 #cv-header(
   tagline: "Engineer",
   contacts: (
-    contact("email", "j@d.ie", link: "mailto:j@d.ie"),
+    contact("email", "j@d.ie", url: "mailto:j@d.ie"),
     contact("phone", "+353 1 234 5678"),
-    contact("link", "example.com", link: "https://example.com"),
+    contact("link", "example.com", url: "https://example.com"),
     contact("location", "Dublin"),
     contact("github", "sean"),
     contact("email", "s@d.ie", alt: "Work email"),
@@ -56,7 +56,7 @@
   ("Location", "github", "Work email"),
 )
 
-// The user's own fit and alt win over the portrait's.
+// The user's own fit and alt win over the photo's.
 #cv-header(photo: image(avatar-placeholder, fit: "contain", alt: "Me"))
 #metadata(none)<second>
 #context assert.eq(

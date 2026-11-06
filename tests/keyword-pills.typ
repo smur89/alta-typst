@@ -1,10 +1,11 @@
-// An entry's keywords as pills: `tag()` on each `<alta-keyword>`, an
+// An entry's keywords as tags: `tag()` on each `<alta-keyword>`, an
 // empty `separator.keywords`, and `<alta-keywords>` set to skill-row
 // spacing for wrapped rows. A project's keywords and an education's
 // courses both take it.
 
-#import "../lib.typ": alta, tag
+#import "../lib.typ": alta, altacv, tag
 
+#show: altacv.with(theme: (separator: (keywords: "")))
 #show <alta-keyword>: it => tag(it)
 #show <alta-keywords>: set par(leading: 0.8em, spacing: 0.8em)
 
@@ -43,5 +44,4 @@
       ),
     ),
   ),
-  preferences: (theme: (separator: (keywords: ""))),
 )

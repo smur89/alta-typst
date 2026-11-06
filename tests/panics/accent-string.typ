@@ -2,4 +2,4 @@
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (colours: (accent: "teal")))
+#alta(cv, preferences: (accent: "teal"))

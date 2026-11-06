@@ -15,7 +15,7 @@
   _list-rule, _positive-int-rule, _quote, _type-rule,
 )
 #import "context.typ": _max-rating-state
-#import "primitives.typ": _divider, _portrait
+#import "primitives.typ": _divider, _photo
 #import "components/bibliography.typ": _bib-entry
 #import "components/columns.typ": _columns
 #import "components/entry.typ": _entry
@@ -141,7 +141,9 @@
     // the next divider, and a CV of a few pages ran out of Typst's five
     // layout passes. Hidden, it moves nothing.
     let labels = _labels()
-    block(breakable: false, {
+    // Full width, so justified prose stretches to the column, not to
+    // the entry's widest line.
+    block(width: 100%, breakable: false, {
       if sibling { _divider(true, at-top: hide) }
       _entry(
         // The icons' alt text, in the document's language.
@@ -211,25 +213,25 @@
 /// - icon (str): A key of the icon set (`icon()`'s names: `"email"`,
 ///   `"phone"`, `"github"`, …).
 /// - value (content, str): The text shown.
-/// - link (str, none): Where it links (`mailto:…`, a URL).
+/// - url (str, none): Where it links (`mailto:…`, a URL).
 /// - alt (str, none, auto): Read aloud before it. `auto` reads as
 ///   `alta()`'s contacts do: a profile network's icon (`"github"`) its
 ///   name, `"location"` the localised word for it, and the rest
 ///   (`"email"`, `"phone"`, `"link"`), whose text says what it is,
 ///   nothing.
 /// -> dictionary
-#let contact(icon, value, link: none, alt: auto) = {
+#let contact(icon, value, url: none, alt: auto) = {
   // `icon()`'s check, so an unknown name panics the same way.
   _check-icon("contact() icon", icon)
   // `_contact-bar`'s record; `icon` resolves an `auto` alt in context
   // (`cv-header`, `_contact-alt`), where the document's language is
   // known.
-  (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: link, alt: alt)
+  (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: url, alt: alt)
 }
 
 /// The CV's header: your name (rendered with Typst's `title`
 /// element), a tagline, an objective, the contact bar, and an optional
-/// portrait and QR code. Its text follows the surrounding alignment:
+/// photo and QR code. Its text follows the surrounding alignment:
 /// `#align(center, cv-header(..))` centres it.
 ///
 /// - name (auto, content, str): Your name. `auto` is the document's
@@ -240,14 +242,14 @@
 ///   the contact bar. A `linebreak()` among them starts a new row, as
 ///   `alta()` sets its profiles under the other details
 ///   (`adapter.basics-contacts` returns them so).
-/// - photo (content, none): The portrait: content, typically an
+/// - photo (content, none): The photo: content, typically an
 ///   `image(..)`, loaded in your file, so its path is yours.
-/// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
-/// - photo-size (auto, length, ratio, relative): The portrait's side.
-///   `auto` is `alta()`'s default `image-size`.
-/// - photo-shape (auto, str): The portrait's frame: `"circle"`,
+/// - photo-position (alignment): `left`, `right`, `top` or `bottom`.
+/// - photo-size (auto, length, ratio, relative): The photo's side.
+///   `auto` is `alta()`'s default `photo-size`.
+/// - photo-shape (auto, str): The photo's frame: `"circle"`,
 ///   `"rounded"` or `"square"`. `auto` is `alta()`'s default
-///   `image-shape`.
+///   `photo-shape`.
 /// - qr (str, none): A URL to encode as a QR code, opposite the photo.
 /// - uppercase (bool): Set the name in capitals.
 /// -> content
@@ -257,7 +259,7 @@
   objective: none,
   contacts: (),
   photo: none,
-  photo-side: right,
+  photo-position: right,
   photo-size: auto,
   photo-shape: auto,
   qr: none,
@@ -269,7 +271,7 @@
     (content, str, type(auto)),
     "content, a string or auto",
   )
-  _check("cv-header() photo-side", photo-side, _enum-rule((
+  _check("cv-header() photo-position", photo-position, _enum-rule((
     left,
     right,
     top,
@@ -284,12 +286,12 @@
   // The photo's `key` (`size`, `shape`): `auto` reads `alta()`'s
   // default `image-{key}`, anything else is checked as that preference.
   let photo-option(key, value) = if value == auto {
-    _default-preferences.at("image-" + key)
+    _default-preferences.at("photo-" + key)
   } else {
     _check(
       "cv-header() photo-" + key,
       value,
-      _preference-rules.at("image-" + key),
+      _preference-rules.at("photo-" + key),
     )
     value
   }
@@ -305,7 +307,7 @@
     let labels = _labels()
     _page-header(
       name: name,
-      headline: tagline,
+      tagline: tagline,
       objective: objective,
       // A row per run between `linebreak()`s, each wrapping between
       // entries as `alta()`'s rows do; an empty run, none.
@@ -327,9 +329,9 @@
       // Framed as `alta()` frames `basics.image`; `alt` is the
       // person's name.
       photo: if photo != none {
-        _portrait(photo, photo-size, _plain(name), shape: photo-shape)
+        _photo(photo, photo-size, _plain(name), shape: photo-shape)
       },
-      photo-at: photo-side,
+      photo-position: photo-position,
       qr-url: qr,
       title: true,
     )
@@ -419,7 +421,8 @@
       if owners == auto { document.author } else { owners },
     )
     // One unbreakable block per item, as `alta()` lays them out.
-    block(breakable: false, _bib-entry(
+    // Full width, as `entry`'s, so a justified summary stretches.
+    block(width: 100%, breakable: false, _bib-entry(
       title,
       url: if url != none { url } else { _identifier-url(refs) },
       authors: _authors((authors: authors.map(_plain)), owners),
@@ -432,12 +435,12 @@
   }
 }
 
-/// A skill group's row: its name as a label pill, then its keywords as
-/// pills, with an optional level: a number or a term such as "Expert"
+/// A skill group's row: its name as a category tag, then its keywords as
+/// tags, with an optional level: a number or a term such as "Expert"
 /// shows as dots, any other text as written.
 ///
 /// - name (content, str): The group's name.
-/// - keywords (array): Its keywords, each a pill.
+/// - keywords (array): Its keywords, each a tag.
 /// - level (int, float, str, content, none): Its level, after the name:
 ///   a number as that many dots, from 0 to `max` in steps of 0.5, as
 ///   `alta()` shows a `custom.altacv.rating`; a rating term
@@ -446,11 +449,11 @@
 /// - max (auto, int): The dots in the row; `auto` is `rating()`'s: the
 ///   enclosing `alta()`'s `preferences.max-rating`, else 5.
 /// -> content
-#let skills(name, keywords, level: none, max: auto) = {
+#let skill-row(name, keywords, level: none, max: auto) = {
   let row(max) = {
-    _check("skills() max", max, _positive-int-rule)
+    _check("skill-row() max", max, _positive-int-rule)
     let numeric = type(level) in (int, float)
-    if numeric { _check-rating("skills() level", level, max) }
+    if numeric { _check-rating("skill-row() level", level, max) }
     _keyword-rows((
       (
         name: name,

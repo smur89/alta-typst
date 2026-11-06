@@ -12,7 +12,7 @@
 #import "../internal/data/options.typ": _merge-options
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
-  _portrait, _tag-row, divider, name, styled-link, tag, term,
+  _photo, _tag-row, divider, name, styled-link, tag, term,
 )
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/entry.typ": _entry
@@ -32,10 +32,11 @@
   labels,
   _auto-page-footer("Jane Doe", labels.page-number),
 )
-// The CV preferences that style what renders after them, as `alta()`
-// sets them: the public `rating()`'s scale and justification.
+// What `alta()` sets for what renders after it: the public `rating()`'s
+// scale, and its prose ragged, as no `set par(justify: true)` asks
+// otherwise.
 #_max-rating-state.update(prefs.max-rating)
-#show: _justify.with(prefs.justify)
+#show: _justify.with(false)
 
 #let contacts = (
   (
@@ -55,7 +56,7 @@
 #let variant(body) = block(breakable: false, below: 2.5em, body)
 #let header = _page-header.with(
   name: "Jane Doe",
-  headline: "Staff Engineer",
+  tagline: "Staff Engineer",
   contacts: (contacts.slice(0, 2), contacts.slice(2)),
   uppercase: true,
 )
@@ -70,9 +71,9 @@
 #heading(
   level: 2,
 )[Page header: each photo placement, and centred with left text]
-#let portrait = _portrait(
+#let photo = _photo(
   avatar-placeholder,
-  prefs.image-size,
+  prefs.photo-size,
   "Jane Doe",
 )
 #for (at, text-align) in (
@@ -82,14 +83,14 @@
   (bottom, center),
   (top, left),
 ) {
-  variant(header(photo: portrait, photo-at: at, text-align: text-align))
+  variant(header(photo: photo, photo-position: at, text-align: text-align))
 }
 
 #pagebreak()
 
 #heading(level: 2)[Page header: a QR code, and a contact bar that wraps]
 #variant(header(qr-url: "https://example.com"))
-// The objective under the headline.
+// The objective under the tagline.
 #variant(header(
   objective: [Lead a platform team building reliable data systems.],
 ))
@@ -197,9 +198,9 @@
 #heading(level: 2)[Primitives]
 #name[Acme]
 #term("2022 – 2024", location: "Remote")
-#tag[Scala] #tag(label: true)[Label] #tag(trailing: false)[Last]
+#tag[Scala] #tag(category: true)[Label] #tag(trailing: false)[Last]
 
-// A row long enough to wrap: no gap after the last pill.
+// A row long enough to wrap: no gap after the last tag.
 #block(width: 60%, _tag-row(
   ("Scala", "Python", "Rust", "Go", "TypeScript", "Kotlin", "Java"),
 ))

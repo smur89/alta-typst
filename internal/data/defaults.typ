@@ -4,7 +4,6 @@
 // preferences, with the `maps-providers` presets for `maps-provider`.
 
 #import "../design/icon-set.typ": _network-icons, _publication-icons
-#import "../design/presets.typ": themes
 #import "sections.typ": _keys-for-column
 
 #let _default-labels = toml("labels-en.toml")
@@ -39,9 +38,8 @@
   // `auto`: the theme's.
   font: auto,
   body-size: 10pt,
-  // Renders as the theme state's default does (`tests/unit/colours.typ`
-  // checks).
-  theme: themes.teal,
+  // Internal: the deprecated `accent`'s roles over the default theme
+  // (`_fold-accent`). A caller's `colours` panics (`_merge-options`).
   colours: (:),
   publication-icons: _publication-icons,
   project-icons: (:),
@@ -50,10 +48,10 @@
   // Visual only: PDF title / author metadata keep the name as given.
   uppercase-name: true,
   header-text-align: left,
-  image-size: 6em,
-  image-shape: "circle",
-  image-position: right,
-  // Deprecated (#239): read into `image-position` (`canonical.typ`).
+  photo-size: 6em,
+  photo-shape: "circle",
+  photo-position: right,
+  // Deprecated (#239): read into `photo-position` (`canonical.typ`).
   image-stack-order: "above",
   qr-code: none,
   // Page and layout.
@@ -68,7 +66,6 @@
   // Rides the `last-modified-footer` line; no-op without it.
   footer-version: false,
   // Formatting and links.
-  justify: false,
   date-format: "long",
   link-contact-info: true,
   print-full-urls: false,

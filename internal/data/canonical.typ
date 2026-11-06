@@ -5,6 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../util/checks.typ": _check-type
 #import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _entry-type, _reference-usable
 
@@ -178,8 +179,16 @@
 // top-level keys. Their values are untouched: section keys, type codes
 // and icon names are data. A name set both ways panics, as neither
 // would win on purpose. Option names start lowercase, so no key gains
-// a leading `-`.
-#let _kebab(name) = name.replace(regex("[A-Z]"), m => "-" + lower(m.text))
+// a leading `-`. A camelCase name whose concept has since been
+// renamed reads straight as the new name (`_renamed-options`).
+#let _renamed-options = (
+  imagePosition: "photo-position",
+  imageSize: "photo-size",
+)
+#let _kebab(name) = _renamed-options.at(
+  name,
+  default: name.replace(regex("[A-Z]"), m => "-" + lower(m.text)),
+)
 #let _kebab-keys(name) = table => if type(table) != dictionary { table } else {
   _rekey(
     table,
@@ -221,25 +230,23 @@
 }
 
 // #239: the top-level `accent` colours the accent roles with one
-// colour (`_accent-roles`), beneath the caller's `colours`.
-// It's dropped even when `colours` isn't a dictionary, so the check
-// names `colours` rather than an unknown `accent`; a non-dictionary
+// colour (`_accent-roles`), as the internal `colours` preference that
+// overrides standalone `alta()`'s theme (`_token-prefs`). A caller
+// can't set `colours` (`_merge-options`). A non-dictionary
 // `preferences` passes through for `_strict-merge` to reject.
 #let _fold-accent(overrides) = {
   if type(overrides) != dictionary or "accent" not in overrides {
     overrides
   } else {
-    let colours = overrides.at("colours", default: (:))
-    let folded = if type(colours) == dictionary {
-      _accent-roles(overrides.accent) + colours
-    } else { colours }
+    let accent = overrides.accent
+    _check-type("accent", accent, (color,), "a colour (e.g. rgb(\"#1A3A6C\"))")
     let rest = overrides.pairs().filter(((k, _)) => k != "accent").to-dict()
-    rest + (colours: folded)
+    rest + (colours: _accent-roles(accent))
   }
 }
 
-// #239: the strings `header-text-align` and `image-position` took become
-// Typst's alignments. `"center"` placed the portrait on its own row,
+// #239: the strings `header-text-align` and `photo-position` took become
+// Typst's alignments. `"center"` placed the photo on its own row,
 // `image-stack-order` (`"above"`, the default, or `"below"`) the text,
 // so it becomes `top` or `bottom`. A string with no alignment passes
 // through for validation to name.
@@ -257,24 +264,24 @@
   let set-only(key, value) = if key in overrides { ((key): value) } else {
     (:)
   }
-  let position = if at("image-position") == "center" {
+  let position = if at("photo-position") == "center" {
     _named((above: top, below: bottom), at(
       "image-stack-order",
       default: "above",
     ))
-  } else { _named(_alignments, at("image-position")) }
+  } else { _named(_alignments, at("photo-position")) }
   (
     overrides
       + set-only("header-text-align", _named(
         _alignments,
         at("header-text-align"),
       ))
-      + set-only("image-position", position)
+      + set-only("photo-position", position)
   )
 }
 
 // Runs before the merge over the defaults. #239: the deprecated
-// top-level `accent` becomes `colours` (`_fold-accent`), the string
+// top-level `accent` becomes the internal `colours` (`_fold-accent`), the string
 // alignments become Typst's values, and the free-text icons, then a
 // set `labels.publication-icons`, sit beneath the caller's
 // `publication-icons`, all lowercased, so the merge sees one table. `project-icons` and `profile-icons` are lowercased too.

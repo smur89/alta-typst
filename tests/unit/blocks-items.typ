@@ -3,7 +3,7 @@
 // number or a rating term, else its text, and a rating's text value
 // takes the dots' place.
 
-#import "/lib.typ": altacv, label-row, publication, rating, skills
+#import "/lib.typ": altacv, label-row, publication, rating, skill-row
 #import "/internal/blocks.typ": _plain
 
 #set document(author: "Jane Doe")
@@ -41,7 +41,7 @@
 // Matched trimmed and ignoring case, as `alta()` matches its owner.
 #publication(title: "A", authors: ("A. N. Other", " jane doe "))[]
 #context assert.eq(owners.get(), ([jane doe],))
-// Content's text, as an owner is matched and a portrait's alt reads:
+// Content's text, as an owner is matched and a photo's alt reads:
 // a gap or a line break is a space, a negative kern nothing.
 #assert.eq(_plain([Jane#h(0.3em)Doe]), "Jane Doe")
 #assert.eq(_plain([Jane#h(1fr)Doe]), "Jane Doe")
@@ -60,23 +60,23 @@
 #context assert.eq(owners.get().len(), 4)
 
 = Skills
-#skills("Typst", ("Markup",), level: "Expert")
+#skill-row("Typst", ("Markup",), level: "Expert")
 #context assert.eq(full-dots.get(), 5)
-#skills("Rust", ("Traits",), level: "Fluent-ish")
+#skill-row("Rust", ("Traits",), level: "Fluent-ish")
 // No more dots, and the level as written.
 #context assert.eq(full-dots.get(), 5)
 #context assert.eq(levels.get(), 1)
 // A number is that many dots, halves too, out of `max`; a term is its
 // share of `max`.
-#skills("Go", ("Channels",), level: 2.5, max: 4)
+#skill-row("Go", ("Channels",), level: 2.5, max: 4)
 #context assert.eq(
   (full-dots.get(), half-dots.get(), empty-dots.get()),
   (7, 1, 1),
 )
-#skills("Zig", ("Comptime",), level: "Expert", max: 3)
+#skill-row("Zig", ("Comptime",), level: "Expert", max: 3)
 #context assert.eq((full-dots.get(), empty-dots.get()), (10, 1))
 // `max: auto` is `rating()`'s: 5 outside `alta()`.
-#skills("C", ("Pointers",), level: 1)
+#skill-row("C", ("Pointers",), level: 1)
 #context assert.eq((full-dots.get(), empty-dots.get()), (11, 5))
 
 = Languages

@@ -10,7 +10,6 @@
   "project-icons",
   "profile-icons",
   "font",
-  "theme",
   "colours",
   "link-contact-info",
   "group-certificates",

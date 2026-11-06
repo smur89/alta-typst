@@ -13,7 +13,7 @@
 #cv-header(
   tagline: "Senior Software Engineer",
   contacts: (
-    contact("email", "jane@example.com", link: "mailto:jane@example.com"),
+    contact("email", "jane@example.com", url: "mailto:jane@example.com"),
   ),
 )
 

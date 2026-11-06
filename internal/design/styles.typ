@@ -11,7 +11,7 @@
 //   Style around the part, e.g. `case(_part(...))`.
 // - No space before the label: one renders as a real space after the
 //   part.
-// Labels the template uses for its own rules (`justify`'s
+// Labels the template uses for its own rules (`_justify`'s
 // `<alta-internal-prose>`) are prefixed `alta-internal-`, so they can't
 // be mistaken for a public part.
 #let _part(name, body) = if body != none { [#body#label("alta-" + name)] }
@@ -206,9 +206,9 @@
   body
 }
 
-// `body`'s paragraphs never justified: rows of facts, names or pills,
+// `body`'s paragraphs never justified: rows of facts, names or tags,
 // which stretch badly, whatever `justify` the prose around them takes
-// (`_justify`, or the JSON Resume mapping's scoped `set par`).
+// (`_justify`, or a caller's `set par` over the JSON Resume mapping).
 #let _unjustified(body) = {
   set par(justify: false)
   body
@@ -216,9 +216,11 @@
 
 // For `show: _justify.with(on)`: justify and hyphenate prose only,
 // lists and the paragraphs labelled `<alta-internal-prose>`, so rows of
-// facts, names or pills never stretch. Applied by `alta()`: `justify`
-// is a CV preference, not the template's.
+// facts, names or tags never stretch. Applied by standalone `alta()`,
+// `on` being the `par.justify` where it's called, so a caller's
+// `set par(justify: true)` reaches its prose and nothing else.
 #let _justify(on, body) = {
+  set par(justify: false)
   show list: set par(justify: on)
   show <alta-internal-prose>: set par(justify: on)
   body
