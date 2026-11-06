@@ -11,9 +11,8 @@
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
 
-// `link-contact-info` channels and `header-text-align` values. In `data/`,
-// as `sections/header.typ` reads them too and `data/` may not import
-// sections.
+// `link-contact-info` channels: checked here, resolved per channel in
+// `data/contacts.typ`.
 #let _contact-channels = ("email", "phone", "location", "url", "profiles")
 
 // Unknown keys panic rather than being silently absorbed. The keys

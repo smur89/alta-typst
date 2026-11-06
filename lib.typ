@@ -27,6 +27,9 @@
 #import "internal/blocks.typ": (
   contact, cv-header, entry, label-row, publication, skills,
 )
+// A module: `adapter.format-date(..)`, the readers for a mapping of
+// your own.
+#import "internal/adapter.typ" as adapter
 
 /// A generic silhouette (SVG bytes) for `basics.image`, so a CV (the
 /// `typst init` starter's, say) compiles before its own portrait is

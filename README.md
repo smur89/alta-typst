@@ -708,6 +708,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `publication(title:, url:, authors:, source:, date:, identifiers:, body)` | A publication as a bibliography item; the document's author is set apart among the authors. |
 | `skills(name, keywords, level: none)` | A skill group's row of pills, with its level as dots or text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
+| `adapter` | A module of the readers `alta()` maps a CV with, for a mapping of your own: `adapter.format-date(value, format:, months:)`, `adapter.location-text(location)`, `adapter.basics-contacts(basics, link:, maps-provider:, full-urls:, icons:)`, `adapter.fluency-rating(entry, max:)`, `adapter.group-by-type(items)`. |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->

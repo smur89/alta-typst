@@ -8,6 +8,7 @@
 #assert.eq(
   dictionary(lib).keys().sorted(),
   (
+    "adapter",
     "alta",
     "alta-footer",
     "alta-from-json",
@@ -31,5 +32,17 @@
     "tag",
     "term",
     "themes",
+  ),
+)
+
+// `adapter` is a module: its helpers, and none of their imports.
+#assert.eq(
+  dictionary(lib.adapter).keys().sorted(),
+  (
+    "basics-contacts",
+    "fluency-rating",
+    "format-date",
+    "group-by-type",
+    "location-text",
   ),
 )
