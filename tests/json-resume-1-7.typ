@@ -11,7 +11,6 @@
 #assert.eq(
   resume.keys().sorted(),
   (
-    "$schema",
     "awards",
     "basics",
     "certificates",
