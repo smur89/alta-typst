@@ -22,9 +22,10 @@
   let row-gap = gap * text.size
   layout(size => for group in groups {
     let name = group.at("name", default: none)
+    let named = _present(name)
     let mark = group.at("mark", default: none)
-    let label = if _present(name) or mark != none {
-      if _present(name) { tag(name, category: true) }
+    let label = if named or mark != none {
+      if named { tag(name, category: true) }
       if mark != none {
         mark
         _tag-gap(theme, text.size)

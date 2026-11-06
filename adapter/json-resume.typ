@@ -116,23 +116,21 @@
   e => _role(e, "organization", ctx),
 )
 
-// A project's summary: its `summary`, else its `description`, which
-// JSON Resume keeps as that field's deprecated alias.
-#let _project-summary(p) = {
+// The summary, else the `description`, which JSON Resume keeps as that
+// field's deprecated alias.
+#let _project(p, ctx) = {
   let summary = _field(p, "summary")
-  if summary != none { summary } else { _field(p, "description") }
+  entry(
+    title: p.name,
+    url: _field(p, "url"),
+    org: _field(p, "entity"),
+    roles: p.at("roles", default: ()),
+    date: _period(p, ctx),
+    summary: if summary != none { summary } else { _field(p, "description") },
+    keywords: p.at("keywords", default: ()),
+    _bullets(p),
+  )
 }
-
-#let _project(p, ctx) = entry(
-  title: p.name,
-  url: _field(p, "url"),
-  org: _field(p, "entity"),
-  roles: p.at("roles", default: ()),
-  date: _period(p, ctx),
-  summary: _project-summary(p),
-  keywords: p.at("keywords", default: ()),
-  _bullets(p),
-)
 
 // Under a heading per `type`, in the order each first appears, only
 // when some project has one; the untyped under "Other".
