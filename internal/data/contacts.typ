@@ -41,9 +41,9 @@
 // `(channel, icon, glyph, value, url)` dict per present field, `icon`
 // a key of the icon set and `glyph` a FontAwesome name; `channel` keys
 // into the resolved `link-contact-info` config. Pure data, no
-// `context`: the location's `value` is its parts, which
-// `join-location` joins for display (`_fact-line`, with the theme's
-// separator, which `data/` can't import). An empty string counts as
+// `context`: the location's `value` is `join-location` of its parts,
+// the caller passing `_fact-line` (the theme's separator, which `data/`
+// can't import); the default leaves `value` the parts array. An empty string counts as
 // absent, so it never renders a bare icon behind a dead `mailto:` /
 // `tel:` link.
 #let _contact-entries(

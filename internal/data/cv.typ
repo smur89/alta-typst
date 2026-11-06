@@ -5,7 +5,9 @@
 
 #import "../design/icon-set.typ": _network-aliases
 #import "../util/dates.typ": _date-span
-#import "../util/fields.typ": _array-or-empty, _dict-or-empty, _field
+#import "../util/fields.typ": (
+  _array-or-empty, _dict-or-empty, _field, _string-at,
+)
 #import "../util/values.typ": _present, _present-str, _round-half
 
 // A `references[]` entry's flag: only a real boolean counts, so a
@@ -123,6 +125,27 @@
   let match = terms.pairs().find(((t, _)) => lower(t) == key)
   if match != none { _round-half(match.last() * max) }
 }
+
+// A `projects[]` or `publications[]` entry's `type`, trimmed, or
+// `none` when it's untyped: missing, not a string, or blank. The one
+// reading of it, so `_canonical-cv`, the sections' grouping and the
+// public `adapter` can't disagree on which entries are typed.
+#let _entry-type(entry) = {
+  let raw = _string-at(entry, "type")
+  if raw != none and raw.trim() != "" { raw.trim() }
+}
+
+// `items` grouped by `_entry-type`: `(type, items)` pairs in the order
+// each type first appears, the untyped under `none`. Pairs, not a
+// dictionary, as `none` can't be a dictionary key; a section that
+// names the untyped group keys it by its label instead
+// (`sections/projects.typ`).
+#let _type-groups(items) = (
+  items
+    .map(_entry-type)
+    .dedup()
+    .map(t => (t, items.filter(item => _entry-type(item) == t)))
+)
 
 // A skill group's `level` as a rating on `prefs.max-rating`, per
 // `skill-level-display`: where it has one (`auto`, `"rating"`), else

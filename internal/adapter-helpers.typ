@@ -7,9 +7,11 @@
 
 #import "util/checks.typ": _check, _check-type
 #import "util/dates.typ": _check-date-template, _format-date
-#import "util/fields.typ": _string-at
 #import "data/contacts.typ": _contact-rows, _linked-contacts
-#import "data/cv.typ": _fluency-terms, _location-parts, _term-rating
+#import "data/cv.typ": (
+  _fluency-terms, _location-parts, _term-rating, _type-groups,
+)
+#import "data/cv-checks.typ": _check-location
 #import "data/defaults.typ": _default-labels, maps-providers
 #import "data/read.typ": _kebab-fields
 #import "data/validation.typ": _preference-rules
@@ -29,7 +31,9 @@
 /// -> str
 #let format-date(value, format: "long", months: auto) = {
   _check("format-date() format", format, _preference-rules.date-format)
-  if type(format) == str { _check-date-template(format, "format-date() format") }
+  if type(format) == str {
+    _check-date-template(format, "format-date() format")
+  }
   _format-date(
     value,
     format,
@@ -40,21 +44,26 @@
 /// A JSON Resume `location`'s parts as `alta()` shows them: the city,
 /// region and country code that are set, in that order. `alta()` joins
 /// them with the theme's separator; join them as you like for
-/// `entry(location: ..)` (`.join(", ")`).
+/// `entry(location: ..)` (`.join(", ")`). It takes JSON Resume's
+/// field names (`countryCode`), checked as `alta()` checks them.
 ///
 /// - location (str, dictionary, none): A location string, or the
 ///   `(city, region, countryCode, ..)` dictionary.
 /// -> array
-#let location-text(location) = _location-parts((
-  location: _kebab-fields(location),
-))
+#let location-text(location) = {
+  _check-location(location, "location-text() location")
+  _location-parts((location: _kebab-fields(location)))
+}
 
 /// The contact bar `alta()` draws from `basics`, as `contact`-shaped
 /// records for `cv-header(contacts: ..)`: the details (email, phone,
 /// location, homepage), a `linebreak()`, then the profiles. The
 /// linebreak drops out when either group is empty. A profile's glyph
 /// comes from `icons`, so a record may draw a network `contact()`'s
-/// icon names don't list.
+/// icon names don't list. The records are for `cv-header`: a profile's
+/// `alt` is its network as written, every other `alt` is `auto`, which
+/// `cv-header` resolves (the location's in the document's language),
+/// so read elsewhere, `alt` may be `auto`.
 ///
 /// - basics (dictionary): The CV's `basics`.
 /// - link (bool, dictionary): As `preferences.link-contact-info`:
@@ -141,15 +150,11 @@
 
 /// Entries grouped by `type` as `alta()` groups projects: `(type,
 /// items)` pairs in the order each type first appears, the untyped (no
-/// `type`, or an empty one) under `none`. Pairs rather than a
-/// dictionary, as `none` can't be a key.
+/// `type`, or a blank one) under `none`. Pairs rather than a
+/// dictionary, as `none` can't be a dictionary key. `alta()` names the
+/// untyped projects' group from its labels; its publications go further,
+/// matching codes ignoring case and counting the untyped as `article`.
 ///
 /// - items (array): Entries with an optional `type`.
 /// -> array
-#let group-by-type(items) = {
-  let type-of(item) = _string-at(item, "type")
-  items
-    .map(type-of)
-    .dedup()
-    .map(t => (t, items.filter(item => type-of(item) == t)))
-}
+#let group-by-type(items) = _type-groups(items)

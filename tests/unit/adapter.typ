@@ -46,6 +46,13 @@
   (("talk", ("a", "c")), (none, ("b",))),
 )
 #assert.eq(adapter.group-by-type(()), ())
+// A type is read as `alta()` reads it: trimmed, a blank one untyped.
+#assert.eq(
+  adapter
+    .group-by-type(((type: " talk "), (type: " "), (type: "talk")))
+    .map(((type, items)) => (type, items.len())),
+  (("talk", 2), (none, 1)),
+)
 
 // basics-contacts: the details, a linebreak, then the profiles, as
 // cv-header takes them, linked per `link`.

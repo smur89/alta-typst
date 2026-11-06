@@ -1,7 +1,8 @@
 // The page header: `basics` and the header preferences mapped onto
-// `_page-header`, the contact bar's entries from `data/contacts.typ`. Not one of the column sections in
-// `data/sections.typ`: `alta()` renders it above the grid. `_read-cv`
-// has checked the fields it reads.
+// `_page-header`, the contact bar's entries from `data/contacts.typ`.
+// Not one of the column sections in `data/sections.typ`: `alta()`
+// renders it above the grid. `_read-cv` has checked the fields it
+// reads.
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/contacts.typ": _contact-rows, _linked-contacts
