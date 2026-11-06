@@ -233,10 +233,11 @@
 
 /// A section's entries as `alta()` renders them: the CV's own key's,
 /// or for `focus-areas`, `custom.altacv.focusAreas`; without the
-/// entries `alta()` skips, as having nothing to draw (a project, award
-/// or certificate without its name, a language without one, a skill or
-/// interest group without keywords, a reference with neither a quote
-/// nor `availableOnRequest`). `()` when the CV has none.
+/// entries `alta()` skips, as having nothing to draw (a project,
+/// publication or certificate without its `name`, an award without its
+/// `title`, a language without its `language`, a skill or interest
+/// group without keywords, a reference with neither a quote nor
+/// `availableOnRequest`). `()` when the CV has none.
 ///
 /// - cv (dictionary): The CV.
 /// - key (str): A section key, as the column preferences name them
