@@ -139,6 +139,7 @@ Groups are level-2 headings and entry titles one level below their section or gr
 ```typst
 #alta(cv, preferences: (
   column-ratio: 0.35,
+  // a section in neither list isn't drawn
   left-column-sections: ("focus-areas", "skills", "languages", "education"),
   right-column-sections: ("work", "projects"),
 ))
@@ -148,7 +149,7 @@ Groups are level-2 headings and entry titles one level below their section or gr
 
 ### Photo, contact bar and QR code
 
-Set `basics.image` to add a photo, as a `path("photo.jpg")`, which resolves from your own file, or as bytes. A bare string without a leading `/` resolves inside the package. `photo-position` (`left`, `right`, `top` or `bottom`), `photo-size` and `photo-shape` (`"circle"`, `"rounded"`, `"square"`) place it; `header-text-align` aligns the header's text. `avatar-placeholder` is a generic silhouette to start with.
+Set `basics.image` to add a photo, as a `path("photo.jpg")`, which resolves from your own file, or as bytes; a string resolves inside the package. `photo-position` (`left`, `right`, `top` or `bottom`), `photo-size` and `photo-shape` (`"circle"`, `"rounded"`, `"square"`) place it; `header-text-align` aligns the header's text. `avatar-placeholder` is a generic silhouette to start with.
 
 The contact bar shows `basics.email`, `phone`, `location`, `url` and `profiles`, each linked. `link-contact-info` turns linking off, entirely or per channel; for paper, add `print-full-urls: true` to print profile URLs in place of usernames. A network with no built-in icon panics unless you give it one in `profile-icons` ([networks](docs/reference.md#profile-networks)).
 
@@ -167,7 +168,7 @@ Every string the template prints is a label, and the labels follow the document'
 #set text(lang: "de")
 ```
 
-These go over the language's own wherever they're read: in `alta()`'s CVs, in the [markup blocks](#writing-the-cv-in-markup) and in the footers. `alta(cv, labels: ..)` overrides them for one CV. For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml), translate it, drop its `lang` line and load it: `altacv.with(labels: toml("labels-de.toml"))`. To have it built in, open a pull request adding it as `internal/data/labels-de.toml`. Every key is in the [reference](docs/reference.md#labels).
+These go over the language's own wherever they're read: in `alta()`'s CVs, in the [markup blocks](#writing-the-cv-in-markup) and in the footers. `alta(cv, labels: ..)` overrides them for one CV. For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml), translate it, drop its `lang` line and its `[publication-icons]` table, and load it: `altacv.with(labels: toml("labels-de.toml"))`. To have it built in, open a pull request adding it as `internal/data/labels-de.toml`. Every key is in the [reference](docs/reference.md#labels).
 
 ### Restyling parts
 
@@ -231,6 +232,8 @@ The structure is Typst's own: the name is the document's `title`, `=` headings a
 
 - An `entry` needs a `=` or `==` heading before it; one right after `#alta(cv)` continues its last section. It doesn't break across pages, so split long prose over several entries.
 - Group headings carry no icon unless you add one: `== #icon("microphone") Talks`.
+- A `===` heading isn't styled as a group, and an `entry` under one panics.
+- Numbering headings (`set heading(numbering: ..)`) numbers the outline, not the title as drawn.
 - Use `outline(depth: 1)` to list only sections, as entries are headings too.
 
 ### Your own mapping
@@ -253,7 +256,7 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 ```
 <!-- x-release-please-end -->
 
-`resume(cv, preferences: (:))` takes validated JSON Resume: `parse`'s output, or a CV `alta()` has checked. It doesn't check the fields again, so a wrong-typed field fails inside the mapping rather than naming itself. Its preferences are `alta()`'s, merged and checked the same way, and its labels are the template's. The `set document` fills the PDF's metadata, which `alta()` does for you. Each section is a function of its own, `work(cv, ctx)` and so on, and `sections` maps each column key to one. The mapping reads the CV with the [`adapter`](docs/reference.md#adapter) helpers, the readers `alta()` uses, so your copy reads the data as `alta()` does.
+`resume(cv, preferences: (:))` takes validated JSON Resume: `parse`'s output, or a CV `alta()` has checked. It doesn't check the fields again, so a wrong-typed field fails inside the mapping rather than naming itself. Its preferences are `alta()`'s, merged and checked the same way, and its labels are the template's. The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder. Each section is a function of its own, `work(cv, ctx)` and so on, where `ctx` holds the resolved `labels` and `prefs` and the `owners` set apart among publication authors, and `sections` maps each column key to one. The mapping reads the CV with the [`adapter`](docs/reference.md#adapter) helpers, the readers `alta()` uses, so your copy reads the data as `alta()` does.
 
 ## Upgrading
 

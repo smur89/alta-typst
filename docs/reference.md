@@ -50,7 +50,7 @@ altacv reads four optional fields the JSON Resume schema has no place for, from 
 | `name` | Required. The name, in capitals unless `uppercase-name: false`. |
 | `label` | The tagline under the name. |
 | `summary` | The introduction under the header. |
-| `image` | The photo: a `path(..)`, which resolves from your file, or bytes. A bare string without a leading `/` resolves inside the package. Non-square images are cropped from the centre. |
+| `image` | The photo: a `path(..)`, which resolves from your file, or bytes; a string resolves inside the package. Non-square images are cropped from the centre. |
 | `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qr-code: auto` encodes. |
 | `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`. |
 | `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
@@ -129,7 +129,7 @@ A `set document(..)` of your own after the show line wins. A CV written in marku
 
 ## Preferences
 
-`alta(cv, preferences: (..))` and a mapping's `resume(cv, preferences: (..))` take these, each merged over its default. An unknown key or a wrong type panics, naming it.
+`alta(cv, preferences: (..))` and a mapping's `resume(cv, preferences: (..))` take these, each merged over its default. An unknown key or a wrong type panics, naming it. The theme isn't a preference: `theme` or `colours` passed to `alta()` panics, standalone too; use `altacv.with(theme: ..)`.
 
 ### Look
 
@@ -218,7 +218,7 @@ Any `rgb(..)` value works; roles that colour text should stay dark enough to rea
 
 ## Labels
 
-Every string the template prints. The defaults are [`internal/data/labels-en.toml`](../internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](../internal/data/labels-ga.toml)). `altacv.with(labels: ..)` overrides them for the document, `alta(cv, labels: ..)` for one CV. Section labels share the section's key (`focus-areas`).
+Every string the template prints. The defaults are [`internal/data/labels-en.toml`](../internal/data/labels-en.toml), under the document language's built-in translation, if any ([`labels-ga.toml`](../internal/data/labels-ga.toml)). `altacv.with(labels: ..)` overrides them for the document, `alta(cv, labels: ..)` for one CV. Section labels share the section's key (`focus-areas`). For a translation of your own, copy `labels-en.toml`, drop its `lang` line and its `[publication-icons]` table (both deprecated, which the template rejects), translate it and load it: `altacv.with(labels: toml("labels-de.toml"))`.
 
 | Key | Default |
 |---|---|
