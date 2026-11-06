@@ -56,10 +56,10 @@
 /// - location (str, dictionary, none): A location string, or the
 ///   `(city, region, countryCode, ..)` dictionary.
 /// -> array
-#let location-text(location) = {
+#let location-parts(location) = {
   _check-location(
     location,
-    "location-text() location",
+    "location-parts() location",
     rule: _location-text-rule,
   )
   _location-parts((location: _kebab-fields(location)))

@@ -110,7 +110,7 @@
     date(_field(obj, "endDate")),
   )
   // A location's parts, which `entry` joins in the theme's style.
-  let location(obj) = adapter.location-text(obj.at("location", default: none))
+  let location(obj) = adapter.location-parts(obj.at("location", default: none))
   // Highlights as a list, the entry's body.
   let bullets(obj) = obj.at("highlights", default: ()).map(h => [- #h]).join()
 

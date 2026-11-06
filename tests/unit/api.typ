@@ -47,7 +47,7 @@
     "format-date",
     "group-by-type",
     "labels",
-    "location-text",
+    "location-parts",
     "preferences",
   ),
 )

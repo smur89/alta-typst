@@ -13,13 +13,13 @@
   "6 2024",
 )
 
-// location-text: the parts in display order, for the theme to join.
+// location-parts: the parts in display order, for the theme to join.
 #assert.eq(
-  adapter.location-text((city: "Cork", countryCode: "IE")),
+  adapter.location-parts((city: "Cork", countryCode: "IE")),
   ("Cork", "IE"),
 )
-#assert.eq(adapter.location-text("Dublin"), ("Dublin",))
-#assert.eq(adapter.location-text(none), ())
+#assert.eq(adapter.location-parts("Dublin"), ("Dublin",))
+#assert.eq(adapter.location-parts(none), ())
 
 // fluency-rating: a term on the scale, else `custom.altacv.rating`.
 #assert.eq(adapter.fluency-rating((language: "Irish", fluency: "Native")), 5)

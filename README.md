@@ -212,7 +212,7 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 
 - `adapter.entries(cv, key)`: a section's entries as `alta()` renders them, without those it skips (a project without a name, a skill group without keywords, …); `focus-areas` reads `custom.altacv.focusAreas`.
 - `adapter.format-date(value, format:, months:)`: a JSON Resume date as `alta()` shows it (`"2024-06"` reads `"Jun 2024"`).
-- `adapter.location-text(location)`: a location's city, region and country code, for you to join.
+- `adapter.location-parts(location)`: a location's city, region and country code, for you to join.
 - `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
 - `adapter.entry-type(entry)`: a project's or publication's `type`, trimmed, or `none` when it's untyped.
@@ -750,7 +750,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
 | `adapter.entries(cv, key)` | A section's entries as `alta()` renders them. |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |
-| `adapter.location-text(location)` | A location's parts, in display order. |
+| `adapter.location-parts(location)` | A location's parts, in display order. |
 | `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)` | The contact bar's records from `basics`, for `cv-header`. |
 | `adapter.fluency-rating(entry, max:)` | A language's rating, or `none`. |
 | `adapter.entry-type(entry)` | An entry's `type`, trimmed, or `none`. |

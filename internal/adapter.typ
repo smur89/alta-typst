@@ -5,5 +5,5 @@
 
 #import "adapter-helpers.typ": (
   basics-contacts, entries, entry-type, fluency-rating, format-date,
-  group-by-type, labels, location-text, preferences,
+  group-by-type, labels, location-parts, preferences,
 )
