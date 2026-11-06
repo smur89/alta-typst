@@ -1,4 +1,4 @@
-// expect: skill-level-display must be `auto`, "rating" or "text"
+// expect: skill-level-display must be `auto`, "rating" or "text", got: "dots"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

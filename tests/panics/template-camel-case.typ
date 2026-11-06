@@ -1,4 +1,4 @@
-// expect: preferences.body-size isn't an alta() preference inside the altacv template
+// expect: preferences.body-size isn't an alta() preference inside the altacv template: use `set text(size: ..)` after `#show: altacv.with(..)`.
 #import "/lib.typ": alta, altacv
 
 #show: altacv
