@@ -208,6 +208,8 @@ Then render your copy under the template, and edit it from there:
 
 `resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences, merged over its defaults and checked as `alta()` checks them (`adapter.preferences`). Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
 
+Each section is a function of its own, `work(cv, ctx)`, `skills(cv, ctx)` and so on, and `sections` maps each column key (`left-column-sections`' `"work"`) to its function, so a change to one section stays in one place. `ctx` holds the resolved `labels` and `prefs`, and the `owners` set apart among publication authors.
+
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 
 - `adapter.custom(obj, key, default:)`: one of altacv's own fields from `custom.altacv`, on the CV or an entry.
