@@ -1,8 +1,8 @@
 // Unit checks for the util helpers (internal/util/fields.typ,
-// values.typ) and the location formatter in internal/data/cv.typ.
+// values.typ). The location formatter is `adapter.location-parts`'s,
+// in adapter.typ.
 
 #import "/internal/util/fields.typ": _field
-#import "/internal/data/cv.typ": _location-parts
 #import "/internal/util/values.typ": (
   _fill-template, _join-present, _present, _present-str,
 )
@@ -30,22 +30,3 @@
   "Page 2 / 3",
 )
 #assert.eq(_fill-template("{name} — CV", (name: "{total}")), "{total} — CV")
-
-// _location-parts: strings pass through whole, dicts give their
-// city / region / country-code parts in that order (the names
-// rendering reads, `_kebab-fields`), absent values drop
-// out.
-#assert.eq(_location-parts("Cork, Ireland"), ("Cork, Ireland",))
-#assert.eq(
-  _location-parts((
-    city: "Cork",
-    region: "Munster",
-    country-code: "IE",
-    address: "1 Main St",
-  )),
-  ("Cork", "Munster", "IE"),
-)
-#assert.eq(_location-parts((city: "", country-code: "IE")), ("IE",))
-#assert.eq(_location-parts((postal-code: "T12")), ())
-#assert.eq(_location-parts(""), ())
-#assert.eq(_location-parts(none), ())

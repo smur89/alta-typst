@@ -1,8 +1,17 @@
-// Unit checks for how `publication-icons` resolves, through
-// `_merge-options`, the sequence `alta()` runs.
+// Unit checks for how `alta()` reads its input into the current
+// shapes (internal/data/canonical.typ): the deprecated forms (#239)
+// and camelCase names of the preferences and labels, read through
+// `adapter.preferences` and `adapter.labels` where they have one, and
+// the CV itself (`_canonical-cv`): dates, the leniently read fields,
+// and JSON Resume's camelCase fields (`_kebab-fields`).
 
+#import "/lib.typ": adapter
 #import "/internal/data/options.typ": _merge-options
+#import "/internal/data/canonical.typ": _canonical-cv
+#import "/internal/data/read.typ": _kebab-fields
 
+// `publication-icons`: the preference, and the deprecated label of
+// that name, which `adapter.preferences` doesn't take.
 #let icons(prefs: (:), labels: (:)) = {
   _merge-options(
     (publication-icons: labels),
@@ -33,12 +42,16 @@
 // one doesn't stop a CV compiling, as before the preference existed.
 #assert.eq(icons(labels: (podcast: "podium")).podcast, "podium")
 
+// #239: the string `page-footer: "auto"` reads as `auto`: standalone
+// `alta()`'s preference, so not one `adapter.preferences` takes.
+#assert.eq(
+  _merge-options((:), (page-footer: "auto")).prefs.page-footer,
+  auto,
+)
+
 // Alignments: Typst's own, or the deprecated strings (#239) read as
 // them. `"center"` takes its side from `image-stack-order`.
-#import "/internal/data/canonical.typ": _canonical-cv
-#let prefs(preferences) = _merge-options((:), preferences).prefs
-// #239: the string `page-footer: "auto"` reads as `auto`.
-#assert.eq(prefs((page-footer: "auto")).page-footer, auto)
+#let prefs(preferences) = adapter.preferences(overrides: preferences)
 #assert.eq(prefs((:)).photo-position, right)
 #assert.eq(prefs((photo-position: top)).photo-position, top)
 #assert.eq(prefs((photo-position: "left")).photo-position, left)
@@ -124,37 +137,31 @@
 
 // The camelCase names (#239) read as kebab-case: the preferences and
 // the labels. Values are data, so section keys keep their spelling.
-#let merged(labels: (:), preferences: (:)) = _merge-options(
-  labels,
-  preferences,
-)
-#assert.eq(merged(preferences: (columnRatio: 0.5)).prefs.column-ratio, 0.5)
+#assert.eq(prefs((columnRatio: 0.5)).column-ratio, 0.5)
 // 1.8.0's `imagePosition` and `imageSize` read as the photo's
 // renamed preferences, the strings as alignments; the never-shipped
 // kebab `image-*` spellings are unknown.
 #assert.eq(
-  merged(preferences: (imagePosition: "center", imageStackOrder: "below"))
-    .prefs
-    .photo-position,
+  prefs((imagePosition: "center", imageStackOrder: "below")).photo-position,
   bottom,
 )
-#assert.eq(merged(preferences: (imageSize: 8em)).prefs.photo-size, 8em)
+#assert.eq(prefs((imageSize: 8em)).photo-size, 8em)
 #assert.eq(
-  merged(preferences: (leftColumnSections: ("focusAreas",)))
-    .prefs
-    .left-column-sections,
+  prefs((leftColumnSections: ("focusAreas",))).left-column-sections,
   ("focus-areas",),
 )
-#assert.eq(
-  merged(labels: (pageNumber: "P {current}")).labels.page-number,
+#context assert.eq(
+  adapter.labels(overrides: (pageNumber: "P {current}")).page-number,
   "P {current}",
 )
-#assert.eq(merged(labels: (focusAreas: "Focus")).labels.focus-areas, "Focus")
+#context assert.eq(
+  adapter.labels(overrides: (focusAreas: "Focus")).focus-areas,
+  "Focus",
+)
 
 // JSON Resume's camelCase fields read as kebab-case for rendering, at
 // any depth (#390); keys that are data (`identifiers` schemes, other
 // `custom` namespaces) keep their spelling.
-#import "/internal/data/read.typ": _kebab-fields
 #assert.eq(
   _kebab-fields((
     work: ((startDate: "2020", location: (countryCode: "IE")),),

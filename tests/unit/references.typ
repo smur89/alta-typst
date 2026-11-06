@@ -1,11 +1,10 @@
 // Unit checks for the referee attribution line in
 // sections/references.typ, of an entry as `_canonical-cv` leaves it.
 
+#import "/lib.typ": adapter
 #import "/internal/data/canonical.typ": _canonical-cv
-#import "/internal/data/defaults.typ": _default-labels, _default-preferences
 #import "/internal/design/theme.typ": _default-theme
 #import "/internal/primitives.typ": _join-facts
-#import "/internal/util/dates.typ": _format-date
 #import "/sections/references.typ": _attribution
 
 // Joined as `_fact-line` would, with the default separators.
@@ -14,11 +13,11 @@
   .._attribution(
     _canonical-cv(
       (basics: (name: "A"), references: (entry,)),
-      _default-preferences,
+      adapter.preferences(),
     )
       .references
       .first(),
-    v => _format-date(v, format, _default-labels.months),
+    adapter.format-date.with(format: format),
   ),
 )
 

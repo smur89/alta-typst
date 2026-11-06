@@ -4,9 +4,8 @@
 // types, sees the CV. Standalone `alta()`'s work keywords are in
 // work-keywords.typ.
 
-#import "/lib.typ": alta, altacv
+#import "/lib.typ": adapter, alta, altacv
 #import "/internal/data/canonical.typ": _canonical-cv
-#import "/internal/data/options.typ": _merge-options
 
 #show: altacv
 
@@ -37,7 +36,7 @@
 #let kept = (
   _canonical-cv(
     (basics: (name: "Jane Doe"), publications: (paper,)),
-    _merge-options((:), (:)).prefs,
+    adapter.preferences(),
   )
     .publications
     .first()
