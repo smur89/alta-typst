@@ -4,7 +4,9 @@
 // and case-insensitive label tables get lowercase keys. Dropping a
 // legacy form in the next major then touches only this module.
 
-#import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../util/fields.typ": (
+  _array-or-empty, _dict-or-empty, _field, _string, _string-at, _texts,
+)
 #import "../util/checks.typ": _check-type
 #import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _entry-type, _reference-usable
@@ -96,30 +98,25 @@
 // each section's fields, and what keeps of a value, `none` dropping the
 // field. Every reader after this, the template's mapping
 // (`adapter/json-resume.typ`) included, then meets JSON Resume's types.
-#let _string-or-none(v) = if type(v) == str { v }
 #let _lenient-fields = (
   // 1.8.0 drew no work keywords; an array of anything but text draws none.
-  work: (
-    keywords: v => if (
-      type(v) == array and v.all(x => type(x) in (str, content))
-    ) { v },
-  ),
-  projects: (type: _string-or-none),
+  work: (keywords: _texts),
+  projects: (type: _string),
   publications: (
-    type: _string-or-none,
-    volume: _string-or-none,
-    issue: _string-or-none,
-    pages: _string-or-none,
+    type: _string,
+    volume: _string,
+    issue: _string,
+    pages: _string,
     // The strings, as an author or an ID of another type has no text.
-    authors: v => if type(v) == array { v.filter(a => type(a) == str) },
-    identifiers: v => if type(v) == dictionary {
-      v.pairs().filter(((_, id)) => type(id) == str).to-dict()
-    },
+    authors: v => _array-or-empty(v).filter(a => type(a) == str),
+    identifiers: v => (
+      _dict-or-empty(v).pairs().filter(((_, id)) => type(id) == str).to-dict()
+    ),
   ),
   references: (
-    relationship: _string-or-none,
-    organization: _string-or-none,
-    date: _string-or-none,
+    relationship: _string,
+    organization: _string,
+    date: _string,
     // Only a real boolean counts, so a stray `"yes"` doesn't hide a quote.
     availableOnRequest: v => if type(v) == bool { v },
   ),
