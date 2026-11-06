@@ -82,12 +82,15 @@ Linux / Windows / manual install paths: see the [Requirements section in the REA
 Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
 ```sh
-make check        # test + fmt-check
+make check        # test + fmt-check; `make -k -j8 check` runs in parallel and reports every failure
 make fmt          # format every tracked .typ in place (typstyle)
 make docker-pdfs  # regenerate the committed renders in the pinned image (see below)
 ```
 
-`make check` is the local equivalent of the CI lint + `typstyle` jobs — green here means both will pass too.
+`make check` runs the checks of CI's lint and `typstyle` jobs: every example, template and fixture compiled against PDF/A-2b and PDF/UA-1 and failing on a warning, plus the panic, unit and format checks. It runs them against your fonts, where CI uses the pinned image's, and it skips the checks that need that image or the packaging, so a green `make check` can still fail a PR on:
+
+- **render drift**: CI byte-compares the committed fixture PDFs and `thumbnail.png` against a fresh render in the image. Run `make docker-pdfs` after a rendering change ([below](#regenerating-pdf-fixtures-docker)).
+- **`typst-package-check`**: the package checked as typst/packages will check it.
 
 ### Helper unit tests
 
@@ -103,7 +106,7 @@ Typst sources are formatted with [typstyle](https://github.com/Enter-tainer/typs
 
 ### Regenerating PDF fixtures (Docker)
 
-CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make in-image TARGETS='-B test-pdfs'` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
+CI byte-compares the committed `examples/tests/*.pdf` against a fresh render every PR (`make in-image TARGETS='-k -B -j4 -O test-pdfs test'` then `make check-drift DRIFT_PATHS='examples/tests/*.pdf'`). Local renders on macOS, or against a non-pinned Lato/FontAwesome install, drift from the CI bytes — so any change that touches rendering (icon glyphs, `lib.typ`, anything under `internal/` or `sections/`, the FA version) needs the fixtures regenerated inside the pinned CI image:
 
 ```sh
 make docker-pdfs   # pulls the pinned ghcr.io/smur89/alta-typst-ci image and runs `make -B -j4 all` (every committed render but the README preview, rebuilt)
