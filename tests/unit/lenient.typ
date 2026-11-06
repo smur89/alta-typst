@@ -1,16 +1,15 @@
 // The fields 1.8.0 read leniently, a value of the wrong type reading
-// as absent, still read so in the template: `alta()` drops them
-// (`_canonical-cv`) before its mapping, which takes JSON Resume's
-// types, sees the CV. Standalone `alta()`'s work keywords are in
-// work-keywords.typ.
+// as absent rather than failing. Work keywords, which 1.8.0 drew none
+// of, through standalone `alta()` and then the template; the rest in
+// the template, where `alta()` drops them (`_canonical-cv`) before
+// its mapping, which takes JSON Resume's types, sees the CV.
 
 #import "/lib.typ": adapter, alta, altacv
 #import "/internal/data/canonical.typ": _canonical-cv
 
-#show: altacv
-
-// Only an array of text draws work keywords.
-#alta((
+// Only an array of text draws work keywords: those drawn so far.
+#let keywords() = query(selector(<alta-keyword>).before(here())).len()
+#let work = (
   basics: (name: "Jane Doe"),
   work: (
     (name: "A", keywords: ("Go", "Rust")),
@@ -18,8 +17,14 @@
     (name: "C", keywords: ("Go", 5)),
     (name: "D", keywords: (Go: 1)),
   ),
-))
-#context assert.eq(query(<alta-keyword>).len(), 2)
+)
+#alta(work)
+#context assert.eq(keywords(), 2)
+#pagebreak()
+
+#show: altacv
+#alta(work)
+#context assert.eq(keywords(), 4)
 
 // A publication's or project's `type`, a citation part, an author or
 // an identifier, and a reference's attribution or flag, of the wrong

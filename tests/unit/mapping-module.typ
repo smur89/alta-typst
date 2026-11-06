@@ -1,11 +1,17 @@
-// The JSON Resume mapping (`adapter/json-resume.typ`) is written to be
-// copied, its imports replaced by one `@preview/altacv` import, so it
-// may use only what `lib.typ` exports: every name its `#import` lines
-// bring in must be a public one.
+// The JSON Resume mapping (`adapter/json-resume.typ`) as a module.
+// It is written to be copied, its imports replaced by one
+// `@preview/altacv` import, so it may use only what `lib.typ` exports:
+// every name its `#import` lines bring in must be a public one. And it
+// draws every section `alta()` knows, and no other: its `sections` are
+// `_section-specs`' keys, in their order, so any key a column
+// preference accepts has a function to draw it.
 
 #import "/lib.typ"
-// It compiles, too.
-#import "/adapter/json-resume.typ": resume
+// Importing it compiles it, too.
+#import "/adapter/json-resume.typ": sections
+#import "/internal/data/sections.typ": _section-specs
+
+#assert.eq(sections.keys(), _section-specs.keys())
 
 // Each `#import "..."` line's names: an `as` alias, or the list after
 // the colon, on one line or in typstyle's parenthesised, multi-line
