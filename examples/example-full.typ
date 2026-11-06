@@ -31,11 +31,15 @@
 //   • Interests: structured `{name, keywords}` form.
 //   • References: a populated entry plus an anonymous (no `name`)
 //     quote.
-//   • Preferences: a theme, short dates, custom maps provider, page
-//     footer, QR code, `owner-names`, a non-default `max-rating`, custom
-//     publication and project icons, and the column layout.
+//   • The template: a theme, and a page footer with the name and page
+//     numbers.
+//   • Preferences: short dates, custom maps provider, QR code,
+//     `owner-names`, a non-default `max-rating`, custom publication and
+//     project icons, and the column layout.
 
-#import "../lib.typ": alta, avatar-placeholder, maps-providers, themes
+#import "../lib.typ": (
+  alta, altacv, avatar-placeholder, cv-footer, maps-providers, themes,
+)
 #import "_dates.typ": ago, today
 
 #let cv = (
@@ -87,10 +91,10 @@
 
   // PDF document metadata. `lastModified` accepts a bare ISO date or
   // a full timestamp; only the calendar part is used for `set
-  // document(date:)`, and it surfaces optionally in a page footer when
-  // `preferences.last-modified-footer: true`. `canonical` and `version`
-  // have no dedicated Typst document field, so they append to the PDF
-  // Keywords (and `version` can suffix the footer via `footer-version`).
+  // document(date:)`, and it surfaces optionally in a page footer,
+  // `cv-updated-footer()`. `canonical` and `version` have no dedicated
+  // Typst document field, so they append to the PDF Keywords (and
+  // `version` can suffix that footer: `cv-updated-footer(version: true)`).
   meta: (
     canonical: "https://example.com/cv.json",
     version: "v1.0.0",
@@ -319,7 +323,11 @@
   ),
 )
 
-// The preferences listed in the header comment.
+// The template's theme and footer, and the preferences listed in the
+// header comment.
+#show: altacv.with(theme: themes.navy)
+#set page(footer: cv-footer())
+
 //
 // `interests` is moved into the left column to fill space below the
 // long-form blocks; the rest of the layout takes the shipped defaults.
@@ -327,12 +335,10 @@
   cv,
   labels: (publication-types: (paper: "Conference Papers")),
   preferences: (
-    theme: themes.navy,
     publication-icons: (paper: "newspaper"),
     project-icons: (application: "laptop-code", library: "cubes"),
     date-format: "[day padding:none] [month repr:short] [year]",
     maps-provider: maps-providers.osm,
-    page-footer: auto,
     qr-code: auto,
     owner-names: ("S. Ó Murchú",),
     max-rating: 6,

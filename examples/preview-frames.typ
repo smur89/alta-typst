@@ -26,7 +26,7 @@
 // reads as an afterthought when stacked below the contact bar.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
-#import "../lib.typ": alta, maps-providers, tag, themes
+#import "../lib.typ": alta, altacv, cv-footer, maps-providers, tag, themes
 #import "_cv.typ": cv, in-irish, no-image
 
 // Frames 4, 8 and 12 render in Irish: `set text(lang: "ga")` picks the
@@ -38,19 +38,16 @@
 }
 
 // Baseline preferences the per-frame overrides patch on top of. A
-// richer-than-defaults setup (the altacv theme, ISO short-date,
-// OSM maps, auto footer, CEFR-style 6-dot rating) gives the animation
-// more visual surface to vary — frames flip themes, swap columns,
-// invert layouts on top of this same starting point.
+// richer-than-defaults setup (ISO short-date, OSM maps, CEFR-style
+// 6-dot rating) gives the animation more visual surface to vary —
+// frames flip themes, swap columns, invert layouts on top of this same
+// starting point. Every frame is themed by the template, with a page
+// footer and one body size (the loop at the end), so what changes
+// between frames is the theme and layout, not the type.
 #let base = (
-  theme: themes.altacv,
   date-format: "[day padding:none] [month repr:short] [year]",
   maps-provider: maps-providers.osm,
-  page-footer: auto,
   max-rating: 6,
-  // One body size for every frame, so what changes between frames is
-  // the theme and layout, not the type.
-  body-size: 10.5pt,
   left-column-sections: (
     "work",
     "volunteer",
@@ -81,8 +78,8 @@
   body
 }
 
-// Each frame is `(cv: …, prefs: …)`, with `wrap` (rules around its
-// `alta()`: `restyled`, `in-ga`) where it sets one. Frames using
+// Each frame is `(cv: …, theme: …, prefs: …)`, with `wrap` (rules
+// around its template: `restyled`, `in-ga`) where it sets one. Frames using
 // `no-image(cv)` drop the photo; frames using `cv`, or
 // `in-irish(cv)` (the content in Irish), keep it. Dict
 // spread (`base + (key: value)`) is Typst's equivalent of Scala's
@@ -92,10 +89,10 @@
   // ── Frame 1 ─ altacv + no image ─────────────────────────────────
   // Baseline arrangement: work-heavy left, support sections on the
   // right. The realistic baseline most users ship — photo
-  // omitted (ATS- / anti-bias-friendly), the altacv theme from
-  // `base`.
+  // omitted (ATS- / anti-bias-friendly), the altacv theme.
   (
     cv: no-image(cv),
+    theme: themes.altacv,
     prefs: base
       + (
         left-column-sections: (
@@ -123,9 +120,9 @@
   // Charcoal contrasts the dark red opener.
   (
     cv: cv,
+    theme: themes.charcoal,
     prefs: base
       + (
-        theme: themes.charcoal,
         column-ratio: 0.35,
         photo-position: top,
         header-text-align: center,
@@ -152,9 +149,9 @@
   // closure-formatted quarterly date labels ("Q3 2024").
   (
     cv: no-image(cv),
+    theme: themes.rust,
     prefs: base
       + (
-        theme: themes.rust,
         column-ratio: 1,
         date-format: parts => {
           if parts.month == none { return str(parts.year) }
@@ -175,9 +172,9 @@
   // (`in-ga`) and the content (`in-irish`).
   (
     cv: in-irish(cv),
+    theme: themes.crimson,
     prefs: base
       + (
-        theme: themes.crimson,
         photo-position: left,
         qr-code: auto,
         left-column-sections: (
@@ -200,9 +197,9 @@
   // and publications lead the left, work the right.
   (
     cv: no-image(cv),
+    theme: themes.bauhaus,
     prefs: base
       + (
-        theme: themes.bauhaus,
         header-text-align: center,
         column-ratio: 0.5,
         left-column-sections: (
@@ -231,9 +228,9 @@
   // of work.
   (
     cv: cv,
+    theme: themes.plum,
     prefs: base
       + (
-        theme: themes.plum,
         column-ratio: 0.6,
         qr-code: auto,
         date-format: "[day]/[month]/[year]",
@@ -261,9 +258,9 @@
   // right, ahead of work. Name cased naturally.
   (
     cv: no-image(cv),
+    theme: themes.riso,
     prefs: base
       + (
-        theme: themes.riso,
         column-ratio: 0.42,
         uppercase-name: false,
         left-column-sections: (
@@ -292,9 +289,9 @@
   // the content (`in-irish`).
   (
     cv: in-irish(cv),
+    theme: themes.teal,
     prefs: base
       + (
-        theme: themes.teal,
         photo-position: left,
         photo-shape: "rounded",
         column-ratio: 1,
@@ -312,9 +309,9 @@
   // left (`column-ratio: 0.3`) and a wide main column on the right.
   (
     cv: no-image(cv),
+    theme: themes.catppuccin,
     prefs: base
       + (
-        theme: themes.catppuccin,
         column-ratio: 0.3,
         header-text-align: right,
         left-column-sections: (
@@ -342,9 +339,9 @@
   // separator dropped.
   (
     cv: cv,
+    theme: themes.forest + (separator: (keywords: "")),
     prefs: base
       + (
-        theme: themes.forest + (separator: (keywords: "")),
         photo-shape: "square",
         column-ratio: 0.7,
         left-column-sections: (
@@ -372,9 +369,9 @@
   // (`column-ratio: 0.45`).
   (
     cv: no-image(cv),
+    theme: themes.phosphor,
     prefs: base
       + (
-        theme: themes.phosphor,
         column-ratio: 0.45,
         date-format: "[year]-[month]",
         left-column-sections: (
@@ -402,9 +399,9 @@
   // the content (`in-irish`).
   (
     cv: in-irish(cv),
+    theme: themes.navy,
     prefs: base
       + (
-        theme: themes.navy,
         column-ratio: 0.62,
         photo-size: 8em,
         link-contact-info: false,
@@ -429,8 +426,15 @@
   ),
 )
 
+// Each frame under the template, as a CV would be: its theme, the body
+// size and a footer with the name and page numbers.
 #for (i, frame) in frames.enumerate() {
   if i > 0 { pagebreak(weak: true) }
-  let (cv: frame-cv, prefs, wrap) = (wrap: it => it) + frame
-  wrap(alta(frame-cv, preferences: prefs))
+  let (cv: frame-cv, theme, prefs, wrap) = (wrap: it => it) + frame
+  wrap[
+    #show: altacv.with(theme: theme)
+    #set text(size: 10.5pt)
+    #set page(footer: cv-footer())
+    #alta(frame-cv, preferences: prefs)
+  ]
 }
