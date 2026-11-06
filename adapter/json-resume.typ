@@ -317,14 +317,19 @@
 
 // A quote under the referee's name and attribution; on request, the
 // on-request line in its place, and when every reference is on
-// request, that line alone.
+// request, that line alone. `references-available-on-request` stands
+// for one such reference when none renders.
 #let references(cv, ctx) = {
   let on-request = ctx.labels.references-available-on-request
   let requested(r) = r.at("availableOnRequest", default: false)
   let refs = adapter.entries(cv, "references")
   let title = ctx.labels.references
-  if refs.len() > 0 and refs.all(requested) {
-    _frame(title, refs, entry(summary: on-request))
+  if (
+    refs.all(requested)
+      and (refs.len() > 0 or ctx.prefs.references-available-on-request)
+  ) {
+    [= #title]
+    entry(summary: on-request)
   } else {
     _section(title, refs, r => entry(
       title: _field(r, "name"),
