@@ -10,7 +10,7 @@
 // already left a template that ends on the page (a nested template's
 // last page, the blank page a trailing `#pagebreak()` adds), while the
 // page's styles, the show rules among them, are those of the
-// innermost template on it.
+// template the page starts in.
 
 #import "util/fields.typ": _field, _string-at
 #import "util/checks.typ": _check-type
@@ -91,24 +91,21 @@
   }
 }
 
-// A footer helper's placeholder: its `args` in a `metadata`, drawn
-// with the theme, label layers and `scope` the templates around it add
-// (`_footer-rule`), else, outside every template, with the theme where
-// it's read.
-#let _footer-mark(args) = {
-  let fallback = context _draw-footer(
+// A footer helper's placeholder: a `layout` whose function hands back
+// its `args` when called with `none` and otherwise
+// draws them with the theme, label layers and `scope` the templates
+// around it add (`_footer-rule`), else, outside every template, with
+// the theme where it's read. The args ride in a closure rather than a
+// `metadata`, which would stay in the drawn footer for
+// `query(metadata)` to find on every page.
+#let _footer-mark(args) = [#layout(size => if size == none { args } else {
+  _draw-footer(
     args,
     args.at("theme", default: _theme()),
     args.at("layers", default: ()),
     args.at("scope", default: none),
   )
-  [#(metadata(args) + fallback)<alta-internal-footer>]
-}
-// What the helpers return: the mark in a block, which a join can't
-// merge with the next helper's as it would a bare sequence.
-#let _footer-placeholder(args) = [#block(
-  _footer-mark(args),
-)<alta-internal-footer>]
+})<alta-internal-footer>]
 
 // For each `altacv`'s `show <alta-internal-footer>: ..`: the mark again,
 // with the template's label layer under those of the templates inside
@@ -116,8 +113,7 @@
 // innermost template's rule applies first, and each template's once
 // (`seen`); the mark the outermost leaves draws the footer.
 #let _footer-rule(theme, labels, scope) = it => {
-  let mark = if it.func() == block { it.body } else { it }
-  let args = mark.children.first().value
+  let args = (it.func)(none)
   let seen = args.at("seen", default: ())
   if scope in seen { return it }
   _footer-mark(
@@ -138,7 +134,7 @@
 /// Typst's page counter, so a `counter(page).update(..)` that restarts
 /// it changes what counts as one page.
 /// -> content
-#let cv-footer() = _footer-placeholder((kind: "page"))
+#let cv-footer() = _footer-mark((kind: "page"))
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:
 /// `labels.last-modified: meta.lastModified`, right-aligned. Nothing
@@ -155,5 +151,5 @@
     (str, content, type(none)),
     "a string or content",
   )
-  _footer-placeholder((kind: "updated", version: version, date: date))
+  _footer-mark((kind: "updated", version: version, date: date))
 }
