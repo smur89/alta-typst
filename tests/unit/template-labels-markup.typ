@@ -9,6 +9,7 @@
 #import "/lib.typ": (
   adapter, altacv, contact, cv-footer, cv-header, cv-updated-footer, entry,
 )
+#import "/tests/unit/_count.typ": count
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with(labels: (
@@ -24,16 +25,6 @@
   footer: cv-footer(),
 )
 
-#let count(s) = {
-  let seen = state("seen-" + s, 0)
-  (
-    seen,
-    it => {
-      seen.update(n => n + 1)
-      it
-    },
-  )
-}
 #let (nows, now-rule) = count("Jetzt")
 #show "Jetzt": now-rule
 #let (pages, page-rule) = count("Seite")

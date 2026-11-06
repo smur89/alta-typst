@@ -3,6 +3,7 @@
 // `alta()` merged them; a `date:` replaces the CV's.
 
 #import "/lib.typ": alta, altacv, cv-footer, cv-updated-footer
+#import "/tests/unit/_count.typ": count
 
 #set document(title: "Doc Title", author: "Doc Author")
 #show: altacv
@@ -14,16 +15,6 @@
   footer: cv-footer(),
 )
 
-#let count(s) = {
-  let seen = state("seen-" + s, 0)
-  (
-    seen,
-    it => {
-      seen.update(n => n + 1)
-      it
-    },
-  )
-}
 #let (authors, author-rule) = count("Doc Author")
 #show "Doc Author": author-rule
 #let (pages, page-rule) = count("Sheet")

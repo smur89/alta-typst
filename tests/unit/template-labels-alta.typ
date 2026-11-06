@@ -5,6 +5,7 @@
 // After it, a markup entry reads the template's again.
 
 #import "/lib.typ": alta, altacv, cv-footer, entry
+#import "/tests/unit/_count.typ": count
 
 #show: altacv.with(labels: (
   present: "Jetzt",
@@ -15,16 +16,6 @@
 ))
 #set page(footer: cv-footer())
 
-#let count(s) = {
-  let seen = state("seen-" + s, 0)
-  (
-    seen,
-    it => {
-      seen.update(n => n + 1)
-      it
-    },
-  )
-}
 #let (nows, now-rule) = count("Now")
 #show "Now": now-rule
 #let (jetzts, jetzt-rule) = count("Jetzt")
