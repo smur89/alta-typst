@@ -148,10 +148,6 @@ examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 # Coarse but self-maintaining: any fixture-data edit rebuilds every test PDF.
 $(TEST_PDFS): $(wildcard tests/fixtures/*)
 
-# preview-frames.typ reads its CV via examples/_cv.typ from
-# `$(TEMPLATE_SRC)`.
-PREVIEW_FRAMES_DEPS := examples/_cv.typ $(TEMPLATE_SRC)
-
 # The per-page PNGs aren't listed as targets: pre-4.3 GNU Make parses
 # `A B C: deps` as N independent rules, which race under `make -j`.
 # The `rm` stops a page-count shrink leaving an orphan PNG behind.
@@ -172,8 +168,9 @@ examples/cv.png: $(TEMPLATE_SRC) $(LIB_SOURCES)
 # a fraction of the size of a GIF and as legible. Frames are
 # zero-padded (`{0p}`) so the glob orders them. Local-only and
 # committed; CI never regenerates it. Prereqs must cover every file
-# preview-frames.typ transitively reads.
-examples/preview.webp: examples/preview-frames.typ $(PREVIEW_FRAMES_DEPS) $(LIB_SOURCES)
+# preview-frames.typ transitively reads: its CV comes via
+# examples/_cv.typ from `$(TEMPLATE_SRC)`.
+examples/preview.webp: examples/preview-frames.typ examples/_cv.typ $(TEMPLATE_SRC) $(LIB_SOURCES)
 	rm -f examples/.preview-frame-*.png
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PREVIEW_PPI) $< 'examples/.preview-frame-{0p}.png'
 	$(IMG2WEBP) -loop 0 -lossy -q 75 -m 6 -d $(PREVIEW_DELAY) examples/.preview-frame-*.png -o $@
@@ -298,7 +295,7 @@ fmt: ## format every tracked .typ in place (typstyle)
 fmt-check: ## check formatting without writing (the CI gate)
 	$(TYPSTYLE) --check $(shell git ls-files '*.typ')
 
-check: test fmt-check ## test + fmt-check: the local equivalent of CI's lint and typstyle
+check: test fmt-check ## test + fmt-check: CI's lint and typstyle checks, without the drift or package checks
 
 # Stage the PACKAGE_FILES set into PKG_DIR for the PR-time
 # package-check job, so a missing file is caught at review time.
