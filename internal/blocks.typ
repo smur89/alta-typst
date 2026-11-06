@@ -2,9 +2,7 @@
 // template (#370): what Typst has no element for, over the components
 // `alta()` draws with. Re-exported from `lib.typ`.
 
-#import "data/defaults.typ": (
-  _default-labels, _default-preferences, _translations,
-)
+#import "data/defaults.typ": _default-preferences, _labels
 #import "data/cv.typ": (
   _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
   _owner-keys, _skill-levels, _term-rating,
@@ -14,7 +12,7 @@
 #import "data/validation.typ": _preference-rules
 #import "util/checks.typ": (
   _check, _check-keys, _check-rating, _check-type, _dict-rule, _enum-rule,
-  _list-rule, _positive-int-rule,
+  _list-rule, _positive-int-rule, _quote, _type-rule,
 )
 #import "context.typ": _max-rating-state
 #import "primitives.typ": _divider, _portrait
@@ -25,11 +23,21 @@
 #import "components/keywords.typ": _keyword-rows, _label-rows
 #import "components/ratings.typ": _rating-mark
 
-// The labels in the document's language, as `alta()` resolves them:
-// its bundled translation over the English. A shallow merge, not
-// `_merge-options` per call: the blocks read only top-level labels
-// (`date`, `location`), which it resolves exactly.
-#let _labels() = _default-labels + _translations.at(text.lang, default: (:))
+// A block's optional body, from its `..body` sink (Typst has no
+// optional positional parameter): the one positional argument, or
+// `none`. A named argument there is a misspelt parameter, which
+// Typst would reject were there no sink.
+#let _body(fn, args) = {
+  let named = args.named().keys()
+  if named.len() > 0 {
+    panic(fn + ": unexpected argument(s) " + named.map(_quote).join(", "))
+  }
+  let pos = args.pos()
+  if pos.len() > 1 {
+    panic(fn + " takes one body, got " + str(pos.len()))
+  }
+  pos.at(0, default: none)
+}
 
 // Where an entry sits: `parent`, the most recent section or group
 // heading before here (entries' own headings don't count), and
@@ -86,7 +94,7 @@
 ///   (education's area and score), so it doesn't read as one of them:
 ///   groups of facts, as `subtitle` takes.
 /// - keywords (array): A line of keywords ending the entry.
-/// - body (content): The highlights, or any other prose.
+/// - body (content): The highlights, or any other prose; optional.
 /// -> content
 #let entry(
   title: none,
@@ -101,67 +109,70 @@
   summary: none,
   keywords-lead: (),
   keywords: (),
-  body,
-) = context {
-  if type(date) == array and date.len() != 2 {
-    panic(
-      "entry() date takes one date or a `(start, end)` pair, got "
-        + str(date.len())
-        + " dates",
-    )
+  ..body,
+) = {
+  let body = _body("entry()", body)
+  context {
+    if type(date) == array and date.len() != 2 {
+      panic(
+        "entry() date takes one date or a `(start, end)` pair, got "
+          + str(date.len())
+          + " dates",
+      )
+    }
+    let (parent, sibling) = _entry-place()
+    if parent == none {
+      panic(
+        "entry() needs a section heading (`= Experience`) or a group heading (`== Talks`) before it",
+      )
+    }
+    // The template styles an entry's heading at level 2 or 3 only.
+    if parent.level >= 3 {
+      panic(
+        "entry() sits under `=` sections and `==` groups; a `===` heading isn't styled as either",
+      )
+    }
+    // `alta()` joins a section's entries with the divider, so none
+    // precedes the first of a section or group. The divider sits in the
+    // entry's unbreakable block, so an entry pushed to the next page
+    // takes it along rather than leaving a rule at the page's foot.
+    // At a page top the divider keeps its space, the rule hidden, where
+    // `alta()`'s drops both: dropping it moved what follows, which moved
+    // the next divider, and a CV of a few pages ran out of Typst's five
+    // layout passes. Hidden, it moves nothing.
+    let labels = _labels()
+    block(breakable: false, {
+      if sibling { _divider(true, at-top: hide) }
+      _entry(
+        // The icons' alt text, in the document's language.
+        labels,
+        title: title,
+        url: url,
+        org: org,
+        org-url: org-url,
+        subtitle: subtitle,
+        roles: roles,
+        // A pair as `alta()` reads a period, its open end the language's
+        // "Present"; else one side, as written: `_range` joins only the
+        // present sides.
+        period: if type(date) == array {
+          let (start, end) = date
+          _entry-period(
+            (start-date: start, end-date: end),
+            d => d,
+            labels.present,
+          )
+        } else { (date,) },
+        location: if type(location) == array { location } else { (location,) },
+        details: details,
+        summary: summary,
+        body: body,
+        keywords-lead: keywords-lead,
+        keywords: keywords,
+        level: parent.level + 1,
+      )
+    })
   }
-  let (parent, sibling) = _entry-place()
-  if parent == none {
-    panic(
-      "entry() needs a section heading (`= Experience`) or a group heading (`== Talks`) before it",
-    )
-  }
-  // The template styles an entry's heading at level 2 or 3 only.
-  if parent.level >= 3 {
-    panic(
-      "entry() sits under `=` sections and `==` groups; a `===` heading isn't styled as either",
-    )
-  }
-  // `alta()` joins a section's entries with the divider, so none
-  // precedes the first of a section or group. The divider sits in the
-  // entry's unbreakable block, so an entry pushed to the next page
-  // takes it along rather than leaving a rule at the page's foot.
-  // At a page top the divider keeps its space, the rule hidden, where
-  // `alta()`'s drops both: dropping it moved what follows, which moved
-  // the next divider, and a CV of a few pages ran out of Typst's five
-  // layout passes. Hidden, it moves nothing.
-  let labels = _labels()
-  block(breakable: false, {
-    if sibling { _divider(true, at-top: hide) }
-    _entry(
-      // The icons' alt text, in the document's language.
-      labels,
-      title: title,
-      url: url,
-      org: org,
-      org-url: org-url,
-      subtitle: subtitle,
-      roles: roles,
-      // A pair as `alta()` reads a period, its open end the language's
-      // "Present"; else one side, as written: `_range` joins only the
-      // present sides.
-      period: if type(date) == array {
-        let (start, end) = date
-        _entry-period(
-          (start-date: start, end-date: end),
-          d => d,
-          labels.present,
-        )
-      } else { (date,) },
-      location: if type(location) == array { location } else { (location,) },
-      details: details,
-      summary: summary,
-      body: body,
-      keywords-lead: keywords-lead,
-      keywords: keywords,
-      level: parent.level + 1,
-    )
-  })
 }
 
 // Content's text, for alt text, which takes a string: `document.title`
@@ -330,7 +341,7 @@
 /// date, and persistent identifiers. Consecutive publications stack
 /// as `alta()`'s do, so a group of them reads as one list.
 ///
-/// - title (content, str): The title.
+/// - title (content, str): The title; required.
 /// - url (str, none): Its link; with none, the first linkable
 ///   identifier's (DOI, then arXiv, then PMID), as `alta()` links.
 /// - authors (array): Author names (strings or content, shown as
@@ -346,7 +357,7 @@
 /// - date (content, str, none): When, as written.
 /// - identifiers (dictionary): ID strings by scheme (`doi`, `arxiv`,
 ///   `pmid` link; others, `isbn` say, show unlinked).
-/// - body (content): A summary.
+/// - body (content): A summary; optional.
 /// -> content
 #let publication(
   title: none,
@@ -357,8 +368,22 @@
   citation: (:),
   date: none,
   identifiers: (:),
-  body,
+  ..body,
 ) = {
+  let body = _body("publication()", body)
+  // Required, as a publication can't render without one; named, as
+  // `entry`'s is, so it has a default Typst won't enforce. A title
+  // passed positionally lands in the body.
+  if title == none and body != none {
+    panic(
+      "publication() takes its title as `title:`; the positional argument is the summary body",
+    )
+  }
+  _check(
+    "publication() title",
+    title,
+    _type-rule((str, content), "a string or content"),
+  )
   // `alta()`'s readers are lenient, dropping what they can't read;
   // arguments written by hand panic instead.
   _check(
@@ -402,7 +427,7 @@
       citation: citation,
       date: date,
       identifiers: refs,
-      summary: if body != [] { body },
+      summary: if body not in (none, []) { body },
     ))
   }
 }

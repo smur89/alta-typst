@@ -3,8 +3,8 @@
 // `_read-cv` runs them; the options' are in `validation.typ`.
 
 #import "../util/checks.typ": (
-  _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
-  _prose-list, _quote, _require, _type-rule, _unknown,
+  _check, _check-rating, _check-rules, _check-type, _check-unknown-keys,
+  _list-rule, _prose-list, _quote, _require, _type-rule, _unknown,
 )
 #import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
@@ -41,12 +41,40 @@
 )
 
 // JSON Resume's `location`: a string or the shared dict. `what` is the
-// field's path, for the message.
-#let _check-location(value, what) = if type(value) == dictionary {
+// field's path, for the message. `rule`, when set, checks the values
+// shown (`city`, `region`, `countryCode`); `address` and `postalCode`
+// aren't shown, so, as in 1.8.0, they take any value.
+#let _location-shown = ("city", "region", "countryCode")
+#let _location-text-rule = _type-rule(
+  (str, content, type(none)),
+  "a string or content",
+)
+#let _check-location(value, what, rule: none) = if (
+  type(value) == dictionary
+) {
   _check-unknown-keys(value.keys(), _location-fields, what)
+  if rule != none {
+    _check-rules(
+      value,
+      _location-shown.map(k => (k, rule)).to-dict(),
+      prefix: what + ".",
+      optional: true,
+    )
+  }
 } else if _present(value) {
   _check-type(what, value, (str,), _location-expected)
 }
+
+// `basics.location`: its maps link URL-encodes the values shown, which
+// only strings can be. With no maps-provider they're unchecked, as
+// 1.8.0 drew any value there.
+#let _check-basics-location(basics, what, maps-provider) = _check-location(
+  basics.at("location", default: none),
+  what,
+  rule: if maps-provider != none {
+    _type-rule((str, type(none)), "a string when a maps-provider is set")
+  },
+)
 
 // The section `check`s (`_section-specs`) take the section's key, for
 // messages, the entry and the preferences.
@@ -54,6 +82,7 @@
 #let _check-entry-location(key, entry, _) = _check-location(
   entry.at("location", default: none),
   key + "[].location",
+  rule: _location-text-rule,
 )
 
 // An award's link, in its `custom.altacv` namespace, which `fields`
@@ -138,7 +167,7 @@
     (path, str, bytes, type(none)),
     "a path, a string path, or bytes",
   )
-  _check-location(basics.at("location", default: none), "basics.location")
+  _check-basics-location(basics, "basics.location", prefs.maps-provider)
   for profile in basics.at("profiles", default: ()) {
     _check-rules(
       profile,

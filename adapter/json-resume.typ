@@ -49,6 +49,15 @@
   if type(value) == str and value != "" { value }
 }
 
+// A field that's an array of text, else `()`: work's `keywords`,
+// which `alta()` reads leniently.
+#let _texts(obj, key) = {
+  let value = obj.at(key, default: none)
+  if type(value) == array and value.all(v => type(v) in (str, content)) {
+    value
+  } else { () }
+}
+
 // An entry's summary: its `summary`, else its `description`, the field
 // JSON Resume's projects use (and older exports' work and volunteer).
 #let _summary(entry) = {
@@ -151,7 +160,6 @@
   )
 
   let pub(p) = {
-    let summary = _field(p, "summary")
     let ids = p.at("identifiers", default: none)
     publication(
       title: p.name,
@@ -170,7 +178,7 @@
       identifiers: if type(ids) == dictionary {
         ids.pairs().filter(((_, id)) => type(id) == str and id != "").to-dict()
       } else { (:) },
-      if summary != none [#summary] else [],
+      _field(p, "summary"),
     )
   }
 
@@ -178,7 +186,7 @@
     work: () => _section(
       labels.work,
       cv.at("work", default: ()),
-      e => role(e, "name", keywords: e.at("keywords", default: ())),
+      e => role(e, "name", keywords: _texts(e, "keywords")),
     ),
     volunteer: () => _section(
       labels.volunteer,
@@ -316,7 +324,7 @@
             (_field(e, "score"),),
           ),
           keywords: e.at("courses", default: ()),
-        )[]
+        )
       },
     ),
     // Short rows: the spacing between them without the rule. A
@@ -341,7 +349,7 @@
               date(_field(c, "date"))
             },
             summary: _field(c, "summary"),
-          )[]
+          )
         },
       )
     },
@@ -354,7 +362,7 @@
         org: _field(a, "awarder"),
         date: date(_field(a, "date")),
         summary: _field(a, "summary"),
-      )[],
+      ),
     ),
     // One row per group, kept together as `alta()`'s one paragraph of
     // them keeps its lines: the first row with the second (no orphan at
@@ -390,7 +398,7 @@
         .filter(r => requested(r) or _field(r, "reference") != none)
       let title = labels.references
       if refs.len() > 0 and refs.all(requested) {
-        _frame(title, refs, entry(summary: on-request)[])
+        _frame(title, refs, entry(summary: on-request))
       } else {
         _section(title, refs, r => entry(
           title: _field(r, "name"),
@@ -399,7 +407,7 @@
             (date(_string(r, "date")),),
           ),
           summary: if requested(r) { on-request } else { r.reference },
-        )[])
+        ))
       }
     },
   )

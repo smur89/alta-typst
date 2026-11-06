@@ -41,7 +41,8 @@
 // - `fields`: a rule per field its renderer draws as given, checked on
 //   every entry (see `cv-checks.typ`). Fields read with `_string-at`
 //   (a project's `type`, a reference's attribution, a publication's
-//   citation parts) or by a lenient reader (`authors`, `identifiers`)
+//   citation parts) or by a lenient reader (`authors`, `identifiers`,
+//   work's `keywords`, which 1.8.0 ignored)
 //   treat a value of the wrong type as absent, as the README documents,
 //   so they have no rule.
 // - `keep`: which entries render; the rest are dropped before
