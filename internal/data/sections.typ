@@ -153,22 +153,32 @@
   ),
 )
 
+// Section `key`'s spec, with the defaults its keys leave out.
+#let _spec(key) = (
+  (
+    read: cv => cv.at(key, default: ()),
+    items: (dictionary,),
+    fields: (:),
+    keep: _ => true,
+    check: (..) => none,
+  )
+    + _section-specs.at(key)
+)
+
+// Section `key`'s entries in `cv`, the ones that render: read and
+// kept per its spec, unchecked (`adapter.entries`).
+#let _section-entries(cv, key) = {
+  let (read, keep, ..) = _spec(key)
+  read(cv).filter(keep)
+}
+
 // Every section's entries, checked and filtered to the ones that
 // render, before any renderer (or the PDF-keyword pass) reads them.
 #let _read-sections(cv, prefs) = (
   _section-specs
-    .pairs()
-    .map(((key, spec)) => {
-      let (read, items, fields, keep, check, ..) = (
-        (
-          read: cv => cv.at(key, default: ()),
-          items: (dictionary,),
-          fields: (:),
-          keep: _ => true,
-          check: (..) => none,
-        )
-          + spec
-      )
+    .keys()
+    .map(key => {
+      let (read, items, fields, keep, check, ..) = _spec(key)
       let entries = _check-section-entries(key, read(cv), items)
       for entry in entries {
         _check-rules(entry, fields, prefix: key + "[].", optional: true)

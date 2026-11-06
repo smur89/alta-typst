@@ -158,3 +158,24 @@
 #assert.eq(ours.column-ratio, 0.7)
 #assert.eq(ours.project-icons, (oss: "github"))
 #assert.eq(ours.max-rating, 5)
+
+// entries: a section's entries as alta() renders them, the ones it
+// skips left out; `focus-areas` from `custom.altacv`.
+#let cv = (
+  work: ((name: "A"), (position: "B")),
+  projects: ((name: "P"), (summary: "No name"), (name: "")),
+  skills: ((name: "Go", keywords: ("Channels",)), (name: "Empty")),
+  references: (
+    (name: "R", reference: "Great."),
+    (name: "S"),
+    (availableOnRequest: true),
+  ),
+  custom: (altacv: (focusAreas: ("Payments",))),
+)
+#assert.eq(adapter.entries(cv, "work").len(), 2)
+#assert.eq(adapter.entries(cv, "projects"), ((name: "P"),))
+#assert.eq(adapter.entries(cv, "skills").map(g => g.name), ("Go",))
+#assert.eq(adapter.entries(cv, "references").len(), 2)
+#assert.eq(adapter.entries(cv, "focus-areas"), ("Payments",))
+#assert.eq(adapter.entries(cv, "awards"), ())
+#assert.eq(adapter.entries((:), "focus-areas"), ())

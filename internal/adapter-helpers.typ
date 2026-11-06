@@ -5,7 +5,7 @@
 // data exactly as `alta()` does. They take JSON Resume's field names
 // (`countryCode`), as the CV is written.
 
-#import "util/checks.typ": _check, _check-type
+#import "util/checks.typ": _check, _check-type, _enum-rule
 #import "util/dates.typ": _check-date-template, _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
@@ -18,6 +18,7 @@
 #import "data/canonical.typ": _kebab-options
 #import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _kebab-fields
+#import "data/sections.typ": _section-entries, _section-specs
 #import "data/validation.typ": _preference-rules
 #import "context.typ": _labels-state
 #import "design/icon-set.typ": _network-icons
@@ -209,4 +210,20 @@
   if "header-text-align" in overrides { prefs } else {
     prefs + (header-text-align: none)
   }
+}
+
+/// A section's entries as `alta()` renders them: the CV's own key's,
+/// or for `focus-areas`, `custom.altacv.focusAreas`; without the
+/// entries `alta()` skips, as having nothing to draw (a project, award
+/// or certificate without its name, a language without one, a skill or
+/// interest group without keywords, a reference with neither a quote
+/// nor `availableOnRequest`). `()` when the CV has none.
+///
+/// - cv (dictionary): The CV.
+/// - key (str): A section key, as the column preferences name them
+///   (`work`, `focus-areas`, …).
+/// -> array
+#let entries(cv, key) = {
+  _check("entries() key", key, _enum-rule(_section-specs.keys()))
+  _section-entries(cv, key)
 }

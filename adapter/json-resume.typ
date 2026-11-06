@@ -163,20 +163,18 @@
   let sections = (
     work: () => _section(
       labels.work,
-      cv.at("work", default: ()),
+      adapter.entries(cv, "work"),
       e => role(e, "name", keywords: e.at("keywords", default: ())),
     ),
     volunteer: () => _section(
       labels.volunteer,
-      cv.at("volunteer", default: ()),
+      adapter.entries(cv, "volunteer"),
       e => role(e, "organization"),
     ),
     // Under a heading per `type`, in the order each first appears,
     // only when some project has one; the untyped under "Other".
     projects: () => {
-      let projects = cv
-        .at("projects", default: ())
-        .filter(p => _field(p, "name") != none)
+      let projects = adapter.entries(cv, "projects")
       let types = projects.map(_type)
       if types.all(t => t == none) {
         _section(labels.projects, projects, project)
@@ -203,9 +201,8 @@
       let headings = labels.publication-types
       let icons = prefs.publication-icons
       // Each publication under its code, beside its type as written.
-      let coded = cv
-        .at("publications", default: ())
-        .filter(p => _field(p, "name") != none)
+      let coded = adapter
+        .entries(cv, "publications")
         .map(p => {
           let written = _type(p)
           (
@@ -225,7 +222,7 @@
       )
     },
     focus-areas: () => {
-      let items = _altacv(cv, "focusAreas", default: ())
+      let items = adapter.entries(cv, "focus-areas")
       _frame(
         labels.focus-areas,
         items,
@@ -237,9 +234,7 @@
     // the level text, as content, which `skill-row` shows as written.
     skills: () => _section(
       labels.skills,
-      cv
-        .at("skills", default: ())
-        .filter(g => g.at("keywords", default: ()).len() > 0),
+      adapter.entries(cv, "skills"),
       g => {
         let level = _field(g, "level")
         let as-text = (
@@ -258,9 +253,7 @@
     // Dots for a rated fluency, else the fluency as text; the rows
     // spaced as entries are, without the rule.
     languages: () => {
-      let langs = cv
-        .at("languages", default: ())
-        .filter(l => _field(l, "language") != none)
+      let langs = adapter.entries(cv, "languages")
       _frame(labels.languages, langs, {
         show std.divider: none
         // Rows, not prose: a long name wraps unjustified.
@@ -281,7 +274,7 @@
     // end the entry.
     education: () => _section(
       labels.education,
-      cv.at("education", default: ()),
+      adapter.entries(cv, "education"),
       e => {
         let study-type = _field(e, "studyType")
         let area = _field(e, "area")
@@ -306,9 +299,7 @@
       show std.divider: none
       _section(
         labels.certificates,
-        cv
-          .at("certificates", default: ())
-          .filter(c => _field(c, "name") != none),
+        adapter.entries(cv, "certificates"),
         c => {
           let expiry = _field(c, "expiryDate")
           entry(
@@ -328,7 +319,7 @@
     },
     awards: () => _section(
       labels.awards,
-      cv.at("awards", default: ()).filter(a => _field(a, "title") != none),
+      adapter.entries(cv, "awards"),
       a => entry(
         title: a.title,
         url: _altacv(a, "url"),
@@ -341,9 +332,7 @@
     // them keeps its lines: the first row with the second (no orphan at
     // a page's foot), the last with the one before (no widow at the top).
     interests: () => {
-      let groups = cv
-        .at("interests", default: ())
-        .filter(g => g.at("keywords", default: ()).len() > 0)
+      let groups = adapter.entries(cv, "interests")
       _frame(
         labels.interests,
         groups,
@@ -366,9 +355,7 @@
     references: () => {
       let on-request = labels.references-available-on-request
       let requested(r) = r.at("availableOnRequest", default: false)
-      let refs = cv
-        .at("references", default: ())
-        .filter(r => requested(r) or _field(r, "reference") != none)
+      let refs = adapter.entries(cv, "references")
       let title = labels.references
       if refs.len() > 0 and refs.all(requested) {
         _frame(title, refs, entry(summary: on-request))

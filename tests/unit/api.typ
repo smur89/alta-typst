@@ -41,6 +41,7 @@
   dictionary(lib.adapter).keys().sorted(),
   (
     "basics-contacts",
+    "entries",
     "fluency-rating",
     "format-date",
     "group-by-type",
