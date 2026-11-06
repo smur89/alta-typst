@@ -1,12 +1,14 @@
-// A label and a row of dots on a scale (the public `rating`), or the
-// label with a text in their place (`_rating-row`).
+// A label and a row of dots on a scale, or the label with a text in
+// their place: the public `rating`, and `_rating-row` over it.
 //
 // A half dot is a hard-stop gradient: Typst has no half-circle fill,
 // and a gradient gives a sharper edge than a transparent overlay.
 
 #import "../design/styles.typ": _inline, _part
 #import "../context.typ": _max-rating-state, _theme
-#import "../util/checks.typ": _check, _check-rating, _positive-int-rule
+#import "../util/checks.typ": (
+  _check, _check-rating, _check-type, _positive-int-rule,
+)
 
 #let _half-fill(accent, border) = gradient.linear(
   (accent, 0%),
@@ -60,19 +62,34 @@
 }
 
 /// A label with a row of rating dots at the right edge: filled,
-/// half-filled, then empty.
+/// half-filled, then empty. A text value takes the dots' place, the row
+/// as tall as the dots', as `alta()` shows a fluency it can't rate;
+/// `none` leaves the label alone on its row.
 ///
 /// - label (content, str): The row's label.
-/// - value (int, float): The rating, from 0 to `max`, in steps of 0.5.
+/// - value (int, float, str, content, none): The rating, from 0 to
+///   `max`, in steps of 0.5; or a text (`"Conversational"`) shown as
+///   written.
 /// - max (auto, int): The dots in the row; `auto` is the enclosing
 ///   `alta()`'s `preferences.max-rating`.
 /// -> content
-#let rating(label, value, max: auto) = context {
-  let max-rating = if max == auto { _max-rating-state.get() } else { max }
-  // The state is validated as `max-rating`; an explicit `max` isn't.
-  _check("rating() max", max-rating, _positive-int-rule)
-  _check-rating("rating value", value, max-rating)
-  _label-row(_theme(), label, _rating-dots(value, max-rating))
+#let rating(label, value, max: auto) = {
+  // An explicit `max` is checked whatever the value; `auto` reads the
+  // state, validated as `max-rating`.
+  if max != auto { _check("rating() max", max, _positive-int-rule) }
+  _check-type(
+    "rating value",
+    value,
+    (int, float, str, content, type(none)),
+    "a number, a string, content or none",
+  )
+  context if type(value) in (int, float) {
+    let max-rating = if max == auto { _max-rating-state.get() } else { max }
+    _check-rating("rating value", value, max-rating)
+    _label-row(_theme(), label, _rating-dots(value, max-rating))
+  } else {
+    _label-row(_theme(), label, value)
+  }
 }
 
 // `value` as dots on a scale of `max` or, with no `value`, the
@@ -83,8 +100,8 @@
 
 // The label's rating as dots on a scale of `max` or, with no `value`,
 // the `fallback` text in their place.
-#let _rating-row(label, value, max: auto, fallback: none) = if (
-  value != none
-) { rating(label, value, max: max) } else {
-  context _label-row(_theme(), label, fallback)
-}
+#let _rating-row(label, value, max: auto, fallback: none) = rating(
+  label,
+  if value != none { value } else { fallback },
+  max: max,
+)

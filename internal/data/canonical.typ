@@ -6,7 +6,7 @@
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
 #import "../design/theme.typ": _accent-roles, _treatment-names
-#import "cv.typ": _altacv-ns, _reference-usable
+#import "cv.typ": _altacv-ns, _entry-type, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
 // lifted into `custom.altacv` (which wins when both are set).
@@ -71,12 +71,8 @@
 }
 
 // `" talk "` groups with `talk`; an all-space `type` becomes untyped.
-#let _trim-type(entry) = {
-  let raw = _string-at(entry, "type")
-  if raw == none { entry } else {
-    let trimmed = raw.trim()
-    entry + (type: if trimmed != "" { trimmed })
-  }
+#let _trim-type(entry) = if _string-at(entry, "type") == none { entry } else {
+  entry + (type: _entry-type(entry))
 }
 
 #let _canonical-type(pub) = {

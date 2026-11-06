@@ -3,6 +3,7 @@
 // them; interests' as a line of text.
 
 #import "../context.typ": _theme
+#import "../design/styles.typ": _unjustified
 #import "../primitives.typ": _tag-gap, _tag-row, tag
 
 // The dash is `text(...)`, not markup, so it can't parse as a list
@@ -12,7 +13,7 @@
 // under the first; a label wider than `keyword-row.indent-max` of the
 // column hangs nothing, so its keywords keep room to wrap. A group's
 // optional `mark` (a skill level: dots or its text) follows the label.
-#let _keyword-rows(groups) = context {
+#let _keyword-rows(groups) = _unjustified(context {
   let theme = _theme()
   let (gap, dash, indent-max) = theme.keyword-row
   let row-gap = gap * text.size
@@ -39,12 +40,12 @@
       },
     ))
   })
-}
+})
 
 // `Music: Trad, Jazz`, one line per group, the name in the emphasis
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
-#let _label-rows(groups) = context {
+#let _label-rows(groups) = _unjustified(context {
   let (separator, treatment, colours) = _theme()
   par(
     groups
@@ -54,4 +55,4 @@
         )#separator.label#keywords.join(separator.items)])
       .join(linebreak()),
   )
-}
+})

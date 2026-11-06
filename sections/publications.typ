@@ -7,7 +7,7 @@
 #import "../internal/util/fields.typ": _field, _string-at
 #import "../internal/util/values.typ": _group-by
 #import "../internal/data/cv.typ": (
-  _authors, _identifier-refs, _identifier-url, _identifiers,
+  _authors, _entry-type, _identifier-refs, _identifier-url, _identifiers,
 )
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
@@ -16,8 +16,8 @@
 // `type` arrives trimmed (`_canonical-cv`); lowercasing makes `Talk`
 // and `talk` share a subheading, and untyped entries join `article`.
 #let _type-code(pub) = {
-  let raw = _string-at(pub, "type")
-  if raw != none { lower(raw) } else { "article" }
+  let type = _entry-type(pub)
+  if type != none { lower(type) } else { "article" }
 }
 
 #let _render-publication(pub, (format-date, owners, ..)) = {

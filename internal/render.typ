@@ -21,6 +21,7 @@
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
 #import "../sections/footer.typ": _cv-details, _footer
+#import "../adapter/json-resume.typ": _resume
 
 // The merged options, the read CV and the `ctx` every renderer takes
 // with its data, in `context`: the labels follow `text.lang`.
@@ -29,10 +30,11 @@
 // (`preferences.owner-names` too), trimmed and lowercased, to bold among
 // publication authors. `details` is what a footer prints of the CV
 // (`sections/footer.typ`), for the `<alta-cv>` marker and the
-// standalone footer alike.
+// standalone footer alike. `json-resume` is the checked, canonical CV
+// in JSON Resume's camelCase, for the template's mapping.
 #let _prepare(cv, labels, preferences) = {
   let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
-  let (cv, sections) = _read-cv(cv, prefs)
+  let (cv, sections, json-resume) = _read-cv(cv, prefs)
   let ctx = (
     labels: labels,
     prefs: prefs,
@@ -43,6 +45,7 @@
   (
     cv: cv,
     sections: sections,
+    json-resume: json-resume,
     ctx: ctx,
     details: _cv-details(cv, labels),
   )
@@ -58,14 +61,18 @@
   body
 }
 
-// The CV itself, from `_prepare`, in both of `alta()`'s forms;
-// `in-template` picks the template's heading scheme, the name as the
-// `title` element (`_level-headings`).
-#let _cv-content((cv, sections, ctx, details), in-template) = {
-  let ctx = ctx + (in-template: in-template)
-  show: _cv-styles.with(ctx.prefs)
-  // What the footer helpers print.
+// What `alta()` leaves for the content after it, in both forms: the
+// public `rating()`'s scale, and what the footer helpers print.
+#let _cv-marks(prefs, details) = {
+  _max-rating-state.update(prefs.max-rating)
   [#metadata(details)<alta-cv>]
+}
+
+// The CV itself, from `_prepare`, as standalone `alta()` draws it with
+// the section renderers.
+#let _cv-content((cv, sections, ctx, details)) = {
+  _cv-marks(ctx.prefs, details)
+  show: _justify.with(ctx.prefs.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
   // Renderers are width-agnostic, so any section fits either column.
@@ -78,15 +85,23 @@
 }
 
 // `alta()` inside the template, rendered by `altacv`'s show rule: only
-// the CV. At the next major (#239) `alta()` returns this directly.
+// the CV, drawn by the JSON Resume mapping (`adapter/json-resume.typ`)
+// from the public blocks, so what it draws is what a user's copy of
+// the mapping draws. At the next major (#239) `alta()` returns this
+// directly.
 #let _alta-content(cv, labels: (:), preferences: (:)) = context {
   _check-template-preferences(labels, preferences)
-  let prepared = _prepare(cv, labels, preferences)
-  let (cv, sections, ctx) = prepared
+  let (cv, sections, json-resume, ctx, details) = _prepare(
+    cv,
+    labels,
+    preferences,
+  )
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
-  _cv-content(prepared, true)
+  // The mapping justifies its own prose.
+  _cv-marks(ctx.prefs, details)
+  _resume(json-resume, ctx.labels, ctx.prefs)
 }
 
 // `alta()` on its own (removed in the next major, #239): the template's
@@ -99,7 +114,7 @@
   show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
   // Standalone keeps today's levels: the sections one below the name.
   set heading(offset: 1)
-  _cv-content(prepared, false)
+  _cv-content(prepared)
 }
 
 /// The altacv template: `#show: altacv.with(theme: themes.navy)`, then
@@ -120,6 +135,14 @@
     _default-preferences.margin,
   )
   show: _level-headings.with(built)
+  // The mapping's intro, spaced as `alta()`'s: a paragraph's spacing,
+  // which merges with its neighbours', and the theme's `intro` inside
+  // it, which adds to it; a later `show <alta-intro>: set block(..)`
+  // wins.
+  show <alta-intro>: set block(
+    spacing: built.par.spacing,
+    inset: (top: built.intro.above * 1em, bottom: built.intro.below * 1em),
+  )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
   show <alta-internal-cv>: it => _alta-content(

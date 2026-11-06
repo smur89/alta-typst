@@ -1,12 +1,14 @@
-// Unit checks for the header's data stages in sections/header.typ,
-// including the QR URL resolution.
+// Unit checks for the header's data stages: the contact entries in
+// internal/data/contacts.typ, and sections/header.typ's image and QR
+// URL resolution.
 
 #import "/internal/util/values.typ": _display-url, _url-encode
 #import "/internal/data/options.typ": _merge-options
-#import "/sections/header.typ": (
-  _contact-entries, _contact-rows, _header-image, _linked-contacts,
-  _profile-entry, _resolve-link-config, _resolve-qr-url,
+#import "/internal/data/contacts.typ": (
+  _contact-entries, _contact-rows, _linked-contacts, _profile-entry,
+  _resolve-link-config,
 )
+#import "/sections/header.typ": _header-image, _resolve-qr-url
 
 // _url-encode: RFC 3986 unreserved set kept, everything else
 // percent-encoded by UTF-8 byte.

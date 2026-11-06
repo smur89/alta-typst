@@ -70,7 +70,7 @@ TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # it, so a renderer edit can't leave stale outputs to be committed.
 LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*/*.typ) \
   $(wildcard internal/*/*.toml) \
-  $(wildcard sections/*.typ) $(wildcard assets/*)
+  $(wildcard sections/*.typ adapter/*.typ) $(wildcard assets/*)
 
 # Files that ship to typst/packages: shared by the release tarball and
 # the PR-time package-check stager so the two can't drift. Besides the
@@ -78,7 +78,7 @@ LIB_SOURCES   := lib.typ $(wildcard internal/*.typ internal/*/*.typ internal/*/*
 # to commit? What to exclude?"): `examples/cv.png` is a release asset,
 # not a README image, so it stays out.
 PACKAGE_FILES := \
-  typst.toml lib.typ internal sections assets template \
+  typst.toml lib.typ internal sections adapter assets template \
   thumbnail.png LICENSE README.md CONTRIBUTING.md \
   examples/preview.webp \
   $(EXAMPLE_FULL_PDF) \

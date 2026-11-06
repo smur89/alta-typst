@@ -241,10 +241,9 @@
   } #body]
 
 // The portrait, clipped to a square with the theme's corner radius for
-// `shape` (a `preferences.image-shape`). `image()` resolves a bare string path from
-// the file that calls it, so this stays in `internal/`, where a bare
-// `basics.image` has always resolved; `path` and `bytes` sources let
-// callers anchor resolution at their own .typ instead, as does an
+// `shape` (a `preferences.image-shape`). A bare `basics.image` arrives
+// as a `path` from `internal/` (`_read-cv`); `path` and `bytes` sources
+// let callers anchor resolution at their own .typ, as does an
 // `image(..)` passed as content (`cv-header`'s `photo`), framed by
 // `set` rules its own arguments override. `alt` becomes the image's
 // `/Alt` in tagged PDF output.

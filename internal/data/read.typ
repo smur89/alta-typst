@@ -25,9 +25,25 @@
     .to-dict()
 } else if type(v) == array { v.map(_kebab-fields) } else { v }
 
-// `(cv, sections)`: the canonical CV and each column section's entries,
-// their field names kebab-case for rendering (`_kebab-fields`), after
-// every check has named the fields as the caller wrote them.
+// A bare-string `basics.image` as a `path` from `internal/`, where it
+// has always resolved, so the standalone header and the template's
+// mapping (`adapter/`) frame the same file. `path()` resolves from this
+// file, in `internal/data/`; a root-relative `/…` reads the same here.
+#let _image-path(cv) = {
+  let image = cv.basics.at("image", default: none)
+  if type(image) == str and image != "" {
+    cv.basics.image = path(
+      if image.starts-with("/") { image } else { "../" + image },
+    )
+  }
+  cv
+}
+
+// `(cv, sections, json-resume)`: the canonical CV and each column
+// section's entries, their field names kebab-case for rendering
+// (`_kebab-fields`), after every check has named the fields as the
+// caller wrote them; and the canonical CV as checked, in JSON Resume's
+// camelCase, for the template's mapping (`adapter/json-resume.typ`).
 #let _read-cv(cv, prefs) = {
   _check-type("cv", cv, (dictionary,), "a CV data dictionary")
   // The only required field.
@@ -42,5 +58,10 @@
   _check-unknown-keys(cv.keys(), _cv-keys, "CV top-level")
   let cv = _canonical-cv(cv, prefs)
   _check-root(cv, prefs)
-  (cv: _kebab-fields(cv), sections: _kebab-fields(_read-sections(cv, prefs)))
+  let cv = _image-path(cv)
+  (
+    cv: _kebab-fields(cv),
+    sections: _kebab-fields(_read-sections(cv, prefs)),
+    json-resume: cv,
+  )
 }

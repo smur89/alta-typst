@@ -206,6 +206,14 @@
   body
 }
 
+// `body`'s paragraphs never justified: rows of facts, names or pills,
+// which stretch badly, whatever `justify` the prose around them takes
+// (`_justify`, or the JSON Resume mapping's scoped `set par`).
+#let _unjustified(body) = {
+  set par(justify: false)
+  body
+}
+
 // For `show: _justify.with(on)`: justify and hyphenate prose only,
 // lists and the paragraphs labelled `<alta-internal-prose>`, so rows of
 // facts, names or pills never stretch. Applied by `alta()`: `justify`

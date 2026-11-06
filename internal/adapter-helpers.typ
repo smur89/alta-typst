@@ -1,0 +1,175 @@
+// The `adapter` helpers (`adapter.typ` re-exports them): the readers
+// `alta()` maps a CV with, for a mapping of your own written with the
+// public blocks (#370). Thin wrappers over the internal helpers, with
+// the preferences they read passed explicitly, so a mapping reads the
+// data exactly as `alta()` does. They take JSON Resume's field names
+// (`countryCode`), as the CV is written.
+
+#import "util/checks.typ": _check, _check-type
+#import "util/dates.typ": _check-date-template, _format-date
+#import "data/contacts.typ": _contact-rows, _linked-contacts
+#import "data/cv.typ": (
+  _fluency-terms, _location-parts, _term-rating, _type-groups,
+)
+#import "data/cv-checks.typ": _check-location
+#import "data/defaults.typ": _default-labels, maps-providers
+#import "data/options.typ": _merge-options
+#import "data/read.typ": _kebab-fields
+#import "data/validation.typ": _preference-rules
+#import "design/icon-set.typ": _network-icons
+#import "primitives.typ": _fact-line
+
+/// A JSON Resume date as `alta()` shows it: `"2024-06"` reads
+/// `"Jun 2024"`. A value that isn't an ISO date (`"Jan 2022"`) comes
+/// back as written.
+///
+/// - value (str, none): The date: `YYYY`, `YYYY-MM` or `YYYY-MM-DD`.
+/// - format (str, function): As `preferences.date-format`: `"long"`,
+///   `"short"`, `"iso"`, a template (`"[month]/[year]"`), or a function
+///   of the parsed `(year, month, day)`.
+/// - months (array, auto): The twelve month names. `auto` is the
+///   English; for the document's language, pass its names.
+/// -> str
+#let format-date(value, format: "long", months: auto) = {
+  _check("format-date() format", format, _preference-rules.date-format)
+  if type(format) == str {
+    _check-date-template(format, "format-date() format")
+  }
+  _format-date(
+    value,
+    format,
+    if months == auto { _default-labels.months } else { months },
+  )
+}
+
+/// A JSON Resume `location`'s parts as `alta()` shows them: the city,
+/// region and country code that are set, in that order. `alta()` joins
+/// them with the theme's separator; join them as you like for
+/// `entry(location: ..)` (`.join(", ")`). It takes JSON Resume's
+/// field names (`countryCode`), checked as `alta()` checks them.
+///
+/// - location (str, dictionary, none): A location string, or the
+///   `(city, region, countryCode, ..)` dictionary.
+/// -> array
+#let location-text(location) = {
+  _check-location(location, "location-text() location")
+  _location-parts((location: _kebab-fields(location)))
+}
+
+/// The contact bar `alta()` draws from `basics`, as `contact`-shaped
+/// records for `cv-header(contacts: ..)`: the details (email, phone,
+/// location, homepage), a `linebreak()`, then the profiles. The
+/// linebreak drops out when either group is empty. A profile's glyph
+/// comes from `icons`, so a record may draw a network `contact()`'s
+/// icon names don't list. The records are for `cv-header`: a profile's
+/// `alt` is its network as written, every other `alt` is `auto`, which
+/// `cv-header` resolves (the location's in the document's language),
+/// so read elsewhere, `alt` may be `auto`.
+///
+/// - basics (dictionary): The CV's `basics`.
+/// - link (bool, dictionary): As `preferences.link-contact-info`:
+///   whether to link every channel, or a bool per channel (`email`,
+///   `phone`, `location`, `url`, `profiles`).
+/// - maps-provider (str, none): The map a location links to: a
+///   `maps-providers` entry, or a URL template with `{q}`.
+/// - full-urls (bool): As `preferences.print-full-urls`: an unlinked
+///   homepage or profile shows its URL.
+/// - icons (dictionary, auto): Profile networks' FontAwesome glyphs,
+///   by lowercase network name, over the built-in ones.
+/// -> array
+#let basics-contacts(
+  basics,
+  link: true,
+  maps-provider: maps-providers.google,
+  full-urls: false,
+  icons: auto,
+) = {
+  _check-type(
+    "basics-contacts() link",
+    link,
+    (bool, dictionary),
+    "a bool or a dict",
+  )
+  _check(
+    "basics-contacts() maps-provider",
+    maps-provider,
+    _preference-rules.maps-provider,
+  )
+  let profile-icons = (
+    _network-icons
+      + if icons == auto { (:) } else {
+        icons.pairs().map(((k, v)) => (lower(k), v)).to-dict()
+      }
+  )
+  // A record as `contact()` makes one, `alt` as the docstring says.
+  let as-contact(c) = {
+    if c.glyph == none {
+      panic(
+        "basics-contacts(): no icon for the profile network "
+          + repr(c.alt)
+          + "; map it in `icons:` (e.g. (kaggle: \"kaggle\"))",
+      )
+    }
+    (
+      icon: c.icon,
+      glyph: c.glyph,
+      value: c.value,
+      url: c.url,
+      alt: c.at("alt", default: auto),
+    )
+  }
+  let rows = _contact-rows(_linked-contacts(
+    _kebab-fields(basics),
+    (
+      link-contact-info: link,
+      maps-provider: maps-provider,
+      print-full-urls: full-urls,
+      profile-icons: profile-icons,
+    ),
+    location-alt: auto,
+    join-location: _fact-line,
+  ))
+  rows.map(row => row.map(as-contact)).join((linebreak(),), default: ())
+}
+
+/// A language's fluency as `alta()` rates it: its
+/// `custom.altacv.rating`, else its `fluency` term (`"Native"`,
+/// `"Professional Working"`, …) on a scale of `max`, to the half;
+/// `none` for any other term, which `alta()` shows as text.
+///
+/// - entry (dictionary): A `languages[]` entry.
+/// - max (int): The scale's top.
+/// -> int, float, none
+#let fluency-rating(entry, max: 5) = _term-rating(
+  entry,
+  "fluency",
+  _fluency-terms,
+  max,
+)
+
+/// Entries grouped by `type` as `alta()` groups projects: `(type,
+/// items)` pairs in the order each type first appears, the untyped (no
+/// `type`, or a blank one) under `none`. Pairs rather than a
+/// dictionary, as `none` can't be a dictionary key. `alta()` names the
+/// untyped projects' group from its labels; its publications go further,
+/// matching codes ignoring case and counting the untyped as `article`.
+///
+/// - items (array): Entries with an optional `type`.
+/// -> array
+#let group-by-type(items) = _type-groups(items)
+
+/// The labels `alta()` renders with, in the document's language: its
+/// bundled translation over the English, `overrides` over both, merged
+/// and checked as `alta(labels: ..)`'s are. Keys are `alta()`'s
+/// kebab-case label names (`work`, `present`, `other-projects`);
+/// `months` is the twelve month names, `publication-types` a heading
+/// per publication `type` code, lowercase. Call it in `context`, where
+/// the document's language is known.
+///
+/// - overrides (dictionary): Labels to override, as `alta()`'s
+///   `labels:` takes them; a `publication-types` entry overrides that
+///   one heading.
+/// -> dictionary
+#let labels(overrides: (:)) = (
+  _merge-options(overrides, (:), lang: text.lang).labels
+)

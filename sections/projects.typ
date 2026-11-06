@@ -2,9 +2,9 @@
 // subheadings only when at least one has a `type`; an all-untyped list
 // renders flat. Entries without a `name` are skipped.
 
-#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/fields.typ": _field
 #import "../internal/util/values.typ": _group-by
-#import "../internal/data/cv.typ": _entry-period
+#import "../internal/data/cv.typ": _entry-period, _entry-type
 #import "../internal/components/entry.typ": _entry
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
@@ -23,11 +23,13 @@
   keywords: project.at("keywords", default: ()),
 )
 
-// Drives the `====` subheadings in projects. An untyped entry, or one
-// whose `type` isn't a string, pools under `fallback`.
+// Drives the `====` subheadings in projects. An untyped entry
+// (`_entry-type`) pools under `fallback`, which may also be a type's
+// name, so a dictionary of `_group-by` rather than `_type-groups`'
+// pairs: the two share one group.
 #let _group-by-type(items, fallback) = _group-by(items, item => {
-  let raw = _string-at(item, "type")
-  if raw != none { raw } else { fallback }
+  let type = _entry-type(item)
+  if type != none { type } else { fallback }
 })
 
 #let _projects(entries, ctx) = {
@@ -37,7 +39,7 @@
   // Flat unless some entry has a usable `type`, so the common untyped
   // case gets no redundant subheadings. Untyped entries in a mixed list
   // pool under `labels.other-projects`.
-  if not entries.any(p => _string-at(p, "type") != none) {
+  if not entries.any(p => _entry-type(p) != none) {
     _section(labels.projects, entries, render)
   } else {
     _grouped-section(
