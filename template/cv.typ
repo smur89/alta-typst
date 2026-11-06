@@ -1,21 +1,13 @@
 // Starter CV produced by `typst init @preview/altacv`. Edit in place.
 //
-// The full data schema is documented in the package README:
-//   https://github.com/smur89/alta-typst#data-schema
+// Every field and option is documented in the package reference:
+//   https://github.com/smur89/alta-typst/blob/main/docs/reference.md
 //
 // Every field below is optional except `basics.name`. Sections with
 // empty input are skipped, so deleting an entry is enough to hide it.
-//
-// This file is also the canonical demo for the project — what
-// renders as `examples/cv.png` (reviewer artifact and release asset), as
-// `thumbnail.png` (Typst Universe package card), and as the data
-// behind every frame of `examples/preview.webp` (via
-// `examples/_cv.typ`).
 
 // x-release-please-start-version
-#import "@preview/altacv:1.8.0": (
-  alta, alta-from-json, altacv, avatar-placeholder,
-)
+#import "@preview/altacv:1.8.0": alta, altacv, avatar-placeholder
 // x-release-please-end
 
 #let cv = (
@@ -182,11 +174,14 @@
 #alta(cv, preferences: preferences)
 
 // To load the same CV from JSON Resume instead, replace the
-// `#alta(cv, ..)` line above with the one below. `resume.json`, beside
+// `#alta(cv, ..)` line above with the two below. `resume.json`, beside
 // this file, holds it in the standard schema (https://jsonresume.org),
 // so any JSON Resume tool can write it. Loading it drops the photo,
-// which is set here in Typst (`basics.image`).
-// #alta-from-json(path("resume.json"), preferences: preferences)
+// which is set here in Typst (`basics.image`): the README's "A
+// `resume.json`" shows how to keep one.
+// #import "@preview/gairm-import:0.10.1": parse
+// #alta(parse(path("resume.json")), preferences: preferences)
 //
-// More in the README: "Write the CV in markup" for sections of your
-// own, "Your own mapping" to change how a section is drawn.
+// More in the README's "Beyond the data": the CV in markup, for
+// sections of your own, and your own mapping, to change how a section
+// is drawn.
