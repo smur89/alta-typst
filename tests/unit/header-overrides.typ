@@ -11,7 +11,7 @@
   titles.update(ts => ts + (it.body,))
   it
 }
-// The portrait's frame: the clipping box's width and corner radius.
+// The photo's frame: the clipping box's width and corner radius.
 #let frames = state("frames", ())
 #show box: it => {
   if it.clip { frames.update(fs => fs + ((it.width, it.radius),)) }
@@ -23,7 +23,7 @@
 #cv-header(name: [Seán O'Neil], uppercase: false)
 #context assert.eq(titles.get(), ([Jane Doe], [Seán O'Neil]))
 
-// `auto` is `alta()`'s default `image-size` and `image-shape`.
+// `auto` is `alta()`'s default `photo-size` and `photo-shape`.
 #cv-header(name: "A", photo: image(avatar-placeholder))
 #cv-header(
   name: "B",

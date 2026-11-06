@@ -1,27 +1,27 @@
 // `preferences.qr-code` renders a small QR matrix in the header on the
-// side opposite the portrait — restoring one click of digital-PDF
+// side opposite the photo — restoring one click of digital-PDF
 // affordance when the CV is printed. Documents exercise:
 //
-//   1. `auto` form — encodes `basics.url`, no portrait. QR lands on
-//      the side opposite `image-position` (default `right` → QR on
+//   1. `auto` form — encodes `basics.url`, no photo. QR lands on
+//      the side opposite `photo-position` (default `right` → QR on
 //      the left).
 //   2. Explicit URL string — distinct from `basics.url`, so the
 //      printed CV can point at a landing page tracked separately from
 //      the canonical homepage.
-//   3. QR + portrait together — the two ornaments occupy opposite
+//   3. QR + photo together — the two ornaments occupy opposite
 //      sides with the header text filling the middle column.
-//   4. QR + portrait with `image-position: left` — confirms the QR
+//   4. QR + photo with `photo-position: left` — confirms the QR
 //      follows the photo and ends up on the right.
 //   5. QR themed by a custom `colours.accent` — exercises the
 //      `fill: accent` path through the QR helper.
-//   6. QR alongside a centred portrait — QR pins the top-left corner
+//   6. QR alongside a centred photo — QR pins the top-left corner
 //      next to the photo (top row), with the centred-header text in a
 //      separate row below.
-//   7. QR with no portrait + `image-position: top` — top row is the
+//   7. QR with no photo + `photo-position: top` — top row is the
 //      header text; QR pins its top-left corner.
-//   8. Centred portrait + QR with `image-position: bottom` — text on
+//   8. Centred photo + QR with `photo-position: bottom` — text on
 //      top, photo trails below; QR pins the text row's top-left corner.
-//   9. Centred portrait + QR + `header-text-align: left` — orthogonal
+//   9. Centred photo + QR + `header-text-align: left` — orthogonal
 //      case: photo + QR share the top row (photo centred page-wise,
 //      QR top-left), text sits flush-left in a row below.
 
@@ -80,7 +80,7 @@
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
   ),
-  preferences: (qr-code: auto, image-position: left),
+  preferences: (qr-code: auto, photo-position: left),
 )
 
 #pagebreak()
@@ -111,7 +111,7 @@
   ),
   preferences: (
     qr-code: auto,
-    image-position: top,
+    photo-position: top,
     header-text-align: center,
   ),
 )
@@ -129,7 +129,7 @@
   ),
   preferences: (
     qr-code: auto,
-    image-position: top,
+    photo-position: top,
     header-text-align: center,
   ),
 )
@@ -148,7 +148,7 @@
   ),
   preferences: (
     qr-code: auto,
-    image-position: bottom,
+    photo-position: bottom,
     header-text-align: center,
   ),
 )
@@ -167,7 +167,7 @@
   ),
   preferences: (
     qr-code: auto,
-    image-position: top,
+    photo-position: top,
     header-text-align: left,
   ),
 )

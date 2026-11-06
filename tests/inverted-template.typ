@@ -117,7 +117,7 @@
     // Photo flips to the left as part of the inverted layout. The
     // default left-aligned header text keeps every line starting at
     // a consistent edge regardless of the photo position.
-    image-position: left,
+    photo-position: left,
     // Side-panel sections take the narrow left column.
     left-column-sections: (
       "focus-areas",

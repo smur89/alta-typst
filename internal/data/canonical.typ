@@ -178,8 +178,16 @@
 // top-level keys. Their values are untouched: section keys, type codes
 // and icon names are data. A name set both ways panics, as neither
 // would win on purpose. Option names start lowercase, so no key gains
-// a leading `-`.
-#let _kebab(name) = name.replace(regex("[A-Z]"), m => "-" + lower(m.text))
+// a leading `-`. A camelCase name whose concept has since been
+// renamed reads straight as the new name (`_renamed-options`).
+#let _renamed-options = (
+  imagePosition: "photo-position",
+  imageSize: "photo-size",
+)
+#let _kebab(name) = _renamed-options.at(
+  name,
+  default: name.replace(regex("[A-Z]"), m => "-" + lower(m.text)),
+)
 #let _kebab-keys(name) = table => if type(table) != dictionary { table } else {
   _rekey(
     table,
@@ -238,8 +246,8 @@
   }
 }
 
-// #239: the strings `header-text-align` and `image-position` took become
-// Typst's alignments. `"center"` placed the portrait on its own row,
+// #239: the strings `header-text-align` and `photo-position` took become
+// Typst's alignments. `"center"` placed the photo on its own row,
 // `image-stack-order` (`"above"`, the default, or `"below"`) the text,
 // so it becomes `top` or `bottom`. A string with no alignment passes
 // through for validation to name.
@@ -257,19 +265,19 @@
   let set-only(key, value) = if key in overrides { ((key): value) } else {
     (:)
   }
-  let position = if at("image-position") == "center" {
+  let position = if at("photo-position") == "center" {
     _named((above: top, below: bottom), at(
       "image-stack-order",
       default: "above",
     ))
-  } else { _named(_alignments, at("image-position")) }
+  } else { _named(_alignments, at("photo-position")) }
   (
     overrides
       + set-only("header-text-align", _named(
         _alignments,
         at("header-text-align"),
       ))
-      + set-only("image-position", position)
+      + set-only("photo-position", position)
   )
 }
 

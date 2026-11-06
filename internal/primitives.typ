@@ -240,18 +240,18 @@
     )
   } #body]
 
-// The portrait, clipped to a square with the theme's corner radius for
-// `shape` (a `preferences.image-shape`). A bare `basics.image` arrives
+// The photo, clipped to a square with the theme's corner radius for
+// `shape` (a `preferences.photo-shape`). A bare `basics.image` arrives
 // as a `path` from `internal/` (`_read-cv`); `path` and `bytes` sources
 // let callers anchor resolution at their own .typ, as does an
 // `image(..)` passed as content (`cv-header`'s `photo`), framed by
 // `set` rules its own arguments override. `alt` becomes the image's
 // `/Alt` in tagged PDF output.
-#let _portrait(source, size, alt, shape: "circle") = context box(
+#let _photo(source, size, alt, shape: "circle") = context box(
   width: size,
   height: size,
   clip: true,
-  radius: _theme().header.portrait-radius.at(shape),
+  radius: _theme().header.photo-radius.at(shape),
   if type(source) == content {
     set image(fit: "cover", width: 100%, height: 100%, alt: alt)
     source

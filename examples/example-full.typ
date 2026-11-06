@@ -4,7 +4,7 @@
 // canonical demo that drives `examples/cv.png` and `thumbnail.png`).
 //
 // What this renders:
-//   • Header: portrait, name (uppercase), label, objective, summary, a
+//   • Header: photo, name (uppercase), label, objective, summary, a
 //     contact bar with email, phone, a structured `basics.location`,
 //     `basics.url` and three profile networks, and a QR code to the
 //     homepage.

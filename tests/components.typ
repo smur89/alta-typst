@@ -12,7 +12,7 @@
 #import "../internal/data/options.typ": _merge-options
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
-  _portrait, _tag-row, divider, name, styled-link, tag, term,
+  _photo, _tag-row, divider, name, styled-link, tag, term,
 )
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/entry.typ": _entry
@@ -70,9 +70,9 @@
 #heading(
   level: 2,
 )[Page header: each photo placement, and centred with left text]
-#let portrait = _portrait(
+#let photo = _photo(
   avatar-placeholder,
-  prefs.image-size,
+  prefs.photo-size,
   "Jane Doe",
 )
 #for (at, text-align) in (
@@ -82,7 +82,7 @@
   (bottom, center),
   (top, left),
 ) {
-  variant(header(photo: portrait, photo-at: at, text-align: text-align))
+  variant(header(photo: photo, photo-position: at, text-align: text-align))
 }
 
 #pagebreak()

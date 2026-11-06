@@ -1,6 +1,6 @@
 // The page header, laid out from the slots `sections/header.typ` maps
 // the CV and preferences onto: the name line, headline, objective and
-// contact bar, with an optional portrait and QR around them.
+// contact bar, with an optional photo and QR around them.
 
 #import "../design/styles.typ": _part
 #import "../context.typ": _theme
@@ -16,7 +16,7 @@
   body-size,
   photo: none,
   qr: none,
-  photo-at: none,
+  photo-position: none,
 ) = {
   let (ornament-gutter, photo-gap, ..) = theme.header
   // Full-width `block` centres the photo against the page (a bare
@@ -26,7 +26,7 @@
   // the header's top corner whichever way the stack runs. The row gap
   // is an explicit `v(...)` because block spacing inside a grid cell
   // is consumed by the cell.
-  if photo-at in (top, bottom) {
+  if photo-position in (top, bottom) {
     let centred-photo = if photo != none {
       block(width: 100%, align(center, photo))
     }
@@ -42,7 +42,7 @@
     }
     let (first, second) = if centred-photo == none {
       (header-text, none)
-    } else if photo-at == top {
+    } else if photo-position == top {
       (centred-photo, header-text)
     } else {
       (header-text, centred-photo)
@@ -57,7 +57,7 @@
     // one later doesn't move it. Absent ornaments are dropped rather
     // than left as empty cells, which would add a stray gutter.
     let (left-ornament, right-ornament) = if (
-      photo-at == left
+      photo-position == left
     ) {
       (photo, qr)
     } else {
@@ -164,8 +164,8 @@
   parbreak()
 }
 
-// `photo` (a built portrait) and `qr-url` are `none` when absent;
-// `photo-at` is the side of the text the photo takes: `left` or
+// `photo` (framed by `_photo`) and `qr-url` are `none` when absent;
+// `photo-position` is the side of the text the photo takes: `left` or
 // `right`, or centred at the `top` or `bottom`. `title` sets the name
 // as the `title` element (`_name-line`).
 #let _page-header(
@@ -176,7 +176,7 @@
   text-align: left,
   uppercase: false,
   photo: none,
-  photo-at: none,
+  photo-position: none,
   qr-url: none,
   title: false,
 ) = context {
@@ -204,6 +204,6 @@
     qr: if qr-url != none {
       _qr-render(qr-url, qr-size, theme.colours.accent)
     },
-    photo-at: photo-at,
+    photo-position: photo-position,
   )
 }

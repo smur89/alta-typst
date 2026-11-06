@@ -4,7 +4,7 @@
 // "the template with one or two knobs turned" rather than
 // independent configurations.
 //
-// Frame 1 is the baseline minus the portrait. The later frames each
+// Frame 1 is the baseline minus the photo. The later frames each
 // re-arrange the section columns (moving work to the right,
 // pulling volunteer or interests in, dropping one section in
 // favour of another) on top of their accent / image / date /
@@ -12,9 +12,9 @@
 // so the animation reads as more than just a colour cycle.
 //
 // Image presence alternates frame-to-frame: odd frames render
-// without a portrait (realistic for ATS / anti-bias CVs), even
+// without a photo (realistic for ATS / anti-bias CVs), even
 // frames render with one in a different position, shape or size
-// (centred above, left, right; circle, rounded, square). The alternation reinforces that the portrait is
+// (centred above, left, right; circle, rounded, square). The alternation reinforces that the photo is
 // optional — one more knob among many, not the visual anchor.
 //
 // The theme also changes every frame, one built-in theme each: the
@@ -22,7 +22,7 @@
 // bolder themes (odd frames) alternate with the single-hue ones (even
 // frames), so neighbouring frames differ in character, not just hue.
 //
-// `image-position: bottom` is deliberately excluded — the photo
+// `photo-position: bottom` is deliberately excluded — the photo
 // reads as an afterthought when stacked below the contact bar.
 
 #import "@preview/fontawesome:0.6.2": fa-icon
@@ -83,7 +83,7 @@
 
 // Each frame is `(cv: …, prefs: …)`, with `wrap` (rules around its
 // `alta()`: `restyled`, `in-ga`) where it sets one. Frames using
-// `no-image(cv)` drop the portrait; frames using `cv`, or
+// `no-image(cv)` drop the photo; frames using `cv`, or
 // `in-irish(cv)` (the content in Irish), keep it. Dict
 // spread (`base + (key: value)`) is Typst's equivalent of Scala's
 // `base.copy(key = value)`, so each frame reads as a small patch over
@@ -91,7 +91,7 @@
 #let frames = (
   // ── Frame 1 ─ altacv + no image ─────────────────────────────────
   // Baseline arrangement: work-heavy left, support sections on the
-  // right. The realistic baseline most users ship — portrait
+  // right. The realistic baseline most users ship — photo
   // omitted (ATS- / anti-bias-friendly), the altacv theme from
   // `base`.
   (
@@ -116,8 +116,8 @@
       ),
   ),
 
-  // ── Frame 2 ─ charcoal + portrait centred above + side panel left
-  // The portrait stacked above a centred header, over a narrow side
+  // ── Frame 2 ─ charcoal + photo centred above + side panel left
+  // The photo stacked above a centred header, over a narrow side
   // panel on the left (`column-ratio: 0.35`) led by skills and
   // languages, with work leading the main column on the right.
   // Charcoal contrasts the dark red opener.
@@ -127,7 +127,7 @@
       + (
         theme: themes.charcoal,
         column-ratio: 0.35,
-        image-position: top,
+        photo-position: top,
         header-text-align: center,
         left-column-sections: (
           "skills",
@@ -166,10 +166,10 @@
       ),
   ),
 
-  // ── Frame 4 ─ crimson + portrait left + QR right + Irish ────────
+  // ── Frame 4 ─ crimson + photo left + QR right + Irish ────────
   // Image swung to the left of the header with a QR matrix mirrored
   // on the right — the flipped twin of frame 6's QR layout, exercising
-  // the same feature under `image-position: left`. Section columns
+  // the same feature under `photo-position: left`. Section columns
   // swap emphasis (compact / support blocks lead, work and volunteer
   // move right). In Irish: the headings, months and footer
   // (`in-ga`) and the content (`in-irish`).
@@ -178,7 +178,7 @@
     prefs: base
       + (
         theme: themes.crimson,
-        image-position: left,
+        photo-position: left,
         qr-code: auto,
         left-column-sections: (
           "focus-areas",
@@ -222,9 +222,9 @@
       ),
   ),
 
-  // ── Frame 6 ─ plum + portrait right + QR left + short dates + education first
+  // ── Frame 6 ─ plum + photo right + QR left + short dates + education first
   // Image on the right (canonical default) and a QR matrix on the
-  // opposite side — a [QR | text | portrait] header showcasing the
+  // opposite side — a [QR | text | photo] header showcasing the
   // print-affordance feature on the standard layout. Compact European-
   // style `[day]/[month]/[year]` dates. Education
   // and certificates lead the main column (`column-ratio: 0.6`), ahead
@@ -284,9 +284,9 @@
       ),
   ),
 
-  // ── Frame 8 ─ teal + rounded portrait left + single column + justified + Irish
+  // ── Frame 8 ─ teal + rounded photo left + single column + justified + Irish
   // A second single column (`column-ratio: 1`), this one under a
-  // rounded portrait on the left, led by education, with body text
+  // rounded photo on the left, led by education, with body text
   // justified to both edges.
   // In Irish: the headings, months and footer (`in-ga`) and
   // the content (`in-irish`).
@@ -295,8 +295,8 @@
     prefs: base
       + (
         theme: themes.teal,
-        image-position: left,
-        image-shape: "rounded",
+        photo-position: left,
+        photo-shape: "rounded",
         justify: true,
         column-ratio: 1,
         left-column-sections: ("education", "work", "projects"),
@@ -332,8 +332,8 @@
       ),
   ),
 
-  // ── Frame 10 ─ forest + square portrait right + wide main column + restyled
-  // A square-cropped portrait, a wider main column
+  // ── Frame 10 ─ forest + square photo right + wide main column + restyled
+  // A square-cropped photo, a wider main column
   // (`column-ratio: 0.7`) for work, volunteer, projects, publications
   // and awards, and show rules (`restyled`) drawing stars for the
   // rating dots and entries' keywords as pills, with the keyword
@@ -343,7 +343,7 @@
     prefs: base
       + (
         theme: themes.forest + (separator: (keywords: "")),
-        image-shape: "square",
+        photo-shape: "square",
         column-ratio: 0.7,
         left-column-sections: (
           "work",
@@ -392,8 +392,8 @@
       ),
   ),
 
-  // ── Frame 12 ─ navy + large portrait right + full URLs + Irish ──
-  // A larger portrait (`image-size: 8em`) on the right, the contact
+  // ── Frame 12 ─ navy + large photo right + full URLs + Irish ──
+  // A larger photo (`photo-size: 8em`) on the right, the contact
   // bar set up for paper (unlinked, profiles printed as URLs,
   // `github.com/…`, in place of usernames), with volunteer leading the main column (`column-ratio: 0.62`).
   // In Irish: the headings, months and footer (`in-ga`) and
@@ -404,7 +404,7 @@
       + (
         theme: themes.navy,
         column-ratio: 0.62,
-        image-size: 8em,
+        photo-size: 8em,
         link-contact-info: false,
         print-full-urls: true,
         left-column-sections: (

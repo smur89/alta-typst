@@ -442,9 +442,9 @@
         c + (alt: labels.location)
       } else { c }),
     photo: if image-src != none { image(image-src) },
-    photo-side: preferences.at("image-position", default: right),
-    photo-size: preferences.at("image-size", default: auto),
-    photo-shape: preferences.at("image-shape", default: auto),
+    photo-position: preferences.at("photo-position", default: right),
+    photo-size: preferences.at("photo-size", default: auto),
+    photo-shape: preferences.at("photo-shape", default: auto),
     qr: if qr-code == auto { _field(basics, "url") } else { qr-code },
     uppercase: preferences.at("uppercase-name", default: true),
   )

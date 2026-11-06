@@ -105,11 +105,11 @@
   body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
   uppercase-name: _bool-rule,
   header-text-align: _enum-rule((left, center, right)),
-  image-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
-  image-shape: _enum-rule(_default-theme.header.portrait-radius.keys()),
-  // The side of the header text the portrait takes.
-  image-position: _enum-rule((left, right, top, bottom)),
-  // Deprecated (#239): read into `image-position` with `"center"`, but
+  photo-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
+  photo-shape: _enum-rule(_default-theme.header.photo-radius.keys()),
+  // The side of the header text the photo takes.
+  photo-position: _enum-rule((left, right, top, bottom)),
+  // Deprecated (#239): read into `photo-position` with `"center"`, but
   // checked even when unused, so a typo surfaces before it matters.
   image-stack-order: _enum-rule(("above", "below")),
   // A typo (`qr-code: true`) fails here, not inside `qrcode(...)`.

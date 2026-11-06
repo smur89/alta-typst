@@ -15,7 +15,7 @@
   _list-rule, _positive-int-rule, _quote, _type-rule,
 )
 #import "context.typ": _max-rating-state
-#import "primitives.typ": _divider, _portrait
+#import "primitives.typ": _divider, _photo
 #import "components/bibliography.typ": _bib-entry
 #import "components/columns.typ": _columns
 #import "components/entry.typ": _entry
@@ -229,7 +229,7 @@
 
 /// The CV's header: your name (rendered with Typst's `title`
 /// element), a tagline, an objective, the contact bar, and an optional
-/// portrait and QR code. Its text follows the surrounding alignment:
+/// photo and QR code. Its text follows the surrounding alignment:
 /// `#align(center, cv-header(..))` centres it.
 ///
 /// - name (auto, content, str): Your name. `auto` is the document's
@@ -240,14 +240,14 @@
 ///   the contact bar. A `linebreak()` among them starts a new row, as
 ///   `alta()` sets its profiles under the other details
 ///   (`adapter.basics-contacts` returns them so).
-/// - photo (content, none): The portrait: content, typically an
+/// - photo (content, none): The photo: content, typically an
 ///   `image(..)`, loaded in your file, so its path is yours.
-/// - photo-side (alignment): `left`, `right`, `top` or `bottom`.
-/// - photo-size (auto, length, ratio, relative): The portrait's side.
-///   `auto` is `alta()`'s default `image-size`.
-/// - photo-shape (auto, str): The portrait's frame: `"circle"`,
+/// - photo-position (alignment): `left`, `right`, `top` or `bottom`.
+/// - photo-size (auto, length, ratio, relative): The photo's side.
+///   `auto` is `alta()`'s default `photo-size`.
+/// - photo-shape (auto, str): The photo's frame: `"circle"`,
 ///   `"rounded"` or `"square"`. `auto` is `alta()`'s default
-///   `image-shape`.
+///   `photo-shape`.
 /// - qr (str, none): A URL to encode as a QR code, opposite the photo.
 /// - uppercase (bool): Set the name in capitals.
 /// -> content
@@ -257,7 +257,7 @@
   objective: none,
   contacts: (),
   photo: none,
-  photo-side: right,
+  photo-position: right,
   photo-size: auto,
   photo-shape: auto,
   qr: none,
@@ -269,7 +269,7 @@
     (content, str, type(auto)),
     "content, a string or auto",
   )
-  _check("cv-header() photo-side", photo-side, _enum-rule((
+  _check("cv-header() photo-position", photo-position, _enum-rule((
     left,
     right,
     top,
@@ -284,12 +284,12 @@
   // The photo's `key` (`size`, `shape`): `auto` reads `alta()`'s
   // default `image-{key}`, anything else is checked as that preference.
   let photo-option(key, value) = if value == auto {
-    _default-preferences.at("image-" + key)
+    _default-preferences.at("photo-" + key)
   } else {
     _check(
       "cv-header() photo-" + key,
       value,
-      _preference-rules.at("image-" + key),
+      _preference-rules.at("photo-" + key),
     )
     value
   }
@@ -327,9 +327,9 @@
       // Framed as `alta()` frames `basics.image`; `alt` is the
       // person's name.
       photo: if photo != none {
-        _portrait(photo, photo-size, _plain(name), shape: photo-shape)
+        _photo(photo, photo-size, _plain(name), shape: photo-shape)
       },
-      photo-at: photo-side,
+      photo-position: photo-position,
       qr-url: qr,
       title: true,
     )

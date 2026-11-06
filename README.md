@@ -14,14 +14,14 @@
 <p align="center">
   <img alt="Animated preview: one CV in each built-in theme, each with a different layout" src="examples/preview.webp">
 </p>
-<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, portrait position and shape, header alignment, date format, QR code, justified text, single column, a CV in Irish, and show rules restyling the ratings and keywords.</sub></p>
+<p align="center"><sub>One CV in every built-in theme, each frame with a different layout: columns, photo position and shape, header alignment, date format, QR code, justified text, single column, a CV in Irish, and show rules restyling the ratings and keywords.</sub></p>
 
 ## Highlights
 
 - **Data, not layout.** Your CV is a [JSON Resume](https://jsonresume.org/schema/) dict, inline in Typst or loaded from a `resume.json`. Empty sections disappear, and a misspelt key or a wrong type stops the build with a message naming it.
 - **Built-in themes**, every colour role overridable, plus theme tokens for the font, type scale, spacing and separators.
 - **Any layout.** Two columns at any ratio, any section in either column, the side panel left or right, or a single column for applicant-tracking systems (ATS).
-- **A rich header.** Portrait (circle, rounded or square; left, right or centred), contact bar with icons for common networks, and an optional QR code to your homepage for printed copies.
+- **A rich header.** Photo (circle, rounded or square; left, right or centred), contact bar with icons for common networks, and an optional QR code to your homepage for printed copies.
 - **Ratings as dots.** Language fluency and skill levels from LinkedIn-style terms (`Native`, `Expert`) or exact numbers, in half-dot steps.
 - **Every string translatable**, including month names. The labels follow `set text(lang: ..)`, with English and [Irish](internal/data/labels-ga.toml) built in.
 - **Print- and archive-ready.** PDF metadata comes from your data, and the output compiles as PDF/A and PDF/UA-1 (tagged, with alt text).
@@ -35,7 +35,7 @@ The full example, every section in use, over two pages ([source](https://github.
 ## Contents
 
 - [Quick start](#quick-start): [your own mapping](#your-own-mapping)
-- [Customising](#customising): [themes](#themes-and-colours), [fonts](#fonts), [layout](#layout), [portrait and contacts](#portrait-contact-bar-and-qr-code), [translation](#translating-labels), [restyling](#restyling-parts), [PDF output](#pdf-metadata-pdfa-and-accessibility)
+- [Customising](#customising): [themes](#themes-and-colours), [fonts](#fonts), [layout](#layout), [photo and contacts](#photo-contact-bar-and-qr-code), [translation](#translating-labels), [restyling](#restyling-parts), [PDF output](#pdf-metadata-pdfa-and-accessibility)
 - [Reference](#reference): [data schema](#data-schema), [preferences](#preferences), [theme tokens](#theme-tokens), [labels](#labels), [part labels](#part-labels), [exports](#exports)
 - [Contributing](#contributing) · [Credits](#credits) · [License](#license)
 
@@ -61,7 +61,7 @@ Package dependencies download automatically.
 typst init @preview/altacv
 ```
 
-This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`template/resume.json`](template/resume.json), the same CV as a [JSON Resume](https://jsonresume.org/) file, into a new project. Edit the data in `cv.typ` in place and compile. To load `resume.json` instead, replace `cv.typ`'s `#alta(cv, preferences: preferences)` call with the `alta-from-json` line commented below it. That drops the portrait, which `cv.typ` sets in Typst.
+This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`template/resume.json`](template/resume.json), the same CV as a [JSON Resume](https://jsonresume.org/) file, into a new project. Edit the data in `cv.typ` in place and compile. To load `resume.json` instead, replace `cv.typ`'s `#alta(cv, preferences: preferences)` call with the `alta-from-json` line commented below it. That drops the photo, which `cv.typ` sets in Typst.
 
 ### Render an existing `resume.json`
 
@@ -238,7 +238,7 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 
 #alta(cv, preferences: (
   date-format: "short",              // 06/2024
-  image-position: left,
+  photo-position: left,
   link-contact-info: (phone: false),  // everything linked but the phone
   maps-provider: maps-providers.osm, // OpenStreetMap for basics.location
   right-column-sections: ("focus-areas", "education", "skills", "languages", "certificates"),
@@ -327,9 +327,9 @@ Invert the layout, side panel on the narrow left:
 
 Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: alta-footer())`; for the last-modified line, `alta-updated-footer()`, with `version: true` to add the version (in a CV written in markup, give it the date: `alta-updated-footer(date: "May 2026")`); or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
 
-### Portrait, contact bar and QR code
+### Photo, contact bar and QR code
 
-**Portrait.** Set `basics.image` to add one. Pass it as a `path()`, which resolves relative to your own file, or as bytes:
+**Photo.** Set `basics.image` to add one. Pass it as a `path()`, which resolves relative to your own file, or as bytes:
 
 ```typst
 basics: (
@@ -343,11 +343,11 @@ basics: (
 
 A bare relative string without the leading `/` resolves inside the package, so use `path()`. [JSON Resume](https://jsonresume.org/schema/) calls for a URL here, but Typst can't fetch remote files: keep the image next to your CV.
 
-Position it with `image-position` (`right`, `left`, `top`, `bottom`), size it with `image-size` and shape it with `image-shape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `header-text-align` aligns the name and contact bar: `left`, `center` or `right`.
+Position it with `photo-position` (`right`, `left`, `top`, `bottom`), size it with `photo-size` and shape it with `photo-shape` (`"circle"`, `"rounded"`, `"square"`). Non-square images are cropped from the centre. `header-text-align` aligns the name and contact bar: `left`, `center` or `right`.
 
 **Contact bar.** Built from `basics.email`, `phone`, `location`, `url` and `profiles`, each linked (`mailto:`, `tel:`, a maps search, the URL). `link-contact-info` turns linking off globally or per channel. For paper, turn linking off and set `print-full-urls: true` to print profile URLs in place of usernames.
 
-**QR code.** For printed copies, `qr-code` adds a QR code to your homepage on the side opposite the portrait:
+**QR code.** For printed copies, `qr-code` adds a QR code to your homepage on the side opposite the photo:
 
 ```typst
 #alta(cv, preferences: (qr-code: auto))                         // encodes basics.url
@@ -436,7 +436,7 @@ For an archival (PDF/A) or accessible (PDF/UA-1) PDF, ask the compiler. The temp
 typst compile --pdf-standard a-2b,ua-1 cv.typ
 ```
 
-The output has a tagged structure with nested headings, a document title, alt text for the portrait and meaningful icons, and the language from `set text(lang: ..)`.
+The output has a tagged structure with nested headings, a document title, alt text for the photo and meaningful icons, and the language from `set text(lang: ..)`.
 
 ## Reference
 
@@ -485,7 +485,7 @@ altacv reads four optional fields the [JSON Resume schema](https://jsonresume.or
 | `name` | Required. The name, in uppercase unless `preferences.uppercase-name: false`. |
 | `label` | The tagline under the name. |
 | `summary` | The introduction under the header. |
-| `image` | The portrait; see [Portrait](#portrait-contact-bar-and-qr-code). |
+| `image` | The photo; see [Photo](#photo-contact-bar-and-qr-code). |
 | `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qr-code: auto` encodes. |
 | `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`; the address and postcode aren't shown. |
 | `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
@@ -566,9 +566,9 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 |---|---|---|
 | `uppercase-name` | `true` | Set `false` for scripts without case, or where uppercasing changes letters (Turkish dotless i). |
 | `header-text-align` | `left` | `left`, `right` or `center`. |
-| `image-size` | `6em` | The portrait's width and height. |
-| `image-shape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
-| `image-position` | `right` | The side of the header text the portrait takes: `left`, `right`, or centred at the `top` or `bottom`. |
+| `photo-size` | `6em` | The photo's width and height. |
+| `photo-shape` | `"circle"` | `"circle"`, `"rounded"` or `"square"`. |
+| `photo-position` | `right` | The side of the header text the photo takes: `left`, `right`, or centred at the `top` or `bottom`. |
 | `qr-code` | `none` | `auto` (encode `basics.url`; panics without one) or a URL string. |
 
 #### Page and layout
@@ -630,8 +630,9 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | The section key `"focusAreas"` in a column list | `"focus-areas"`. The data stays at `custom.altacv.focusAreas`. |
 | `accent` | `theme`, or `colours` for a custom colour. |
 | `references-available-on-request` | `references[].availableOnRequest`. |
-| `image-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
-| `image-stack-order` | `image-position: top` or `bottom`. |
+| `imagePosition`, `imageSize` | `photo-position`, `photo-size`. |
+| `photo-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
+| `image-stack-order` | `photo-position: top` or `bottom`. |
 | `header-text-align: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
 | `group-certificates`, `show-pronouns` | Nothing: both are ignored. |
 
@@ -735,7 +736,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `tag(body, ..)` | A pill. |
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
-| `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-side:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a portrait and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
+| `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-position:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a photo and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
 | `contact(icon, value, link: none, alt: auto)` | One contact-bar entry for `cv-header`. |
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. The body (its highlights or other prose) is optional. `date` takes a `(start, end)` pair, an open end reading "Present"; `location` an array of parts, joined by the theme's item separator. |
 | `publication(title:, url:, authors:, owners: auto, source:, citation: (:), date:, identifiers:, body)` | A publication as a bibliography item, with a required `title` and an optional body, its summary; the `owners` (the document's author by default) are set apart among the authors, and the `citation` (`volume`, `issue`, `pages`) follows the source in the theme's citation style. |

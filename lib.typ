@@ -32,7 +32,7 @@
 #import "internal/adapter.typ" as adapter
 
 /// A generic silhouette (SVG bytes) for `basics.image`, so a CV (the
-/// `typst init` starter's, say) compiles before its own portrait is
+/// `typst init` starter's, say) compiles before its own photo is
 /// added.
 /// -> bytes
 #let avatar-placeholder = read("assets/avatar-placeholder.svg", encoding: none)

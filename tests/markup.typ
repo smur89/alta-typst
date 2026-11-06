@@ -1,5 +1,5 @@
 // A CV written in markup, with no data dictionary: the name from
-// `set document(title: ..)` shown by `cv-header` with a portrait and
+// `set document(title: ..)` shown by `cv-header` with a photo and
 // QR code, two columns (`cv-columns`), `=` sections,
 // a `==` group, and the blocks: `entry` (dividers only between
 // entries), `publication` (the document's author set apart), `skills`

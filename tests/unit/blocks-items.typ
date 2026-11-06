@@ -41,7 +41,7 @@
 // Matched trimmed and ignoring case, as `alta()` matches its owner.
 #publication(title: "A", authors: ("A. N. Other", " jane doe "))[]
 #context assert.eq(owners.get(), ([jane doe],))
-// Content's text, as an owner is matched and a portrait's alt reads:
+// Content's text, as an owner is matched and a photo's alt reads:
 // a gap or a line break is a space, a negative kern nothing.
 #assert.eq(_plain([Jane#h(0.3em)Doe]), "Jane Doe")
 #assert.eq(_plain([Jane#h(1fr)Doe]), "Jane Doe")

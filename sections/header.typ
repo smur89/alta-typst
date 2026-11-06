@@ -6,7 +6,7 @@
 
 #import "../internal/util/fields.typ": _field
 #import "../internal/data/contacts.typ": _contact-rows, _linked-contacts
-#import "../internal/primitives.typ": _fact-line, _portrait
+#import "../internal/primitives.typ": _fact-line, _photo
 #import "../internal/components/header.typ": _page-header
 
 // `basics.image`, or `none` when there's nothing to frame: a `path`
@@ -39,9 +39,9 @@
     uppercase: prefs.uppercase-name,
     // `alt` is the person's name: language-neutral, so no label key.
     photo: if image != none {
-      _portrait(image, prefs.image-size, basics.name, shape: prefs.image-shape)
+      _photo(image, prefs.photo-size, basics.name, shape: prefs.photo-shape)
     },
-    photo-at: prefs.image-position,
+    photo-position: prefs.photo-position,
     qr-url: _resolve-qr-url(prefs.qr-code, basics),
   )
 }

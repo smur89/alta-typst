@@ -50,10 +50,10 @@
   // Visual only: PDF title / author metadata keep the name as given.
   uppercase-name: true,
   header-text-align: left,
-  image-size: 6em,
-  image-shape: "circle",
-  image-position: right,
-  // Deprecated (#239): read into `image-position` (`canonical.typ`).
+  photo-size: 6em,
+  photo-shape: "circle",
+  photo-position: right,
+  // Deprecated (#239): read into `photo-position` (`canonical.typ`).
   image-stack-order: "above",
   qr-code: none,
   // Page and layout.

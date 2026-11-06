@@ -14,7 +14,7 @@
     email: "jane@example.com",
     phone: "+353 1 555 0100",
     location: "Dublin",
-    // Drop the portrait so the header is fully text-only.
+    // Drop the photo so the header is fully text-only.
     image: none,
   ),
   work: (
