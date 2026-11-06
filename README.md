@@ -730,12 +730,12 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `maps-providers` | Map link templates for `maps-provider`. |
 | `avatar-placeholder` | A generic silhouette for `basics.image`. |
 | `icon(name, ..)` | A glyph from the built-in icon set: `book`, `calendar`, `cubes`, `email`, `file`, `flask`, `folder`, `laptop-code`, `location`, `microphone`, `newspaper`, `phone`, `terminal` and the profile networks. |
-| `name(body)` | An accent-coloured organisation line. |
-| `term(period, location: none)` | A date and optional location, each with its icon. |
+| `name(body)` | Deprecated: use `entry(org:)` ([#239](https://github.com/smur89/alta-typst/issues/239)). An accent-coloured organisation line. |
+| `term(period, location: none)` | Deprecated: use `entry(date:, location:)` ([#239](https://github.com/smur89/alta-typst/issues/239)). A date and optional location, each with its icon. |
 | `rating(label, value, max: auto)` | A label with rating dots, or with a text value in their place. |
 | `tag(body, category: auto, trailing: true)` | A tag. `category: true` is the darker, bold one that names a skill group. Deprecated: `label:`, the name 1.8.0 gave `category:`. |
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
-| `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
+| `styled-link(content, dest: none)` | Deprecated: use `entry(title:, url:)` ([#239](https://github.com/smur89/alta-typst/issues/239)). Text in the entry-title style, linked when `dest` is set. |
 | `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-position:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a photo and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
 | `contact(icon, value, url: none, alt: auto)` | One contact-bar entry for `cv-header`. |
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. The body (its highlights or other prose) is optional. `date` takes a `(start, end)` pair, an open end reading "Present"; `location` an array of parts, joined by the theme's item separator. |

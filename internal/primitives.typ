@@ -38,7 +38,7 @@
 #let _tag-gap(theme, body-size) = h(theme.tag.gap * body-size)
 
 /// An accent-coloured line, for an organisation on a line of its own in
-/// a custom layout.
+/// a custom layout. Deprecated (#239): `entry(org:)`.
 ///
 /// - body (content): The text.
 /// -> content
@@ -120,7 +120,7 @@
 
 /// A date and an optional location on one row, each led by its icon.
 /// An absent side is left out, icon included; with neither, nothing
-/// renders.
+/// renders. Deprecated (#239): `entry(date:, location:)`.
 ///
 /// - period (content, str, none): The date or date range.
 /// - location (content, str, none): The place.
@@ -281,7 +281,8 @@
 }
 
 /// Text in altacv's entry-title style (the accent, italic), linked when
-/// `dest` is set; it looks the same either way.
+/// `dest` is set; it looks the same either way. Deprecated (#239):
+/// `entry(title:, url:)`.
 ///
 /// - content (content): The title.
 /// - dest (str, none): A URL to link it to.
