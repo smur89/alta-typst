@@ -9,8 +9,7 @@
 #import "defaults.typ": _default-labels, _default-preferences, _translations
 #import "sections.typ": _section-specs
 #import "validation.typ": (
-  _check-icon-names, _check-theme, _strict-merge, _validate-labels,
-  _validate-preferences,
+  _check-icon-names, _strict-merge, _validate-labels, _validate-preferences,
 )
 
 // The theme is the template's: `theme` and `colours` aren't
@@ -128,13 +127,6 @@
   _check-template-labels(labels, _template-label-replacements.keys())
   let _ = _resolve-labels("en", labels)
   labels
-}
-
-// `altacv`'s `theme`, checked, without the
-// rest of the preferences.
-#let _checked-theme(theme) = {
-  _check-theme(theme)
-  theme
 }
 
 // Inside the `altacv` template, what each document-level preference

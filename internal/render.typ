@@ -4,7 +4,7 @@
 
 #import "util/dates.typ": _format-date
 #import "data/options.typ": (
-  _check-template-preferences, _checked-theme, _merge-options, _template-labels,
+  _check-template-preferences, _merge-options, _template-labels,
 )
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
@@ -14,6 +14,7 @@
 #import "design/presets.typ": themes
 #import "design/styles.typ": _justify, _level-headings
 #import "design/theme.typ": _theme-for
+#import "design/theme-checks.typ": _checked-theme
 #import "context.typ": _labels-state, _max-rating-state
 #import "document.typ": _document, _standalone
 #import "registry.typ": _renderers
