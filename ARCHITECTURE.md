@@ -35,7 +35,7 @@ Parts a user can restyle with a show rule (the README's Restyling parts) are lab
 
 ## The adapter layer
 
-Inside the template, `alta()` draws through the JSON Resume mapping, `adapter/json-resume.typ` at the repository root: `resume(cv, preferences:)`, its labels the resolved ones (`adapter.labels()`) the blocks read,, written only with what `lib.typ` exports, so a user can copy it, swap its imports for one `@preview/altacv` import and edit it (`tests/unit/mapping-imports.typ` holds it to that). It imports the public names from the modules that define them, as `render.typ`, which calls it, sits inside `lib.typ`. What it needs beyond the blocks comes from two modules in the root layer:
+Inside the template, `alta()` draws through the JSON Resume mapping, `adapter/json-resume.typ` at the repository root: `resume(cv, preferences:)`, its labels the resolved ones (`adapter.labels()`) the blocks read, written only with what `lib.typ` exports, so a user can copy it, swap its imports for one `@preview/altacv` import and edit it (`tests/unit/mapping-imports.typ` holds it to that). It imports the public names from the modules that define them, as `render.typ`, which calls it, sits inside `lib.typ`. What it needs beyond the blocks comes from two modules in the root layer:
 
 - `adapter-helpers.typ`: the public readers (`format-date`, `location-text`, `basics-contacts`, `fluency-rating`, `group-by-type`, `labels`), thin wrappers over the `data/` readers `alta()` uses, with the preferences they read passed explicitly, taking JSON Resume's camelCase field names.
 - `adapter.typ`: re-exports exactly those, which `lib.typ` exports as the `adapter` module. Typst re-exports every name a module imports, so the helpers' own imports would otherwise leak into it.

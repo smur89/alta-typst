@@ -6,7 +6,6 @@
 #import "data/options.typ": (
   _check-template-preferences, _checked-theme, _merge-options, _template-labels,
 )
-#import "data/canonical.typ": _kebab-options
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
@@ -102,7 +101,6 @@
   _cv-marks(ctx.prefs, details)
   // The caller's labels over the template's for this CV's blocks too
   // (an entry's "Present", its alt text), which read `_labels-state`.
-  let (labels, _) = _kebab-options(labels, (:))
   _labels-state.update(layers => layers + (labels,))
   _resume(json-resume, ctx.labels, ctx.prefs)
   _labels-state.update(layers => layers.slice(0, -1))
@@ -132,7 +130,8 @@
 /// - labels (dictionary): Display strings to override for everything
 ///   the template draws: `alta()`'s CVs, the markup blocks (`entry`'s
 ///   "Present", the date and location alt text) and the footers. The
-///   keys `alta()`'s `labels:` takes, but `lang`; merged over the
+///   keys `alta()`'s `labels:` takes, but the deprecated `lang` and
+///   `publication-icons`, which panic; merged over the
 ///   defaults for the document's language (`text.lang`) where each is
 ///   read, and under an `alta(cv, labels: ..)`'s for that CV.
 /// - body (content): The document.
@@ -172,6 +171,9 @@
   // outer one's.
   _labels-state.update(layers => layers + (labels,))
   body
+  // Lands after the body's last content: a trailing `#pagebreak()`
+  // puts it on a blank page of its own, whose footer then reads the
+  // labels outside the template (as `_document`'s theme pop does).
   _labels-state.update(layers => layers.slice(0, -1))
 }
 

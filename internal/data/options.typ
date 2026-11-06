@@ -2,8 +2,8 @@
 // defaults and validated, as the pair `alta()` renders with.
 
 #import "canonical.typ": (
-  _canonical-labels, _canonical-preferences, _kebab-options, _label-tables,
-  _preference-tables,
+  _canonical-labels, _canonical-preferences, _kebab-keys, _kebab-options,
+  _label-tables, _preference-tables,
 )
 #import "../util/fields.typ": _dict-or-empty
 #import "defaults.typ": _default-labels, _default-preferences, _translations
@@ -30,7 +30,7 @@
 
 // The one label resolver: the English defaults, the bundled
 // translation for `lang` (if any), then each layer of overrides in
-// turn, already in kebab-case, canonicalised and merged; validated. The layers
+// turn, kebab-cased, canonicalised and merged; validated. The layers
 // are the templates' (`altacv.with(labels: ..)`, outermost first),
 // then a call's (`alta(cv, labels: ..)`), so a later layer wins.
 #let _resolve-labels(lang, ..layers) = {
@@ -46,7 +46,7 @@
   )
   let merged = layers
     .pos()
-    .map(_canonical-labels)
+    .map(layer => _canonical-labels(_kebab-keys("labels")(layer)))
     .fold(merge(_default-labels, translation + (lang: lang)), merge)
   _validate-labels(merged)
   merged
@@ -92,22 +92,40 @@
   (labels: merged-labels, prefs: merged-preferences)
 }
 
-// `altacv`'s `labels`, in kebab-case for `_labels-state`, checked as
-// `alta()`'s are: over the English, as the language they render in is
-// known only where they're read. Neither the deprecated `lang` nor the
-// deprecated `publication-icons` is a label there: the first is
-// `set text`'s, the second a preference.
-#let _template-labels(labels) = {
+// Inside the `altacv` template, what each deprecated label that isn't
+// one there is instead: `lang` is `set text`'s, and `publication-icons`
+// a preference's.
+#let _template-label-replacements = (
+  lang: "`set text(lang: ..)` after `#show: altacv.with(..)`",
+  publication-icons: "`alta(cv, preferences: (publication-icons: ..))`",
+)
+
+// Panics on any of `keys` (`_template-label-replacements`) among
+// `labels`, naming what replaces it; camelCase names count. One check
+// for `altacv`'s labels and `alta()`'s inside the template, which rule
+// out different keys: `alta()` still folds its `publication-icons`
+// into its preferences (`_canonical-preferences`), where `altacv` has
+// no preferences to fold them into.
+#let _check-template-labels(labels, keys) = {
   let (labels, _) = _kebab-options(labels, (:))
-  let instead = (
-    lang: "`set text(lang: ..)` after `#show: altacv.with(..)`",
-    publication-icons: "`alta(cv, preferences: (publication-icons: ..))`",
-  )
-  for (key, use) in instead {
+  for key in keys {
     if key in _dict-or-empty(labels) {
-      panic("labels." + key + " isn't an altacv() label: use " + use + ".")
+      panic(
+        "labels."
+          + key
+          + " isn't a label inside the altacv template: use "
+          + _template-label-replacements.at(key)
+          + ".",
+      )
     }
   }
+}
+
+// `altacv`'s `labels`, for `_labels-state`, checked as `alta()`'s are:
+// over the English, as the language they render in is known only
+// where they're read.
+#let _template-labels(labels) = {
+  _check-template-labels(labels, _template-label-replacements.keys())
   let _ = _resolve-labels("en", labels)
   labels
 }
@@ -137,12 +155,8 @@
 // which the document's `text.lang` replaces. camelCase names count
 // (#389).
 #let _check-template-preferences(labels, preferences) = {
-  let (labels, prefs) = _kebab-options(labels, preferences)
-  if "lang" in _dict-or-empty(labels) {
-    panic(
-      "labels.lang isn't an alta() label inside the altacv template: use `set text(lang: ..)` after `#show: altacv.with(..)`.",
-    )
-  }
+  _check-template-labels(labels, ("lang",))
+  let (_, prefs) = _kebab-options((:), preferences)
   for key in _dict-or-empty(prefs).keys() {
     if key in _template-replacements {
       panic(
