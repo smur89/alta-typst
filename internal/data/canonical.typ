@@ -91,6 +91,47 @@
   }
 }
 
+// Fields 1.8.0 read leniently, a value of the wrong type reading as
+// absent, so a CV that relied on it still renders (#239 checks them):
+// each section's fields, and what keeps of a value, `none` dropping the
+// field. Every reader after this, the template's mapping
+// (`adapter/json-resume.typ`) included, then meets JSON Resume's types.
+#let _string-or-none(v) = if type(v) == str { v }
+#let _lenient-fields = (
+  // 1.8.0 drew no work keywords; an array of anything but text draws none.
+  work: (
+    keywords: v => if (
+      type(v) == array and v.all(x => type(x) in (str, content))
+    ) { v },
+  ),
+  projects: (type: _string-or-none),
+  publications: (
+    type: _string-or-none,
+    volume: _string-or-none,
+    issue: _string-or-none,
+    pages: _string-or-none,
+    // The strings, as an author or an ID of another type has no text.
+    authors: v => if type(v) == array { v.filter(a => type(a) == str) },
+    identifiers: v => if type(v) == dictionary {
+      v.pairs().filter(((_, id)) => type(id) == str).to-dict()
+    },
+  ),
+  references: (
+    relationship: _string-or-none,
+    organization: _string-or-none,
+    date: _string-or-none,
+    // Only a real boolean counts, so a stray `"yes"` doesn't hide a quote.
+    availableOnRequest: v => if type(v) == bool { v },
+  ),
+)
+#let _lenient-entry(entry, fields) = (
+  entry
+    .pairs()
+    .map(((k, v)) => (k, if k in fields { (fields.at(k))(v) } else { v }))
+    .filter(((k, v)) => k not in fields or v != none)
+    .to-dict()
+)
+
 // #239: `preferences.references-available-on-request` means the same as
 // one `availableOnRequest: true` entry when no reference is usable.
 #let _references-on-request(cv, prefs) = {
@@ -127,6 +168,13 @@
 // `prefs` is the merged, validated preferences dict.
 #let _canonical-cv(cv, prefs) = (
   _spec-values,
+  cv => _lenient-fields
+    .pairs()
+    .fold(cv, (acc, (key, fields)) => _map-entries(
+      acc,
+      key,
+      e => _lenient-entry(e, fields),
+    )),
   cv => _lift-into-custom(cv, _legacy-root-fields),
   cv => _legacy-entry-fields
     .pairs()

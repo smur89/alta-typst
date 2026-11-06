@@ -29,9 +29,12 @@
 // has always resolved, so the standalone header and the template's
 // mapping (`adapter/`) frame the same file. `path()` resolves from this
 // file, in `internal/data/`; a root-relative `/…` reads the same here.
+// An empty string or `bytes` is no image, and drops out.
 #let _image-path(cv) = {
   let image = cv.basics.at("image", default: none)
-  if type(image) == str and image != "" {
+  if type(image) in (str, bytes) and image.len() == 0 {
+    let _ = cv.basics.remove("image")
+  } else if type(image) == str {
     cv.basics.image = path(
       if image.starts-with("/") { image } else { "../" + image },
     )

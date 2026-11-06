@@ -39,12 +39,12 @@
 // - `root: false`: its key isn't a top-level CV key (`_cv-keys`).
 // - `items`: the accepted entry types (default: dictionaries).
 // - `fields`: a rule per field its renderer draws as given, checked on
-//   every entry (see `cv-checks.typ`). Fields read with `_string-at`
-//   (a project's `type`, a reference's attribution, a publication's
-//   citation parts) or by a lenient reader (`authors`, `identifiers`,
-//   work's `keywords`, which 1.8.0 ignored)
-//   treat a value of the wrong type as absent, as the README documents,
-//   so they have no rule.
+//   every entry (see `cv-checks.typ`). The fields 1.8.0 read
+//   leniently (a project's `type`, a reference's attribution, a
+//   publication's citation parts, `authors` and `identifiers`, work's
+//   `keywords`) treat a value of the wrong type as absent, as the
+//   README documents, so they have no rule: `_canonical-cv` drops it
+//   (`_lenient-fields`).
 // - `keep`: which entries render; the rest are dropped before
 //   `check` and the renderer, so neither sees them.
 // - `check(key, entry, prefs)`: checks that need more than a field's

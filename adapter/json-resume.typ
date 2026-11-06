@@ -3,8 +3,10 @@
 // `publication`, `skill-row`, …). It is what `alta(cv)` renders inside
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
-// It reads JSON Resume's camelCase fields (`startDate`) and altacv's
-// extensions under `custom.altacv`.
+// It takes validated JSON Resume: `alta()`'s checked CV, or
+// gairm-import's `parse(..)` of a `resume.json`. It reads JSON
+// Resume's camelCase fields (`startDate`) and altacv's extensions under
+// `custom.altacv` as the schema types them, without checking them.
 //
 // To adapt it, copy this file into your project, replace the imports
 // below with one
@@ -13,16 +15,17 @@
 //
 // and edit what it draws. Then, in your CV:
 //
+//   #import "@preview/altacv:<version>": altacv
+//   #import "@preview/gairm-import:0.10.1": parse
 //   #import "json-resume.typ": resume
 //   #show: altacv
-//   #let cv = json("resume.json")
-//   #set document(title: cv.basics.name, author: cv.basics.name)
-//   #resume(cv)
+//   #set document(title: "Jane Doe", author: "Jane Doe")
+//   #resume(parse(path("resume.json")))
 //
 // Labels come from the template, `#show: altacv.with(labels: ..)`,
 // which the blocks read too. The `set document` is only the PDF's
-// metadata. In your copy, a bare
-// `basics.image` path resolves from your copy's file.
+// metadata. In your copy, a bare `basics.image` path resolves from
+// your copy's file.
 //
 // The names below are the public API (`lib.typ` re-exports exactly
 // these); this file imports them from the modules that define them
@@ -37,27 +40,11 @@
 #import "../internal/primitives.typ": divider
 #import "../internal/adapter.typ" as adapter
 
-// A field's value, or `none` when it's absent, empty or blank content,
-// as `alta()` reads a field.
+// A field's value, or `none` when it's absent: an empty string or
+// blank content counts as missing, so it leaves no empty line.
 #let _field(obj, key) = {
   let value = obj.at(key, default: none)
-  if value not in (none, "", []) { value }
-}
-
-// A field that's a non-empty string, else `none`: the fields `alta()`
-// reads leniently (a reference's attribution, a citation's parts).
-#let _string(obj, key) = {
-  let value = obj.at(key, default: none)
-  if type(value) == str and value != "" { value }
-}
-
-// A field that's an array of text, else `()`: work's `keywords`,
-// which `alta()` reads leniently.
-#let _texts(obj, key) = {
-  let value = obj.at(key, default: none)
-  if type(value) == array and value.all(v => type(v) in (str, content)) {
-    value
-  } else { () }
+  if value not in ("", []) { value }
 }
 
 // An entry's summary: its `summary`, else its `description`, the field
@@ -156,24 +143,19 @@
   )
 
   let pub(p) = {
-    let ids = p.at("identifiers", default: none)
     publication(
       title: p.name,
       url: _field(p, "url"),
-      authors: p
-        .at("authors", default: ())
-        .filter(a => type(a) == str and a.trim() != ""),
+      authors: p.at("authors", default: ()),
       owners: owners,
       source: _field(p, "publisher"),
       citation: (
-        volume: _string(p, "volume"),
-        issue: _string(p, "issue"),
-        pages: _string(p, "pages"),
+        volume: _field(p, "volume"),
+        issue: _field(p, "issue"),
+        pages: _field(p, "pages"),
       ),
       date: date(_field(p, "releaseDate")),
-      identifiers: if type(ids) == dictionary {
-        ids.pairs().filter(((_, id)) => type(id) == str and id != "").to-dict()
-      } else { (:) },
+      identifiers: p.at("identifiers", default: (:)),
       _field(p, "summary"),
     )
   }
@@ -182,7 +164,7 @@
     work: () => _section(
       labels.work,
       cv.at("work", default: ()),
-      e => role(e, "name", keywords: _texts(e, "keywords")),
+      e => role(e, "name", keywords: e.at("keywords", default: ())),
     ),
     volunteer: () => _section(
       labels.volunteer,
@@ -293,7 +275,7 @@
             let value = adapter.fluency-rating(l, max: max-rating)
             block(breakable: false, rating(
               l.language,
-              if value != none { value } else { _string(l, "fluency") },
+              if value != none { value } else { _field(l, "fluency") },
               max: max-rating,
             ))
           })
@@ -388,7 +370,7 @@
     // on request, that line alone.
     references: () => {
       let on-request = labels.references-available-on-request
-      let requested(r) = r.at("availableOnRequest", default: false) == true
+      let requested(r) = r.at("availableOnRequest", default: false)
       let refs = cv
         .at("references", default: ())
         .filter(r => requested(r) or _field(r, "reference") != none)
@@ -399,8 +381,8 @@
         _section(title, refs, r => entry(
           title: _field(r, "name"),
           subtitle: (
-            (_string(r, "relationship"), _string(r, "organization")),
-            (date(_string(r, "date")),),
+            (_field(r, "relationship"), _field(r, "organization")),
+            (date(_field(r, "date")),),
           ),
           summary: if requested(r) { on-request } else { r.reference },
         ))
@@ -413,9 +395,6 @@
   // Its text follows the alignment around it, `header-text-align`'s
   // when that's set.
   let image-src = _field(basics, "image")
-  let image-src = if type(image-src) != bytes or image-src.len() > 0 {
-    image-src
-  }
   let qr-code = preferences.at("qr-code", default: none)
   let header = cv-header(
     name: if name != none { name } else { auto },
@@ -485,8 +464,10 @@
 /// The CV as `alta(cv)` renders it in the template: the header, the
 /// intro, then the column sections side by side.
 ///
-/// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
-///   fields) plus altacv's `custom.altacv` extensions.
+/// - cv (dictionary): The CV, validated JSON Resume (camelCase fields)
+///   plus altacv's `custom.altacv` extensions: gairm-import's
+///   `parse(path("resume.json"))`, or the CV `alta()` has checked. Its
+///   field types aren't checked again here.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …); a missing key
 ///   reads alta's default.
