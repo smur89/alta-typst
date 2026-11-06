@@ -1,7 +1,7 @@
 // `justify` through the JSON Resume mapping, a scoped `set par` rather
 // than `alta()`'s show rules: the prose takes it (the intro, an entry's
-// summary and highlights), the rows of facts and keywords, and the
-// interest rows, don't.
+// summary and highlights), the rows of facts and keywords, the
+// interest rows and the rating rows don't.
 
 #import "/lib.typ": alta, altacv
 
@@ -20,6 +20,7 @@
 #show <alta-keyword>: probe("keyword")
 #show "Highlight": probe("highlight")
 #show "Trad": probe("interest")
+#show <alta-rating-label>: probe("rating")
 
 #let cv = (
   basics: (name: "Jane Doe"),
@@ -33,6 +34,7 @@
     ),
   ),
   interests: ((name: "Music", keywords: ("Trad",)),),
+  languages: ((language: "Irish", fluency: "Native"),),
 )
 
 #alta(cv, preferences: (justify: true))
@@ -42,6 +44,7 @@
   keyword: false,
   highlight: true,
   interest: false,
+  rating: false,
 ))
 #alta(cv)
-#context assert.eq(seen.get().values(), (false,) * 5)
+#context assert.eq(seen.get().values(), (false,) * 6)

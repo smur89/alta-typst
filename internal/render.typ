@@ -21,8 +21,7 @@
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
 #import "../sections/footer.typ": _cv-details, _footer
-#import "../adapter/json-resume.typ": resume
-#import "primitives.typ": _internal-path
+#import "../adapter/json-resume.typ": _resume
 
 // The merged options, the read CV and the `ctx` every renderer takes
 // with its data, in `context`: the labels follow `text.lang`.
@@ -62,14 +61,18 @@
   body
 }
 
-// The CV itself, from `_prepare`, as standalone `alta()` draws it with
-// the section renderers: the name a level-1 heading, not the template's
-// `title` element (`in-template`).
-#let _cv-content((cv, sections, ctx, details)) = {
-  let ctx = ctx + (in-template: false)
-  show: _cv-styles.with(ctx.prefs)
-  // What the footer helpers print.
+// What `alta()` leaves for the content after it, in both forms: the
+// public `rating()`'s scale, and what the footer helpers print.
+#let _cv-marks(prefs, details) = {
+  _max-rating-state.update(prefs.max-rating)
   [#metadata(details)<alta-cv>]
+}
+
+// The CV itself, from `_prepare`, as standalone `alta()` draws it with
+// the section renderers.
+#let _cv-content((cv, sections, ctx, details)) = {
+  _cv-marks(ctx.prefs, details)
+  show: _justify.with(ctx.prefs.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
   // Renderers are width-agnostic, so any section fits either column.
@@ -96,23 +99,9 @@
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
-  // The public `rating()`'s scale; the mapping justifies its own
-  // prose.
-  _max-rating-state.update(ctx.prefs.max-rating)
-  // What the footer helpers print.
-  [#metadata(details)<alta-cv>]
-  // A bare `basics.image` path resolves from `internal/`, as it always
-  // has, not from the mapping's file.
-  let basics = json-resume.basics
-  resume(
-    json-resume
-      + (
-        basics: basics
-          + (image: _internal-path(basics.at("image", default: none))),
-      ),
-    labels: ctx.labels,
-    preferences: ctx.prefs,
-  )
+  // The mapping justifies its own prose.
+  _cv-marks(ctx.prefs, details)
+  _resume(json-resume, ctx.labels, ctx.prefs)
 }
 
 // `alta()` on its own (removed in the next major, #239): the template's
@@ -150,13 +139,8 @@
   // JSON Resume mapping's, a markup CV's); a `set grid(..)` after it
   // wins. The template's own grids set theirs.
   set grid(column-gutter: built.column-gutter)
-  // The intro under the header (the JSON Resume mapping's
-  // `<alta-intro>`): a paragraph's spacing, and the theme's `intro`
-  // spacing on top, as `alta()` spaces it. A show-set rule, so a
-  // `show <alta-intro>: set block(..)` after the template wins; it
-  // can't read a later `set par(spacing: ..)`, which needs context,
-  // and a `set` inside a show transform doesn't reach the block's own
-  // spacing.
+  // The mapping's intro, spaced as `alta()`'s; a later
+  // `show <alta-intro>: set block(..)` wins.
   show <alta-intro>: set block(
     above: built.par.spacing + built.intro.above * 1em,
     below: built.par.spacing + built.intro.below * 1em,

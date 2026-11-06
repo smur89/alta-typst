@@ -101,9 +101,7 @@
         icons.pairs().map(((k, v)) => (lower(k), v)).to-dict()
       }
   )
-  // A record as `contact()` makes one; `alt` the profile's network as
-  // written, else `auto` for `cv-header` to resolve, the location in
-  // the document's language as `alta()` names it from its labels.
+  // A record as `contact()` makes one, `alt` as the docstring says.
   let as-contact(c) = {
     if c.glyph == none {
       panic(

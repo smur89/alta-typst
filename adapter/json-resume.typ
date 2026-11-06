@@ -3,10 +3,8 @@
 // `publication`, `skills`, …). It is what `alta(cv)` renders inside
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
-// It reads JSON Resume's own field names, camelCase as
-// `json("resume.json")` gives them (`startDate`, `studyType`), plus
-// altacv's extensions under `custom.altacv` (`focusAreas`, a language's
-// `rating`, an award's `url`).
+// It reads JSON Resume's camelCase fields (`startDate`) and altacv's
+// extensions under `custom.altacv`.
 //
 // To adapt it, copy this file into your project, replace the imports
 // below with one
@@ -21,12 +19,8 @@
 //   #set document(title: cv.basics.name, author: cv.basics.name)
 //   #resume(cv)
 //
-// The `set document` is the PDF's metadata: the header shows
-// `basics.name`, and `publication` sets it apart among a publication's
-// authors with `owner-names`, as `alta()` sets the CV's owner. A bare
-// `basics.image` path resolves from this file, as `image()` resolves
-// from the file that calls it. The labels are the document language's
-// (`set text(lang: ..)`), as `alta()`'s are.
+// The `set document` is only the PDF's metadata. In your copy, a bare
+// `basics.image` path resolves from your copy's file.
 //
 // The names below are the public API (`lib.typ` re-exports exactly
 // these); this file imports them from the modules that define them
@@ -86,34 +80,17 @@
   entries.map(render).join(),
 )
 
-/// The CV as `alta(cv)` renders it in the template: the header, the
-/// intro, then the column sections side by side.
-///
-/// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
-///   fields) plus altacv's `custom.altacv` extensions.
-/// - labels (auto, dictionary): Display strings, by `alta()`'s
-///   kebab-case label keys (`work`, `other-projects`,
-///   `publication-types`, …), over the document language's
-///   (`adapter.labels()`); `auto` is those alone.
-/// - preferences (dictionary): Settings, by `alta()`'s kebab-case
-///   preference keys (`column-ratio`, `date-format`, …); a missing key
-///   reads alta's default.
-///
-/// The name is `basics.name`, else the document's title; the owners
-/// set apart among publication authors are it and `owner-names`, else
-/// the document's author.
-/// -> content
-#let resume(cv, labels: auto, preferences: (:)) = context {
+// `resume` with the labels resolved, as `alta()` has them already.
+#let _resume(cv, labels, preferences) = {
   let basics = cv.basics
-  let labels = adapter.labels(
-    overrides: if labels == auto { (:) } else { labels },
-  )
   let name = _field(basics, "name")
   // The names set apart among publication authors, as `alta()` sets
   // them apart: the CV's name and `owner-names`; with neither, `auto`,
   // the document's author.
-  let owner-names = preferences.at("owner-names", default: ())
-  let owners = if name != none { (name, ..owner-names) } else { owner-names }
+  let owners = (
+    (name,).filter(n => n != none) + preferences.at("owner-names", default: ())
+  )
+  let owners = if owners.len() > 0 { owners } else { auto }
   let max-rating = preferences.at("max-rating", default: 5)
 
   // A date as `alta()` shows it, per `date-format` and the months.
@@ -143,15 +120,15 @@
   let bullets(obj) = obj.at("highlights", default: ()).map(h => [- #h]).join()
 
   // work[] and volunteer[]: the same entry, the organisation under a
-  // different key; only work has keywords.
-  let role(org-key) = e => entry(
+  // different key; only work shows keywords.
+  let role(e, org, keywords: ()) = entry(
     title: _field(e, "position"),
-    org: _field(e, org-key),
+    org: _field(e, org),
     org-url: _field(e, "url"),
     date: period(e),
     location: location(e),
     summary: _field(e, "summary"),
-    keywords: e.at("keywords", default: ()),
+    keywords: keywords,
     bullets(e),
   )
 
@@ -166,16 +143,48 @@
     bullets(p),
   )
 
+  let pub(p) = {
+    // The citation, `12(3), 45–60`, after the publisher.
+    let issue = _string(p, "issue")
+    let pages = _string(p, "pages")
+    let citation = (
+      (_string(p, "volume"), if issue != none { "(" + issue + ")" })
+        .filter(x => x != none)
+        .join(),
+      if pages != none { pages.replace(regex("-+"), "–") },
+    )
+      .filter(x => x != none)
+      .join(", ")
+    let summary = _field(p, "summary")
+    let ids = p.at("identifiers", default: none)
+    publication(
+      title: p.name,
+      url: _field(p, "url"),
+      authors: p
+        .at("authors", default: ())
+        .filter(a => type(a) == str and a.trim() != ""),
+      owners: owners,
+      source: (_field(p, "publisher"), citation)
+        .filter(x => x != none)
+        .join(" "),
+      date: date(_field(p, "releaseDate")),
+      identifiers: if type(ids) == dictionary {
+        ids.pairs().filter(((_, id)) => type(id) == str and id != "").to-dict()
+      } else { (:) },
+      if summary != none [#summary] else [],
+    )
+  }
+
   let sections = (
     work: () => _section(
       labels.work,
       cv.at("work", default: ()),
-      role("name"),
+      e => role(e, "name", keywords: e.at("keywords", default: ())),
     ),
     volunteer: () => _section(
       labels.volunteer,
       cv.at("volunteer", default: ()),
-      e => role("organization")(e + (keywords: ())),
+      e => role(e, "organization"),
     ),
     // Under a heading per `type`, in the order each first appears,
     // only when some project has one; the untyped under "Other".
@@ -183,14 +192,17 @@
       let projects = cv
         .at("projects", default: ())
         .filter(p => _field(p, "name") != none)
-      if projects.all(p => _type(p) == none) {
+      let types = projects.map(_type)
+      if types.all(t => t == none) {
         _section(labels.projects, projects, project)
       } else {
         let other = labels.other-projects
         let icons = preferences.at("project-icons", default: (:))
-        let groups = adapter.group-by-type(projects.map(p => (
-          p + (type: if _type(p) == none { other } else { _type(p) })
-        )))
+        let groups = adapter.group-by-type(
+          projects
+            .zip(types)
+            .map(((p, t)) => p + (type: if t == none { other } else { t })),
+        )
         let group((kind, items)) = {
           let name = icons.at(lower(kind), default: "folder")
           [== #_icon-heading(name, kind)]
@@ -203,12 +215,6 @@
     // untyped among the articles; a code with no label is headed as
     // first written.
     publications: () => {
-      let pubs = cv
-        .at("publications", default: ())
-        .filter(p => _field(p, "name") != none)
-      let code-of(p) = if _type(p) == none { "article" } else {
-        lower(_type(p))
-      }
       let headings = labels.publication-types
       let icons = preferences.at("publication-icons", default: (
         article: "newspaper",
@@ -216,50 +222,25 @@
         thesis: "book",
         talk: "microphone",
       ))
+      // Each publication under its code, beside its type as written.
+      let coded = cv
+        .at("publications", default: ())
+        .filter(p => _field(p, "name") != none)
+        .map(p => {
+          let written = _type(p)
+          (
+            type: if written == none { "article" } else { lower(written) },
+            written: written,
+            pub: p,
+          )
+        })
       _section(
         labels.publications,
-        adapter.group-by-type(pubs.map(p => p + (type: code-of(p)))),
+        adapter.group-by-type(coded),
         ((code, items)) => {
-          let heading = if code in headings { headings.at(code) } else {
-            _type(pubs.find(p => code-of(p) == code))
-          }
+          let heading = headings.at(code, default: items.first().written)
           [== #_icon-heading(icons.at(code, default: "file"), heading)]
-          items
-            .map(p => {
-              // The citation, `12(3), 45–60`, after the publisher.
-              let issue = _string(p, "issue")
-              let pages = _string(p, "pages")
-              let citation = (
-                (_string(p, "volume"), if issue != none { "(" + issue + ")" })
-                  .filter(x => x != none)
-                  .join(),
-                if pages != none { pages.replace(regex("-+"), "–") },
-              )
-                .filter(x => x != none)
-                .join(", ")
-              let summary = _field(p, "summary")
-              let ids = p.at("identifiers", default: none)
-              publication(
-                title: p.name,
-                url: _field(p, "url"),
-                authors: p
-                  .at("authors", default: ())
-                  .filter(a => type(a) == str and a.trim() != ""),
-                owners: if owners.len() > 0 { owners } else { auto },
-                source: (_field(p, "publisher"), citation)
-                  .filter(x => x != none)
-                  .join(" "),
-                date: date(_field(p, "releaseDate")),
-                identifiers: if type(ids) == dictionary {
-                  ids
-                    .pairs()
-                    .filter(((_, id)) => type(id) == str and id != "")
-                    .to-dict()
-                } else { (:) },
-                if summary != none [#summary] else [],
-              )
-            })
-            .join()
+          items.map(item => pub(item.pub)).join()
         },
       )
     },
@@ -302,6 +283,8 @@
         .filter(l => _field(l, "language") != none)
       _frame(labels.languages, langs, {
         show std.divider: none
+        // Rows, not prose: a long name wraps unjustified.
+        set par(justify: false)
         langs
           .map(l => {
             let value = adapter.fluency-rating(l, max: max-rating)
@@ -422,11 +405,11 @@
     },
   )
 
-  // The header: `basics.image` framed when it's set (a path, or a
-  // non-empty string or bytes); the QR code `basics.url` when `auto`.
+  // The header: `basics.image` framed when it's set; the QR code
+  // `basics.url` when `auto`.
   // Its text follows the alignment around it, `header-text-align`'s
   // when that's set.
-  let image-src = basics.at("image", default: none)
+  let image-src = _field(basics, "image")
   let qr-code = preferences.at("qr-code", default: none)
   let header = cv-header(
     name: if name != none { name } else { auto },
@@ -448,9 +431,7 @@
       .map(c => if type(c) == dictionary and c.icon == "location" {
         c + (alt: labels.location)
       } else { c }),
-    photo: if (
-      type(image-src) == path or (image-src != none and image-src.len() > 0)
-    ) { image(image-src) },
+    photo: if image-src != none { image(image-src) },
     photo-side: preferences.at("image-position", default: right),
     photo-size: preferences.at("image-size", default: auto),
     photo-shape: preferences.at("image-shape", default: auto),
@@ -463,7 +444,7 @@
   // Below the header, the paragraphs justified per `justify`: the
   // intro, summaries, highlights and publications, as `alta()`
   // justifies them. An entry's rows of facts and keywords, and the
-  // skill and interest rows, set their own off.
+  // skill and interest rows, set their own off; the languages, below.
   set par(justify: preferences.at("justify", default: false))
 
   // The intro: `basics.summary`, in a block the template spaces from
@@ -500,3 +481,26 @@
     )
   }
 }
+
+/// The CV as `alta(cv)` renders it in the template: the header, the
+/// intro, then the column sections side by side.
+///
+/// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
+///   fields) plus altacv's `custom.altacv` extensions.
+/// - labels (auto, dictionary): Display strings, by `alta()`'s
+///   kebab-case label keys (`work`, `other-projects`,
+///   `publication-types`, …), over the document language's
+///   (`adapter.labels()`); `auto` is those alone.
+/// - preferences (dictionary): Settings, by `alta()`'s kebab-case
+///   preference keys (`column-ratio`, `date-format`, …); a missing key
+///   reads alta's default.
+///
+/// The name is `basics.name`, else the document's title; the owners
+/// set apart among publication authors are it and `owner-names`, else
+/// the document's author.
+/// -> content
+#let resume(cv, labels: auto, preferences: (:)) = context _resume(
+  cv,
+  adapter.labels(overrides: if labels == auto { (:) } else { labels }),
+  preferences,
+)

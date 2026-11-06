@@ -7,7 +7,7 @@
 )
 #import "data/cv.typ": (
   _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
-  _owner-keys, _skill-rating,
+  _owner-keys, _skill-levels, _term-rating,
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
@@ -30,13 +30,25 @@
 // (`date`, `location`), which it resolves exactly.
 #let _labels() = _default-labels + _translations.at(text.lang, default: (:))
 
-// The most recent section or group heading before here: the heading
-// an entry sits under. Entries' own headings don't count.
-#let _parent-heading() = (
-  query(selector(heading).before(here()))
-    .filter(h => h.at("label", default: none) != <alta-internal-entry>)
-    .at(-1, default: none)
-)
+// Where an entry sits: `parent`, the most recent section or group
+// heading before here (entries' own headings don't count), and
+// `sibling`, whether an entry precedes it under that heading, by the
+// mark `_entry` leaves on each, titled or not: `alta()`'s too, so one
+// after `#alta(cv)` continues its last section. One query, walked back
+// from here to the parent.
+#let _entry-place() = {
+  let sibling = false
+  for found in query(
+    selector(heading).or(<alta-internal-entry-mark>).before(here()),
+  ).rev() {
+    if found.func() != heading {
+      sibling = true
+    } else if found.at("label", default: none) != <alta-internal-entry> {
+      return (parent: found, sibling: sibling)
+    }
+  }
+  (parent: none, sibling: false)
+}
 
 /// An entry: a role, a qualification, a project. Its facts are named
 /// arguments; its prose (a list of highlights) is the body.
@@ -95,7 +107,7 @@
         + " dates",
     )
   }
-  let parent = _parent-heading()
+  let (parent, sibling) = _entry-place()
   if parent == none {
     panic(
       "entry() needs a section heading (`= Experience`) or a group heading (`== Talks`) before it",
@@ -107,12 +119,6 @@
       "entry() sits under `=` sections and `==` groups; a `===` heading isn't styled as either",
     )
   }
-  // Every entry before here under the same heading, by the mark
-  // `_entry` leaves on each, titled or not: `alta()`'s too, so one
-  // after `#alta(cv)` continues its last section.
-  let siblings = selector(<alta-internal-entry-mark>)
-    .before(here())
-    .after(parent.location())
   // `alta()` joins a section's entries with the divider, so none
   // precedes the first of a section or group. The divider sits in the
   // entry's unbreakable block, so an entry pushed to the next page
@@ -123,7 +129,7 @@
   // layout passes. Hidden, it moves nothing.
   let labels = _labels()
   block(breakable: false, {
-    if query(siblings).len() > 0 { _divider(true, at-top: hide) }
+    if sibling { _divider(true, at-top: hide) }
     _entry(
       // The icons' alt text, in the document's language.
       labels,
@@ -401,27 +407,26 @@
 /// - max (auto, int): The dots in the row; `auto` is `rating()`'s: the
 ///   enclosing `alta()`'s `preferences.max-rating`, else 5.
 /// -> content
-#let skills(name, keywords, level: none, max: auto) = context {
-  let max = if max == auto { _max-rating-state.get() } else { max }
-  _check("skills() max", max, _positive-int-rule)
-  let numeric = type(level) in (int, float)
-  if numeric { _check-rating("skills() level", level, max) }
-  _keyword-rows((
-    (
-      name: name,
-      keywords: keywords,
-      mark: _rating-mark(
-        if numeric { level } else {
-          _skill-rating(
-            (level: level),
-            _default-preferences + (max-rating: max),
-          )
-        },
-        max,
-        fallback: level,
+#let skills(name, keywords, level: none, max: auto) = {
+  let row(max) = {
+    _check("skills() max", max, _positive-int-rule)
+    let numeric = type(level) in (int, float)
+    if numeric { _check-rating("skills() level", level, max) }
+    _keyword-rows((
+      (
+        name: name,
+        keywords: keywords,
+        mark: _rating-mark(
+          if numeric { level } else {
+            _term-rating((level: level), "level", _skill-levels, max)
+          },
+          max,
+          fallback: level,
+        ),
       ),
-    ),
-  ))
+    ))
+  }
+  if max == auto { context row(_max-rating-state.get()) } else { row(max) }
 }
 
 /// A labelled line: "Music: Trad, Jazz".

@@ -2,7 +2,7 @@
 // the heading with its date at the right edge, then the organisation
 // and the entry's other facts with its location at the right edge.
 
-#import "../design/styles.typ": _part, _subheading-block
+#import "../design/styles.typ": _part, _subheading-block, _unjustified
 #import "../context.typ": _theme
 #import "../util/values.typ": _present
 #import "../primitives.typ": (
@@ -108,13 +108,11 @@
 // An entry's closing lines, the keywords lead then the keywords, as
 // paragraphs a line's leading apart. The keyword line is the
 // `<alta-keywords>` part, so a show rule can set its paragraph.
-#let _entry-keywords(lead, line) = context {
-  // Rows of facts, never stretched, whatever `justify` the prose
-  // around them takes.
-  set par(spacing: par.leading, justify: false)
+#let _entry-keywords(lead, line) = _unjustified(context {
+  set par(spacing: par.leading)
   if lead != none { par(lead) }
   if line != none { _part("keywords", par(line)) }
-}
+})
 
 // One CV entry in a fixed slot order, so the entry sections lay
 // their entries out alike (publications, a bibliography list, use
@@ -172,10 +170,7 @@
     _accent-text(_link-if(org-url, _part("org", org)))
   }
   let facts = _part("facts", _fact-line((org,), roles, details))
-  // The head and subtitle are rows of facts: never stretched, whatever
-  // `justify` the summary and highlights take.
-  {
-    set par(justify: false)
+  _unjustified({
     _entry-head(
       if _present(title) { _link-if(url, title) },
       facts,
@@ -185,7 +180,7 @@
       level,
     )
     _subtitle(subtitle)
-  }
+  })
   _preamble(summary)
   for bullet in highlights [- #bullet]
   body

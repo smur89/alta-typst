@@ -20,7 +20,7 @@
   basics.url
 } else { qr-code }
 
-#let _header(cv, (labels, prefs, in-template, ..)) = {
+#let _header(cv, (labels, prefs, ..)) = {
   let basics = cv.basics
   let image = _header-image(basics.at("image", default: none))
   _page-header(
@@ -43,6 +43,5 @@
     },
     photo-at: prefs.image-position,
     qr-url: _resolve-qr-url(prefs.qr-code, basics),
-    title: in-template,
   )
 }
