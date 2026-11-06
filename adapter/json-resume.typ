@@ -437,23 +437,22 @@
 }
 
 /// The CV as `alta(cv)` renders it in the template: the header, the
-/// intro, then the column sections side by side.
+/// intro, then the column sections side by side. The labels are the
+/// resolved ones (`adapter.labels()`), as the blocks read them: the
+/// document language's, under the template's (`altacv.with(labels:
+/// ..)`) and, through `alta(cv, labels: ..)`, that call's. The name is
+/// `basics.name`, else the document's title; the owners set apart
+/// among publication authors are it and `owner-names`, else the
+/// document's author.
 ///
 /// - cv (dictionary): The CV, validated JSON Resume (camelCase fields)
 ///   plus altacv's `custom.altacv` extensions: gairm-import's
 ///   `parse(path("resume.json"))`, or the CV `alta()` has checked. Its
-///   field types aren't checked again here: a raw `json(..)` with a
-///   wrong-typed field is only tolerated through `alta()`.
+///   field types aren't checked again here, so a wrong-typed field
+///   fails inside the mapping rather than naming itself.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …), merged over
 ///   its defaults and checked (`adapter.preferences()`).
-///
-/// The labels are the resolved ones (`adapter.labels()`), as the
-/// blocks read them: the document language's, under the template's
-/// (`altacv.with(labels: ..)`) and, through `alta(cv, labels: ..)`,
-/// that call's. The name is `basics.name`, else the document's title; the owners
-/// set apart among publication authors are it and `owner-names`, else
-/// the document's author.
 /// -> content
 #let resume(cv, preferences: (:)) = context _resume(
   cv,

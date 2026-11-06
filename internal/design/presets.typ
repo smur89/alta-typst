@@ -16,7 +16,11 @@
 #import "presets/phosphor.typ"
 #import "presets/catppuccin.typ"
 
-/// The built-in themes, for `altacv.with(theme: ..)`.
+/// The built-in themes by name, for `altacv.with(theme: ..)`: `teal`
+/// (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`,
+/// `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
+/// Each is a dictionary of theme tokens; add to one to adjust it,
+/// `themes.navy + (font: "Libertinus Serif")`.
 /// -> dictionary
 #let themes = (
   teal: teal.theme,

@@ -229,7 +229,10 @@
   }
 }
 
-/// The dashed grey rule altacv draws between entries.
+/// The rule between entries: Typst's `divider`, dashed in the
+/// theme's border colour, with the theme's gap above and below. Near
+/// the top of a page, where it would separate nothing, it draws
+/// nothing. Restyle it as any divider, with `show divider`.
 /// -> content
 #let divider() = _divider(true)
 #let _divider-space() = _divider(false)
@@ -280,8 +283,9 @@
   body
 }
 
-/// Text in altacv's entry-title style (the accent, italic), linked when
-/// `dest` is set; it looks the same either way. Deprecated (#239):
+/// Text in the publication-title style: the accent colour, in the
+/// theme's `link` treatment (italic by default); linked when `dest` is
+/// set, and the same either way. Deprecated (#239):
 /// `entry(title:, url:)`.
 ///
 /// - content (content): The title.

@@ -20,7 +20,8 @@
 
 /// Validates a `resume.json` against the JSON Resume schema (plus
 /// altacv's extensions) and returns the CV dictionary `alta` takes.
-/// Panics on an invalid document, naming the field.
+/// Panics on an invalid document, naming the field. Deprecated (#239):
+/// gairm-import's `parse`, `#import "@preview/gairm-import:0.10.1": parse`.
 ///
 /// - data (path, dictionary): The `resume.json`, as
 ///   `path("resume.json")`, or an already-decoded dictionary.
