@@ -4,18 +4,19 @@
 // Nameless entries render anonymously. Contact details stay out, as
 // JSON Resume intends.
 
-#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _on-request
 #import "../internal/primitives.typ": _preamble
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section, _section-frame
 
 // Who, then when, each part optional, as the entry's `subtitle` fact
-// groups: "Manager, Pied Piper · 2024".
+// groups: "Manager, Pied Piper · 2024". Each part is a non-empty
+// string or absent (`_lenient-fields`).
 #let _attribution(entry, format-date) = {
-  let date = _string-at(entry, "date")
+  let date = entry.at("date", default: none)
   (
-    ("relationship", "organization").map(k => _string-at(entry, k)),
+    ("relationship", "organization").map(k => entry.at(k, default: none)),
     (if date != none { format-date(date) },),
   )
 }

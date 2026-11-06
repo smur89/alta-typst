@@ -5,7 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": (
-  _array-or-empty, _dict-or-empty, _field, _string, _string-at, _texts,
+  _array-or-empty, _dict-or-empty, _field, _string, _texts,
 )
 #import "../util/checks.typ": _check-type
 #import "../design/theme.typ": _accent-roles
@@ -74,13 +74,14 @@
 }
 
 // `" talk "` groups with `talk`; an all-space `type` becomes untyped.
-#let _trim-type(entry) = if _string-at(entry, "type") == none { entry } else {
+// After `_lenient-fields`, so a `type` is a non-empty string.
+#let _trim-type(entry) = if "type" not in entry { entry } else {
   entry + (type: _entry-type(entry))
 }
 
 #let _canonical-type(pub) = {
   let pub = _trim-type(pub)
-  let raw = _string-at(pub, "type")
+  let raw = pub.at("type", default: none)
   let code = if raw != none { _legacy-type-codes.at(lower(raw), default: none) }
   if code == none { pub } else { pub + (type: code) }
 }

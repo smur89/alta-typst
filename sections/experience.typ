@@ -6,7 +6,7 @@
 // `volunteer` uses `organization`), and `volunteer[]`
 // cannot have a `keywords` section
 
-#import "../internal/util/fields.typ": _field, _texts-at
+#import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": _location-parts, _period
 #import "../internal/components/entry.typ": _entry
 #import "../internal/components/frame.typ": _section
@@ -32,8 +32,9 @@
   e => _entry(
     labels,
     .._entry-slots(e, "name", format-date, labels),
-    // Read leniently: 1.8.0 didn't draw them, so accepted any value.
-    keywords: _texts-at(e, "keywords"),
+    // Read leniently: 1.8.0 didn't draw them, so accepted any value;
+    // `_lenient-fields` dropped any but an array of text.
+    keywords: e.at("keywords", default: ()),
   ),
 )
 
