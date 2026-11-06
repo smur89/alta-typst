@@ -9,7 +9,7 @@
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
-#import "data/validation.typ": _preference-rules
+#import "data/validation.typ": _check-preference
 #import "util/checks.typ": (
   _check, _check-keys, _check-rating, _check-type, _dict-rule, _enum-rule,
   _list-rule, _positive-int-rule, _quote, _type-rule,
@@ -286,10 +286,10 @@
   let photo-option(key, value) = if value == auto {
     _default-preferences.at("photo-" + key)
   } else {
-    _check(
-      "cv-header() photo-" + key,
+    _check-preference(
+      "photo-" + key,
       value,
-      _preference-rules.at("photo-" + key),
+      name: "cv-header() photo-" + key,
     )
     value
   }
@@ -489,7 +489,7 @@
       "content, a string or none",
     )
   }
-  _check("cv-columns() ratio", ratio, _preference-rules.column-ratio)
+  _check-preference("column-ratio", ratio, name: "cv-columns() ratio")
   // Stacked, each column its own paragraph, so two runs of text don't
   // run together.
   if ratio == 1 or right == none {

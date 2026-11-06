@@ -102,10 +102,7 @@
 // has one, and each value by `_token-rule`. `prefix` leads the path in
 // messages (`theme.type.title.size`).
 #let _check-tokens(value, defaults, prefix, path: ()) = {
-  let name(at) = {
-    let parts = ((prefix,) + at).filter(s => s != "")
-    if parts == () { "preferences" } else { parts.join(".") }
-  }
+  let name(at) = ((prefix,) + at).filter(s => s != "").join(".")
   _check-keys(name(path), value, defaults.keys())
   for (key, v) in value {
     let at = path + (key,)

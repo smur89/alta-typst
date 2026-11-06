@@ -5,8 +5,8 @@
 // data exactly as `alta()` does. They take JSON Resume's field names
 // (`countryCode`), as the CV is written.
 
-#import "util/checks.typ": _check, _check-type, _enum-rule
-#import "util/dates.typ": _check-date-template, _format-date
+#import "util/checks.typ": _check, _enum-rule
+#import "util/dates.typ": _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
   _altacv, _entry-rating, _entry-type, _fluency-terms, _location-parts,
@@ -19,7 +19,7 @@
 #import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/sections.typ": _section-entries, _section-specs
-#import "data/validation.typ": _preference-rules
+#import "data/validation.typ": _check-preference
 #import "context.typ": _labels-state
 #import "design/icon-set.typ": _network-icons
 #import "primitives.typ": _fact-line
@@ -36,10 +36,7 @@
 ///   English; for the document's language, pass its names.
 /// -> str
 #let format-date(value, format: "long", months: auto) = {
-  _check("format-date() format", format, _preference-rules.date-format)
-  if type(format) == str {
-    _check-date-template(format, "format-date() format")
-  }
+  _check-preference("date-format", format, name: "format-date() format")
   _format-date(
     value,
     format,
@@ -93,16 +90,15 @@
   full-urls: false,
   icons: auto,
 ) = {
-  _check-type(
-    "basics-contacts() linked",
+  _check-preference(
+    "link-contact-info",
     linked,
-    (bool, dictionary),
-    "a bool or a dict",
+    name: "basics-contacts() linked",
   )
-  _check(
-    "basics-contacts() maps-provider",
+  _check-preference(
+    "maps-provider",
     maps-provider,
-    _preference-rules.maps-provider,
+    name: "basics-contacts() maps-provider",
   )
   _check-basics-location(basics, "basics-contacts() location", maps-provider)
   let profile-icons = (

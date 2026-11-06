@@ -3,12 +3,14 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": _default-theme, _token-prefs, _tokens
-#import "../design/theme-checks.typ": _check-tokens
+#import "../design/theme.typ": _default-theme, _tokens
+#import "../design/theme-checks.typ": _check-tokens, _font-rule, _is-font
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-keys, _check-rules, _check-type,
   _check-unknown-keys, _enum-rule, _list-rule, _positive-int-rule, _type-rule,
 )
+#import "canonical.typ": _preference-tables
+#import "sections.typ": _section-specs
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
 
@@ -54,39 +56,48 @@
 // The icon tables' value rules: icon-set keys, except `profile-icons`,
 // which takes raw FontAwesome glyph names, as it draws networks the
 // icon set doesn't ship. Too many to list, so its message points at
-// the catalogue instead.
-#let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
-#let _icon-table-rules = (
-  profile-icons: (
-    v => type(v) == str and v in _fa-glyphs,
-    "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
-  ),
-)
-
-// `table` is the caller's `preferences.<key>`; each value is checked
-// against that key's rule and named by its full path, for the message.
-#let _check-icon-names(table, key) = for (code, icon-name) in table {
-  _check(
-    "preferences." + key + "." + code,
-    icon-name,
-    _icon-table-rules.at(key, default: _icon-name-rule),
-  )
+// the catalogue instead. A table that isn't a dictionary is left to
+// `_strict-merge` to name.
+#let _icon-table(rule) = (name, table) => if type(table) == dictionary {
+  for (code, icon-name) in table {
+    _check("preferences." + name + "." + code, icon-name, rule)
+  }
 }
+#let _icon-names = _icon-table(_enum-rule(_icon-glyphs.keys()))
 
 // A column's section keys; a bare string (`"work"`) is the common
 // slip for `("work",)`.
-#let _column-sections-rule = _list-rule(
-  (str,),
-  "an array of section keys (e.g. (\"work\",))",
-)
+#let _column-sections(name, v) = {
+  _check(name, v, _list-rule(
+    (str,),
+    "an array of section keys (e.g. (\"work\",))",
+  ))
+  _check-unknown-keys(v, _section-specs.keys(), name)
+}
 
-// The preferences' rules, in `_default-preferences`' order. The rest
-// are checked in `_validate-preferences` (`font` and `colours` with
-// the theme's tokens), or for the icon tables in `_merge-options`;
-// `group-certificates` and `show-pronouns` are ignored, so they aren't
-// checked.
+// Every preference's check, in `_default-preferences`' order
+// (`tests/unit/validation.typ` holds the two to the same keys): a rule
+// (`_check`'s `(ok, expected)`), a checker `(name, value) => ..` that
+// panics on a bad value, or `none` for the ignored ones.
 #let _preference-rules = (
+  // The theme's `font` token, unless `auto` (the theme's).
+  font: (v => v == auto or _is-font(v), _font-rule.last()),
   body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
+  // Internal: the theme's colour roles, from the deprecated `accent`.
+  colours: (name, v) => _check-tokens(
+    v,
+    _tokens.colours,
+    "",
+    path: (name,),
+  ),
+  // Checked before their merge (`_merge-options`), so the deprecated
+  // `labels.publication-icons` folded in there isn't.
+  publication-icons: _icon-names,
+  project-icons: _icon-names,
+  profile-icons: _icon-table((
+    v => type(v) == str and v in _fa-glyphs,
+    "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
+  )),
   uppercase-name: _bool-rule,
   header-text-align: _enum-rule((left, center, right)),
   photo-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
@@ -110,19 +121,29 @@
     v => type(v) in (int, float) and v > 0 and v <= 1,
     "a number in (0, 1]",
   ),
-  left-column-sections: _column-sections-rule,
-  right-column-sections: _column-sections-rule,
+  left-column-sections: _column-sections,
+  right-column-sections: _column-sections,
   page-footer: (
     v => v == none or v == auto or type(v) == content,
     "`none`, `auto`, or a content value",
   ),
   last-modified-footer: _bool-rule,
   footer-version: _bool-rule,
-  date-format: (
-    _is-date-format,
-    "\"long\", \"short\", \"iso\", a bracketed template "
-      + "(e.g. \"[day]/[month]/[year]\"), or a closure",
-  ),
+  date-format: (name, v) => {
+    _check(name, v, (
+      _is-date-format,
+      "\"long\", \"short\", \"iso\", a bracketed template "
+        + "(e.g. \"[day]/[month]/[year]\"), or a closure",
+    ))
+    if type(v) == str { _check-date-template(v, name) }
+  },
+  link-contact-info: (name, v) => {
+    _check-type(name, v, (bool, dictionary), "a bool or a dict")
+    if type(v) == dictionary {
+      _check-unknown-keys(v.keys(), _contact-channels, name)
+      for (channel, x) in v { _check(name + "." + channel, x, _bool-rule) }
+    }
+  },
   print-full-urls: _bool-rule,
   maps-provider: (
     v => v == none or (type(v) == str and "{q}" in v),
@@ -134,39 +155,26 @@
     "`auto`, \"rating\" or \"text\"",
   ),
   owner-names: _list-rule((str,), "an array of strings"),
+  // Deprecated and ignored (#239).
+  group-certificates: none,
+  show-pronouns: none,
   references-available-on-request: _bool-rule,
 )
 
-#let _validate-theme(prefs) = _check-tokens(_token-prefs(prefs), _tokens, "")
+// `value` checked as preference `key`, named `name` (`auto`: `key`)
+// in a message: the public helpers that take a preference's value
+// check it here too.
+#let _check-preference(key, value, name: auto) = {
+  let rule = _preference-rules.at(key)
+  let name = if name == auto { key } else { name }
+  if type(rule) == function { rule(name, value) } else if rule != none {
+    _check(name, value, rule)
+  }
+}
 
-// `section-keys` is passed in, not imported: `data/sections.typ`
-// imports this module, through `canonical.typ`.
-#let _validate-preferences(prefs, section-keys) = {
-  _check-rules(prefs, _preference-rules)
-  _validate-theme(prefs)
-  let link-contact-info = prefs.link-contact-info
-  _check-type(
-    "link-contact-info",
-    link-contact-info,
-    (bool, dictionary),
-    "a bool or a dict",
-  )
-  if type(link-contact-info) == dictionary {
-    _check-unknown-keys(
-      link-contact-info.keys(),
-      _contact-channels,
-      "link-contact-info",
-    )
-    for (channel, v) in link-contact-info {
-      _check("link-contact-info." + channel, v, _bool-rule)
-    }
-  }
-  if type(prefs.date-format) == str {
-    _check-date-template(prefs.date-format, "date-format")
-  }
-  for key in ("left-column-sections", "right-column-sections") {
-    _check-unknown-keys(prefs.at(key), section-keys, key)
-  }
+// The merged preferences, but for the icon tables (`_preference-rules`).
+#let _validate-preferences(prefs) = for (key, v) in prefs {
+  if key not in _preference-tables { _check-preference(key, v) }
 }
 
 // A `{key}` template label. A missing or misspelt (`{totl}`)

@@ -7,9 +7,8 @@
 )
 #import "../util/fields.typ": _dict-or-empty
 #import "defaults.typ": _default-labels, _default-preferences, _translations
-#import "sections.typ": _section-specs
 #import "validation.typ": (
-  _check-icon-names, _strict-merge, _validate-labels, _validate-preferences,
+  _check-preference, _strict-merge, _validate-labels, _validate-preferences,
 )
 
 // The theme is the template's: `theme` and `colours` aren't
@@ -58,7 +57,7 @@
 // checked, before that fold: the deprecated label's are left to fail
 // where used, so an unused bad one doesn't stop a CV compiling.
 // `project-icons` and `profile-icons` have no such fold but are checked
-// the same way, each against its own rule (`_icon-table-rules`).
+// the same way, each against its own rule (`_preference-rules`).
 //
 // Option names are read in kebab-case first (`_kebab-options`), so
 // every step after it, the icon-name checks included, sees one form.
@@ -71,10 +70,10 @@
   let (labels, preferences) = _kebab-options(labels, preferences)
   _check-theme-routed(preferences)
   for table in _preference-tables {
-    let icons = _dict-or-empty(preferences).at(table, default: none)
-    if type(icons) == dictionary {
-      _check-icon-names(icons, table)
-    }
+    _check-preference(
+      table,
+      _dict-or-empty(preferences).at(table, default: none),
+    )
   }
   let merged-labels = _resolve-labels(
     _dict-or-empty(labels).at("lang", default: lang),
@@ -87,7 +86,7 @@
     "preferences",
     tables: _preference-tables,
   )
-  _validate-preferences(merged-preferences, _section-specs.keys())
+  _validate-preferences(merged-preferences)
   (labels: merged-labels, prefs: merged-preferences)
 }
 
