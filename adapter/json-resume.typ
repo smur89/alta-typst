@@ -11,7 +11,7 @@
 // To adapt it, copy this file into your project, replace the imports
 // below with one
 //
-//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
+//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, publication, rating, skill-row
 //
 // and edit what it draws. Then, in your CV:
 //
@@ -35,7 +35,6 @@
   cv-columns, cv-header, entry, label-row, publication, skill-row,
 )
 #import "../internal/components/ratings.typ": rating
-#import "../internal/data/defaults.typ": maps-providers
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": divider
 #import "../internal/adapter.typ" as adapter
@@ -85,8 +84,9 @@
   entries.map(render).join(),
 )
 
-// `resume` with the labels resolved, as `alta()` has them already.
-#let _resume(cv, labels, preferences) = {
+// `resume` with the labels and preferences resolved, as `alta()` has
+// them already.
+#let _resume(cv, labels, prefs) = {
   // JSON Resume requires no field, `basics` included.
   let basics = cv.at("basics", default: (:))
   let name = _field(basics, "name")
@@ -94,16 +94,16 @@
   // them apart: the CV's name and `owner-names`; with neither, `auto`,
   // the document's author.
   let owners = (
-    (name,).filter(n => n != none) + preferences.at("owner-names", default: ())
+    (name,).filter(n => n != none) + prefs.owner-names
   )
   let owners = if owners.len() > 0 { owners } else { auto }
-  let max-rating = preferences.at("max-rating", default: 5)
+  let max-rating = prefs.max-rating
 
   // A date as `alta()` shows it, per `date-format` and the months.
   let date(value) = if value != none {
     adapter.format-date(
       value,
-      format: preferences.at("date-format", default: "long"),
+      format: prefs.date-format,
       months: labels.months,
     )
   }
@@ -182,7 +182,7 @@
         _section(labels.projects, projects, project)
       } else {
         let other = labels.other-projects
-        let icons = preferences.at("project-icons", default: (:))
+        let icons = prefs.project-icons
         let groups = adapter.group-by-type(
           projects
             .zip(types)
@@ -201,12 +201,7 @@
     // first written.
     publications: () => {
       let headings = labels.publication-types
-      let icons = preferences.at("publication-icons", default: (
-        article: "newspaper",
-        book: "book",
-        thesis: "book",
-        talk: "microphone",
-      ))
+      let icons = prefs.publication-icons
       // Each publication under its code, beside its type as written.
       let coded = cv
         .at("publications", default: ())
@@ -248,7 +243,7 @@
       g => {
         let level = _field(g, "level")
         let as-text = (
-          preferences.at("skill-level-display", default: auto) == "text"
+          prefs.skill-level-display == "text"
         )
         skill-row(
           g.name,
@@ -395,29 +390,26 @@
   // Its text follows the alignment around it, `header-text-align`'s
   // when that's set.
   let image-src = _field(basics, "image")
-  let qr-code = preferences.at("qr-code", default: none)
+  let qr-code = prefs.qr-code
   let header = cv-header(
     name: if name != none { name } else { auto },
     tagline: _field(basics, "label"),
     objective: _field(cv, "objective"),
     contacts: adapter.basics-contacts(
       basics,
-      linked: preferences.at("link-contact-info", default: true),
-      maps-provider: preferences.at(
-        "maps-provider",
-        default: maps-providers.google,
-      ),
-      full-urls: preferences.at("print-full-urls", default: false),
-      icons: preferences.at("profile-icons", default: auto),
+      linked: prefs.link-contact-info,
+      maps-provider: prefs.maps-provider,
+      full-urls: prefs.print-full-urls,
+      icons: prefs.profile-icons,
     ),
     photo: if image-src != none { image(image-src) },
-    photo-position: preferences.at("photo-position", default: right),
-    photo-size: preferences.at("photo-size", default: auto),
-    photo-shape: preferences.at("photo-shape", default: auto),
+    photo-position: prefs.photo-position,
+    photo-size: prefs.photo-size,
+    photo-shape: prefs.photo-shape,
     qr: if qr-code == auto { _field(basics, "url") } else { qr-code },
-    uppercase: preferences.at("uppercase-name", default: true),
+    uppercase: prefs.uppercase-name,
   )
-  let text-align = preferences.at("header-text-align", default: none)
+  let text-align = prefs.header-text-align
   if text-align != none { align(text-align, header) } else { header }
 
   // The prose (the intro, summaries, highlights and publications)
@@ -439,25 +431,13 @@
   // The columns: the left sections beside the right, the left taking
   // `column-ratio`; one column when no section is on the right.
   let column(keys) = keys.map(key => (sections.at(key))()).join()
-  let right = preferences.at("right-column-sections", default: (
-    "focus-areas",
-    "skills",
-    "languages",
-    "education",
-    "certificates",
-    "awards",
-    "interests",
-    "references",
-  ))
+  let right = prefs.right-column-sections
   cv-columns(
-    column(preferences.at(
-      "left-column-sections",
-      default: ("work", "volunteer", "projects", "publications"),
-    )),
+    column(prefs.left-column-sections),
     // Content, even when the sections are empty, as `alta()` keeps the
     // right column then.
     if right.len() > 0 [#column(right)],
-    ratio: preferences.at("column-ratio", default: 0.65),
+    ratio: prefs.column-ratio,
   )
 }
 
@@ -469,8 +449,8 @@
 ///   `parse(path("resume.json"))`, or the CV `alta()` has checked. Its
 ///   field types aren't checked again here.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
-///   preference keys (`column-ratio`, `date-format`, …); a missing key
-///   reads alta's default.
+///   preference keys (`column-ratio`, `date-format`, …), merged over
+///   its defaults and checked (`adapter.preferences()`).
 ///
 /// The labels are the resolved ones (`adapter.labels()`), as the
 /// blocks read them: the document language's, under the template's
@@ -482,5 +462,5 @@
 #let resume(cv, preferences: (:)) = context _resume(
   cv,
   adapter.labels(),
-  preferences,
+  adapter.preferences(overrides: preferences),
 )

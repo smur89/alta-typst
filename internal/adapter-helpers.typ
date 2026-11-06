@@ -15,7 +15,8 @@
   _check-basics-location, _check-location, _location-text-rule,
 )
 #import "data/defaults.typ": _default-labels, maps-providers
-#import "data/options.typ": _merge-options
+#import "data/canonical.typ": _kebab-options
+#import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/validation.typ": _preference-rules
 #import "context.typ": _labels-state
@@ -187,3 +188,25 @@
     template: _labels-state.get(),
   ).labels
 )
+
+/// The preferences `alta()` renders with inside the template:
+/// `overrides` merged over its defaults and checked as
+/// `alta(preferences: ..)`'s are, so a mapping reads every key, set or
+/// not. Keys are `alta()`'s kebab-case preference names
+/// (`column-ratio`, `date-format`); a camelCase one reads as its
+/// kebab-case name. A document-level preference (`font`, `paper`, …)
+/// panics, naming the set rule that replaces it.
+/// `header-text-align` is `none` unless set: the header follows the
+/// alignment around it.
+///
+/// - overrides (dictionary): Preferences to override, as `alta()`'s
+///   `preferences:` takes them.
+/// -> dictionary
+#let preferences(overrides: (:)) = {
+  _check-template-preferences((:), overrides)
+  let prefs = _merge-options((:), overrides).prefs
+  let (_, overrides) = _kebab-options((:), overrides)
+  if "header-text-align" in overrides { prefs } else {
+    prefs + (header-text-align: none)
+  }
+}

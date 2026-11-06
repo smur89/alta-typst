@@ -132,3 +132,29 @@
     assert.eq(ours.present, "I láthair")
   }
 ]
+
+// preferences: every key, `overrides` over alta()'s defaults, the
+// deprecated and camelCase forms read as alta() reads them.
+#let prefs = adapter.preferences()
+#assert.eq(prefs.column-ratio, 0.65)
+#assert.eq(prefs.left-column-sections, (
+  "work",
+  "volunteer",
+  "projects",
+  "publications",
+))
+#assert.eq(prefs.publication-icons.talk, "microphone")
+#assert.eq(prefs.maps-provider, maps-providers.google)
+// The header follows the alignment around it unless set.
+#assert.eq(prefs.header-text-align, none)
+#assert.eq(
+  adapter.preferences(overrides: (headerTextAlign: "center")).header-text-align,
+  center,
+)
+#let ours = adapter.preferences(overrides: (
+  columnRatio: 0.7,
+  project-icons: (OSS: "github"),
+))
+#assert.eq(ours.column-ratio, 0.7)
+#assert.eq(ours.project-icons, (oss: "github"))
+#assert.eq(ours.max-rating, 5)

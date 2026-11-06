@@ -188,7 +188,7 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
+#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, publication, rating, skill-row
 ```
 
 Then render your copy under the template, and edit it from there:
@@ -206,7 +206,7 @@ Then render your copy under the template, and edit it from there:
 
 `resume(cv)` takes validated JSON Resume: [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse` checks a `resume.json` against the schema first, and `alta()` hands it the CV it has checked. The mapping reads the fields as the schema types them and doesn't check them again, so a raw `json(..)` with a wrong type fails inside it rather than naming the field.
 
-`resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences; a missing one reads `alta()`'s default. Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
+`resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences, merged over its defaults and checked as `alta()` checks them (`adapter.preferences`). Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
 
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 
@@ -216,6 +216,7 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
 - `adapter.group-by-type(items)`: entries grouped by `type`, in the order each first appears.
 - `adapter.labels(overrides:)`: the labels in the document's language, the template's over them and `overrides` over both, as `alta()` resolves them. Call it in `context`.
+- `adapter.preferences(overrides:)`: every preference, `overrides` merged over `alta()`'s defaults and checked; `header-text-align` is `none` unless set, so the header follows the alignment around it.
 
 Two things changed in the template form when `alta()` moved onto the mapping. A multi-page CV can differ from before where a divider lands at the top of a page: the divider keeps its space there, its rule hidden, where `alta()` used to drop both. And a group heading's icon and the gap after it are in the heading's `em`, so the heading's text sits slightly further from its icon. Standalone `alta(cv)` is unchanged.
 
@@ -751,6 +752,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `adapter.fluency-rating(entry, max:)` | A language's rating, or `none`. |
 | `adapter.group-by-type(items)` | Entries grouped by `type`. |
 | `adapter.labels(overrides:)` | The document language's labels as `alta()` resolves them, in `context`. |
+| `adapter.preferences(overrides:)` | Every preference, merged over `alta()`'s defaults and checked. |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->

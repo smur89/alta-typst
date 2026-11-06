@@ -46,5 +46,6 @@
     "group-by-type",
     "labels",
     "location-text",
+    "preferences",
   ),
 )
