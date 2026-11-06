@@ -1,4 +1,4 @@
-// expect: header-text-align must be
+// expect: header-text-align must be left, center, or right, got: "middle"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

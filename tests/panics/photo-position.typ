@@ -1,4 +1,4 @@
-// expect: photo-position must be left, right, top, or bottom
+// expect: photo-position must be left, right, top, or bottom, got: "top"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
