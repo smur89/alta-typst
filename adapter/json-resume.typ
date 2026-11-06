@@ -460,8 +460,12 @@
   // the header and the columns (`show <alta-intro>: set block(..)`).
   let summary = _field(basics, "summary")
   // The part label on a wrapper of its own, so a label the summary
-  // carries stays.
-  if summary != none [#block(par[#[#summary#[]]<alta-summary>])<alta-intro>]
+  // carries stays. Full width, so a justified summary stretches to the
+  // column rather than to its own widest line.
+  if summary != none [#block(
+    width: 100%,
+    par[#[#summary#[]]<alta-summary>],
+  )<alta-intro>]
 
   // The columns: the left sections beside the right, the left taking
   // `column-ratio`; one column when no section is on the right.

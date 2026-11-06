@@ -147,7 +147,7 @@
   (
     basics: (
       name: "Centred Photo Below + QR",
-      label: "image-position: bottom — photo trails the text block",
+      label: "photo-position: bottom — photo trails the text block",
       email: "qr@example.com",
       url: "https://example.com/cv",
       image: read("../assets/avatar-placeholder.svg", encoding: none),

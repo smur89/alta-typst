@@ -46,7 +46,7 @@
   (
     basics: (
       name: "Large Photo",
-      label: "image-size: 8em override",
+      label: "photo-size: 8em override",
       email: "large@example.com",
       image: read("../assets/avatar-placeholder.svg", encoding: none),
     ),
@@ -108,7 +108,7 @@
     (
       basics: (
         name: "Shaped Photo",
-        label: "image-shape: " + repr(shape),
+        label: "photo-shape: " + repr(shape),
         email: "shape@example.com",
         image: read("../assets/avatar-placeholder.svg", encoding: none),
       ),

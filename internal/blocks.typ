@@ -141,7 +141,9 @@
     // the next divider, and a CV of a few pages ran out of Typst's five
     // layout passes. Hidden, it moves nothing.
     let labels = _labels()
-    block(breakable: false, {
+    // Full width, so justified prose stretches to the column, not to
+    // the entry's widest line.
+    block(width: 100%, breakable: false, {
       if sibling { _divider(true, at-top: hide) }
       _entry(
         // The icons' alt text, in the document's language.
@@ -419,7 +421,8 @@
       if owners == auto { document.author } else { owners },
     )
     // One unbreakable block per item, as `alta()` lays them out.
-    block(breakable: false, _bib-entry(
+    // Full width, as `entry`'s, so a justified summary stretches.
+    block(width: 100%, breakable: false, _bib-entry(
       title,
       url: if url != none { url } else { _identifier-url(refs) },
       authors: _authors((authors: authors.map(_plain)), owners),

@@ -627,7 +627,7 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | `accent` | The template's theme: `#show: altacv.with(theme: themes.navy)`, or a colour of your own over one, `themes.teal + (colours: (..themes.teal.colours, accent: ..))`. Standalone, it colours the accent, headings, their rules and the name. |
 | `references-available-on-request` | `references[].availableOnRequest`. |
 | `imagePosition`, `imageSize` | `photo-position`, `photo-size`. |
-| `photo-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
+| `imagePosition`'s strings `"left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
 | `image-stack-order` | `photo-position: top` or `bottom`. |
 | `header-text-align: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
 | `group-certificates`, `show-pronouns` | Nothing: both are ignored. |
