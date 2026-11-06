@@ -204,7 +204,7 @@ Then render your copy under the template, and edit it from there:
 ```
 <!-- x-release-please-end -->
 
-`resume(cv, labels: auto, preferences: (:))` takes `alta()`'s kebab-case labels and preferences; a missing one reads `alta()`'s default, and the labels are the document language's. The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
+`resume(cv, labels: auto, preferences: (:))` takes `alta()`'s kebab-case labels and preferences; a missing one reads `alta()`'s default, and the labels are the document language's under the template's (`altacv.with(labels: ..)`). The blocks read the template's labels themselves (an `entry`'s "Present", its alt text), so set those there rather than in `resume`'s `labels`. The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
 
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 
@@ -213,7 +213,7 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 - `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
 - `adapter.group-by-type(items)`: entries grouped by `type`, in the order each first appears.
-- `adapter.labels(overrides:)`: the labels in the document's language, `overrides` over them, as `alta()` resolves them. Call it in `context`.
+- `adapter.labels(overrides:)`: the labels in the document's language, the template's over them and `overrides` over both, as `alta()` resolves them. Call it in `context`.
 
 Two things changed in the template form when `alta()` moved onto the mapping. A multi-page CV can differ from before where a divider lands at the top of a page: the divider keeps its space there, its rule hidden, where `alta()` used to drop both. And a group heading's icon and the gap after it are in the heading's `em`, so the heading's text sits slightly further from its icon. Standalone `alta(cv)` is unchanged.
 
@@ -376,6 +376,8 @@ The language also drives hyphenation, smart quotes and the PDF's language tag. E
   months: ("Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"),
 ))
 ```
+
+Inside the template, `#show: altacv.with(labels: (..))` takes the same keys for the whole document: `alta()`'s CVs, a CV written in markup (an `entry`'s "Present" and its date and location alt text, which a block has no `labels:` for) and the footers. They go over the language's own wherever they're read, so a later `set text(lang: ..)` still switches the built-in ones, and an `alta(cv, labels: ..)` goes over them for its CV.
 
 For a full translation, copy [`internal/data/labels-en.toml`](internal/data/labels-en.toml) next to your CV (say as `labels-de.toml`), translate the values, drop its `lang` line and load it: `#alta(cv, labels: toml("labels-de.toml"))`. To have it built in, open a pull request adding it as `internal/data/labels-de.toml`. Every key is under [Labels](#labels).
 
@@ -615,6 +617,7 @@ Inside `#show: altacv.with(..)`, the document-level preferences are the template
 | `footer-version` | `set page(footer: cv-updated-footer(version: true))` |
 | `accent` (deprecated) | `altacv.with(theme: ..)`: a theme colour |
 | `labels.lang` (deprecated) | `set text(lang: ..)` |
+| `labels` for the whole document | `altacv.with(labels: ..)`: the same keys as `alta()`'s, but `lang` and the deprecated `publication-icons`, read by `alta()`, the markup blocks and the footers |
 
 #### Deprecated
 
@@ -716,7 +719,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 
 | Export | Purpose |
 |---|---|
-| `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules. |
+| `altacv(theme:, labels:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules; `labels` overrides the labels of everything it draws, as `alta()`'s `labels:` does. |
 | `alta(cv, labels:, preferences:)` | Renders the CV. |
 | `cv-footer()` | Page-footer content: the name (in a CV written in markup, the document's author, else its title) and page numbers on documents of more than one page, counted by Typst's page counter (a `counter(page).update(..)` restart changes the count). Use as `#set page(footer: cv-footer())`. |
 | `cv-updated-footer(version: false, date: none)` | Page-footer content: the last-modified line, with the version when `version` is `true`. `date` replaces `meta.lastModified`; a CV written in markup has no `meta`, so it needs one. |

@@ -10,7 +10,7 @@
   _auto-page-footer, _updated-footer, _updated-line,
 )
 #import "design/styles.typ": _part
-#import "data/defaults.typ": _labels
+#import "context.typ": _labels
 
 // What a footer prints of the CV: the standalone footer's input, and
 // the `<alta-cv>` marker's value that the template's helpers read.

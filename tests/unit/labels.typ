@@ -2,11 +2,13 @@
 // the sequence `alta()` runs: the document's language picks a bundled
 // translation over the English, the caller's labels go over both, and
 // the deprecated `labels.lang` wins over the document's language.
+// Inside the template, the template's labels (`altacv.with(labels:
+// ..)`, its layers) sit between the translation and the caller's.
 
 #import "/internal/data/options.typ": _merge-options
 
-#let labels(overrides: (:), ..lang) = (
-  _merge-options(overrides, (:), ..lang).labels
+#let labels(overrides: (:), ..options) = (
+  _merge-options(overrides, (:), ..options).labels
 )
 
 // English by default.
@@ -34,3 +36,28 @@
 // picks the translation (#239).
 #assert.eq(labels(lang: "de", overrides: (lang: "ga")).work, "Taithí Oibre")
 #assert.eq(labels(lang: "ga", overrides: (lang: "en")).work, "Experience")
+
+// The template's labels over the translation, the caller's over the
+// template's; an inner template's over an outer's.
+#let layered = labels(
+  lang: "ga",
+  template: ((present: "Jetzt", work: "Arbeit"), (work: "Job")),
+  overrides: (present: "Now"),
+)
+#assert.eq(layered.present, "Now")
+#assert.eq(layered.work, "Job")
+#assert.eq(layered.skills, "Scileanna")
+// A template's `publication-types` entry merges entry by entry, as a
+// caller's does.
+#let types = labels(
+  template: ((publication-types: (Talk: "Vorträge")),),
+  overrides: (publication-types: (book: "Bücher")),
+).publication-types
+#assert.eq(
+  (types.talk, types.book, types.article),
+  (
+    "Vorträge",
+    "Bücher",
+    "Articles",
+  ),
+)

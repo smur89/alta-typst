@@ -18,6 +18,7 @@
 #import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/validation.typ": _preference-rules
+#import "context.typ": _labels-state
 #import "design/icon-set.typ": _network-icons
 #import "primitives.typ": _fact-line
 
@@ -166,7 +167,8 @@
 #let group-by-type(items) = _type-groups(items)
 
 /// The labels `alta()` renders with, in the document's language: its
-/// bundled translation over the English, `overrides` over both, merged
+/// bundled translation over the English, the template's
+/// (`altacv.with(labels: ..)`) over that, `overrides` over all, merged
 /// and checked as `alta(labels: ..)`'s are. Keys are `alta()`'s
 /// kebab-case label names (`work`, `present`, `other-projects`);
 /// `months` is the twelve month names, `publication-types` a heading
@@ -178,5 +180,10 @@
 ///   one heading.
 /// -> dictionary
 #let labels(overrides: (:)) = (
-  _merge-options(overrides, (:), lang: text.lang).labels
+  _merge-options(
+    overrides,
+    (:),
+    lang: text.lang,
+    template: _labels-state.get(),
+  ).labels
 )

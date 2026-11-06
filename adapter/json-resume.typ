@@ -118,18 +118,12 @@
       months: labels.months,
     )
   }
-  // `entry`'s `(start, end)` pair: the end, else "Present" when there's
-  // a start.
-  let period(obj) = {
-    let start = _field(obj, "startDate")
-    let end = _field(obj, "endDate")
-    (
-      date(start),
-      if end != none { date(end) } else if start != none {
-        labels.present
-      },
-    )
-  }
+  // `entry`'s `(start, end)` pair, an open end reading the labels'
+  // "Present".
+  let period(obj) = (
+    date(_field(obj, "startDate")),
+    date(_field(obj, "endDate")),
+  )
   // A location's parts, which `entry` joins in the theme's style.
   let location(obj) = adapter.location-text(obj.at("location", default: none))
   // Highlights as a list, the entry's body.
@@ -425,22 +419,16 @@
     name: if name != none { name } else { auto },
     tagline: _field(basics, "label"),
     objective: _field(cv, "objective"),
-    // The location's alt text from `labels.location`, as `alta()` reads
-    // it.
-    contacts: adapter
-      .basics-contacts(
-        basics,
-        linked: preferences.at("link-contact-info", default: true),
-        maps-provider: preferences.at(
-          "maps-provider",
-          default: maps-providers.google,
-        ),
-        full-urls: preferences.at("print-full-urls", default: false),
-        icons: preferences.at("profile-icons", default: auto),
-      )
-      .map(c => if type(c) == dictionary and c.icon == "location" {
-        c + (alt: labels.location)
-      } else { c }),
+    contacts: adapter.basics-contacts(
+      basics,
+      linked: preferences.at("link-contact-info", default: true),
+      maps-provider: preferences.at(
+        "maps-provider",
+        default: maps-providers.google,
+      ),
+      full-urls: preferences.at("print-full-urls", default: false),
+      icons: preferences.at("profile-icons", default: auto),
+    ),
     photo: if image-src != none { image(image-src) },
     photo-position: preferences.at("photo-position", default: right),
     photo-size: preferences.at("photo-size", default: auto),
@@ -499,8 +487,10 @@
 ///   fields) plus altacv's `custom.altacv` extensions.
 /// - labels (auto, dictionary): Display strings, by `alta()`'s
 ///   kebab-case label keys (`work`, `other-projects`,
-///   `publication-types`, …), over the document language's
-///   (`adapter.labels()`); `auto` is those alone.
+///   `publication-types`, …), over the document language's and the
+///   template's (`adapter.labels()`); `auto` is those alone. The blocks
+///   read the template's themselves (`entry`'s "Present", the alt
+///   text): set those with `altacv.with(labels: ..)`.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …); a missing key
 ///   reads alta's default.

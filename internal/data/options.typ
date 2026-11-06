@@ -28,6 +28,30 @@
   }
 }
 
+// The one label resolver: the English defaults, the bundled
+// translation for `lang` (if any), then each layer of overrides in
+// turn, already in kebab-case, canonicalised and merged; validated. The layers
+// are the templates' (`altacv.with(labels: ..)`, outermost first),
+// then a call's (`alta(cv, labels: ..)`), so a later layer wins.
+#let _resolve-labels(lang, ..layers) = {
+  // A non-string `labels.lang` has no translation; validation names it.
+  let translation = if type(lang) == str {
+    _translations.at(lang, default: (:))
+  } else { (:) }
+  let merge(labels, layer) = _strict-merge(
+    labels,
+    layer,
+    "labels",
+    tables: _label-tables,
+  )
+  let merged = layers
+    .pos()
+    .map(_canonical-labels)
+    .fold(merge(_default-labels, translation + (lang: lang)), merge)
+  _validate-labels(merged)
+  merged
+}
+
 // The caller's `labels` and `preferences`, each canonicalised before
 // its merge over the defaults and validated after it. The raw labels
 // go to `_canonical-preferences`, which folds in the deprecated
@@ -42,8 +66,9 @@
 //
 // `lang` is the document's language (`text.lang` where `alta()` is
 // called); the deprecated `labels.lang` wins over it (#239). The
-// labels start from its bundled translation, if any, over the English.
-#let _merge-options(labels, preferences, lang: "en") = {
+// labels resolve over the enclosing templates' (`template`, the
+// `_labels-state` stack), the caller's last.
+#let _merge-options(labels, preferences, lang: "en", template: ()) = {
   let (labels, preferences) = _kebab-options(labels, preferences)
   _check-theme-routed(preferences)
   for table in _preference-tables {
@@ -52,23 +77,11 @@
       _check-icon-names(icons, table)
     }
   }
-  let lang = _dict-or-empty(labels).at("lang", default: lang)
-  // A non-string `labels.lang` has no translation; validation names it.
-  let translation = if type(lang) == str {
-    _translations.at(lang, default: (:))
-  } else { (:) }
-  let merged-labels = _strict-merge(
-    _strict-merge(
-      _default-labels,
-      translation + (lang: lang),
-      "labels",
-      tables: _label-tables,
-    ),
-    _canonical-labels(labels),
-    "labels",
-    tables: _label-tables,
+  let merged-labels = _resolve-labels(
+    _dict-or-empty(labels).at("lang", default: lang),
+    ..template,
+    labels,
   )
-  _validate-labels(merged-labels)
   let merged-preferences = _strict-merge(
     _default-preferences,
     _canonical-preferences(preferences, labels),
@@ -77,6 +90,26 @@
   )
   _validate-preferences(merged-preferences, _section-specs.keys())
   (labels: merged-labels, prefs: merged-preferences)
+}
+
+// `altacv`'s `labels`, in kebab-case for `_labels-state`, checked as
+// `alta()`'s are: over the English, as the language they render in is
+// known only where they're read. Neither the deprecated `lang` nor the
+// deprecated `publication-icons` is a label there: the first is
+// `set text`'s, the second a preference.
+#let _template-labels(labels) = {
+  let (labels, _) = _kebab-options(labels, (:))
+  let instead = (
+    lang: "`set text(lang: ..)` after `#show: altacv.with(..)`",
+    publication-icons: "`alta(cv, preferences: (publication-icons: ..))`",
+  )
+  for (key, use) in instead {
+    if key in _dict-or-empty(labels) {
+      panic("labels." + key + " isn't an altacv() label: use " + use + ".")
+    }
+  }
+  let _ = _resolve-labels("en", labels)
+  labels
 }
 
 // `altacv`'s `theme`, checked, without the
