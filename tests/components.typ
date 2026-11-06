@@ -55,7 +55,7 @@
 #let variant(body) = block(breakable: false, below: 2.5em, body)
 #let header = _page-header.with(
   name: "Jane Doe",
-  headline: "Staff Engineer",
+  tagline: "Staff Engineer",
   contacts: (contacts.slice(0, 2), contacts.slice(2)),
   uppercase: true,
 )
@@ -89,7 +89,7 @@
 
 #heading(level: 2)[Page header: a QR code, and a contact bar that wraps]
 #variant(header(qr-url: "https://example.com"))
-// The objective under the headline.
+// The objective under the tagline.
 #variant(header(
   objective: [Lead a platform team building reliable data systems.],
 ))
@@ -197,9 +197,9 @@
 #heading(level: 2)[Primitives]
 #name[Acme]
 #term("2022 – 2024", location: "Remote")
-#tag[Scala] #tag(label: true)[Label] #tag(trailing: false)[Last]
+#tag[Scala] #tag(category: true)[Label] #tag(trailing: false)[Last]
 
-// A row long enough to wrap: no gap after the last pill.
+// A row long enough to wrap: no gap after the last tag.
 #block(width: 60%, _tag-row(
   ("Scala", "Python", "Rust", "Go", "TypeScript", "Kotlin", "Java"),
 ))

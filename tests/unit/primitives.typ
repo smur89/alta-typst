@@ -31,3 +31,8 @@
 
 // _joined: nothing without a part to show.
 #assert.eq(_joined("keywords", ("", none)), none)
+
+// tag: the deprecated `label:` (#239) draws what `category:` does.
+#import "/lib.typ": tag
+#assert.eq(tag("x", label: true), tag("x", category: true))
+#assert.eq(tag("x", label: false), tag("x"))

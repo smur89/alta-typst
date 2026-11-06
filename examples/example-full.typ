@@ -13,7 +13,7 @@
 //     keywords.
 //   • Volunteer: distinct organisation/position shape.
 //   • Areas of focus: `custom.altacv.focusAreas`, a short list.
-//   • Skills: two pill groups.
+//   • Skills: two tag groups.
 //   • Languages: a `fluency` string, and integer and fractional
 //     half-dot `custom.altacv.rating`.
 //   • Education: `studyType` + `score` + `courses`, plus the `area`
@@ -175,7 +175,7 @@
 
   education: (
     (
-      // Full entry with `studyType`, `score`, and `courses` pills.
+      // Full entry with `studyType`, `score`, and `courses` tags.
       institution: "Tallaght Institute of Technology",
       url: "https://example.edu/tit",
       studyType: "M.Sc. in Computer Science",

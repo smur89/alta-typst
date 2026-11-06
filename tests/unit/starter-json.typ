@@ -10,7 +10,7 @@
 
 #show: altacv
 // Every run of text the CV renders, wherever it sits: in a paragraph,
-// a list, a pill or a line of facts.
+// a list, a tag or a line of facts.
 #show text: it => [#metadata(it.text)<starter-text>#it]
 
 #metadata("dict")<starter-form>
@@ -29,7 +29,7 @@
   link,
   ..(
     "name",
-    "headline",
+    "tagline",
     "contact",
     "objective",
     "summary",
@@ -38,7 +38,7 @@
     "location",
     "facts",
     "keywords",
-    "pill",
+    "tag",
     "rating-label",
     "rating-full",
     "rating-empty",

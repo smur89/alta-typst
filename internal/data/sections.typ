@@ -28,7 +28,7 @@
 )
 #let _keyword-group = (
   fields: (name: _text-rule, keywords: _texts-rule),
-  // A group without keywords would leave a bare label pill.
+  // A group without keywords would leave a bare category tag.
   keep: g => g.at("keywords", default: ()).len() > 0,
 )
 

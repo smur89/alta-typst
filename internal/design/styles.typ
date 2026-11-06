@@ -206,7 +206,7 @@
   body
 }
 
-// `body`'s paragraphs never justified: rows of facts, names or pills,
+// `body`'s paragraphs never justified: rows of facts, names or tags,
 // which stretch badly, whatever `justify` the prose around them takes
 // (`_justify`, or the JSON Resume mapping's scoped `set par`).
 #let _unjustified(body) = {
@@ -216,7 +216,7 @@
 
 // For `show: _justify.with(on)`: justify and hyphenate prose only,
 // lists and the paragraphs labelled `<alta-internal-prose>`, so rows of
-// facts, names or pills never stretch. Applied by `alta()`: `justify`
+// facts, names or tags never stretch. Applied by `alta()`: `justify`
 // is a CV preference, not the template's.
 #let _justify(on, body) = {
   show list: set par(justify: on)

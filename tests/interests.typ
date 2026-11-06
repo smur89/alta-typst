@@ -6,7 +6,7 @@
 //   1. Interests alongside focusAreas + skills — confirms they render
 //      as three distinct sections.
 //   2. `interests` with empty keywords on one entry is skipped without
-//      emitting an empty pill row.
+//      emitting an empty tag row.
 
 #import "../lib.typ": alta
 

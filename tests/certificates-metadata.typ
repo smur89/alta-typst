@@ -9,7 +9,7 @@
 #let cv = (
   basics: (name: "Jane Doe", email: "jane@example.com"),
   certificates: (
-    // Full entry — pill is linked, date row follows.
+    // Full entry — tag is linked, date row follows.
     (
       name: "Certified Kubernetes Administrator",
       issuer: "CNCF",
@@ -22,13 +22,13 @@
       name: "Certified Kubernetes Application Developer",
       issuer: "CNCF",
     ),
-    // Url-only — link wraps the pill, no date line.
+    // Url-only — link wraps the tag, no date line.
     (
       name: "AWS Solutions Architect — Associate",
       issuer: "AWS",
       url: "https://example.com/aws-saa",
     ),
-    // Date-only — plain pill plus the calendar-icon date line.
+    // Date-only — plain tag plus the calendar-icon date line.
     (
       name: "Terraform Associate",
       issuer: "HashiCorp",

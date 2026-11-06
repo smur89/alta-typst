@@ -1,6 +1,6 @@
 // `preferences.justify: true`: prose (the summary, highlights, focus
 // areas) is justified and hyphenated. The contact bar, the wrapped
-// skill pill row, the long heading and the wrapped interests row stay
+// skill tag row, the long heading and the wrapped interests row stay
 // ragged.
 
 #import "../lib.typ": alta

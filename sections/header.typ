@@ -25,7 +25,7 @@
   let image = _header-image(basics.at("image", default: none))
   _page-header(
     name: basics.name,
-    headline: _field(basics, "label"),
+    tagline: _field(basics, "label"),
     objective: _field(cv, "objective"),
     contacts: _contact-rows(
       _linked-contacts(

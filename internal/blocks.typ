@@ -305,7 +305,7 @@
     let labels = _labels()
     _page-header(
       name: name,
-      headline: tagline,
+      tagline: tagline,
       objective: objective,
       // A row per run between `linebreak()`s, each wrapping between
       // entries as `alta()`'s rows do; an empty run, none.
@@ -432,12 +432,12 @@
   }
 }
 
-/// A skill group's row: its name as a label pill, then its keywords as
-/// pills, with an optional level: a number or a term such as "Expert"
+/// A skill group's row: its name as a category tag, then its keywords as
+/// tags, with an optional level: a number or a term such as "Expert"
 /// shows as dots, any other text as written.
 ///
 /// - name (content, str): The group's name.
-/// - keywords (array): Its keywords, each a pill.
+/// - keywords (array): Its keywords, each a tag.
 /// - level (int, float, str, content, none): Its level, after the name:
 ///   a number as that many dots, from 0 to `max` in steps of 0.5, as
 ///   `alta()` shows a `custom.altacv.rating`; a rating term

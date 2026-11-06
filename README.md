@@ -395,7 +395,7 @@ Parts of the CV carry Typst labels (`<alta-…>`) that show rules can target, to
 
 A rule on a text part overrides the template's font, size, colour, weight, style or tracking for it, but not its icon (except a group title's, which follows the title's colour). The line parts take `set line(...)`. The line between entries is Typst's own [`divider`](https://typst.app/docs/reference/model/divider/), so restyle it as any divider, with `show divider`, as the example does. The marker parts (date and location icons, rating dots) can be recoloured or replaced; a replacement keeps the marker's place and alt text, and its glyph must be in one of your fonts. Rating dots also take `set circle(fill: …)`, and a glyph that replaces one takes its colour: the accent, or the border colour for an empty dot. A paragraph part, the line that lays out a row of items, takes `set par(…)`. Every part is listed under [Part labels](#part-labels), with its kind: the rules it takes, not the element it is. A replacement rule's `it` is the part as content, whatever builds it (text, a sequence, a `context`, an `align`), so use it whole (`tag(it)`, `emph(it)`), not `it.text`.
 
-An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as pills, replace each `<alta-keyword>` with a `tag()`, drop the separator between them, and space the `<alta-keywords>` line as skill rows are (0.8em, the default `keyword-row` gap) from its wrapped rows and the line above:
+An entry's keywords (a project's stack, education's courses) are a line of text. To draw them as tags, replace each `<alta-keyword>` with a `tag()`, drop the separator between them, and space the `<alta-keywords>` line as skill rows are (0.8em, the default `keyword-row` gap) from its wrapped rows and the line above:
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -528,7 +528,7 @@ An entry without its title field (`name` for projects and certificates, `title` 
 | `identifiers` | Persistent IDs keyed by scheme: `DOI 10.1000/182 · arXiv 2101.00001`. `doi`, `arxiv` and `pmid` are linked; others print as given. |
 | `type` | Groups publications under a subheading per type, each with its icon. `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publication-types`); any other type is headed as written unless you add it there. Untyped entries are articles. Plural free-text types (`"Talks"`) still group with their code but are deprecated ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 
-**Skills** are `{name, level, keywords}` groups: the name as a label pill, then the keywords as pills. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `preferences.max-rating`; any other level shows as text. `preferences.skill-level-display` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
+**Skills** are `{name, level, keywords}` groups: the name as a category tag, then the keywords as tags. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `preferences.max-rating`; any other level shows as text. `preferences.skill-level-display` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
 
 **Languages** are `{language, fluency}`. LinkedIn's fluency terms (`Native`, `Bilingual`, `Full Professional`, `Professional Working`, `Limited Working`, `Elementary`, any case) show as dots; other strings show as text. An exact [rating extension](#extensions) wins. An entry with neither a rating nor `fluency` panics.
 
@@ -692,7 +692,7 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | Label | Kind | Part |
 |---|---|---|
 | `<alta-name>` | text | The name. |
-| `<alta-headline>` | text | The tagline under the name (`basics.label`). |
+| `<alta-tagline>` | text | The tagline under the name (`basics.label`). |
 | `<alta-objective>` | text | The objective, under the tagline. It is also an `<alta-summary>` part. |
 | `<alta-section-title>` | text | A section's heading (Experience, Skills, …). |
 | `<alta-entry-title>` | text | An entry's title: a role, qualification, project or award. |
@@ -704,8 +704,8 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | `<alta-location>` | text | An entry's location. |
 | `<alta-summary>` | text | A summary: the CV's, the objective, or an entry's. |
 | `<alta-intro>` | block | Inside the template, the block around the CV's summary under the header; the template spaces it (a paragraph's `spacing`, plus the theme's intro spacing as `inset`), and `show <alta-intro>: set block(spacing: .., inset: ..)` after the show line respaces it. |
-| `<alta-pill>` | text | A skill pill's text (its box is the theme's). |
-| `<alta-pill-label>` | text | A skill group's label pill. |
+| `<alta-tag>` | text | A skill tag's text (its box is the theme's). |
+| `<alta-tag-category>` | text | A category tag's text: a skill group's name. |
 | `<alta-keyword>` | text | One of an entry's keywords: a work or project keyword, an education's course. |
 | `<alta-keywords>` | paragraph | An entry's keyword line, a paragraph of its `<alta-keyword>` parts (not a skill or interest row). |
 | `<alta-rating-label>` | text | A language's name beside its rating. |
@@ -733,7 +733,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `name(body)` | An accent-coloured organisation line. |
 | `term(period, location: none)` | A date and optional location, each with its icon. |
 | `rating(label, value, max: auto)` | A label with rating dots, or with a text value in their place. |
-| `tag(body, ..)` | A pill. |
+| `tag(body, category: auto, trailing: true)` | A tag. `category: true` is the darker, bold one that names a skill group. Deprecated: `label:`, the name 1.8.0 gave `category:`. |
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
 | `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-position:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a photo and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
@@ -741,7 +741,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. The body (its highlights or other prose) is optional. `date` takes a `(start, end)` pair, an open end reading "Present"; `location` an array of parts, joined by the theme's item separator. |
 | `publication(title:, url:, authors:, owners: auto, source:, citation: (:), date:, identifiers:, body)` | A publication as a bibliography item, with a required `title` and an optional body, its summary; the `owners` (the document's author by default) are set apart among the authors, and the `citation` (`volume`, `issue`, `pages`) follows the source in the theme's citation style. |
 | `cv-columns(left, right, ratio: 0.65)` | The CV's two columns with the theme's gutter, the left taking `ratio`; one column when `right` is `none` or the ratio is 1. |
-| `skill-row(name, keywords, level: none, max: auto)` | A skill group's row of pills, with its level (a number or a rating term) as dots, or as text. |
+| `skill-row(name, keywords, level: none, max: auto)` | A skill group's row of tags, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |

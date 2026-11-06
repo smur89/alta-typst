@@ -70,7 +70,7 @@
 
 // Show rules over a frame, as a user's restyling: stars in place of
 // the rating dots (FontAwesome, in each dot's colour), and entries'
-// keywords as pills, spaced as skill rows are.
+// keywords as tags, spaced as skill rows are.
 #let restyled(body) = {
   let star(name, solid: true) = fa-icon(name, solid: solid, size: 0.85em)
   show <alta-rating-full>: star("star")
@@ -336,7 +336,7 @@
   // A square-cropped photo, a wider main column
   // (`column-ratio: 0.7`) for work, volunteer, projects, publications
   // and awards, and show rules (`restyled`) drawing stars for the
-  // rating dots and entries' keywords as pills, with the keyword
+  // rating dots and entries' keywords as tags, with the keyword
   // separator dropped.
   (
     cv: cv,

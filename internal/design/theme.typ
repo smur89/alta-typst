@@ -59,7 +59,7 @@
     headline: (size: 1.4, weight: "bold"),
     title: (size: 1.2, weight: "semibold"),
     // No size: `body-size` is the body's. The weight is the body text's
-    // (`_document`) and the pills'.
+    // (`_document`) and the tags'.
     body: (weight: "regular"),
   ),
   // To embolden within a role.
@@ -165,10 +165,10 @@
     ),
     term: (below: sp.medium, inset: sp.x-small),
     // Fills and the outline lighten the accent, the text darkens it:
-    // a soft outline, so a row of pills reads as one band of tint.
+    // a soft outline, so a row of tags reads as one band of tint.
     tag: (
       fill: 85%,
-      label-fill: 70%,
+      category-fill: 70%,
       stroke-lighten: 45%,
       text-darken: 25%,
       radius: 2.5pt,
@@ -176,17 +176,17 @@
       outset-y: sp.xx-small,
       gap: sp.x-small,
       weight: ty.body.weight,
-      label-weight: fw.bold,
+      category-weight: fw.bold,
     ),
     divider: (gap: sp.x-small, dash: "dashed", clearance: 0.5cm),
-    // A skill group's label pill and its keywords; wrapped keywords
+    // A skill group's category tag and its keywords; wrapped keywords
     // hang under the first unless the label is past `indent-max` of
     // the column.
     keyword-row: (gap: sp.medium, dash: "–", indent-max: 50%),
     header: (
       name-below: sp.large,
-      headline-below: sp.medium,
-      // Between the headline and the objective under it.
+      tagline-below: sp.medium,
+      // Between the tagline and the objective under it.
       objective-gap: sp.small,
       // The contact bar's text and icons, below body so they don't
       // compete with the name.

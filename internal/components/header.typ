@@ -1,5 +1,5 @@
 // The page header, laid out from the slots `sections/header.typ` maps
-// the CV and preferences onto: the name line, headline, objective and
+// the CV and preferences onto: the name line, tagline, objective and
 // contact bar, with an optional photo and QR around them.
 
 #import "../design/styles.typ": _part
@@ -106,30 +106,29 @@
 // A line of the header's text, `below` apart from the next.
 #let _header-line(below, body) = block(spacing: 0pt, below: below, body)
 
-// The headline, then the objective (a forward-looking goal) close
+// The tagline, then the objective (a forward-looking goal) close
 // under it, so the two read as one unit: who, then what next. The
 // objective is set apart as a summary's preamble is
 // (`treatment.preamble`, italic by default). It is `<alta-objective>`
 // inside `<alta-summary>`, the part it was until it moved into the
 // header, so a rule on either reaches it.
-#let _headline(headline, objective, theme, body-size) = {
-  let (headline-below, objective-gap, ..) = theme.header
-  if headline != none {
+#let _tagline(tagline, objective, theme, body-size) = {
+  let (tagline-below, objective-gap, ..) = theme.header
+  if tagline != none {
     _header-line(
-      if objective != none { objective-gap } else { headline-below }
-        * body-size,
+      if objective != none { objective-gap } else { tagline-below } * body-size,
       {
         set text(
           theme.type.title.size * body-size,
           fill: theme.colours.tagline,
           weight: theme.font-weight.bold,
         )
-        _part("headline", headline)
+        _part("tagline", tagline)
       },
     )
   }
   if objective != none {
-    _header-line(headline-below * body-size, (theme.treatment.preamble)(
+    _header-line(tagline-below * body-size, (theme.treatment.preamble)(
       // `#[]` gives the outer label an element of its own.
       _part("summary", [#_part("objective", objective)#[]]),
     ))
@@ -170,7 +169,7 @@
 // as the `title` element (`_name-line`).
 #let _page-header(
   name: none,
-  headline: none,
+  tagline: none,
   objective: none,
   contacts: (),
   text-align: left,
@@ -194,7 +193,7 @@
         body-size,
         title: title,
       )
-      _headline(headline, objective, theme, body-size)
+      _tagline(tagline, objective, theme, body-size)
       _contact-bar(contacts, theme, body-size)
     }),
     qr-size,

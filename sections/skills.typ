@@ -1,5 +1,5 @@
 // `_skills` and `_interests` share the JSON Resume `{name, keywords}`
-// shape, differing in heading and in weight: skills as pills, the
+// shape, differing in heading and in weight: skills as tags, the
 // keywords a reader looks for; interests as plain text.
 
 #import "../internal/util/fields.typ": _field

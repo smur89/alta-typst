@@ -1,6 +1,6 @@
 // Each built-in theme rendered as its own page so a reviewer can flip
-// through and check its colours against the name, the headline, the
-// heading and its rule, the language-rating dots, the skill-pill
+// through and check its colours against the name, the tagline, the
+// heading and its rule, the language-rating dots, the skill-tag
 // fills and the organisation line all at once. Then a page setting
 // `colours` over a theme, to confirm it changes only the roles it
 // names, and one adding a show rule on a part over both, which wins.

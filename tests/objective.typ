@@ -1,5 +1,5 @@
 // JSON Resume 1.4.0's root `objective` renders in italics in the
-// header, under the headline (`basics.label`), with `basics.summary`
+// header, under the tagline (`basics.label`), with `basics.summary`
 // below the header when set. Pages: objective with a summary,
 // objective alone, and an objective given as content.
 
