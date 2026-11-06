@@ -240,12 +240,10 @@ $(COMPILE_CHECKS): check/compile/%: $(TEMPLATE_SRC)
 	$(call compile-one,$*)
 $(FIXTURE_CHECKS): check/fixture/%:
 	$(call compile-one,$*)
-# A failed `assert` fails the compile.
-$(UNIT_CHECKS): check/unit/%:
+# A failed `assert` fails the compile. The unit checks wait for
+# `$(TEMPLATE_SRC)` too: tests/unit/starter-json.typ reads the starter.
+$(UNIT_CHECKS): check/unit/%: $(TEMPLATE_SRC)
 	$(call compile-one,$*,a-2b)
-# starter-json.typ reads the starter's CV from `$(TEMPLATE_SRC)`.
-# Recipe-less: adds the prereq, the rule above supplies the recipe.
-check/unit/tests/unit/starter-json.typ: $(TEMPLATE_SRC)
 
 # A panic fixture must FAIL to compile, and its error output must
 # contain the text after the file's leading `// expect: ` line — so

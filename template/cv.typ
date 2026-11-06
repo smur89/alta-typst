@@ -181,13 +181,12 @@
 
 #alta(cv, preferences: preferences)
 
-// Or load the same CV from JSON Resume: `resume.json`, beside this
-// file, holds it in the standard schema (https://jsonresume.org), so
-// any JSON Resume tool can write it. It has no photo: the one above is
-// set in Typst (`basics.image`).
+// To load the same CV from JSON Resume instead, replace the
+// `#alta(cv, ..)` line above with the one below. `resume.json`, beside
+// this file, holds it in the standard schema (https://jsonresume.org),
+// so any JSON Resume tool can write it. Loading it drops the portrait,
+// which is set here in Typst (`basics.image`).
 // #alta-from-json(path("resume.json"), preferences: preferences)
 //
-// To go further: write sections of your own in markup after the CV,
-// or copy the mapping `alta()` draws with and change how a section
-// looks. The README covers both ("Write the CV in markup", "Your own
-// mapping").
+// More in the README: "Write the CV in markup" for sections of your
+// own, "Your own mapping" to change how a section is drawn.

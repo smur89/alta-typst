@@ -12,10 +12,10 @@
 // a list, a pill or a line of facts.
 #show text: it => [#metadata(it.text)<starter-text>#it]
 
-#[#metadata("dict")<starter-form>]
+#metadata("dict")<starter-form>
 #alta(cv + (basics: cv.basics + (image: none)), preferences: preferences)
 #pagebreak()
-#[#metadata("json")<starter-form>]
+#metadata("json")<starter-form>
 #alta-from-json(path("/template/resume.json"), preferences: preferences)
 
 // Where the CV's parts sit: its headings (sections, groups and entry
@@ -58,16 +58,23 @@
     .join(" ")
     .split(regex("\s+"))
     .filter(w => w != "")
-  // Each part's link target and place, page-relative, in one form, to
-  // a hundredth of a point: the dict's text across lines is more runs
-  // than the JSON's one string, and lands a rounding error away.
+  // Each part's link target and place, page-relative, in one form.
   let places(from, to) = parts.map(part => query(part)
     .filter(within(from, to))
     .map(it => {
       let pos = it.location().position()
-      let pt(l) = calc.round(l.pt(), digits: 2)
-      (it.at("dest", default: none), pt(pos.x), pt(pos.y), pos.page - from)
+      (dest: it.at("dest", default: none), pos: pos, page: pos.page - from)
     }))
+  // The same part in either form: the same target, on the same page, at
+  // the same place within a twentieth of a point, as the dict's text
+  // across lines is more runs than the JSON's one string and can land
+  // a float's error away.
+  let same(x, y) = (
+    x.dest == y.dest
+      and x.page == y.page
+      and calc.abs(x.pos.x - y.pos.x) < 0.05pt
+      and calc.abs(x.pos.y - y.pos.y) < 0.05pt
+  )
 
   let (a, b) = (words(dict, json), words(json, calc.inf))
   let at = a.zip(b).position(((x, y)) => x != y)
@@ -87,6 +94,9 @@
     assert(found.len() > 0, message: "no " + repr(part) + " in the CV")
   }
   for (part, x, y) in parts.zip(a, b) {
-    assert.eq(x, y, message: repr(part) + " differs")
+    assert(
+      x.len() == y.len() and x.zip(y).all(((x, y)) => same(x, y)),
+      message: repr(part) + " differs",
+    )
   }
 }
