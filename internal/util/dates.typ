@@ -8,7 +8,7 @@
 // carries over to other Typst code.
 
 #import "checks.typ": _unknown
-#import "values.typ": _join-present, _present
+#import "values.typ": _present
 
 // Strict ISO prefix parse (zero-padded, months 1–12, days 1–31) to a
 // `(year, month, day)` dict, or `none` so callers render anything else

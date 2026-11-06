@@ -36,12 +36,12 @@
   1.05 / (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)
 }
 
-// Sets the style where `emph` toggles it: a treatment around a
-// `_part` has to be a plain setting, or a user's `style:` rule on the
-// part would be flipped (`emph` turns their "normal" italic).
 // A treatment that leaves the content as it is.
 #let _as-is(body) = body
 
+// Sets the style where `emph` toggles it: a treatment around a
+// `_part` has to be a plain setting, or a user's `style:` rule on the
+// part would be flipped (`emph` turns their "normal" italic).
 #let _italic(body) = {
   set text(style: "italic")
   body
@@ -218,16 +218,6 @@
 #let _token-prefs(prefs) = (
   (colours: prefs.colours)
     + if prefs.font != auto { (font: prefs.font) } else { (:) }
-)
-
-// #239: the names a theme's `treatment` tokens took, as the functions
-// `_canonical-preferences` rewrites them to.
-#let _treatment-names = (
-  emph: emph,
-  italic: _italic,
-  strong: strong,
-  upper: upper,
-  "none": _as-is,
 )
 
 // The theme to render with: the chosen theme's tokens, then

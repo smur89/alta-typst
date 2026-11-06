@@ -22,7 +22,7 @@
   ),
   languages: (
     (language: "English", fluency: "Native"),
-    (language: "French", rating: 3.5),
+    (language: "French", custom: (altacv: (rating: 3.5))),
   ),
 )
 

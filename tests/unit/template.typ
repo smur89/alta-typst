@@ -40,7 +40,7 @@
 ]
 #let work = (work: ((name: "Acme", position: "Engineer"),))
 #let typed = (
-  publications: ((name: "Paper", releaseDate: "2024", type: "Articles"),),
+  publications: ((name: "Paper", releaseDate: "2024", type: "article"),),
 )
 
 #assert-size(

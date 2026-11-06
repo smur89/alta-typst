@@ -39,8 +39,8 @@
     languages: (
       (language: "Gaeilge", fluency: "Native"),
       (language: "Béarla", fluency: "Native"),
-      (language: "Français", rating: 3),
-      (language: "Español", rating: 2.5),
+      (language: "Français", custom: (altacv: (rating: 3))),
+      (language: "Español", custom: (altacv: (rating: 2.5))),
     ),
   ),
 )

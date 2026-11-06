@@ -21,7 +21,7 @@
   highlights: entry.at("highlights", default: ()),
 )
 
-#let _work(entries, (labels, prefs, format-date, ..)) = _section(
+#let _work(entries, (labels, format-date, ..)) = _section(
   labels.work,
   entries,
   e => _entry(
@@ -32,10 +32,7 @@
   ),
 )
 
-#let _volunteer(
-  entries,
-  (labels, prefs, format-date, ..),
-) = _section(
+#let _volunteer(entries, (labels, format-date, ..)) = _section(
   labels.volunteer,
   entries,
   e => _entry(

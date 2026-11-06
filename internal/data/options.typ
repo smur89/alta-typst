@@ -63,11 +63,9 @@
   (labels: merged-labels, prefs: merged-preferences)
 }
 
-// `altacv`'s `theme`, read, rewritten and checked as
-// `preferences.theme` is, without the rest of the preferences.
+// `altacv`'s `theme`, checked as `preferences.theme` is, without the
+// rest of the preferences.
 #let _checked-theme(theme) = {
-  let (_, prefs) = _kebab-options((:), (theme: theme))
-  let theme = _canonical-preferences(prefs, (:)).theme
   _check-theme(theme)
   theme
 }

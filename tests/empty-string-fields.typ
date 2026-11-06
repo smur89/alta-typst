@@ -21,7 +21,7 @@
   awards: (
     (
       title: "Linkless Award",
-      url: "",
+      custom: (altacv: (url: "")),
       awarder: "Committee",
     ),
   ),

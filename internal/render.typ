@@ -20,7 +20,8 @@
 #import "components/columns.typ": _columns
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
-#import "../sections/footer.typ": _cv-details, _footer
+#import "footers.typ": _cv-details
+#import "../sections/footer.typ": _footer
 #import "../adapter/json-resume.typ": _resume
 
 // The merged options, the read CV and the `ctx` every renderer takes
@@ -29,7 +30,7 @@
 // is the CV owner's name, and `owners` every spelling of it
 // (`preferences.owner-names` too), trimmed and lowercased, to bold among
 // publication authors. `details` is what a footer prints of the CV
-// (`sections/footer.typ`), for the `<alta-cv>` marker and the
+// (`footers.typ`), for the `<alta-cv>` marker and the
 // standalone footer alike. `json-resume` is the checked, canonical CV
 // in JSON Resume's camelCase, for the template's mapping.
 #let _prepare(cv, labels, preferences) = {
@@ -49,16 +50,6 @@
     ctx: ctx,
     details: _cv-details(cv, labels),
   )
-}
-
-// For `show: _cv-styles.with(prefs)`: the CV preferences that style
-// what renders after them, the public `rating()`'s scale and
-// justification. Shared with the component gallery
-// (`tests/components.typ`), so it shows components as a CV does.
-#let _cv-styles(prefs, body) = {
-  _max-rating-state.update(prefs.max-rating)
-  show: _justify.with(prefs.justify)
-  body
 }
 
 // What `alta()` leaves for the content after it, in both forms: the

@@ -1,6 +1,7 @@
 // LinkedIn `fluency` strings scale to `preferences.max-rating`, rounded
 // to the nearest half, so they fit any dot count instead of
-// overflowing a smaller scale. Numeric `rating` is used as given.
+// overflowing a smaller scale. A numeric `custom.altacv.rating` is used
+// as given.
 // Fluency matches case-insensitively (Portuguese: lowercase, padded).
 // Pages: the default 5-dot scale, then 4 and 6 dots.
 
@@ -14,7 +15,7 @@
     (language: "Irish", fluency: "Professional Working"),
     (language: "French", fluency: "Limited Working"),
     (language: "Italian", fluency: "Elementary"),
-    (language: "Spanish", rating: 2),
+    (language: "Spanish", custom: (altacv: (rating: 2))),
     (language: "Portuguese", fluency: " professional working "),
   ),
 )

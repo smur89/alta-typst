@@ -9,8 +9,9 @@
 
 #import "../lib.typ": alta
 
+#set text(lang: "de")
+
 #let labels = (
-  lang: "de",
   work: "Berufserfahrung",
   page-number: "Seite {current} von {total}",
   document-title: "Lebenslauf — {name}",
@@ -34,6 +35,5 @@
   ),
 )
 
-// The deprecated string spelling (#239), still read as `auto`.
-#alta(cv, labels: labels, preferences: (page-footer: "auto"))
-#alta(cv, labels: labels, preferences: (page-footer: "auto"))
+#alta(cv, labels: labels, preferences: (page-footer: auto))
+#alta(cv, labels: labels, preferences: (page-footer: auto))

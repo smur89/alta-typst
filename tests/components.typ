@@ -7,7 +7,8 @@
 
 #import "../lib.typ": avatar-placeholder
 #import "../internal/document.typ": _standalone
-#import "../internal/render.typ": _cv-styles
+#import "../internal/context.typ": _max-rating-state
+#import "../internal/design/styles.typ": _justify
 #import "../internal/data/options.typ": _merge-options
 #import "../internal/icons.typ": icon
 #import "../internal/primitives.typ": (
@@ -31,7 +32,10 @@
   labels,
   _auto-page-footer("Jane Doe", labels.page-number),
 )
-#show: _cv-styles.with(prefs)
+// The CV preferences that style what renders after them, as `alta()`
+// sets them: the public `rating()`'s scale and justification.
+#_max-rating-state.update(prefs.max-rating)
+#show: _justify.with(prefs.justify)
 
 #let contacts = (
   (
@@ -186,9 +190,9 @@
 ))
 
 #heading(level: 2)[Rating rows: dots, a half dot, and the text fallback]
-#_rating-row("English", 5)
-#_rating-row("Irish", 3.5)
-#_rating-row("German", none, fallback: "Conversational")
+#_rating-row("English", 5, prefs.max-rating)
+#_rating-row("Irish", 3.5, prefs.max-rating)
+#_rating-row("German", none, prefs.max-rating, fallback: "Conversational")
 
 #heading(level: 2)[Primitives]
 #name[Acme]
