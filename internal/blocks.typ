@@ -2,9 +2,7 @@
 // template (#370): what Typst has no element for, over the components
 // `alta()` draws with. Re-exported from `lib.typ`.
 
-#import "data/defaults.typ": (
-  _default-labels, _default-preferences, _translations,
-)
+#import "data/defaults.typ": _default-preferences, _labels
 #import "data/cv.typ": (
   _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
   _owner-keys, _skill-levels, _term-rating,
@@ -24,12 +22,6 @@
 #import "components/header.typ": _page-header
 #import "components/keywords.typ": _keyword-rows, _label-rows
 #import "components/ratings.typ": _rating-mark
-
-// The labels in the document's language, as `alta()` resolves them:
-// its bundled translation over the English. A shallow merge, not
-// `_merge-options` per call: the blocks read only top-level labels
-// (`date`, `location`), which it resolves exactly.
-#let _labels() = _default-labels + _translations.at(text.lang, default: (:))
 
 // Where an entry sits: `parent`, the most recent section or group
 // heading before here (entries' own headings don't count), and

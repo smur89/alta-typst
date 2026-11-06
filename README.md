@@ -325,7 +325,7 @@ Invert the layout, side panel on the narrow left:
 ))
 ```
 
-Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: alta-footer())`; for the last-modified line, `alta-updated-footer()`, with `version: true` to add the version; or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
+Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: alta-footer())`; for the last-modified line, `alta-updated-footer()`, with `version: true` to add the version (in a CV written in markup, give it the date: `alta-updated-footer(date: "May 2026")`); or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
 
 ### Portrait, contact bar and QR code
 
@@ -723,8 +723,8 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 |---|---|
 | `altacv(theme:, body)` | The template: `#show: altacv.with(theme: ..)`. Sets the theme, text, margins and heading and list rules. |
 | `alta(cv, labels:, preferences:)` | Renders the CV. |
-| `alta-footer()` | Page-footer content: the name and page numbers on documents of more than one page, counted by Typst's page counter (a `counter(page).update(..)` restart changes the count). Use as `#set page(footer: alta-footer())`. |
-| `alta-updated-footer(version: false)` | Page-footer content: the last-modified line, with the version when `version` is `true`. |
+| `alta-footer()` | Page-footer content: the name (in a CV written in markup, the document's author, else its title) and page numbers on documents of more than one page, counted by Typst's page counter (a `counter(page).update(..)` restart changes the count). Use as `#set page(footer: alta-footer())`. |
+| `alta-updated-footer(version: false, date: none)` | Page-footer content: the last-modified line, with the version when `version` is `true`. `date` replaces `meta.lastModified`; a CV written in markup has no `meta`, so it needs one. |
 | `alta-from-json(data, ..)` | Validates and renders a `resume.json`. |
 | `from-json-resume(data)` | Validates and parses a `resume.json` into a `cv` dict. |
 | `themes` | The built-in themes. |
