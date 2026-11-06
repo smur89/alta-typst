@@ -63,6 +63,8 @@ typst init @preview/altacv
 
 This copies [`template/cv.typ`](template/cv.typ), a complete example CV, into a new project. Edit the data in place and compile.
 
+Beside it, [`resume.json`](template/resume.json) holds the same CV as a [JSON Resume](https://jsonresume.org/) file; the last lines of `cv.typ` show the one-line switch to load it with `alta-from-json`.
+
 ### Render an existing `resume.json`
 
 <!-- x-release-please-start-version -->
