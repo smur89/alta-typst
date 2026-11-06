@@ -105,7 +105,7 @@ all: test-pdfs release-artifacts ## build every fixture PDF and the release arti
 preview-webp: examples/preview.webp ## build the animated README hero (needs img2webp)
 
 # The canonical demo: template/cv.typ as PDF (reviewer/release
-# artifact) + page-1 PNG (tracked README preview).
+# artifact) + page-1 PNG (a CI and release artifact; gitignored).
 cv: examples/cv.pdf examples/cv.png ## build examples/cv.pdf + cv.png from template/cv.typ
 
 # The per-page PNGs are side-effects of the PDF recipe (see the
