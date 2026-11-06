@@ -12,8 +12,6 @@
   if total <= 1 { return }
   grid(
     columns: (1fr, auto),
-    // Not the template's column gutter (`altacv`).
-    column-gutter: 0pt,
     align: (left, right),
     name,
     _fill-template(page-number, (

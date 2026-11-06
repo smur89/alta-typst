@@ -135,10 +135,6 @@
     _default-preferences.margin,
   )
   show: _level-headings.with(built)
-  // The columns' gutter, for a grid laid out in the template (the
-  // JSON Resume mapping's, a markup CV's); a `set grid(..)` after it
-  // wins. The template's own grids set theirs.
-  set grid(column-gutter: built.column-gutter)
   // The mapping's intro, spaced as `alta()`'s; a later
   // `show <alta-intro>: set block(..)` wins.
   show <alta-intro>: set block(

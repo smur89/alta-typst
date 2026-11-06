@@ -9,7 +9,7 @@
 // To adapt it, copy this file into your project, replace the imports
 // below with one
 //
-//   #import "@preview/altacv:<version>": adapter, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
 //
 // and edit what it draws. Then, in your CV:
 //
@@ -27,7 +27,7 @@
 // because `alta()`, which renders it, sits inside `lib.typ`.
 
 #import "../internal/blocks.typ": (
-  cv-header, entry, label-row, publication, skills,
+  cv-columns, cv-header, entry, label-row, publication, skills,
 )
 #import "../internal/components/ratings.typ": rating
 #import "../internal/data/defaults.typ": maps-providers
@@ -144,17 +144,6 @@
   )
 
   let pub(p) = {
-    // The citation, `12(3), 45–60`, after the publisher.
-    let issue = _string(p, "issue")
-    let pages = _string(p, "pages")
-    let citation = (
-      (_string(p, "volume"), if issue != none { "(" + issue + ")" })
-        .filter(x => x != none)
-        .join(),
-      if pages != none { pages.replace(regex("-+"), "–") },
-    )
-      .filter(x => x != none)
-      .join(", ")
     let summary = _field(p, "summary")
     let ids = p.at("identifiers", default: none)
     publication(
@@ -164,9 +153,12 @@
         .at("authors", default: ())
         .filter(a => type(a) == str and a.trim() != ""),
       owners: owners,
-      source: (_field(p, "publisher"), citation)
-        .filter(x => x != none)
-        .join(" "),
+      source: _field(p, "publisher"),
+      citation: (
+        volume: _string(p, "volume"),
+        issue: _string(p, "issue"),
+        pages: _string(p, "pages"),
+      ),
       date: date(_field(p, "releaseDate")),
       identifiers: if type(ids) == dictionary {
         ids.pairs().filter(((_, id)) => type(id) == str and id != "").to-dict()
@@ -410,6 +402,9 @@
   // Its text follows the alignment around it, `header-text-align`'s
   // when that's set.
   let image-src = _field(basics, "image")
+  let image-src = if type(image-src) != bytes or image-src.len() > 0 {
+    image-src
+  }
   let qr-code = preferences.at("qr-code", default: none)
   let header = cv-header(
     name: if name != none { name } else { auto },
@@ -453,14 +448,8 @@
   if summary != none [#block(par[#summary<alta-summary>])<alta-intro>]
 
   // The columns: the left sections beside the right, the left taking
-  // `column-ratio` of what the gutter (the template's, a `set grid`
-  // after it) leaves; one column when the ratio is 1 or no section is
-  // on the right.
-  let ratio = preferences.at("column-ratio", default: 0.65)
-  let left = preferences.at(
-    "left-column-sections",
-    default: ("work", "volunteer", "projects", "publications"),
-  )
+  // `column-ratio`; one column when no section is on the right.
+  let column(keys) = keys.map(key => (sections.at(key))()).join()
   let right = preferences.at("right-column-sections", default: (
     "focus-areas",
     "skills",
@@ -471,15 +460,16 @@
     "interests",
     "references",
   ))
-  let column(keys) = keys.map(key => (sections.at(key))()).join()
-  if ratio == 1 or right.len() == 0 {
-    column(left + right)
-  } else {
-    grid(
-      columns: (ratio * 1fr, (1 - ratio) * 1fr),
-      column(left), column(right),
-    )
-  }
+  cv-columns(
+    column(preferences.at(
+      "left-column-sections",
+      default: ("work", "volunteer", "projects", "publications"),
+    )),
+    // Content, even when the sections are empty, as `alta()` keeps the
+    // right column then.
+    if right.len() > 0 [#column(right)],
+    ratio: preferences.at("column-ratio", default: 0.65),
+  )
 }
 
 /// The CV as `alta(cv)` renders it in the template: the header, the

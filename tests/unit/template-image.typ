@@ -17,3 +17,7 @@
   basics: (name: "Jane Doe", image: "../assets/avatar-placeholder.svg"),
 ))
 #context assert.eq(images.final(), 1)
+
+// Empty bytes are no image, as standalone `alta()` reads them.
+#alta((basics: (name: "Jane Doe", image: bytes(()))))
+#context assert.eq(images.final(), 1)

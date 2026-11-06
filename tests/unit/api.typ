@@ -16,6 +16,7 @@
     "altacv",
     "avatar-placeholder",
     "contact",
+    "cv-columns",
     "cv-header",
     "divider",
     "entry",

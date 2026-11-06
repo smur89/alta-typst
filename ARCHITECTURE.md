@@ -40,7 +40,7 @@ Inside the template, `alta()` draws through the JSON Resume mapping, `adapter/js
 - `adapter-helpers.typ`: the public readers (`format-date`, `location-text`, `basics-contacts`, `fluency-rating`, `group-by-type`, `labels`), thin wrappers over the `data/` readers `alta()` uses, with the preferences they read passed explicitly, taking JSON Resume's camelCase field names.
 - `adapter.typ`: re-exports exactly those, which `lib.typ` exports as the `adapter` module. Typst re-exports every name a module imports, so the helpers' own imports would otherwise leak into it.
 
-Everything the mapping draws is overridable the Typst way: block arguments, the template's set and show rules (the `grid` gutter, `<alta-intro>`'s spacing), the surrounding `align`. It hardcodes no theme value.
+Everything the mapping draws is overridable the Typst way: block arguments, the template's show rule for `<alta-intro>`'s spacing, the surrounding `align`. It hardcodes no theme value.
 
 ## Sections and components
 

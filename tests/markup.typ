@@ -1,13 +1,13 @@
 // A CV written in markup, with no data dictionary: the name from
 // `set document(title: ..)` shown by `cv-header` with a portrait and
-// QR code, a two-column `grid` (the template's gutter), `=` sections,
+// QR code, two columns (`cv-columns`), `=` sections,
 // a `==` group, and the blocks: `entry` (dividers only between
 // entries), `publication` (the document's author set apart), `skills`
 // (one row's level as dots), `rating` and `label-row`.
 
 #import "../lib.typ": (
-  alta-footer, altacv, avatar-placeholder, contact, cv-header, entry, label-row,
-  publication, rating, skills, themes,
+  alta-footer, altacv, avatar-placeholder, contact, cv-columns, cv-header,
+  entry, label-row, publication, rating, skills, themes,
 )
 
 #set document(title: "Jane Doe", author: "Jane Doe")
@@ -26,8 +26,8 @@
   qr: "https://example.com",
 )
 
-#grid(
-  columns: (2fr, 1fr),
+#cv-columns(
+  ratio: 2 / 3,
   [
     = Experience
 

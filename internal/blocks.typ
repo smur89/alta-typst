@@ -13,12 +13,13 @@
 #import "icons.typ": _check-icon
 #import "data/validation.typ": _preference-rules
 #import "util/checks.typ": (
-  _check, _check-rating, _check-type, _dict-rule, _enum-rule, _list-rule,
-  _positive-int-rule,
+  _check, _check-keys, _check-rating, _check-type, _dict-rule, _enum-rule,
+  _list-rule, _positive-int-rule,
 )
 #import "context.typ": _max-rating-state
 #import "primitives.typ": _divider, _portrait
 #import "components/bibliography.typ": _bib-entry
+#import "components/columns.typ": _columns
 #import "components/entry.typ": _entry
 #import "components/header.typ": _page-header
 #import "components/keywords.typ": _keyword-rows, _label-rows
@@ -337,6 +338,9 @@
 ///   as `alta()` sets apart the CV's name and `owner-names`. `auto` is
 ///   the document's author (`#set document(author: ..)`).
 /// - source (content, str, none): The publisher or venue.
+/// - citation (dictionary): Where in the source: `volume`, `issue`
+///   and `pages`, each an optional string (`none` leaves it out), set
+///   after the source in the theme's `citation` style, `12(3), 45–60`.
 /// - date (content, str, none): When, as written.
 /// - identifiers (dictionary): ID strings by scheme (`doi`, `arxiv`,
 ///   `pmid` link; others, `isbn` say, show unlinked).
@@ -348,6 +352,7 @@
   authors: (),
   owners: auto,
   source: none,
+  citation: (:),
   date: none,
   identifiers: (:),
   body,
@@ -363,6 +368,12 @@
     "publication() identifiers",
     identifiers,
     _dict-rule((str,), "a dictionary of strings"),
+  )
+  _check-keys("publication() citation", citation, ("volume", "issue", "pages"))
+  _check(
+    "publication() citation",
+    citation,
+    _dict-rule((str, type(none)), "a dictionary of strings"),
   )
   if owners != auto {
     _check(
@@ -386,6 +397,7 @@
       url: if url != none { url } else { _identifier-url(refs) },
       authors: _authors((authors: authors.map(_plain)), owners),
       publisher: source,
+      citation: citation,
       date: date,
       identifiers: refs,
       summary: if body != [] { body },
@@ -427,6 +439,29 @@
     ))
   }
   if max == auto { context row(_max-rating-state.get()) } else { row(max) }
+}
+
+/// The CV's columns: `left` beside `right`, the left taking `ratio` of
+/// the width the theme's column gutter leaves, as `alta()` lays out
+/// its column sections. A plain `grid` works too.
+///
+/// - left (content, str, none): The left column.
+/// - right (content, str, none): The right column; `none` puts `left`
+///   alone, full width.
+/// - ratio (int, float): The left column's share, in (0, 1], as
+///   `alta()`'s `column-ratio`; 1 stacks both in one column.
+/// -> content
+#let cv-columns(left, right, ratio: 0.65) = {
+  for (name, column) in (left: left, right: right) {
+    _check-type(
+      "cv-columns() " + name,
+      column,
+      (content, str, type(none)),
+      "content, a string or none",
+    )
+  }
+  _check("cv-columns() ratio", ratio, _preference-rules.column-ratio)
+  _columns((left,), if right != none { (right,) } else { () }, ratio)
 }
 
 /// A labelled line: "Music: Trad, Jazz".

@@ -142,7 +142,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": altacv, contact, cv-header, entry, skills
+#import "@preview/altacv:1.8.0": altacv, contact, cv-columns, cv-header, entry, skills
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with()
@@ -152,8 +152,8 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
   contacts: (contact("email", "jane@example.com", link: "mailto:jane@example.com"),),
 )
 
-#grid(
-  columns: (2fr, 1fr),
+#cv-columns(
+  ratio: 2 / 3,
   [
     = Experience
 
@@ -170,7 +170,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 ```
 <!-- x-release-please-end -->
 
-The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. The layout is Typst's `grid`, so any column ratio works, as does a full-width row below. The template sets `grid`'s `column-gutter` to the theme's (12pt by default), so a grid of yours that sets no gutter gets that one; a `set grid(column-gutter: ..)` after the show line overrides it. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way; the blocks are under [Exports](#exports).
+The structure is Typst's own: the name is the document's `title` (from `set document(title: ..)`), `=` headings are sections, `==` headings are groups, and entries sit below them; the template styles it. `cv-columns` lays out the two columns as `alta()` does, with the theme's gutter; a plain Typst `grid` works too (set its `column-gutter`), as does a full-width row below. [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way; the blocks are under [Exports](#exports).
 
 A few things to know:
 
@@ -188,7 +188,7 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": adapter, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
 ```
 
 Then render your copy under the template, and edit it from there:
@@ -740,7 +740,8 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-side:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a portrait and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
 | `contact(icon, value, link: none, alt: auto)` | One contact-bar entry for `cv-header`. |
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. `date` takes a `(start, end)` pair, an open end reading "Present". |
-| `publication(title:, url:, authors:, owners: auto, source:, date:, identifiers:, body)` | A publication as a bibliography item; the `owners` (the document's author by default) are set apart among the authors. |
+| `publication(title:, url:, authors:, owners: auto, source:, citation: (:), date:, identifiers:, body)` | A publication as a bibliography item; the `owners` (the document's author by default) are set apart among the authors, and the `citation` (`volume`, `issue`, `pages`) follows the source in the theme's citation style. |
+| `cv-columns(left, right, ratio: 0.65)` | The CV's two columns with the theme's gutter, the left taking `ratio`; one column when `right` is `none` or the ratio is 1. |
 | `skills(name, keywords, level: none, max: auto)` | A skill group's row of pills, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
