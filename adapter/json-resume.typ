@@ -53,15 +53,6 @@
   if summary != none { summary } else { _field(entry, "description") }
 }
 
-// One of altacv's own fields, in the entry's `custom.altacv`.
-#let _altacv(obj, key, default: none) = {
-  let custom = obj.at("custom", default: none)
-  let ns = if type(custom) == dictionary {
-    custom.at("altacv", default: none)
-  }
-  if type(ns) == dictionary { ns.at(key, default: default) } else { default }
-}
-
 // A `==` group heading led by its icon, in the heading's colour: the
 // icon's box and the gap after it in the heading's own `em`.
 #let _icon-heading(name, body) = [#context icon(name, fill: text.fill) #body]
@@ -233,7 +224,7 @@
           g.keywords,
           level: if as-text {
             if level != none [#level]
-          } else { _altacv(g, "rating", default: level) },
+          } else { adapter.custom(g, "rating", default: level) },
           max: max-rating,
         )
       },
@@ -310,7 +301,7 @@
       adapter.entries(cv, "awards"),
       a => entry(
         title: a.title,
-        url: _altacv(a, "url"),
+        url: adapter.custom(a, "url"),
         org: _field(a, "awarder"),
         date: date(_field(a, "date")),
         summary: _field(a, "summary"),

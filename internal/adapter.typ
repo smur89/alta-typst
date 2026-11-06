@@ -4,6 +4,6 @@
 // up as `adapter.*` too.
 
 #import "adapter-helpers.typ": (
-  basics-contacts, entries, entry-type, fluency-rating, format-date,
+  basics-contacts, custom, entries, entry-type, fluency-rating, format-date,
   group-by-type, labels, location-parts, preferences,
 )

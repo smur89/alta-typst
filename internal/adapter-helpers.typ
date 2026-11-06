@@ -9,7 +9,8 @@
 #import "util/dates.typ": _check-date-template, _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
-  _entry-type, _fluency-terms, _location-parts, _term-rating, _type-groups,
+  _altacv, _entry-type, _fluency-terms, _location-parts, _term-rating,
+  _type-groups,
 )
 #import "data/cv-checks.typ": (
   _check-basics-location, _check-location, _location-text-rule,
@@ -156,6 +157,16 @@
   _fluency-terms,
   max,
 )
+
+/// One of altacv's own fields, from its `custom.altacv` namespace on
+/// the CV or an entry: `focusAreas`, a skill's or language's `rating`,
+/// an award's `url`.
+///
+/// - obj (dictionary): The CV, or one of its entries.
+/// - key (str): The field.
+/// - default (any): Its value when it's unset.
+/// -> any
+#let custom(obj, key, default: none) = _altacv(obj, key, default: default)
 
 /// An entry's `type` as `alta()` reads it: trimmed, or `none` when it's
 /// untyped (no `type`, or a blank one).

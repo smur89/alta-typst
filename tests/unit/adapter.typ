@@ -202,3 +202,8 @@
 #assert.eq(adapter.entries(cv, "focus-areas"), ("Payments",))
 #assert.eq(adapter.entries(cv, "awards"), ())
 #assert.eq(adapter.entries((:), "focus-areas"), ())
+
+// custom: a field of `custom.altacv`, else the default.
+#assert.eq(adapter.custom((custom: (altacv: (rating: 3))), "rating"), 3)
+#assert.eq(adapter.custom((custom: (altacv: (:))), "url"), none)
+#assert.eq(adapter.custom((:), "focusAreas", default: ()), ())

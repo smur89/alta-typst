@@ -210,6 +210,7 @@ Then render your copy under the template, and edit it from there:
 
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 
+- `adapter.custom(obj, key, default:)`: one of altacv's own fields from `custom.altacv`, on the CV or an entry.
 - `adapter.entries(cv, key)`: a section's entries as `alta()` renders them, without those it skips (a project without a name, a skill group without keywords, …); `focus-areas` reads `custom.altacv.focusAreas`.
 - `adapter.format-date(value, format:, months:)`: a JSON Resume date as `alta()` shows it (`"2024-06"` reads `"Jun 2024"`).
 - `adapter.location-parts(location)`: a location's city, region and country code, for you to join.
@@ -748,6 +749,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `skill-row(name, keywords, level: none, max: auto)` | A skill group's row of tags, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
+| `adapter.custom(obj, key, default:)` | One of altacv's fields from `custom.altacv`. |
 | `adapter.entries(cv, key)` | A section's entries as `alta()` renders them. |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |
 | `adapter.location-parts(location)` | A location's parts, in display order. |
