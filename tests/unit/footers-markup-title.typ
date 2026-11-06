@@ -2,21 +2,16 @@
 // author: the title stands in for the name.
 
 #import "/lib.typ": altacv, cv-footer
+#import "/tests/unit/_count.typ": count
 
 #set document(title: "Jane Doe")
 #show: altacv
 #set page(footer: cv-footer())
 
-#let names = state("names", 0)
-#show "Jane Doe": it => {
-  names.update(n => n + 1)
-  it
-}
-#let pages = state("pages", 0)
-#show "Page": it => {
-  pages.update(n => n + 1)
-  it
-}
+#let (names, name-rule) = count("Jane Doe")
+#show "Jane Doe": name-rule
+#let (pages, page-rule) = count("Page")
+#show "Page": page-rule
 
 = Experience
 #pagebreak()

@@ -20,16 +20,16 @@
   )
 }
 
-// `label` and `value` joined by `separator` (a theme's
-// `separator.label`).
-#let _updated-footer(label, value, separator) = align(right, {
-  label
+// The details' `last-modified-label: last-modified (version)`, joined
+// by `separator` (a theme's `separator.label`), the version only when
+// asked for and set.
+#let _updated-footer(
+  (last-modified-label, last-modified, version: v, ..),
+  version,
+  separator,
+) = align(right, {
+  last-modified-label
   separator
-  value
-})
-
-// "last-modified (version)", the version only when asked for and set.
-#let _updated-line((last-modified, version: v, ..), version) = {
   last-modified
   if version and v != none { " (" + v + ")" }
-}
+})

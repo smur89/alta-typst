@@ -3,9 +3,7 @@
 // `internal/footers.typ`) mapped onto the footers in
 // `internal/components/footer.typ`, as the value for `set page(...)`.
 
-#import "../internal/components/footer.typ": (
-  _auto-page-footer, _updated-footer, _updated-line,
-)
+#import "../internal/components/footer.typ": _auto-page-footer, _updated-footer
 
 // From the CV's `_cv-details` and the built `theme`. `page-footer`
 // takes precedence; `last-modified-footer` is sugar that applies only
@@ -19,11 +17,7 @@
       page-footer
     }
   } else if prefs.last-modified-footer and details.last-modified != none {
-    _updated-footer(
-      details.last-modified-label,
-      _updated-line(details, prefs.footer-version),
-      theme.separator.label,
-    )
+    _updated-footer(details, prefs.footer-version, theme.separator.label)
   } else {
     none
   }

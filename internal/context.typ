@@ -22,8 +22,11 @@
 // translation they go over is the language where they're read.
 #let _labels-state = state("alta-labels", ())
 // The labels where they're read (in `context`): the defaults, the
-// translation for `text.lang`, then the layers in effect.
-#let _labels() = _resolve-labels(text.lang, .._labels-state.get())
+// translation for `text.lang`, then the `layers` (those in effect).
+#let _labels(layers: auto) = _resolve-labels(
+  text.lang,
+  ..if layers == auto { _labels-state.get() } else { layers },
+)
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.max-rating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)

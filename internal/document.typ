@@ -10,16 +10,12 @@
 // The theme state, the default text and margins, and the paragraph
 // and list rules, from the built theme and the body size and
 // margins `data/` resolves: what a user's rules after `altacv`
-// override. Pushes the template's `theme` and its `labels` layer
-// (`altacv.with(labels: ..)`, `none` for none) for its body; a
-// `scoped` template's end with it, so content after a nested template
-// reads the outer one's. Standalone `alta()`'s theme stays set for
-// the content after it, as the public helpers (`tag`, `rating`, …)
-// there read it.
-#let _document(theme, size, margin, body, labels: none, scoped: true) = {
-  let layers = if labels == none { () } else { (labels,) }
+// override. It pushes `theme` and `labels` for its body and, when
+// `scoped`, pops them after it; standalone `alta()`'s stay set for the
+// public helpers (`tag`, `rating`, …) after it.
+#let _document(theme, size, margin, body, labels: (:), scoped: true) = {
   _theme-state.update(themes => themes + (theme,))
-  _labels-state.update(stack => stack + layers)
+  _labels-state.update(layers => layers + (labels,))
   set text(
     size,
     font: theme.font,
@@ -31,7 +27,7 @@
   body
   if scoped {
     _theme-state.update(themes => themes.slice(0, -1))
-    _labels-state.update(stack => stack.slice(0, stack.len() - layers.len()))
+    _labels-state.update(layers => layers.slice(0, -1))
   }
 }
 

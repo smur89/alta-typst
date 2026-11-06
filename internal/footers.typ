@@ -3,23 +3,16 @@
 // (`_cv-details`), read from the `<alta-cv>` marker `alta()` leaves,
 // else from the document. Standalone `alta()` maps the same details
 // onto its footer in `sections/footer.typ`.
-//
-// Each helper returns a placeholder that `altacv` draws with a show
-// rule (`_footer-rule`) holding its theme and labels, not from state:
-// a footer is laid out after its page's body, so state there has
-// already left a template that ends on the page (a nested template's
-// last page, the blank page a trailing `#pagebreak()` adds), while the
-// page's styles, the show rules among them, are those of the
-// innermost template on it.
+// Each helper returns a placeholder each `altacv` draws with a show
+// rule holding its theme and labels: a footer takes its page's styles,
+// those of the innermost template on it, where the state, read after
+// the page's body, may already have left that template.
 
 #import "util/fields.typ": _field, _string-at
 #import "util/checks.typ": _check-type
-#import "components/footer.typ": (
-  _auto-page-footer, _updated-footer, _updated-line,
-)
+#import "components/footer.typ": _auto-page-footer, _updated-footer
 #import "design/styles.typ": _part
-#import "data/options.typ": _resolve-labels
-#import "context.typ": _theme
+#import "context.typ": _labels, _theme
 
 // What a footer prints of the CV: the standalone footer's input, and
 // the `<alta-cv>` marker's value that the template's helpers read.
@@ -51,15 +44,16 @@
 // `altacv.with(labels: ..)` after it), the template's label `layers`
 // replace them, the name and date still the CV's.
 #let _footer-details(layers, scope) = {
+  let label-details() = {
+    let labels = _labels(layers: layers)
+    (page-number: labels.page-number, last-modified-label: labels.last-modified)
+  }
   let cv = _placed-cv()
-  let labels = _resolve-labels(text.lang, ..layers)
-  let label-details = (
-    page-number: labels.page-number,
-    last-modified-label: labels.last-modified,
-  )
   if cv != none {
     let (details, scope: cv-scope) = cv.value
-    return if cv-scope == scope { details } else { details + label-details }
+    return if cv-scope == scope { details } else {
+      details + label-details()
+    }
   }
   (
     owner: if document.author != () { document.author.join(", ") } else {
@@ -67,65 +61,41 @@
     },
     last-modified: none,
     version: none,
-    ..label-details,
+    ..label-details(),
   )
 }
 
-// A footer helper's `args` drawn with a template's `theme`, label
-// `layers` and `scope` (`none` outside every template), in `context`.
-#let _draw-footer(args, theme, layers, scope) = {
-  let details = _footer-details(layers, scope)
-  if args.kind == "page" {
-    _part("footer", _auto-page-footer(details.owner, details.page-number))
-  } else {
-    let details = if args.date != none {
-      details + (last-modified: args.date)
-    } else { details }
-    if details.last-modified != none {
-      _part("footer", _updated-footer(
-        details.last-modified-label,
-        _updated-line(details, args.version),
-        theme.separator.label,
-      ))
-    }
-  }
-}
-
-// A footer helper's placeholder: its `args` in a `metadata`, drawn
-// with the theme, label layers and `scope` the templates around it add
-// (`_footer-rule`), else, outside every template, with the theme where
-// it's read.
-#let _footer-mark(args) = {
-  let fallback = context _draw-footer(
-    args,
-    args.at("theme", default: _theme()),
-    args.at("layers", default: ()),
-    args.at("scope", default: none),
-  )
-  [#(metadata(args) + fallback)<alta-internal-footer>]
-}
-// What the helpers return: the mark in a block, which a join can't
-// merge with the next helper's as it would a bare sequence.
-#let _footer-placeholder(args) = [#block(
-  _footer-mark(args),
+// A footer helper's placeholder: its `args` for the `_footer-rule` of
+// each template around it, drawn: `draw`, a function of the details
+// and the theme, and those templates' label `layers` and `scopes`,
+// innermost first; outside every template, `draw` gets the theme where
+// it's read. In a `pad` with no padding: a join would merge a bare
+// sequence with the next helper's, and a block changes the PDF.
+#let _footer-placeholder(args) = [#pad(
+  metadata(args)
+    + context (args.draw)(
+      _footer-details(args.layers, args.scopes.at(0, default: none)),
+      _theme(),
+    ),
 )<alta-internal-footer>]
 
-// For each `altacv`'s `show <alta-internal-footer>: ..`: the mark again,
-// with the template's label layer under those of the templates inside
-// it, and its `theme` and `scope` unless one inside set them. The
-// innermost template's rule applies first, and each template's once
-// (`seen`); the mark the outermost leaves draws the footer.
+// For each `altacv`'s `show <alta-internal-footer>: ..`: the placeholder
+// again, with the template's `labels` layer under those of the
+// templates inside it and its `scope` after theirs. The innermost
+// template's rule applies first, and binds `draw` to its built
+// `theme`; each applies once, as its scope then sits in `scopes`.
 #let _footer-rule(theme, labels, scope) = it => {
-  let mark = if it.func() == block { it.body } else { it }
-  let args = mark.children.first().value
-  let seen = args.at("seen", default: ())
-  if scope in seen { return it }
-  _footer-mark(
-    (theme: theme, scope: scope)
-      + args
+  let args = it.body.children.first().value
+  if scope in args.scopes { return it }
+  let draw = if args.scopes == () {
+    (details, _) => (args.draw)(details, theme)
+  } else { args.draw }
+  _footer-placeholder(
+    args
       + (
-        layers: (labels,) + args.at("layers", default: ()),
-        seen: seen + (scope,),
+        draw: draw,
+        layers: (labels,) + args.layers,
+        scopes: args.scopes + (scope,),
       ),
   )
 }
@@ -138,7 +108,14 @@
 /// Typst's page counter, so a `counter(page).update(..)` that restarts
 /// it changes what counts as one page.
 /// -> content
-#let cv-footer() = _footer-placeholder((kind: "page"))
+#let cv-footer() = _footer-placeholder((
+  layers: (),
+  scopes: (),
+  draw: (details, _) => _part("footer", _auto-page-footer(
+    details.owner,
+    details.page-number,
+  )),
+))
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:
 /// `labels.last-modified: meta.lastModified`, right-aligned. Nothing
@@ -155,5 +132,20 @@
     (str, content, type(none)),
     "a string or content",
   )
-  _footer-placeholder((kind: "updated", version: version, date: date))
+  _footer-placeholder((
+    layers: (),
+    scopes: (),
+    draw: (details, theme) => {
+      let details = if date != none { details + (last-modified: date) } else {
+        details
+      }
+      if details.last-modified != none {
+        _part("footer", _updated-footer(
+          details,
+          version,
+          theme.separator.label,
+        ))
+      }
+    },
+  ))
 }
