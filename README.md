@@ -61,7 +61,7 @@ Package dependencies download automatically.
 typst init @preview/altacv
 ```
 
-This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`template/resume.json`](template/resume.json), the same CV as a [JSON Resume](https://jsonresume.org/) file, into a new project. Edit the data in `cv.typ` in place and compile. To load `resume.json` instead, swap `cv.typ`'s last line for the `alta-from-json` line commented below it.
+This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`template/resume.json`](template/resume.json), the same CV as a [JSON Resume](https://jsonresume.org/) file, into a new project. Edit the data in `cv.typ` in place and compile. To load `resume.json` instead, replace `cv.typ`'s `#alta(cv, preferences: preferences)` call with the `alta-from-json` line commented below it. That drops the portrait, which `cv.typ` sets in Typst.
 
 ### Render an existing `resume.json`
 

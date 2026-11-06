@@ -6,6 +6,7 @@
 
 #import "/.template-src.typ": cv, preferences
 #import "/lib.typ": alta, alta-from-json, altacv
+#import "/internal/blocks.typ": _plain
 
 #show: altacv
 // Every run of text the CV renders, wherever it sits: in a paragraph,
@@ -99,4 +100,17 @@
       message: repr(part) + " differs",
     )
   }
+}
+
+// The PDF metadata each form would set (title, author, description,
+// keywords): the document keeps only the first, so compare both forms'
+// here. The dict's summary is content where the JSON's is a string,
+// so the description compares as words.
+#context {
+  let words(it) = _plain(it).split().join(" ")
+  let (dict, json) = query(<alta-internal-document>).map(m => {
+    let info = m.value
+    info + (description: words(info.description))
+  })
+  assert.eq(dict, json, message: "the PDF metadata differs")
 }
