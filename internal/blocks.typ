@@ -2,7 +2,7 @@
 // template (#370): what Typst has no element for, over the components
 // `alta()` draws with. Re-exported from `lib.typ`.
 
-#import "data/defaults.typ": _default-preferences, _labels
+#import "data/defaults.typ": _default-preferences
 #import "data/cv.typ": (
   _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
   _owner-keys, _skill-levels, _term-rating,
@@ -14,7 +14,7 @@
   _check, _check-keys, _check-rating, _check-type, _dict-rule, _enum-rule,
   _list-rule, _positive-int-rule, _quote, _type-rule,
 )
-#import "context.typ": _max-rating-state
+#import "context.typ": _labels, _max-rating-state
 #import "primitives.typ": _divider, _photo
 #import "components/bibliography.typ": _bib-entry
 #import "components/columns.typ": _columns
@@ -82,7 +82,8 @@
 /// - date (content, str, array, none): At the right edge. Content or
 ///   a string shows as written; a `(start, end)` pair as `alta()`
 ///   shows a period: the two joined by the theme's range separator, a
-///   `none` end reading the document language's "Present", a `none`
+///   `none` end reading the labels' "Present" (`altacv.with(labels:
+///   ..)`'s, over the document language's), a `none`
 ///   start leaving the end alone; `(none, none)` shows nothing.
 /// - location (content, str, array, none): Under the date. An array of
 ///   parts (a city, a region, a country code) is joined by the theme's
@@ -146,7 +147,8 @@
     block(width: 100%, breakable: false, {
       if sibling { _divider(true, at-top: hide) }
       _entry(
-        // The icons' alt text, in the document's language.
+        // The icons' alt text, in the document's language under the
+        // template's labels.
         labels,
         title: title,
         url: url,

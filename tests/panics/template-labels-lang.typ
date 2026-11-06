@@ -1,4 +1,4 @@
-// expect: labels.lang isn't an alta() label inside the altacv template
+// expect: labels.lang isn't a label inside the altacv template: use `set text(lang: ..)`
 #import "/lib.typ": alta, altacv
 
 #show: altacv

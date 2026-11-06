@@ -8,15 +8,8 @@
 
 #let _default-labels = toml("labels-en.toml")
 // The bundled translations, by ISO 639 code: each sets only the labels
-// it changes, over `_default-labels` (`_merge-options`).
+// it changes, over `_default-labels` (`_resolve-labels`).
 #let _translations = (ga: toml("labels-ga.toml"))
-
-// The labels in the document's language, in `context`, as `alta()`
-// resolves them: its bundled translation over the English. A shallow
-// merge, not `_merge-options` per call: the markup blocks and the
-// template's footers read only top-level labels (`date`,
-// `page-number`), which it resolves exactly.
-#let _labels() = _default-labels + _translations.at(text.lang, default: (:))
 
 /// Map deep-link URL templates for `preferences.maps-provider`; `{q}`
 /// becomes the URL-encoded `basics.location`.
