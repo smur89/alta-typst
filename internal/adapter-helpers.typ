@@ -185,13 +185,9 @@
 /// - items (array): Entries with an optional `type`.
 /// - key (function): A typed entry's group, from its type: as written
 ///   by default, `lower` to match types ignoring case.
-/// - untyped (any): The untyped entries' group.
+/// - untyped (any): The untyped entries' group, `none` by default.
 /// -> array
-#let group-by-type(items, key: t => t, untyped: none) = _type-groups(
-  items,
-  key: key,
-  untyped: untyped,
-)
+#let group-by-type(items, ..args) = _type-groups(items, ..args)
 
 /// The labels `alta()` renders with, in the document's language: its
 /// bundled translation over the English, the template's

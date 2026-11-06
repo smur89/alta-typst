@@ -141,18 +141,18 @@
 // which a type may share (projects' "Other"). Pairs, not a dictionary,
 // as `untyped` may be `none`, which can't be a key. The one grouping,
 // for the standalone sections and the public `adapter`.
-#let _type-groups(items, key: t => t, untyped: none) = {
-  let groups = items.map(item => {
+#let _type-groups(items, key: t => t, untyped: none) = items.fold(
+  (),
+  (acc, item) => {
     let type = _entry-type(item)
-    if type == none { untyped } else { key(type) }
-  })
-  groups
-    .dedup()
-    .map(g => (
-      g,
-      items.zip(groups).filter(((_, h)) => h == g).map(((item, _)) => item),
-    ))
-}
+    let group = if type == none { untyped } else { key(type) }
+    let i = acc.position(((g, _)) => g == group)
+    if i == none { acc + ((group, (item,)),) } else {
+      let (_, members) = acc.at(i)
+      acc.slice(0, i) + ((group, members + (item,)),) + acc.slice(i + 1)
+    }
+  },
+)
 
 // A skill group's `level` as a rating on `prefs.max-rating`, per
 // `skill-level-display`: where it has one (`auto`, `"rating"`), else
