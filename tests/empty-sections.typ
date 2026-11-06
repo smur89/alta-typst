@@ -5,7 +5,7 @@
 
 #alta((
   basics: (name: "Jane Doe", email: "jane@example.com"),
-  focusAreas: (),
+  custom: (altacv: (focusAreas: ())),
   work: (),
   volunteer: (),
   skills: (),

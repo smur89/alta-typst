@@ -12,9 +12,13 @@
 
 #let cv = (
   basics: (name: "Jane Doe", email: "jane@example.com"),
-  focusAreas: (
-    [Distributed systems and event-driven architecture.],
-    [Developer experience and tooling.],
+  custom: (
+    altacv: (
+      focusAreas: (
+        [Distributed systems and event-driven architecture.],
+        [Developer experience and tooling.],
+      ),
+    ),
   ),
   skills: (
     (name: "Languages", keywords: ("Scala", "Python")),

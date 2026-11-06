@@ -143,19 +143,19 @@
   publications: (
     (
       name: "Event Sourcing in Practice",
-      type: "Articles",
+      type: "article",
       releaseDate: "Jun 2024",
       url: "https://example.com/posts/event-sourcing",
     ),
     (
       name: "Idempotent Kafka Consumers",
-      type: "Articles",
+      type: "article",
       releaseDate: "Mar 2024",
       url: "https://example.com/posts/idempotent-consumers",
     ),
     (
       name: "Designing for Failure",
-      type: "Talks",
+      type: "talk",
       releaseDate: "Sep 2023",
       url: "https://example.com/talks/failure",
     ),

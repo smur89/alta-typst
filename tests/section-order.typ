@@ -15,7 +15,7 @@
 
 #let cv = (
   basics: (name: "Jane Doe", email: "jane@example.com"),
-  focusAreas: ([Item one.], [Item two.]),
+  custom: (altacv: (focusAreas: ([Item one.], [Item two.]))),
   work: (
     (
       name: "Acme",

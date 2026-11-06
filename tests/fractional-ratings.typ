@@ -7,10 +7,10 @@
 #alta((
   basics: (name: "Jane Doe", email: "jane@example.com"),
   languages: (
-    (language: "English", rating: 5),
-    (language: "French", rating: 4.5),
-    (language: "Spanish", rating: 2.5),
-    (language: "Portuguese", rating: 0),
+    (language: "English", custom: (altacv: (rating: 5))),
+    (language: "French", custom: (altacv: (rating: 4.5))),
+    (language: "Spanish", custom: (altacv: (rating: 2.5))),
+    (language: "Portuguese", custom: (altacv: (rating: 0))),
     (language: "German", fluency: "Elementary"),
     (language: "Italian", fluency: "Native"),
   ),
@@ -25,10 +25,10 @@
   (
     basics: (name: "Jean Dupont", email: "jean@example.com"),
     languages: (
-      (language: "French", rating: 6),
-      (language: "English", rating: 5.5),
-      (language: "German", rating: 4),
-      (language: "Spanish", rating: 2),
+      (language: "French", custom: (altacv: (rating: 6))),
+      (language: "English", custom: (altacv: (rating: 5.5))),
+      (language: "German", custom: (altacv: (rating: 4))),
+      (language: "Spanish", custom: (altacv: (rating: 2))),
     ),
   ),
   preferences: (max-rating: 6),

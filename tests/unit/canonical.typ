@@ -37,6 +37,8 @@
 // them. `"center"` takes its side from `image-stack-order`.
 #import "/internal/data/canonical.typ": _canonical-cv
 #let prefs(preferences) = _merge-options((:), preferences).prefs
+// #239: the string `page-footer: "auto"` reads as `auto`.
+#assert.eq(prefs((page-footer: "auto")).page-footer, auto)
 #assert.eq(prefs((:)).image-position, right)
 #assert.eq(prefs((image-position: top)).image-position, top)
 #assert.eq(prefs((image-position: "left")).image-position, left)

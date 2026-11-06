@@ -38,10 +38,14 @@
       ),
     ),
 
-    focusAreas: (
-      [Distributed systems and event sourcing.],
-      [Functional programming in Scala and Haskell.],
-      [Developer experience and observability.],
+    custom: (
+      altacv: (
+        focusAreas: (
+          [Distributed systems and event sourcing.],
+          [Functional programming in Scala and Haskell.],
+          [Developer experience and observability.],
+        ),
+      ),
     ),
 
     work: (
