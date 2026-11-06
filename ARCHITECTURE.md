@@ -26,12 +26,21 @@ Paths are under `internal/` unless noted. A module imports only from its own lay
 | document | `document.typ` | the document setup shared by `altacv`, standalone `alta()` and the component gallery | design, context |
 | primitives | `primitives.typ`, `icons.typ` | text styles, pills, the term row, the divider, `icon()` | util, design, context |
 | components | `components/` | layout that takes slots: entry, bibliography, header, footer, … | util, design, context, primitives |
-| sections | `sections/` (root) | one renderer per CV part, mapping its data onto components | all of the above |
+| sections | `sections/` (root) | one renderer per CV part, mapping its data onto components; standalone `alta()`'s only, until the next major ([#239](https://github.com/smur89/alta-typst/issues/239)) removes it | all of the above |
 | root | `registry.typ`, `render.typ`, `blocks.typ`, `adapter.typ`; `lib.typ` (repository root) | renderers bound to section keys; the render pipeline; the public blocks for a CV written in markup (`entry`, `cv-header`, `publication`, …), over the components and `data/` readers; the public `adapter` readers for a mapping of your own (`adapter-helpers.typ`, re-exported alone by `adapter.typ`), over the same readers, so importing no section; the public API, as re-exports only | everything |
 
 The two rules that matter: **components never read the CV** (no `data/`, no `util/fields.typ`: values arrive through slots), so a change to JSON Resume's shape touches only sections and `data/`; **data never imports UI**, so checking the CV doesn't depend on rendering. `data/` may import `design/` because design is plain values (themes, palettes, the icon set), with no rendering code.
 
 Parts a user can restyle with a show rule (the README's Restyling parts) are labelled through `_part` (`design/styles.typ`), on the raw value where it last appears unstyled, with any styling (`upper()`, a treatment) applied around it; a paragraph part (`<alta-keywords>`) labels the `par` that lays out a row, so `set par(...)` reaches it. That puts each label in the layer that renders its part: a heading's in its show rule (`design/styles.typ`), the footer's in `_standalone` and the footer helpers. A helper that may receive a part puts its own label on a new element, so the part keeps its label: a keyword drawn by `tag()` is both `<alta-keyword>` and `<alta-pill>`. `_part` never skips labelled content, which would unlabel a user's own labelled values. Labels the template only uses for its own rules are prefixed `alta-internal-`; every other `alta-` label is public API, listed in the README.
+
+## The adapter layer
+
+Inside the template, `alta()` draws through the JSON Resume mapping, `adapter/json-resume.typ` at the repository root: `resume(cv, labels:, preferences:)`, written only with what `lib.typ` exports, so a user can copy it, swap its imports for one `@preview/altacv` import and edit it (`tests/unit/mapping-imports.typ` holds it to that). It imports the public names from the modules that define them, as `render.typ`, which calls it, sits inside `lib.typ`. What it needs beyond the blocks comes from two modules in the root layer:
+
+- `adapter-helpers.typ`: the public readers (`format-date`, `location-text`, `basics-contacts`, `fluency-rating`, `group-by-type`, `labels`), thin wrappers over the `data/` readers `alta()` uses, with the preferences they read passed explicitly, taking JSON Resume's camelCase field names.
+- `adapter.typ`: re-exports exactly those, which `lib.typ` exports as the `adapter` module. Typst re-exports every name a module imports, so the helpers' own imports would otherwise leak into it.
+
+Everything the mapping draws is overridable the Typst way: block arguments, the template's set and show rules (the `grid` gutter, `<alta-intro>`'s spacing), the surrounding `align`. It hardcodes no theme value.
 
 ## Sections and components
 
