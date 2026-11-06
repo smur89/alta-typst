@@ -1,8 +1,10 @@
 // The JSON Resume mapping fed JSON Resume as a copy of it is, through
 // gairm-import's `parse` (`resume(parse(path("resume.json")))`), with
 // none of `alta()`'s canonicalisation: a project's `description`, JSON
-// Resume's name for its summary, still shows, as do the older
-// `description` of work and volunteer entries; a `summary` wins over it.
+// Resume's deprecated alias of its summary, still shows, a `summary`
+// winning over it. A work entry's `description` is the company's, and
+// doesn't stand in for its summary; `alta()` still reads the older
+// exports' that way (#239), before the mapping sees the CV.
 
 #import "/lib.typ": altacv
 #import "@preview/gairm-import:0.10.1": parse
@@ -25,17 +27,15 @@
 #seen.update(())
 #resume((
   basics: (name: "Jane Doe"),
-  work: ((name: "Acme", position: "Engineer", description: "Ran payments."),),
-  volunteer: (
-    (
-      organization: "Dojo",
-      position: "Mentor",
-      description: "Old text.",
-      summary: "Taught Python.",
-    ),
+  work: (
+    (name: "Acme", position: "Engineer", description: "Payments company."),
+  ),
+  projects: (
+    (name: "P", description: "Old text.", summary: "A parser."),
+    (name: "Q", description: "A lexer."),
   ),
 ))
-#context assert.eq(seen.get(), ([Ran payments.], [Taught Python.]))
+#context assert.eq(seen.get(), ([A parser.], [A lexer.]))
 
 // JSON Resume requires no field, `basics` included: with none, the
 // name is the document's title and there's no contact bar or QR code.

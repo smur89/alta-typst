@@ -46,11 +46,11 @@
   if value not in ("", []) { value }
 }
 
-// An entry's summary: its `summary`, else its `description`, the field
-// JSON Resume's projects use (and older exports' work and volunteer).
-#let _summary(entry) = {
-  let summary = _field(entry, "summary")
-  if summary != none { summary } else { _field(entry, "description") }
+// A project's summary: its `summary`, else its `description`, which
+// JSON Resume keeps as that field's deprecated alias.
+#let _project-summary(p) = {
+  let summary = _field(p, "summary")
+  if summary != none { summary } else { _field(p, "description") }
 }
 
 // A `==` group heading led by its icon, in the heading's colour: the
@@ -113,7 +113,7 @@
     org-url: _field(e, "url"),
     date: period(e),
     location: location(e),
-    summary: _summary(e),
+    summary: _field(e, "summary"),
     keywords: keywords,
     bullets(e),
   )
@@ -124,7 +124,7 @@
     org: _field(p, "entity"),
     roles: p.at("roles", default: ()),
     date: period(p),
-    summary: _summary(p),
+    summary: _project-summary(p),
     keywords: p.at("keywords", default: ()),
     bullets(p),
   )
