@@ -16,7 +16,7 @@
   _check-basics-location, _check-location, _location-text-rule,
 )
 #import "data/defaults.typ": _default-labels, maps-providers
-#import "data/options.typ": _check-template-preferences, _merge-options
+#import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/sections.typ": _section-entries, _section-specs
 #import "data/validation.typ": _check-preference
@@ -218,10 +218,9 @@
 /// - overrides (dictionary): Preferences to override, as `alta()`'s
 ///   `preferences:` takes them.
 /// -> dictionary
-#let preferences(overrides: (:)) = {
-  _check-template-preferences((:), overrides)
-  _merge-options((:), overrides).prefs
-}
+#let preferences(overrides: (:)) = (
+  _merge-options((:), overrides, inside: true).prefs
+)
 
 /// A section's entries as `alta()` renders them: the CV's own key's,
 /// or for `focus-areas`, `custom.altacv.focusAreas`; without the
