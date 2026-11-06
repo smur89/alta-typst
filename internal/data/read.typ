@@ -46,7 +46,9 @@
 // section's entries, their field names kebab-case for rendering
 // (`_kebab-fields`), after every check has named the fields as the
 // caller wrote them; and the canonical CV as checked, in JSON Resume's
-// camelCase, for the template's mapping (`adapter/json-resume.typ`).
+// camelCase, for the template's mapping (`adapter/json-resume.typ`),
+// its sections only the entries that render, as the standalone
+// renderers get them. `focus-areas` isn't a CV key, but kept whole.
 #let _read-cv(cv, prefs) = {
   _check-type("cv", cv, (dictionary,), "a CV data dictionary")
   // The only required field.
@@ -62,9 +64,11 @@
   let cv = _canonical-cv(cv, prefs)
   _check-root(cv, prefs)
   let cv = _image-path(cv)
+  let sections = _read-sections(cv, prefs)
   (
     cv: _kebab-fields(cv),
-    sections: _kebab-fields(_read-sections(cv, prefs)),
-    json-resume: cv,
+    sections: _kebab-fields(sections),
+    json-resume: cv
+      + sections.pairs().filter(((key, _)) => key in cv).to-dict(),
   )
 }
