@@ -18,17 +18,23 @@
       }
     ]
   },
+  "objective": "Lead a platform team building reliable event-driven systems.",
   "work": [
     {
       "name": "Acme Corp",
       "position": "Senior Software Engineer",
       "url": "https://acme.example.com",
+      "location": {
+        "city": "Cork",
+        "countryCode": "IE"
+      },
       "startDate": "2022-01",
       "summary": "Led the platform migration to event-sourced services.",
       "highlights": [
         "Designed the messaging backbone.",
         "Mentored four engineers through promotion."
-      ]
+      ],
+      "keywords": ["Scala", "Kafka"]
     }
   ],
   "education": [
@@ -54,6 +60,7 @@
   "publications": [
     {
       "name": "Idempotent Consumers in Production",
+      "type": "talk",
       "publisher": "ScalaConf",
       "releaseDate": "2024-09",
       "url": "https://example.com/talk"
