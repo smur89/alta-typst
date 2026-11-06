@@ -50,11 +50,8 @@ TEMPLATE_SRC  := .template-src.typ
 #   $(call render-page1,<src>,<ppi>,<out>)
 render-page1 = $(TYPST) compile --root $(ROOT) --format png --ppi $(2) --pages 1 $(1) $(3)
 
-# `_`-prefixed examples are shared helpers, not documents. example-full
-# (gallery needs every page) and preview-frames (page 1 has no
-# consumer) skip the page-1 PNG sweep.
+# `_`-prefixed examples are shared helpers, not documents.
 EXAMPLES      := $(filter-out examples/_%.typ,$(wildcard examples/*.typ))
-EXAMPLES_PNG  := $(filter-out examples/example-full.typ examples/preview-frames.typ,$(EXAMPLES))
 TESTS         := $(wildcard tests/*.typ)
 PANIC_TESTS   := $(wildcard tests/panics/*.typ)
 # `assert`-based checks of the side-effect-free helpers; underscore files are
@@ -63,8 +60,6 @@ UNIT_TESTS    := $(filter-out tests/unit/_%.typ,$(wildcard tests/unit/*.typ))
 # example-full.typ renders to the published name the README and the
 # release link to.
 EXAMPLE_FULL_PDF := examples/example_full.pdf
-PDFS          := $(filter-out examples/example-full.pdf,$(EXAMPLES:.typ=.pdf)) $(EXAMPLE_FULL_PDF)
-PNGS          := $(EXAMPLES_PNG:.typ=.png)
 TEST_PDFS     := $(patsubst tests/%.typ,examples/tests/%.pdf,$(TESTS))
 # Everything `lib.typ` reads at compile time. Every render depends on
 # it, so a renderer edit can't leave stale outputs to be committed.
@@ -84,7 +79,7 @@ PACKAGE_FILES := \
   $(EXAMPLE_FULL_PDF) \
   examples/example_full-1.png examples/example_full-2.png
 
-.PHONY: all cv example-full thumbnail release-artifacts preview-webp pdfs previews test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
+.PHONY: all cv example-full thumbnail release-artifacts preview-webp test-pdfs test test-compile test-fixtures test-panics test-unit test-template check-drift fmt fmt-check check clean help in-image docker-pdfs docker-preview-images docker-release-artifacts docker-shell stage-package-dir package-tarball
 
 # Pinned CI image. Built and published by .github/workflows/image.yml,
 # from main only; bump the tag here, once the new image is published,
@@ -105,7 +100,7 @@ DOCKER_RUN = docker run --rm --platform linux/amd64 -v "$(CURDIR):/work" -w /wor
   -e TYPST_PACKAGE_CACHE_PATH=/work/.typst-cache \
   -e FONT_PATHS=/usr/share/fonts/lato:/usr/share/fonts/fontawesome
 
-all: pdfs cv test-pdfs thumbnail ## build every example PDF, the cv preview and every fixture PDF
+all: test-pdfs release-artifacts ## build every fixture PDF and the release artifacts
 
 preview-webp: examples/preview.webp ## build the animated README hero (needs img2webp)
 
@@ -136,10 +131,6 @@ release-artifacts: cv example-full thumbnail ## build everything CI uploads and 
 $(TEMPLATE_SRC): template/cv.typ
 	sed '$(LOCAL_IMPORT_SED)' $< > $@
 
-pdfs: $(PDFS) ## build a PDF for every examples/*.typ
-
-previews: $(PNGS) ## build a page-1 PNG for every examples/*.typ
-
 # One tracked PDF per fixture, so reviewers can browse renders without
 # rebuilding. `--creation-timestamp 0` pins CreationDate so rebuilds
 # are byte-identical — otherwise the CI drift check always fails.
@@ -154,14 +145,9 @@ examples/tests/%.pdf: tests/%.typ $(LIB_SOURCES) | examples/tests
 # Coarse but self-maintaining: any fixture-data edit rebuilds every test PDF.
 $(TEST_PDFS): $(wildcard tests/fixtures/*)
 
-examples/%.pdf: examples/%.typ $(LIB_SOURCES)
-	$(TYPST) compile --root $(ROOT) $< $@
-
 # preview-frames.typ reads its CV via examples/_cv.typ from
-# `$(TEMPLATE_SRC)`. Recipe-less: adds prereqs, the pattern rule
-# above still supplies the recipe.
+# `$(TEMPLATE_SRC)`.
 PREVIEW_FRAMES_DEPS := examples/_cv.typ $(TEMPLATE_SRC)
-examples/preview-frames.pdf: $(PREVIEW_FRAMES_DEPS)
 
 # The per-page PNGs aren't listed as targets: pre-4.3 GNU Make parses
 # `A B C: deps` as N independent rules, which race under `make -j`.
@@ -171,9 +157,6 @@ $(EXAMPLE_FULL_PDF): examples/example-full.typ examples/_dates.typ $(LIB_SOURCES
 	$(TYPST) compile --creation-timestamp 0 --root $(ROOT) --format pdf $< $@
 	$(TYPST) compile --root $(ROOT) --format png --ppi $(PPI) $< 'examples/example_full-{p}.png'
 	$(call quantise,examples/example_full-*.png)
-
-examples/%.png: examples/%.typ $(LIB_SOURCES)
-	$(call render-page1,$<,$(PPI),$@)
 
 examples/cv.pdf: $(TEMPLATE_SRC) $(LIB_SOURCES)
 	$(TYPST) compile --root $(ROOT) $< $@
@@ -338,7 +321,7 @@ package-tarball: ## build the release tarball from the staged package
 # Also removes tracked renders (thumbnail.png, the fixture PDFs, …);
 # `git checkout` restores them.
 clean: ## remove generated PDFs and PNGs
-	rm -f $(PDFS) $(PNGS) $(TEST_PDFS) examples/cv.pdf examples/cv.png examples/preview.webp examples/.preview-frame-*.png examples/example_full-*.png thumbnail.png $(TEMPLATE_SRC)
+	rm -f examples/*.pdf examples/*.png examples/tests/*.pdf examples/preview.webp examples/.preview-frame-*.png thumbnail.png $(TEMPLATE_SRC)
 
 help: ## list these targets and the variables you can override
 	@awk -F':[^=]*## ' '/^[a-zA-Z0-9_.-]+:[^=]*## /{printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -357,8 +340,10 @@ in-image: ## run `make $(TARGETS)` in the pinned image
 # "examples/tests/*.pdf in sync" guard fails otherwise. `-B` because
 # a merge or checkout gives tracked outputs fresh mtimes, so make
 # would skip them and the stale bytes surface later as CI drift.
+# `all` is every committed render except examples/preview.webp, which
+# `make preview-webp` builds locally.
 docker-pdfs: ## regenerate every committed render in the pinned CI image
-	$(MAKE) in-image TARGETS='-B all'
+	$(MAKE) in-image TARGETS='-B -j4 all'
 
 # Just the tracked thumbnail: raster output only reproduces in the
 # pinned image. `-B` for the same mtime reason as above.
