@@ -17,8 +17,9 @@
 //      summary, and an entry with neither.
 //   4. `url`: when present, the institution name renders as an
 //      accent-bold link. Covers entries with a URL, without one, an
-//      empty institution + URL pair (skipped as a link target), an
-//      empty-string `url`, and the bare minimum schema.
+//      empty `studyType` falling back to `area` as a missing one does
+//      ("Night School"), an empty institution + URL pair (skipped as a
+//      link target), an empty-string `url`, and the bare minimum schema.
 
 #import "../lib.typ": alta
 

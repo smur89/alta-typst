@@ -3,7 +3,7 @@
 // Sections are placeable in either column; section renderers are
 // width-agnostic so they adapt to wherever they land.
 //
-// Four documents exercise the API surface:
+// Five documents exercise the API surface:
 //   1. Reversed right-column order (default left column).
 //   2. Subset (only `skills` + `education` on the right).
 //   3. The inverted layout: the side-panel sections (focus areas,
@@ -14,7 +14,9 @@
 //      the photo moves to the left with it. A real-shape CV (several
 //      work entries and skill categories, a publication) so the page
 //      is a meaningful reference for the layout.
-//   4. Both columns empty — only the header renders.
+//   4. The same inverted columns on the small CV above, with no photo
+//      and the default `photo-position`.
+//   5. Both columns empty — only the header renders.
 
 #import "../lib.typ": alta
 
@@ -186,7 +188,23 @@
 
 #pagebreak()
 
-// 4. Both columns empty — header only.
+// 4. Inverted layout on the small CV: no photo, the photo position
+//    left at its default.
+#alta(cv, preferences: (
+  column-ratio: 0.35,
+  left-column-sections: (
+    "focus-areas",
+    "skills",
+    "languages",
+    "education",
+    "certificates",
+  ),
+  right-column-sections: ("work", "publications"),
+))
+
+#pagebreak()
+
+// 5. Both columns empty — header only.
 #alta(cv, preferences: (
   left-column-sections: (),
   right-column-sections: (),

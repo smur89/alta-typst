@@ -50,3 +50,7 @@
 #assert.eq(legacy.work.at(0).startDate, "2022-01")
 
 #alta(resume)
+
+#pagebreak()
+
+#alta(legacy)
