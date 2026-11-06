@@ -34,7 +34,7 @@
 #assert.eq(adapter.fluency-rating((language: "X", fluency: "Some")), none)
 
 // group-by-type: `(type, items)` pairs in first-seen order, the
-// untyped under `none`, as `alta()` groups projects.
+// untyped under `none` by default.
 #assert.eq(
   adapter
     .group-by-type((
@@ -53,6 +53,29 @@
     .map(((type, items)) => (type, items.len())),
   (("talk", 2), (none, 1)),
 )
+// `untyped` names the untyped group, which a type of that name shares;
+// `key` maps a type to its group.
+#assert.eq(
+  adapter
+    .group-by-type(((type: "OSS"), (:), (type: "Other")), untyped: "Other")
+    .map(((type, items)) => (type, items.len())),
+  (("OSS", 1), ("Other", 2)),
+)
+#assert.eq(
+  adapter
+    .group-by-type(
+      ((type: "Talk"), (:), (type: "talk")),
+      key: lower,
+      untyped: "article",
+    )
+    .map(((type, items)) => (type, items.len())),
+  (("talk", 2), ("article", 1)),
+)
+
+// entry-type: trimmed, a blank or missing one `none`.
+#assert.eq(adapter.entry-type((type: " Talk ")), "Talk")
+#assert.eq(adapter.entry-type((type: " ")), none)
+#assert.eq(adapter.entry-type((:)), none)
 
 // basics-contacts: the details, a linebreak, then the profiles, as
 // cv-header takes them, linked per `linked`.

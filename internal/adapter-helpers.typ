@@ -9,7 +9,7 @@
 #import "util/dates.typ": _check-date-template, _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
-  _fluency-terms, _location-parts, _term-rating, _type-groups,
+  _entry-type, _fluency-terms, _location-parts, _term-rating, _type-groups,
 )
 #import "data/cv-checks.typ": (
   _check-basics-location, _check-location, _location-text-rule,
@@ -157,16 +157,31 @@
   max,
 )
 
-/// Entries grouped by `type` as `alta()` groups projects: `(type,
-/// items)` pairs in the order each type first appears, the untyped (no
-/// `type`, or a blank one) under `none`. Pairs rather than a
-/// dictionary, as `none` can't be a dictionary key. `alta()` names the
-/// untyped projects' group from its labels; its publications go further,
-/// matching codes ignoring case and counting the untyped as `article`.
+/// An entry's `type` as `alta()` reads it: trimmed, or `none` when it's
+/// untyped (no `type`, or a blank one).
+///
+/// - entry (dictionary): A `projects[]` or `publications[]` entry.
+/// -> str, none
+#let entry-type(entry) = _entry-type(entry)
+
+/// Entries grouped by `type` (`entry-type`) as `alta()` groups them:
+/// `(group, items)` pairs in the order each group first appears.
+/// Pairs rather than a dictionary, as the untyped group may be `none`,
+/// which can't be a dictionary key. `alta()` groups projects with
+/// `untyped: labels.other-projects`, so a type named as the label
+/// shares the untyped group, and publications by code, with
+/// `key: lower, untyped: "article"`.
 ///
 /// - items (array): Entries with an optional `type`.
+/// - key (function): A typed entry's group, from its type: as written
+///   by default, `lower` to match types ignoring case.
+/// - untyped (any): The untyped entries' group.
 /// -> array
-#let group-by-type(items) = _type-groups(items)
+#let group-by-type(items, key: t => t, untyped: none) = _type-groups(
+  items,
+  key: key,
+  untyped: untyped,
+)
 
 /// The labels `alta()` renders with, in the document's language: its
 /// bundled translation over the English, the template's

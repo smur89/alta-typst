@@ -62,10 +62,6 @@
   if type(ns) == dictionary { ns.at(key, default: default) } else { default }
 }
 
-// An entry's `type` as `alta()` reads it, trimmed, or `none` when it's
-// untyped: the adapter's grouping of the one entry.
-#let _type(entry) = adapter.group-by-type((entry,)).first().first()
-
 // A `==` group heading led by its icon, in the heading's colour: the
 // icon's box and the gap after it in the heading's own `em`.
 #let _icon-heading(name, body) = [#context icon(name, fill: text.fill) #body]
@@ -175,16 +171,13 @@
     // only when some project has one; the untyped under "Other".
     projects: () => {
       let projects = adapter.entries(cv, "projects")
-      let types = projects.map(_type)
-      if types.all(t => t == none) {
+      if projects.all(p => adapter.entry-type(p) == none) {
         _section(labels.projects, projects, project)
       } else {
-        let other = labels.other-projects
         let icons = prefs.project-icons
         let groups = adapter.group-by-type(
-          projects
-            .zip(types)
-            .map(((p, t)) => p + (type: if t == none { other } else { t })),
+          projects,
+          untyped: labels.other-projects,
         )
         let group((kind, items)) = {
           let name = icons.at(lower(kind), default: "folder")
@@ -200,24 +193,19 @@
     publications: () => {
       let headings = labels.publication-types
       let icons = prefs.publication-icons
-      // Each publication under its code, beside its type as written.
-      let coded = adapter
-        .entries(cv, "publications")
-        .map(p => {
-          let written = _type(p)
-          (
-            type: if written == none { "article" } else { lower(written) },
-            written: written,
-            pub: p,
-          )
-        })
       _section(
         labels.publications,
-        adapter.group-by-type(coded),
+        adapter.group-by-type(
+          adapter.entries(cv, "publications"),
+          key: lower,
+          untyped: "article",
+        ),
         ((code, items)) => {
-          let heading = headings.at(code, default: items.first().written)
+          let heading = if code in headings { headings.at(code) } else {
+            adapter.entry-type(items.first())
+          }
           [== #_icon-heading(icons.at(code, default: "file"), heading)]
-          items.map(item => pub(item.pub)).join()
+          items.map(pub).join()
         },
       )
     },

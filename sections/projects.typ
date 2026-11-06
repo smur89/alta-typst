@@ -3,8 +3,7 @@
 // renders flat. Entries without a `name` are skipped.
 
 #import "../internal/util/fields.typ": _field
-#import "../internal/util/values.typ": _group-by
-#import "../internal/data/cv.typ": _entry-period, _entry-type
+#import "../internal/data/cv.typ": _entry-period, _entry-type, _type-groups
 #import "../internal/components/entry.typ": _entry
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/frame.typ": _grouped-section, _section
@@ -23,15 +22,6 @@
   keywords: project.at("keywords", default: ()),
 )
 
-// Drives the `====` subheadings in projects. An untyped entry
-// (`_entry-type`) pools under `fallback`, which may also be a type's
-// name, so a dictionary of `_group-by` rather than `_type-groups`'
-// pairs: the two share one group.
-#let _group-by-type(items, fallback) = _group-by(items, item => {
-  let type = _entry-type(item)
-  if type != none { type } else { fallback }
-})
-
 #let _projects(entries, ctx) = {
   let (labels, prefs, ..) = ctx
   let render(p) = _render-project(p, ctx)
@@ -44,7 +34,7 @@
   } else {
     _grouped-section(
       labels.projects,
-      _group-by-type(entries, labels.other-projects),
+      _type-groups(entries, untyped: labels.other-projects).to-dict(),
       // `project-icons` is lowercase-keyed (`_canonical-preferences`); a
       // group it doesn't map gets `folder`.
       (group, _) => _icon-heading(

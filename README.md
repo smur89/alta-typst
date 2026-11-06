@@ -215,7 +215,8 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 - `adapter.location-text(location)`: a location's city, region and country code, for you to join.
 - `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
-- `adapter.group-by-type(items)`: entries grouped by `type`, in the order each first appears.
+- `adapter.entry-type(entry)`: a project's or publication's `type`, trimmed, or `none` when it's untyped.
+- `adapter.group-by-type(items, key:, untyped:)`: entries grouped by `type`, in the order each group first appears: a typed entry's group is `key(type)` (`lower` to match ignoring case), the untyped's `untyped`, which a type of that name shares. `alta()` groups projects with `untyped: labels.other-projects`, and publications with `key: lower, untyped: "article"`.
 - `adapter.labels(overrides:)`: the labels in the document's language, the template's over them and `overrides` over both, as `alta()` resolves them. Call it in `context`.
 - `adapter.preferences(overrides:)`: every preference, `overrides` merged over `alta()`'s defaults and checked; `header-text-align` is `none` unless set, so the header follows the alignment around it.
 
@@ -752,7 +753,8 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `adapter.location-text(location)` | A location's parts, in display order. |
 | `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)` | The contact bar's records from `basics`, for `cv-header`. |
 | `adapter.fluency-rating(entry, max:)` | A language's rating, or `none`. |
-| `adapter.group-by-type(items)` | Entries grouped by `type`. |
+| `adapter.entry-type(entry)` | An entry's `type`, trimmed, or `none`. |
+| `adapter.group-by-type(items, key:, untyped:)` | Entries grouped by `type`. |
 | `adapter.labels(overrides:)` | The document language's labels as `alta()` resolves them, in `context`. |
 | `adapter.preferences(overrides:)` | Every preference, merged over `alta()`'s defaults and checked. |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |

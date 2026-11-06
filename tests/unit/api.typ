@@ -42,6 +42,7 @@
   (
     "basics-contacts",
     "entries",
+    "entry-type",
     "fluency-rating",
     "format-date",
     "group-by-type",
