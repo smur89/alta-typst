@@ -1,6 +1,6 @@
 // The JSON Resume mapping: a CV dictionary in the JSON Resume schema
 // turned into altacv's public markup blocks (`cv-header`, `entry`,
-// `publication`, `skills`, …). It is what `alta(cv)` renders inside
+// `publication`, `skill-row`, …). It is what `alta(cv)` renders inside
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
 // It reads JSON Resume's camelCase fields (`startDate`) and altacv's
@@ -9,7 +9,7 @@
 // To adapt it, copy this file into your project, replace the imports
 // below with one
 //
-//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+//   #import "@preview/altacv:<version>": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
 //
 // and edit what it draws. Then, in your CV:
 //
@@ -27,7 +27,7 @@
 // because `alta()`, which renders it, sits inside `lib.typ`.
 
 #import "../internal/blocks.typ": (
-  cv-columns, cv-header, entry, label-row, publication, skills,
+  cv-columns, cv-header, entry, label-row, publication, skill-row,
 )
 #import "../internal/components/ratings.typ": rating
 #import "../internal/data/defaults.typ": maps-providers
@@ -260,8 +260,8 @@
       )
     },
     // The group's `custom.altacv.rating` as dots, else its level, a
-    // term `skills` rates as dots; `skill-level-display: "text"` keeps
-    // the level text, as content, which `skills` shows as written.
+    // term `skill-row` rates as dots; `skill-level-display: "text"` keeps
+    // the level text, as content, which `skill-row` shows as written.
     skills: () => _section(
       labels.skills,
       cv
@@ -272,7 +272,7 @@
         let as-text = (
           preferences.at("skill-level-display", default: auto) == "text"
         )
-        skills(
+        skill-row(
           g.name,
           g.keywords,
           level: if as-text {

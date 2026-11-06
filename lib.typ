@@ -25,7 +25,7 @@
 #import "internal/icons.typ": icon
 #import "internal/components/ratings.typ": rating
 #import "internal/blocks.typ": (
-  contact, cv-columns, cv-header, entry, label-row, publication, skills,
+  contact, cv-columns, cv-header, entry, label-row, publication, skill-row,
 )
 // A module: `adapter.format-date(..)`, the readers for a mapping of
 // your own.

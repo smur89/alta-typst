@@ -2,12 +2,12 @@
 // `set document(title: ..)` shown by `cv-header` with a photo and
 // QR code, two columns (`cv-columns`), `=` sections,
 // a `==` group, and the blocks: `entry` (dividers only between
-// entries), `publication` (the document's author set apart), `skills`
+// entries), `publication` (the document's author set apart), `skill-row`
 // (one row's level as dots), `rating` and `label-row`.
 
 #import "../lib.typ": (
   altacv, avatar-placeholder, contact, cv-columns, cv-footer, cv-header, entry,
-  label-row, publication, rating, skills, themes,
+  label-row, publication, rating, skill-row, themes,
 )
 
 #set document(title: "Jane Doe", author: "Jane Doe")
@@ -74,8 +74,8 @@
   [
     = Skills
 
-    #skills("Languages", ("Scala", "Python", "Go"), level: "Expert")
-    #skills("Infra", ("Kafka", "AWS", "Kubernetes"))
+    #skill-row("Languages", ("Scala", "Python", "Go"), level: "Expert")
+    #skill-row("Infra", ("Kafka", "AWS", "Kubernetes"))
 
     = Languages
 

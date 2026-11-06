@@ -446,11 +446,11 @@
 /// - max (auto, int): The dots in the row; `auto` is `rating()`'s: the
 ///   enclosing `alta()`'s `preferences.max-rating`, else 5.
 /// -> content
-#let skills(name, keywords, level: none, max: auto) = {
+#let skill-row(name, keywords, level: none, max: auto) = {
   let row(max) = {
-    _check("skills() max", max, _positive-int-rule)
+    _check("skill-row() max", max, _positive-int-rule)
     let numeric = type(level) in (int, float)
-    if numeric { _check-rating("skills() level", level, max) }
+    if numeric { _check-rating("skill-row() level", level, max) }
     _keyword-rows((
       (
         name: name,

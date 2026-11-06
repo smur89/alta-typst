@@ -28,7 +28,7 @@
     "palettes",
     "publication",
     "rating",
-    "skills",
+    "skill-row",
     "styled-link",
     "tag",
     "term",

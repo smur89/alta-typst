@@ -142,7 +142,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": altacv, contact, cv-columns, cv-header, entry, skills
+#import "@preview/altacv:1.8.0": altacv, contact, cv-columns, cv-header, entry, skill-row
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with()
@@ -164,7 +164,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
   [
     = Skills
 
-    #skills("Languages", ("Scala", "Python"), level: "Expert")
+    #skill-row("Languages", ("Scala", "Python"), level: "Expert")
   ],
 )
 ```
@@ -184,11 +184,11 @@ A few things to know:
 
 ### Your own mapping
 
-Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/adapter/json-resume.typ) <!-- x-release-please-version -->: a mapping from the JSON Resume schema onto the public blocks (`cv-header`, `entry`, `publication`, `skills`, `rating`, `label-row`), written to be copied. To change how a part of the CV is drawn beyond what the preferences and show rules reach, copy it into your project as `json-resume.typ` and replace its `#import` lines with one:
+Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/adapter/json-resume.typ) <!-- x-release-please-version -->: a mapping from the JSON Resume schema onto the public blocks (`cv-header`, `entry`, `publication`, `skill-row`, `rating`, `label-row`), written to be copied. To change how a part of the CV is drawn beyond what the preferences and show rules reach, copy it into your project as `json-resume.typ` and replace its `#import` lines with one:
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skills
+#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
 ```
 
 Then render your copy under the template, and edit it from there:
@@ -741,7 +741,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. The body (its highlights or other prose) is optional. `date` takes a `(start, end)` pair, an open end reading "Present"; `location` an array of parts, joined by the theme's item separator. |
 | `publication(title:, url:, authors:, owners: auto, source:, citation: (:), date:, identifiers:, body)` | A publication as a bibliography item, with a required `title` and an optional body, its summary; the `owners` (the document's author by default) are set apart among the authors, and the `citation` (`volume`, `issue`, `pages`) follows the source in the theme's citation style. |
 | `cv-columns(left, right, ratio: 0.65)` | The CV's two columns with the theme's gutter, the left taking `ratio`; one column when `right` is `none` or the ratio is 1. |
-| `skills(name, keywords, level: none, max: auto)` | A skill group's row of pills, with its level (a number or a rating term) as dots, or as text. |
+| `skill-row(name, keywords, level: none, max: auto)` | A skill group's row of pills, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |
