@@ -109,7 +109,9 @@
 // paragraphs a line's leading apart. The keyword line is the
 // `<alta-keywords>` part, so a show rule can set its paragraph.
 #let _entry-keywords(lead, line) = context {
-  set par(spacing: par.leading)
+  // Rows of facts, never stretched, whatever `justify` the prose
+  // around them takes.
+  set par(spacing: par.leading, justify: false)
   if lead != none { par(lead) }
   if line != none { _part("keywords", par(line)) }
 }
@@ -170,15 +172,20 @@
     _accent-text(_link-if(org-url, _part("org", org)))
   }
   let facts = _part("facts", _fact-line((org,), roles, details))
-  _entry-head(
-    if _present(title) { _link-if(url, title) },
-    facts,
-    _range(period),
-    _fact-line(location),
-    alts,
-    level,
-  )
-  _subtitle(subtitle)
+  // The head and subtitle are rows of facts: never stretched, whatever
+  // `justify` the summary and highlights take.
+  {
+    set par(justify: false)
+    _entry-head(
+      if _present(title) { _link-if(url, title) },
+      facts,
+      _range(period),
+      _fact-line(location),
+      alts,
+      level,
+    )
+    _subtitle(subtitle)
+  }
   _preamble(summary)
   for bullet in highlights [- #bullet]
   body

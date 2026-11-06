@@ -13,6 +13,9 @@
 // column hangs nothing, so its keywords keep room to wrap. A group's
 // optional `mark` (a skill level: dots or its text) follows the label.
 #let _keyword-rows(groups) = context {
+  // Rows of pills, never stretched, whatever `justify` the prose around
+  // them takes.
+  set par(justify: false)
   let theme = _theme()
   let (gap, dash, indent-max) = theme.keyword-row
   let row-gap = gap * text.size
@@ -45,6 +48,9 @@
 // colour and `treatment.label` (bold by default). Quieter than
 // `_keyword-rows`' pills, for groups a reader skims past.
 #let _label-rows(groups) = context {
+  // Rows of items, never stretched, whatever `justify` the prose around
+  // them takes.
+  set par(justify: false)
   let (separator, treatment, colours) = _theme()
   par(
     groups

@@ -422,9 +422,6 @@
     },
   )
 
-  // Lists justified per `justify`, as `alta()` sets them.
-  show list: set par(justify: preferences.at("justify", default: false))
-
   // The header: `basics.image` framed when it's set (a path, or a
   // non-empty string or bytes); the QR code `basics.url` when `auto`.
   // Its text follows the alignment around it, `header-text-align`'s
@@ -462,6 +459,12 @@
   )
   let text-align = preferences.at("header-text-align", default: none)
   if text-align != none { align(text-align, header) } else { header }
+
+  // Below the header, the paragraphs justified per `justify`: the
+  // intro, summaries, highlights and publications, as `alta()`
+  // justifies them. An entry's rows of facts and keywords, and the
+  // skill and interest rows, set their own off.
+  set par(justify: preferences.at("justify", default: false))
 
   // The intro: `basics.summary`, in a block the template spaces from
   // the header and the columns (`show <alta-intro>: set block(..)`).

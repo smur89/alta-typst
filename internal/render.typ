@@ -96,7 +96,9 @@
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
-  show: _cv-styles.with(ctx.prefs)
+  // The public `rating()`'s scale; the mapping justifies its own
+  // prose.
+  _max-rating-state.update(ctx.prefs.max-rating)
   // What the footer helpers print.
   [#metadata(details)<alta-cv>]
   // A bare `basics.image` path resolves from `internal/`, as it always
