@@ -22,10 +22,10 @@
   osm: "https://www.openstreetmap.org/search?query={q}",
 )
 
-// Documented in the README's preferences tables and grouped as there,
-// which is also the order the "Supported:" list of an unknown-key
-// panic follows. Comments here note only constraints the README
-// doesn't need.
+// Documented in docs/reference.md's preferences tables and grouped as
+// there, which is also the order the "Supported:" list of an
+// unknown-key panic follows. Comments here note only constraints the
+// reference doesn't need.
 #let _default-preferences = (
   // Look.
   // `auto`: the theme's.

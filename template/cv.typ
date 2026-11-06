@@ -1,7 +1,9 @@
 // Starter CV produced by `typst init @preview/altacv`. Edit in place.
 //
 // Every field and option is documented in the package reference:
-//   https://github.com/smur89/alta-typst/blob/main/docs/reference.md
+// x-release-please-start-version
+//   https://github.com/smur89/alta-typst/blob/v1.8.0/docs/reference.md
+// x-release-please-end
 //
 // Every field below is optional except `basics.name`. Sections with
 // empty input are skipped, so deleting an entry is enough to hide it.

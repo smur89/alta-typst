@@ -15,7 +15,7 @@
 - [ ] `typst compile --root . examples/example-full.typ examples/example_full.pdf` succeeds
 - [ ] Each `tests/*.typ` fixture compiles
 - [ ] Added or updated a fixture under `tests/` if this PR touches rendering logic
-- [ ] Updated the README if this PR changes a public API, data-schema key, or supported profile network
+- [ ] Updated the README or docs/reference.md if this PR changes a public API, data-schema key, or supported profile network
 
 ## Notes for the reviewer
 
