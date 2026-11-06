@@ -6,6 +6,7 @@
 // live in `design/theme.typ`.
 
 #import "design/theme.typ": _default-theme
+#import "data/options.typ": _resolve-labels
 
 // The built themes (`_theme-for`) of the templates the content sits
 // in, innermost last: `_document` pushes its theme and, for `altacv`,
@@ -14,6 +15,15 @@
 #let _theme-state = state("alta-theme", (_default-theme,))
 // The theme in effect where it's read (in `context`).
 #let _theme() = _theme-state.get().last()
+// The label overrides in effect, outermost first: each `altacv`'s
+// `labels:` (`_template-labels`), pushed for its body, and inside it
+// each `alta()`'s, pushed for its CV, so the blocks that CV draws read
+// them. Kept as layers rather than resolved labels, as the bundled
+// translation they go over is the language where they're read.
+#let _labels-state = state("alta-labels", ())
+// The labels where they're read (in `context`): the defaults, the
+// translation for `text.lang`, then the layers in effect.
+#let _labels() = _resolve-labels(text.lang, .._labels-state.get())
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.max-rating` explicitly.
 #let _max-rating-state = state("alta-max-rating", 5)

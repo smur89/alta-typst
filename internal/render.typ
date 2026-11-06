@@ -4,7 +4,7 @@
 
 #import "util/dates.typ": _format-date
 #import "data/options.typ": (
-  _check-template-preferences, _checked-theme, _merge-options,
+  _check-template-preferences, _checked-theme, _merge-options, _template-labels,
 )
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
@@ -14,7 +14,7 @@
 #import "design/presets.typ": themes
 #import "design/styles.typ": _justify, _level-headings
 #import "design/theme.typ": _theme-for
-#import "context.typ": _max-rating-state
+#import "context.typ": _labels-state, _max-rating-state
 #import "document.typ": _document, _standalone
 #import "registry.typ": _renderers
 #import "components/columns.typ": _columns
@@ -25,7 +25,8 @@
 #import "../adapter/json-resume.typ": _resume
 
 // The merged options, the read CV and the `ctx` every renderer takes
-// with its data, in `context`: the labels follow `text.lang`.
+// with its data, in `context`: the labels follow `text.lang`, under
+// the enclosing templates' (`_labels-state`).
 // `format-date` formats a date per the preferences and labels; `owner`
 // is the CV owner's name, and `owners` every spelling of it
 // (`preferences.owner-names` too), trimmed and lowercased, to bold among
@@ -34,7 +35,12 @@
 // standalone footer alike. `json-resume` is the checked, canonical CV
 // in JSON Resume's camelCase, for the template's mapping.
 #let _prepare(cv, labels, preferences) = {
-  let (labels, prefs) = _merge-options(labels, preferences, lang: text.lang)
+  let (labels, prefs) = _merge-options(
+    labels,
+    preferences,
+    lang: text.lang,
+    template: _labels-state.get(),
+  )
   let (cv, sections, json-resume) = _read-cv(cv, prefs)
   let ctx = (
     labels: labels,
@@ -53,10 +59,12 @@
 }
 
 // What `alta()` leaves for the content after it, in both forms: the
-// public `rating()`'s scale, and what the footer helpers print.
+// public `rating()`'s scale, and what the footer helpers print, with
+// the template label layers it resolved under (`layers`), in
+// `context`.
 #let _cv-marks(prefs, details) = {
   _max-rating-state.update(prefs.max-rating)
-  [#metadata(details)<alta-cv>]
+  [#metadata((details: details, layers: _labels-state.get()))<alta-cv>]
 }
 
 // The CV itself, from `_prepare`, as standalone `alta()` draws it with
@@ -93,7 +101,11 @@
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
   // The mapping's prose takes the caller's `set par(justify: ..)`.
   _cv-marks(ctx.prefs, details)
+  // The caller's labels over the template's for this CV's blocks too
+  // (an entry's "Present", its alt text), which read `_labels-state`.
+  _labels-state.update(layers => layers + (labels,))
   _resume(json-resume, ctx.labels, ctx.prefs)
+  _labels-state.update(layers => layers.slice(0, -1))
 }
 
 // `alta()` on its own (removed in the next major, #239): the template's
@@ -117,10 +129,18 @@
 ///
 /// - theme (dictionary): A built-in theme (`themes.teal`, …) or theme
 ///   tokens over it. See the README's Theme tokens.
+/// - labels (dictionary): Display strings to override for everything
+///   the template draws: `alta()`'s CVs, the markup blocks (`entry`'s
+///   "Present", the date and location alt text) and the footers. The
+///   keys `alta()`'s `labels:` takes, but the deprecated `lang` and
+///   `publication-icons`, which panic; merged over the
+///   defaults for the document's language (`text.lang`) where each is
+///   read, and under an `alta(cv, labels: ..)`'s for that CV.
 /// - body (content): The document.
 /// -> content
-#let altacv(theme: themes.teal, body) = {
+#let altacv(theme: themes.teal, labels: (:), body) = {
   let built = _theme-for(_checked-theme(theme), (:))
+  let labels = _template-labels(labels)
   show: _document.with(
     built,
     _default-preferences.body-size,
@@ -149,7 +169,14 @@
     let info = query(<alta-internal-document>).at(0, default: none)
     if info != none { set document(..info.value) }
   }
+  // For the body only: content after a nested template reads the
+  // outer one's.
+  _labels-state.update(layers => layers + (labels,))
   body
+  // Lands after the body's last content: a trailing `#pagebreak()`
+  // puts it on a blank page of its own, whose footer then reads the
+  // labels outside the template (as `_document`'s theme pop does).
+  _labels-state.update(layers => layers.slice(0, -1))
 }
 
 /// Renders a CV from a JSON Resume-style dictionary. On its own it

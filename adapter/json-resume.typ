@@ -19,7 +19,9 @@
 //   #set document(title: cv.basics.name, author: cv.basics.name)
 //   #resume(cv)
 //
-// The `set document` is only the PDF's metadata. In your copy, a bare
+// Labels come from the template, `#show: altacv.with(labels: ..)`,
+// which the blocks read too. The `set document` is only the PDF's
+// metadata. In your copy, a bare
 // `basics.image` path resolves from your copy's file.
 //
 // The names below are the public API (`lib.typ` re-exports exactly
@@ -118,18 +120,12 @@
       months: labels.months,
     )
   }
-  // `entry`'s `(start, end)` pair: the end, else "Present" when there's
-  // a start.
-  let period(obj) = {
-    let start = _field(obj, "startDate")
-    let end = _field(obj, "endDate")
-    (
-      date(start),
-      if end != none { date(end) } else if start != none {
-        labels.present
-      },
-    )
-  }
+  // `entry`'s `(start, end)` pair, an open end reading the labels'
+  // "Present".
+  let period(obj) = (
+    date(_field(obj, "startDate")),
+    date(_field(obj, "endDate")),
+  )
   // A location's parts, which `entry` joins in the theme's style.
   let location(obj) = adapter.location-text(obj.at("location", default: none))
   // Highlights as a list, the entry's body.
@@ -425,22 +421,16 @@
     name: if name != none { name } else { auto },
     tagline: _field(basics, "label"),
     objective: _field(cv, "objective"),
-    // The location's alt text from `labels.location`, as `alta()` reads
-    // it.
-    contacts: adapter
-      .basics-contacts(
-        basics,
-        linked: preferences.at("link-contact-info", default: true),
-        maps-provider: preferences.at(
-          "maps-provider",
-          default: maps-providers.google,
-        ),
-        full-urls: preferences.at("print-full-urls", default: false),
-        icons: preferences.at("profile-icons", default: auto),
-      )
-      .map(c => if type(c) == dictionary and c.icon == "location" {
-        c + (alt: labels.location)
-      } else { c }),
+    contacts: adapter.basics-contacts(
+      basics,
+      linked: preferences.at("link-contact-info", default: true),
+      maps-provider: preferences.at(
+        "maps-provider",
+        default: maps-providers.google,
+      ),
+      full-urls: preferences.at("print-full-urls", default: false),
+      icons: preferences.at("profile-icons", default: auto),
+    ),
     photo: if image-src != none { image(image-src) },
     photo-position: preferences.at("photo-position", default: right),
     photo-size: preferences.at("photo-size", default: auto),
@@ -497,20 +487,19 @@
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
 ///   fields) plus altacv's `custom.altacv` extensions.
-/// - labels (auto, dictionary): Display strings, by `alta()`'s
-///   kebab-case label keys (`work`, `other-projects`,
-///   `publication-types`, …), over the document language's
-///   (`adapter.labels()`); `auto` is those alone.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …); a missing key
 ///   reads alta's default.
 ///
-/// The name is `basics.name`, else the document's title; the owners
+/// The labels are the resolved ones (`adapter.labels()`), as the
+/// blocks read them: the document language's, under the template's
+/// (`altacv.with(labels: ..)`) and, through `alta(cv, labels: ..)`,
+/// that call's. The name is `basics.name`, else the document's title; the owners
 /// set apart among publication authors are it and `owner-names`, else
 /// the document's author.
 /// -> content
-#let resume(cv, labels: auto, preferences: (:)) = context _resume(
+#let resume(cv, preferences: (:)) = context _resume(
   cv,
-  adapter.labels(overrides: if labels == auto { (:) } else { labels }),
+  adapter.labels(),
   preferences,
 )
