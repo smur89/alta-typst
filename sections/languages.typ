@@ -1,9 +1,9 @@
-// Languages: rating dots when `_term-rating` gives a number (a
+// Languages: rating dots when `_entry-rating` gives a number (a
 // `custom.altacv.rating`, or a `fluency` in `_fluency-terms`), else
 // the `fluency` text alone.
 
 #import "../internal/util/fields.typ": _string-at
-#import "../internal/data/cv.typ": _fluency-terms, _term-rating
+#import "../internal/data/cv.typ": _entry-rating, _fluency-terms
 #import "../internal/primitives.typ": _divider-space
 #import "../internal/components/frame.typ": _section
 #import "../internal/components/ratings.typ": _rating-row
@@ -13,7 +13,7 @@
   items,
   lang => _rating-row(
     lang.language,
-    _term-rating(lang, "fluency", _fluency-terms, prefs.max-rating),
+    _entry-rating(lang, "fluency", _fluency-terms, prefs.max-rating),
     prefs.max-rating,
     fallback: _string-at(lang, "fluency"),
   ),

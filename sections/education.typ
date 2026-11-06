@@ -20,7 +20,7 @@
       org: _field(edu, "institution"),
       org-url: _field(edu, "url"),
       period: _entry-period(edu, format-date, labels.present),
-      location: _location-parts(edu),
+      location: _location-parts(edu.at("location", default: none)),
       summary: _field(edu, "summary"),
       keywords-lead: (
         (if study-type != none { area },),

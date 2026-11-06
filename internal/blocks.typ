@@ -4,12 +4,12 @@
 
 #import "data/defaults.typ": _default-preferences
 #import "data/cv.typ": (
-  _authors, _entry-period, _identifier-refs, _identifier-url, _identifiers,
+  _authors, _date-sides, _identifier-refs, _identifier-url, _identifiers,
   _owner-keys, _skill-levels, _term-rating,
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
-#import "data/validation.typ": _preference-rules
+#import "data/validation.typ": _check-preference
 #import "util/checks.typ": (
   _check, _check-keys, _check-rating, _check-type, _dict-rule, _enum-rule,
   _list-rule, _positive-int-rule, _quote, _type-rule,
@@ -161,11 +161,7 @@
         // present sides.
         period: if type(date) == array {
           let (start, end) = date
-          _entry-period(
-            (start-date: start, end-date: end),
-            d => d,
-            labels.present,
-          )
+          _date-sides(start, end, d => d, labels.present)
         } else { (date,) },
         location: if type(location) == array { location } else { (location,) },
         details: details,
@@ -290,10 +286,10 @@
   let photo-option(key, value) = if value == auto {
     _default-preferences.at("photo-" + key)
   } else {
-    _check(
-      "cv-header() photo-" + key,
+    _check-preference(
+      "photo-" + key,
       value,
-      _preference-rules.at("photo-" + key),
+      name: "cv-header() photo-" + key,
     )
     value
   }
@@ -416,7 +412,7 @@
   context {
     // `alta()`'s readers, over the arguments in its CV shape; an
     // author given as content is matched and shown as its text.
-    let refs = _identifier-refs(_identifiers((identifiers: identifiers)))
+    let refs = _identifier-refs(_identifiers(identifiers))
     // `document.author` is an array of strings: Typst wraps an author
     // set as a string, and leaves it empty when unset.
     let owners = _owner-keys(
@@ -427,7 +423,7 @@
     block(width: 100%, breakable: false, _bib-entry(
       title,
       url: if url != none { url } else { _identifier-url(refs) },
-      authors: _authors((authors: authors.map(_plain)), owners),
+      authors: _authors(authors.map(_plain), owners),
       publisher: source,
       citation: citation,
       date: date,
@@ -463,7 +459,7 @@
         keywords: keywords,
         mark: _rating-mark(
           if numeric { level } else {
-            _term-rating((level: level), "level", _skill-levels, max)
+            _term-rating(level, _skill-levels, max)
           },
           max,
           fallback: level,
@@ -484,7 +480,11 @@
 /// - ratio (int, float): The left column's share, in (0, 1], as
 ///   `alta()`'s `column-ratio`; 1 stacks both in one column.
 /// -> content
-#let cv-columns(left, right, ratio: 0.65) = {
+#let cv-columns(
+  left,
+  right,
+  ratio: _default-preferences.column-ratio,
+) = {
   for (name, column) in (left: left, right: right) {
     _check-type(
       "cv-columns() " + name,
@@ -493,7 +493,7 @@
       "content, a string or none",
     )
   }
-  _check("cv-columns() ratio", ratio, _preference-rules.column-ratio)
+  _check-preference("column-ratio", ratio, name: "cv-columns() ratio")
   // Stacked, each column its own paragraph, so two runs of text don't
   // run together.
   if ratio == 1 or right == none {

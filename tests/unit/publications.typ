@@ -13,12 +13,11 @@
 )
 #import "/tests/unit/_plain.typ": plain
 
-// _identifiers: schemes lowercased; non-dict or unusable ids skipped.
+// _identifiers: schemes lowercased; empty ids skipped.
 #assert.eq(
-  _identifiers((identifiers: (DOI: "10.1/x", isbn: "", pmid: 7))),
+  _identifiers((DOI: "10.1/x", isbn: "")),
   (("doi", "10.1/x"),),
 )
-#assert.eq(_identifiers((identifiers: "10.1/x")), ())
 #assert.eq(_identifiers((:)), ())
 
 // _identifier-refs: conventional names and resolver URLs; unknown
@@ -68,27 +67,23 @@
 #assert.eq(_citation(style, (pages: "9")), "9")
 #assert.eq(_citation(style, (:)), none)
 
-// _authors: published order, trimmed, unusable entries skipped, each
-// of `owners` (normalised, as `ctx.owners` is) flagged ignoring case.
+// _authors: published order, trimmed, empty ones skipped, each of
+// `owners` (normalised, as `ctx.owners` is) flagged ignoring case.
 #assert.eq(
-  _authors(
-    (authors: ("A. Smith", " Jane Doe ", "", 3, "B. Jones")),
-    ("jane doe",),
-  ),
+  _authors(("A. Smith", " Jane Doe ", "", "B. Jones"), ("jane doe",)),
   (
     (name: "A. Smith", owner: false),
     (name: "Jane Doe", owner: true),
     (name: "B. Jones", owner: false),
   ),
 )
-#assert.eq(_authors((authors: "A. Smith"), ("jane doe",)), ())
 #assert.eq(
-  _authors((authors: ("A. Smith",)), ()),
+  _authors(("A. Smith",), ()),
   ((name: "A. Smith", owner: false),),
 )
 #assert.eq(
   _authors(
-    (authors: ("J. Doe", "Jane Smith", "Jane Doe", "A. Smith")),
+    ("J. Doe", "Jane Smith", "Jane Doe", "A. Smith"),
     ("jane doe", "j. doe", "jane smith"),
   ).map(a => a.owner),
   (true, true, true, false),

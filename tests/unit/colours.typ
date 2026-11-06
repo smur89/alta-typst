@@ -3,7 +3,8 @@
 // standalone `alta()`'s, the default theme under `preferences.font` and
 // the deprecated `accent` (`_merge-options`, `_token-prefs`).
 
-#import "/internal/data/options.typ": _checked-theme, _merge-options
+#import "/internal/data/options.typ": _merge-options
+#import "/internal/design/theme-checks.typ": _checked-theme
 #import "/internal/design/presets.typ": palettes, themes
 #import "/internal/design/theme.typ": (
   _contrast, _default-theme, _theme-for, _token-prefs, _tokens,

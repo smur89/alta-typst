@@ -7,6 +7,7 @@
 
 #import "design/theme.typ": _default-theme
 #import "data/options.typ": _resolve-labels
+#import "data/defaults.typ": _default-preferences
 
 // The built themes (`_theme-for`) of the templates the content sits
 // in, innermost last: `_document` pushes its theme and, for `altacv`,
@@ -26,5 +27,8 @@
 #let _labels() = _resolve-labels(text.lang, .._labels-state.get())
 // Read only by the public `rating()` helper's default `max`; the
 // languages section passes `prefs.max-rating` explicitly.
-#let _max-rating-state = state("alta-max-rating", 5)
+#let _max-rating-state = state(
+  "alta-max-rating",
+  _default-preferences.max-rating,
+)
 

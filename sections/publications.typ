@@ -4,7 +4,7 @@
 // `authors`; `identifiers` give an unlinked title somewhere to point.
 // Helpers shape the fields into data; `_bib-entry` lays them out.
 
-#import "../internal/util/fields.typ": _field, _string-at
+#import "../internal/util/fields.typ": _field
 #import "../internal/data/cv.typ": (
   _authors, _identifier-refs, _identifier-url, _identifiers, _type-groups,
 )
@@ -13,17 +13,18 @@
 #import "../internal/components/frame.typ": _grouped-section
 
 #let _render-publication(pub, (format-date, owners, ..)) = {
-  let refs = _identifier-refs(_identifiers(pub))
+  let refs = _identifier-refs(_identifiers(pub.at("identifiers", default: (:))))
   let url = _field(pub, "url")
   _bib-entry(
     pub.name,
     url: if url != none { url } else { _identifier-url(refs) },
-    authors: _authors(pub, owners),
+    authors: _authors(pub.at("authors", default: ()), owners),
     publisher: _field(pub, "publisher"),
+    // Non-empty strings or absent (`_lenient-fields`).
     citation: (
-      volume: _string-at(pub, "volume"),
-      issue: _string-at(pub, "issue"),
-      pages: _string-at(pub, "pages"),
+      volume: pub.at("volume", default: none),
+      issue: pub.at("issue", default: none),
+      pages: pub.at("pages", default: none),
     ),
     date: format-date(_field(pub, "release-date")),
     identifiers: refs,

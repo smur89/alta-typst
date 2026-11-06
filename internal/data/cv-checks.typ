@@ -104,13 +104,15 @@
   rating
 }
 
-// A `custom.altacv.rating` wins over `fluency`, so either will do.
+// A `custom.altacv.rating` wins over `fluency`, so a `fluency` it
+// leaves to show must be a string. JSON Resume requires neither: a
+// language with neither shows its name alone.
 #let _check-language(key, entry, prefs) = {
   if _altacv-rating(key, entry, prefs) == none {
     _check-type(
       key + "[].fluency",
       entry.at("fluency", default: none),
-      (str,),
+      (str, type(none)),
       "a string when there's no numeric `custom.altacv.rating`",
     )
   }
@@ -133,7 +135,7 @@
     _require(
       key + "[].level",
       level,
-      _term-rating(entry, "level", _skill-levels, prefs.max-rating) != none,
+      _term-rating(level, _skill-levels, prefs.max-rating) != none,
       _skill-level-expected,
     )
   }

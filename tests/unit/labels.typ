@@ -6,6 +6,22 @@
 // ..)`, its layers) sit between the translation and the caller's.
 
 #import "/internal/data/options.typ": _merge-options
+#import "/internal/data/canonical.typ": _label-tables
+#import "/internal/data/defaults.typ": _default-labels, _translations
+#import "/internal/data/validation.typ": _strict-merge, _validate-labels
+
+// The bundled translations ship checked, as `alta()` checks only a
+// caller's labels: each sets only labels the English has, of their
+// kinds, and every template keeps its placeholders.
+#_validate-labels(_default-labels)
+#for (code, translation) in _translations {
+  _validate-labels(_strict-merge(
+    _default-labels,
+    translation + (lang: code),
+    "labels",
+    tables: _label-tables,
+  ))
+}
 
 #let labels(overrides: (:), ..options) = (
   _merge-options(overrides, (:), ..options).labels

@@ -3,11 +3,14 @@
 // `cv-checks.typ`.
 
 #import "../design/icon-set.typ": _fa-glyphs, _icon-glyphs
-#import "../design/theme.typ": _default-theme, _token-prefs, _tokens
+#import "../design/theme.typ": _default-theme, _tokens
+#import "../design/theme-checks.typ": _check-tokens, _font-rule, _is-font
 #import "../util/checks.typ": (
   _bool-rule, _check, _check-keys, _check-rules, _check-type,
   _check-unknown-keys, _enum-rule, _list-rule, _positive-int-rule, _type-rule,
 )
+#import "canonical.typ": _preference-tables
+#import "sections.typ": _section-specs
 #import "../util/dates.typ": _check-date-template, _date-format-aliases
 #import "../util/values.typ": _placeholder-re, _present-str
 
@@ -41,23 +44,6 @@
   v.values().all(_is-margin-side)
 } else { _is-margin-side(v) }
 
-// A family name, or a fallback list of names / `(name, covers)` dicts.
-// A dictionary entry is Typst's `(name: …, covers: …)`; a stray key,
-// or a missing or non-string `name`, would otherwise fail only at
-// `set text`.
-#let _is-font-entry(f) = (
-  type(f) == str
-    or (
-      type(f) == dictionary
-        and type(f.at("name", default: none)) == str
-        and f.keys().all(k => k in ("name", "covers"))
-    )
-)
-#let _is-font-list(v) = (
-  type(v) == array and v.len() > 0 and v.all(_is-font-entry)
-)
-#let _is-font(v) = type(v) == str or _is-font-list(v)
-
 // A named formatter, a bracketed template (its tokens are left to
 // `_apply-date-template`), or a closure.
 #let _is-date-format(v) = (
@@ -70,39 +56,48 @@
 // The icon tables' value rules: icon-set keys, except `profile-icons`,
 // which takes raw FontAwesome glyph names, as it draws networks the
 // icon set doesn't ship. Too many to list, so its message points at
-// the catalogue instead.
-#let _icon-name-rule = _enum-rule(_icon-glyphs.keys())
-#let _icon-table-rules = (
-  profile-icons: (
-    v => type(v) == str and v in _fa-glyphs,
-    "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
-  ),
-)
-
-// `table` is the caller's `preferences.<key>`; each value is checked
-// against that key's rule and named by its full path, for the message.
-#let _check-icon-names(table, key) = for (code, icon-name) in table {
-  _check(
-    "preferences." + key + "." + code,
-    icon-name,
-    _icon-table-rules.at(key, default: _icon-name-rule),
-  )
+// the catalogue instead. A table that isn't a dictionary is left to
+// `_strict-merge` to name.
+#let _icon-table(rule) = (name, table) => if type(table) == dictionary {
+  for (code, icon-name) in table {
+    _check("preferences." + name + "." + code, icon-name, rule)
+  }
 }
+#let _icon-names = _icon-table(_enum-rule(_icon-glyphs.keys()))
 
 // A column's section keys; a bare string (`"work"`) is the common
 // slip for `("work",)`.
-#let _column-sections-rule = _list-rule(
-  (str,),
-  "an array of section keys (e.g. (\"work\",))",
-)
+#let _column-sections(name, v) = {
+  _check(name, v, _list-rule(
+    (str,),
+    "an array of section keys (e.g. (\"work\",))",
+  ))
+  _check-unknown-keys(v, _section-specs.keys(), name)
+}
 
-// The preferences' rules, in `_default-preferences`' order. The rest
-// are checked in `_validate-preferences` (`font` and `colours` with
-// the theme's tokens), or for the icon tables in `_merge-options`;
-// `group-certificates` and `show-pronouns` are ignored, so they aren't
-// checked.
+// Every preference's check, in `_default-preferences`' order
+// (`tests/unit/validation.typ` holds the two to the same keys): a rule
+// (`_check`'s `(ok, expected)`), a checker `(name, value) => ..` that
+// panics on a bad value, or `none` for the ignored ones.
 #let _preference-rules = (
+  // The theme's `font` token, unless `auto` (the theme's).
+  font: (v => v == auto or _is-font(v), _font-rule.last()),
   body-size: (_is-body-size, "a positive absolute length (e.g. 10pt)"),
+  // Internal: the theme's colour roles, from the deprecated `accent`.
+  colours: (name, v) => _check-tokens(
+    v,
+    _tokens.colours,
+    "",
+    path: (name,),
+  ),
+  // Checked before their merge (`_merge-options`), so the deprecated
+  // `labels.publication-icons` folded in there isn't.
+  publication-icons: _icon-names,
+  project-icons: _icon-names,
+  profile-icons: _icon-table((
+    v => type(v) == str and v in _fa-glyphs,
+    "a FontAwesome icon name (https://fontawesome.com/search, e.g. \"kaggle\")",
+  )),
   uppercase-name: _bool-rule,
   header-text-align: _enum-rule((left, center, right)),
   photo-size: _type-rule((length, ratio, relative), "a length (e.g. 6em)"),
@@ -126,19 +121,29 @@
     v => type(v) in (int, float) and v > 0 and v <= 1,
     "a number in (0, 1]",
   ),
-  left-column-sections: _column-sections-rule,
-  right-column-sections: _column-sections-rule,
+  left-column-sections: _column-sections,
+  right-column-sections: _column-sections,
   page-footer: (
     v => v == none or v == auto or type(v) == content,
     "`none`, `auto`, or a content value",
   ),
   last-modified-footer: _bool-rule,
   footer-version: _bool-rule,
-  date-format: (
-    _is-date-format,
-    "\"long\", \"short\", \"iso\", a bracketed template "
-      + "(e.g. \"[day]/[month]/[year]\"), or a closure",
-  ),
+  date-format: (name, v) => {
+    _check(name, v, (
+      _is-date-format,
+      "\"long\", \"short\", \"iso\", a bracketed template "
+        + "(e.g. \"[day]/[month]/[year]\"), or a closure",
+    ))
+    if type(v) == str { _check-date-template(v, name) }
+  },
+  link-contact-info: (name, v) => {
+    _check-type(name, v, (bool, dictionary), "a bool or a dict")
+    if type(v) == dictionary {
+      _check-unknown-keys(v.keys(), _contact-channels, name)
+      for (channel, x) in v { _check(name + "." + channel, x, _bool-rule) }
+    }
+  },
   print-full-urls: _bool-rule,
   maps-provider: (
     v => v == none or (type(v) == str and "{q}" in v),
@@ -150,137 +155,27 @@
     "`auto`, \"rating\" or \"text\"",
   ),
   owner-names: _list-rule((str,), "an array of strings"),
+  // Deprecated and ignored (#239).
+  group-certificates: none,
+  show-pronouns: none,
   references-available-on-request: _bool-rule,
 )
 
-// Only a colour supports `lighten` / `darken`; a palette name string
-// is the common slip.
-#let _colour-rule = _type-rule(
-  (color,),
-  "a colour (e.g. rgb(\"#1A3A6C\"))",
-)
-
-#let _font-rule = (_is-font, "a font family name or a non-empty array of them")
-// Typst's weight names, or a number from 100 to 900, as `text` takes.
-#let _weight-names = (
-  "thin",
-  "extralight",
-  "light",
-  "regular",
-  "medium",
-  "semibold",
-  "bold",
-  "extrabold",
-  "black",
-)
-#let _weight-rule = (
-  v => v in _weight-names or (type(v) == int and v >= 100 and v <= 900),
-  "a font weight (\"regular\", \"bold\", … or 100 to 900)",
-)
-// The scales: sizes, leading and strokes must be positive; a space may
-// be zero.
-#let _positive-number-rule = (
-  v => type(v) in (int, float) and v > 0,
-  "a positive number",
-)
-#let _space-rule = (
-  v => type(v) in (int, float) and v >= 0,
-  "a number, zero or more",
-)
-// Joined into content, so a separator may be content or a symbol too
-// (`[ | ]`, `sym.bullet`).
-#let _separator-rule = _type-rule(
-  (str, content, symbol),
-  "a string, content or a symbol",
-)
-
-// Tokens whose rule isn't their default's kind, by the first segment
-// of their path (`treatment`), else by its last (`weight`).
-#let _token-rules = (
-  font: _font-rule,
-  treatment: _type-rule(
-    (function,),
-    "a function of the content (e.g. emph, strong, upper)",
-  ),
-  separator: _separator-rule,
-  font-weight: _weight-rule,
-  weight: _weight-rule,
-  space: _space-rule,
-)
-
-// A token of `default`'s kind: a colour, a positive number, strings as
-// many as its own (the citation's issue brackets), or a string.
-#let _kind-rule(default) = if type(default) == color { _colour-rule } else if (
-  type(default) in (int, float)
-) { _positive-number-rule } else if type(default) == array {
-  let (is-strings, _) = _list-rule((str,), "")
-  (
-    v => is-strings(v) and v.len() == default.len(),
-    "an array of " + str(default.len()) + " strings",
-  )
-} else { _type-rule((str,), "a string") }
-
-#let _token-rule(path, default) = _token-rules.at(
-  path.first(),
-  default: _token-rules.at(path.last(), default: _kind-rule(default)),
-)
-
-// `value` as overrides of `defaults` (some of `_tokens`, at `path`), any
-// subset at any depth: no key `defaults` lacks, a dictionary where it
-// has one, and each value by `_token-rule`. `prefix` leads the path in
-// messages (`theme.type.title.size`).
-#let _check-tokens(value, defaults, prefix, path: ()) = {
-  let name(at) = {
-    let parts = ((prefix,) + at).filter(s => s != "")
-    if parts == () { "preferences" } else { parts.join(".") }
-  }
-  _check-keys(name(path), value, defaults.keys())
-  for (key, v) in value {
-    let at = path + (key,)
-    let default = defaults.at(key)
-    if type(default) == dictionary {
-      _check-tokens(v, default, prefix, path: at)
-    } else { _check(name(at), v, _token-rule(at, default)) }
+// `value` checked as preference `key`, named `name` (`auto`: `key`)
+// in a message: the public helpers that take a preference's value
+// check it here too.
+#let _check-preference(key, value, name: auto) = {
+  let rule = _preference-rules.at(key)
+  let name = if name == auto { key } else { name }
+  if type(rule) == function { rule(name, value) } else if rule != none {
+    _check(name, value, rule)
   }
 }
 
-// A theme is `_tokens` overrides, any of them, and so are the
-// preferences that override standalone `alta()`'s (`_token-prefs`:
-// `font`, and the deprecated `accent` as `colours`).
-#let _check-theme(theme) = {
-  _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
-  _check-tokens(theme, _tokens, "theme")
-}
-#let _validate-theme(prefs) = _check-tokens(_token-prefs(prefs), _tokens, "")
-
-// `section-keys` is passed in, not imported: `data/sections.typ`
-// imports this module, through `canonical.typ`.
-#let _validate-preferences(prefs, section-keys) = {
-  _check-rules(prefs, _preference-rules)
-  _validate-theme(prefs)
-  let link-contact-info = prefs.link-contact-info
-  _check-type(
-    "link-contact-info",
-    link-contact-info,
-    (bool, dictionary),
-    "a bool or a dict",
-  )
-  if type(link-contact-info) == dictionary {
-    _check-unknown-keys(
-      link-contact-info.keys(),
-      _contact-channels,
-      "link-contact-info",
-    )
-    for (channel, v) in link-contact-info {
-      _check("link-contact-info." + channel, v, _bool-rule)
-    }
-  }
-  if type(prefs.date-format) == str {
-    _check-date-template(prefs.date-format, "date-format")
-  }
-  for key in ("left-column-sections", "right-column-sections") {
-    _check-unknown-keys(prefs.at(key), section-keys, key)
-  }
+// `prefs`, but for the icon tables, checked before their merge
+// (`_preference-rules`).
+#let _validate-preferences(prefs) = for (key, v) in prefs {
+  if key not in _preference-tables { _check-preference(key, v) }
 }
 
 // A `{key}` template label. A missing or misspelt (`{totl}`)

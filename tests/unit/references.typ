@@ -1,7 +1,8 @@
 // Unit checks for the referee attribution line in
-// sections/references.typ.
+// sections/references.typ, of an entry as `_canonical-cv` leaves it.
 
-#import "/internal/data/defaults.typ": _default-labels
+#import "/internal/data/canonical.typ": _canonical-cv
+#import "/internal/data/defaults.typ": _default-labels, _default-preferences
 #import "/internal/design/theme.typ": _default-theme
 #import "/internal/primitives.typ": _join-facts
 #import "/internal/util/dates.typ": _format-date
@@ -11,7 +12,12 @@
 #let attribution(entry, format: "long") = _join-facts(
   _default-theme.separator,
   .._attribution(
-    entry,
+    _canonical-cv(
+      (basics: (name: "A"), references: (entry,)),
+      _default-preferences,
+    )
+      .references
+      .first(),
     v => _format-date(v, format, _default-labels.months),
   ),
 )

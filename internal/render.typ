@@ -3,9 +3,7 @@
 // would then re-export every helper this imports.
 
 #import "util/dates.typ": _format-date
-#import "data/options.typ": (
-  _check-template-preferences, _checked-theme, _merge-options, _template-labels,
-)
+#import "data/options.typ": _merge-options, _template-labels
 #import "data/read.typ": _read-cv
 #import "data/metadata.typ": _pdf-metadata
 #import "data/json-resume.typ": from-json-resume
@@ -14,6 +12,7 @@
 #import "design/presets.typ": themes
 #import "design/styles.typ": _justify, _level-headings
 #import "design/theme.typ": _theme-for
+#import "design/theme-checks.typ": _checked-theme
 #import "context.typ": _labels-state, _max-rating-state
 #import "document.typ": _document, _standalone
 #import "registry.typ": _renderers
@@ -33,13 +32,15 @@
 // publication authors. `details` is what a footer prints of the CV
 // (`footers.typ`), for the `<alta-cv>` marker and the
 // standalone footer alike. `json-resume` is the checked, canonical CV
-// in JSON Resume's camelCase, for the template's mapping.
-#let _prepare(cv, labels, preferences) = {
+// in JSON Resume's camelCase, for the template's mapping. `inside`
+// the template, the options it replaces panic.
+#let _prepare(cv, labels, preferences, inside: false) = {
   let (labels, prefs) = _merge-options(
     labels,
     preferences,
     lang: text.lang,
     template: _labels-state.get(),
+    inside: inside,
   )
   let (cv, sections, json-resume) = _read-cv(cv, prefs)
   let ctx = (
@@ -89,11 +90,11 @@
 // the mapping draws. At the next major (#239) `alta()` returns this
 // directly.
 #let _alta-content(cv, scope, labels: (:), preferences: (:)) = context {
-  _check-template-preferences(labels, preferences)
   let (cv, sections, json-resume, ctx, details) = _prepare(
     cv,
     labels,
     preferences,
+    inside: true,
   )
   // For `altacv` to set at the top level: `set document` fails inside a
   // container, where this may sit (`#block(alta(cv))`).

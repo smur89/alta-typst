@@ -5,21 +5,21 @@
 // data exactly as `alta()` does. They take JSON Resume's field names
 // (`countryCode`), as the CV is written.
 
-#import "util/checks.typ": _check, _check-type, _enum-rule
-#import "util/dates.typ": _check-date-template, _format-date
+#import "util/checks.typ": _check, _enum-rule
+#import "util/dates.typ": _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
-  _altacv, _entry-type, _fluency-terms, _location-parts, _term-rating,
+  _altacv, _entry-rating, _entry-type, _fluency-terms, _location-parts,
   _type-groups,
 )
 #import "data/cv-checks.typ": (
   _check-basics-location, _check-location, _location-text-rule,
 )
-#import "data/defaults.typ": _default-labels, maps-providers
-#import "data/options.typ": _check-template-preferences, _merge-options
+#import "data/defaults.typ": _default-labels, _default-preferences
+#import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/sections.typ": _section-entries, _section-specs
-#import "data/validation.typ": _preference-rules
+#import "data/validation.typ": _check-preference
 #import "context.typ": _labels-state
 #import "design/icon-set.typ": _network-icons
 #import "primitives.typ": _fact-line
@@ -35,11 +35,12 @@
 /// - months (array, auto): The twelve month names. `auto` is the
 ///   English; for the document's language, pass its names.
 /// -> str
-#let format-date(value, format: "long", months: auto) = {
-  _check("format-date() format", format, _preference-rules.date-format)
-  if type(format) == str {
-    _check-date-template(format, "format-date() format")
-  }
+#let format-date(
+  value,
+  format: _default-preferences.date-format,
+  months: auto,
+) = {
+  _check-preference("date-format", format, name: "format-date() format")
   _format-date(
     value,
     format,
@@ -62,7 +63,7 @@
     "location-parts() location",
     rule: _location-text-rule,
   )
-  _location-parts((location: _kebab-fields(location)))
+  _location-parts(_kebab-fields(location))
 }
 
 /// The contact bar `alta()` draws from `basics`, as `contact`-shaped
@@ -89,20 +90,19 @@
 #let basics-contacts(
   basics,
   linked: true,
-  maps-provider: maps-providers.google,
+  maps-provider: _default-preferences.maps-provider,
   full-urls: false,
   icons: auto,
 ) = {
-  _check-type(
-    "basics-contacts() linked",
+  _check-preference(
+    "link-contact-info",
     linked,
-    (bool, dictionary),
-    "a bool or a dict",
+    name: "basics-contacts() linked",
   )
-  _check(
-    "basics-contacts() maps-provider",
+  _check-preference(
+    "maps-provider",
     maps-provider,
-    _preference-rules.maps-provider,
+    name: "basics-contacts() maps-provider",
   )
   _check-basics-location(basics, "basics-contacts() location", maps-provider)
   let profile-icons = (
@@ -150,7 +150,10 @@
 /// - entry (dictionary): A `languages[]` entry.
 /// - max (int): The scale's top.
 /// -> int, float, none
-#let fluency-rating(entry, max: 5) = _term-rating(
+#let fluency-rating(
+  entry,
+  max: _default-preferences.max-rating,
+) = _entry-rating(
   entry,
   "fluency",
   _fluency-terms,
@@ -222,10 +225,9 @@
 /// - overrides (dictionary): Preferences to override, as `alta()`'s
 ///   `preferences:` takes them.
 /// -> dictionary
-#let preferences(overrides: (:)) = {
-  _check-template-preferences((:), overrides)
-  _merge-options((:), overrides).prefs
-}
+#let preferences(overrides: (:)) = (
+  _merge-options((:), overrides, inside: true).prefs
+)
 
 /// A section's entries as `alta()` renders them: the CV's own key's,
 /// or for `focus-areas`, `custom.altacv.focusAreas`; without the
