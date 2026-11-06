@@ -11,7 +11,9 @@
 #import "data/cv.typ": (
   _fluency-terms, _location-parts, _term-rating, _type-groups,
 )
-#import "data/cv-checks.typ": _check-location
+#import "data/cv-checks.typ": (
+  _check-basics-location, _check-location, _location-text-rule,
+)
 #import "data/defaults.typ": _default-labels, maps-providers
 #import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
@@ -52,7 +54,11 @@
 ///   `(city, region, countryCode, ..)` dictionary.
 /// -> array
 #let location-text(location) = {
-  _check-location(location, "location-text() location")
+  _check-location(
+    location,
+    "location-text() location",
+    rule: _location-text-rule,
+  )
   _location-parts((location: _kebab-fields(location)))
 }
 
@@ -95,6 +101,7 @@
     maps-provider,
     _preference-rules.maps-provider,
   )
+  _check-basics-location(basics, "basics-contacts() location", maps-provider)
   let profile-icons = (
     _network-icons
       + if icons == auto { (:) } else {
