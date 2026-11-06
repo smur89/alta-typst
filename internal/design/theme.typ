@@ -17,12 +17,15 @@
 
 // The roles the deprecated top-level `accent` colours with one
 // colour, as the built-in themes did before each took its own shades.
+// The tagline wasn't one: 1.8.0 drew it in the dark emphasis grey, so
+// it takes the default theme's `emphasis`, not the default's teal.
 #let _accent-roles(accent) = (
   accent: accent,
   heading: accent,
   heading-rule: accent,
   subheading: accent,
   name: accent,
+  tagline: teal.theme.colours.emphasis,
 )
 
 // WCAG's contrast ratio of `c` on the white page.

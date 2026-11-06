@@ -77,6 +77,9 @@
   assert.eq(legacy.at(key), palettes.navy)
 }
 #assert.eq(legacy.body, defaults.body)
+// The tagline isn't an accent role: 1.8.0 drew it in the emphasis
+// grey, never the default theme's teal beside another accent.
+#assert.eq(legacy.tagline, defaults.emphasis)
 
 // Any token a theme overrides reaches the built theme, the separators
 // and treatments included: nothing in the look is outside it.

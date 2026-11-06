@@ -126,16 +126,28 @@
   body
 }
 
-// For `show: _level-headings.with(theme)`, the template's heading
-// scheme (#373): the name is the `title` element, sections are level
-// 1, groups level 2, an entry one level below its section or group.
+// The heading sizes' factors over Typst's own (`_scaled-headings`).
+// An entry needs its own: a group's factor of 1 is either no template
+// or a theme's title at 1.2, which give an entry 1 and 1.2.
+#let _heading-scales(ty) = (
+  title: ty.display.size / 1.7,
+  section: ty.headline.size / 1.4,
+  group: ty.title.size / 1.2,
+  entry: ty.title.size,
+)
+
+// The template's heading scheme (#373): the name is the `title`
+// element, sections are level 1, groups level 2, an entry one level
+// below its section or group.
 // Every look is a show-set rule, so a user's rule after the template
 // overrides it exactly; a size is the theme's over Typst's own (title
 // 1.7em, level 1 1.4em, level 2 1.2em, deeper 1em:
 // `tests/unit/headings.typ`), and spacing is in `em` of the heading,
 // as Typst's own is. Transforms only add structure: the rule under a
-// section title, the sticky blocks.
-#let _level-headings(theme, body) = {
+// section title, the sticky blocks. Each size is over `outer`, the
+// factor the templates around this one already give it
+// (`_level-headings`).
+#let _scaled-headings(theme, outer, body) = {
   let (
     section,
     subheading,
@@ -146,8 +158,14 @@
     ..,
   ) = theme
   let (above, rule-gap, below, case, tracking) = section
+  let scales = _heading-scales(ty)
+  let size(key) = scales.at(key) / outer.at(key) * 1em
+  show <alta-internal-scale-title>: set text(size: size("title"))
+  show <alta-internal-scale-section>: set text(size: size("section"))
+  show <alta-internal-scale-group>: set text(size: size("group"))
+  show <alta-internal-scale-entry>: set text(size: size("entry"))
   show title: set text(
-    size: ty.display.size / 1.7 * 1em,
+    size: size("title"),
     fill: colours.name,
     weight: ty.display.weight,
   )
@@ -158,7 +176,7 @@
     it.body,
   )
   show heading.where(level: 1): set text(
-    size: ty.headline.size / 1.4 * 1em,
+    size: size("section"),
     fill: colours.heading,
     weight: ty.headline.weight,
     tracking: tracking,
@@ -185,8 +203,8 @@
   // entry's label. Level 3 is only ever an entry under a group, so an
   // unlabelled `===` the user writes keeps Typst's own style.
   let entry-3 = selector(heading.where(level: 3)).and(<alta-internal-entry>)
-  show heading.where(level: 2): set text(size: ty.title.size / 1.2 * 1em)
-  show entry-3: set text(size: ty.title.size * 1em)
+  show heading.where(level: 2): set text(size: size("group"))
+  show entry-3: set text(size: size("entry"))
   show heading.where(level: 2): set text(
     fill: colours.subheading,
     weight: subheading.group.weight,
@@ -204,6 +222,34 @@
     _subheading-block(role, 1em / ty.title.size, _part(part, it.body))
   }
   body
+}
+
+// For `show: _level-headings.with(theme)`: `_scaled-headings` over the
+// templates around this one. A scoped template inside another
+// (`tests/template-scopes.typ`) can't lift the outer one's rules, and
+// `em` sizes stack, so alone each template's would multiply the
+// last's. Each sets the same sizes on probe labels
+// (`<alta-internal-scale-{key}>`), where a template inside it reads, in
+// context, the factor they carry: the text size inside the probe over
+// the size outside it. Styles, not state, so it costs no layout pass.
+// Nested, a heading takes the innermost theme's size, as alone, and
+// the sizes are still show-set rules, so a user's size rule after the
+// innermost template wins. A size rule between nested templates isn't
+// supported: the inner template's rules override it, and an absolute
+// size there is divided out as if it were the outer theme's factor.
+#let _level-headings(theme, body) = context {
+  let base = text.size
+  let probe(outer, keys) = if keys == () {
+    _scaled-headings(theme, outer, body)
+  } else {
+    let key = keys.first()
+    [#context {
+        let outer = outer + ((key): text.size / base)
+        set text(size: base)
+        probe(outer, keys.slice(1))
+      }#label("alta-internal-scale-" + key)]
+  }
+  probe((:), _heading-scales(theme.type).keys())
 }
 
 // `body`'s paragraphs never justified: rows of facts, names or tags,
