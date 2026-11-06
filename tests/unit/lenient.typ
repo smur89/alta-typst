@@ -55,6 +55,7 @@
   seen.update(xs => xs + (it,))
   it
 }
+#metadata(none)<lenient>
 #alta((
   basics: (name: "Jane Doe"),
   projects: ((name: "P", type: 3),),
@@ -73,7 +74,7 @@
 // publication the articles' (an icon, then the text); the entries'
 // titles are text alone.
 #context assert.eq(
-  query(heading.where(level: 2))
+  query(selector(heading.where(level: 2)).after(<lenient>))
     .filter(h => h.body.has("children"))
     .map(h => h.body.children.last()),
   ([Articles],),

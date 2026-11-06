@@ -155,7 +155,7 @@
   ),
 )
 #let contacts = adapter.basics-contacts(basics)
-#assert.eq(contacts.filter(c => type(c) == content).len(), 1)
+#assert.eq(contacts.map(type), (dictionary, dictionary, content, dictionary))
 #let records = contacts.filter(c => type(c) == dictionary)
 #assert.eq(records.map(c => c.icon), ("email", "location", "github"))
 #assert.eq(

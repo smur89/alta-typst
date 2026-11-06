@@ -66,14 +66,15 @@
 #tag("category", category: true)
 #tag("by-label", label: true)
 #tag("not-label", label: false)
-#context assert.eq(tags.final(), (
+#metadata(none)<tags>
+#context assert.eq(tags.at(locate(<tags>)), (
   ("tag", "plain"),
   ("category", "category"),
   ("category", "by-label"),
   ("tag", "not-label"),
 ))
 #context assert.eq(
-  (looks.final().plain.at(1), looks.final().category.at(1)),
+  looks.at(locate(<tags>)).values().map(l => l.at(1)),
   (_default-theme.tag.weight, _default-theme.tag.category-weight),
 )
 
@@ -93,18 +94,21 @@
 #show "Unlinked": look("Unlinked")
 #styled-link("Linked", dest: "https://a.example")
 #styled-link("Unlinked")
+#metadata(none)<links>
 #context {
-  assert.eq(links.final(), ("https://a.example",))
-  let l = looks.final()
+  let at = locate(<links>)
+  assert.eq(links.at(at), ("https://a.example",))
+  assert.eq(emphs.at(at), 2)
+  let l = looks.at(at)
   assert.eq(l.Linked.at(0), accent)
-  assert.eq(emphs.final(), 2)
   assert.eq(l.Unlinked.at(0), accent)
 }
 
 // name: an accent-coloured line.
 #show "Pied Piper": look("Pied Piper")
 #name("Pied Piper")
-#context assert.eq(looks.final().at("Pied Piper").at(0), accent)
+#metadata(none)<name>
+#context assert.eq(looks.at(locate(<name>)).at("Pied Piper").at(0), accent)
 
 // term: a date and a location, each led by its icon; an absent side
 // left out, icon included; with neither, nothing.
@@ -121,14 +125,15 @@
 #term(none, location: "Dublin")
 #context assert.eq(icons(), (2, 2))
 
-// divider: Typst's divider, between gaps.
+// divider: draws Typst's divider.
 #let dividers = state("dividers", 0)
 #show std.divider: it => {
   dividers.update(n => n + 1)
   it
 }
 #divider()
-#context assert.eq(dividers.final(), 1)
+#metadata(none)<divider>
+#context assert.eq(dividers.at(locate(<divider>)), 1)
 
 // icon: decorative unless `alt` is given, which it reads as.
 #let alts = state("alts", ())
@@ -138,4 +143,5 @@
 }
 #icon("calendar")
 #icon("github", alt: "GitHub")
-#context assert.eq(alts.final(), ("GitHub",))
+#metadata(none)<icons>
+#context assert.eq(alts.at(locate(<icons>)), ("GitHub",))
