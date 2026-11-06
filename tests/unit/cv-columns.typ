@@ -16,7 +16,15 @@
 #context assert.eq(grids.get(), (((0.65fr, 0.35fr), (12pt,)),))
 #cv-columns([Left], [Right], ratio: 0.5)
 #context assert.eq(grids.get().last(), ((0.5fr, 0.5fr), (12pt,)))
-// One column: no grid.
-#cv-columns([Left], none)
-#cv-columns([Left], [Right], ratio: 1)
-#context assert.eq(grids.get().len(), 2)
+// One column: no grid. `left` alone with no right column; both, left
+// then right, stacked at a ratio of 1.
+#cv-columns([Alone<alone>], none)
+
+#cv-columns([Upper<upper>], [Lower<lower>], ratio: 1)
+#context {
+  assert.eq(grids.get().len(), 2)
+  let at(it) = locate(it).position()
+  let (alone, upper, lower) = (<alone>, <upper>, <lower>).map(at)
+  assert(alone.y < upper.y and upper.y < lower.y)
+  assert.eq((upper.x, lower.x), (alone.x, alone.x))
+}

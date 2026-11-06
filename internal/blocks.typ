@@ -76,7 +76,9 @@
 ///   shows a period: the two joined by the theme's range separator, a
 ///   `none` end reading the document language's "Present", a `none`
 ///   start leaving the end alone; `(none, none)` shows nothing.
-/// - location (content, str, none): Under the date.
+/// - location (content, str, array, none): Under the date. An array of
+///   parts (a city, a region, a country code) is joined by the theme's
+///   item separator, as `alta()` joins a location's parts.
 /// - details (array): Short facts after the roles (a credential ID).
 /// - summary (content, str, none): A short summary, set apart (italic
 ///   by default) before the body, as `alta()` sets a `summary`.
@@ -151,7 +153,7 @@
           labels.present,
         )
       } else { (date,) },
-      location: (location,),
+      location: if type(location) == array { location } else { (location,) },
       details: details,
       summary: summary,
       body: body,
@@ -461,7 +463,11 @@
     )
   }
   _check("cv-columns() ratio", ratio, _preference-rules.column-ratio)
-  _columns((left,), if right != none { (right,) } else { () }, ratio)
+  // Stacked, each column its own paragraph, so two runs of text don't
+  // run together.
+  if ratio == 1 or right == none {
+    (left, right).filter(c => c != none).join(parbreak())
+  } else { _columns((left,), (right,), ratio) }
 }
 
 /// A labelled line: "Music: Trad, Jazz".

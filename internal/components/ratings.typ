@@ -74,6 +74,9 @@
 ///   `alta()`'s `preferences.max-rating`.
 /// -> content
 #let rating(label, value, max: auto) = {
+  // An explicit `max` is checked whatever the value; `auto` reads the
+  // state, validated as `max-rating`.
+  if max != auto { _check("rating() max", max, _positive-int-rule) }
   _check-type(
     "rating value",
     value,
@@ -82,8 +85,6 @@
   )
   context if type(value) in (int, float) {
     let max-rating = if max == auto { _max-rating-state.get() } else { max }
-    // The state is validated as `max-rating`; an explicit `max` isn't.
-    _check("rating() max", max-rating, _positive-int-rule)
     _check-rating("rating value", value, max-rating)
     _label-row(_theme(), label, _rating-dots(value, max-rating))
   } else {

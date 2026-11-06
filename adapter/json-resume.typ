@@ -89,7 +89,8 @@
 
 // `resume` with the labels resolved, as `alta()` has them already.
 #let _resume(cv, labels, preferences) = {
-  let basics = cv.basics
+  // JSON Resume requires no field, `basics` included.
+  let basics = cv.at("basics", default: (:))
   let name = _field(basics, "name")
   // The names set apart among publication authors, as `alta()` sets
   // them apart: the CV's name and `owner-names`; with neither, `auto`,
@@ -120,9 +121,8 @@
       },
     )
   }
-  let location(obj) = adapter
-    .location-text(obj.at("location", default: none))
-    .join(", ")
+  // A location's parts, which `entry` joins in the theme's style.
+  let location(obj) = adapter.location-text(obj.at("location", default: none))
   // Highlights as a list, the entry's body.
   let bullets(obj) = obj.at("highlights", default: ()).map(h => [- #h]).join()
 
@@ -437,7 +437,7 @@
     photo-side: preferences.at("image-position", default: right),
     photo-size: preferences.at("image-size", default: auto),
     photo-shape: preferences.at("image-shape", default: auto),
-    qr: if qr-code == auto { basics.url } else { qr-code },
+    qr: if qr-code == auto { _field(basics, "url") } else { qr-code },
     uppercase: preferences.at("uppercase-name", default: true),
   )
   let text-align = preferences.at("header-text-align", default: none)
@@ -447,12 +447,17 @@
   // intro, summaries, highlights and publications, as `alta()`
   // justifies them. An entry's rows of facts and keywords, and the
   // skill and interest rows, set their own off; the languages, below.
-  set par(justify: preferences.at("justify", default: false))
+  // Without the preference, the caller's own `set par` stands.
+  set par(justify: preferences.at("justify", default: false)) if (
+    "justify" in preferences
+  )
 
   // The intro: `basics.summary`, in a block the template spaces from
   // the header and the columns (`show <alta-intro>: set block(..)`).
   let summary = _field(basics, "summary")
-  if summary != none [#block(par[#summary<alta-summary>])<alta-intro>]
+  // The part label on a wrapper of its own, so a label the summary
+  // carries stays.
+  if summary != none [#block(par[#[#summary#[]]<alta-summary>])<alta-intro>]
 
   // The columns: the left sections beside the right, the left taking
   // `column-ratio`; one column when no section is on the right.

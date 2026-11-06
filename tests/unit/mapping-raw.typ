@@ -35,3 +35,31 @@
   ),
 ))
 #context assert.eq(seen.get(), ([Ran payments.], [Taught Python.]))
+
+// JSON Resume requires no field, `basics` included: with none, the
+// name is the document's title and there's no contact bar or QR code.
+#[
+  #set document(title: "Untitled CV")
+  #let names = state("names", ())
+  #show <alta-name>: it => {
+    names.update(xs => xs + (it,))
+    it
+  }
+  #resume((work: ((name: "Acme", position: "Engineer"),)))
+  #context assert.eq(names.get(), ([Untitled CV],))
+]
+
+// A label the summary carries stays, beside the `<alta-summary>` part.
+#[
+  #let labels = state("labels", ())
+  #show <mine>: it => {
+    labels.update(xs => xs + ("mine",))
+    it
+  }
+  #show <alta-summary>: it => {
+    labels.update(xs => xs + ("part",))
+    it
+  }
+  #resume((basics: (name: "Jane Doe", summary: [Intro.<mine>])))
+  #context assert.eq(labels.get().sorted(), ("mine", "part"))
+]
