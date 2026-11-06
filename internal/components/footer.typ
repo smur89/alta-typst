@@ -1,8 +1,8 @@
-// The page footers `sections/footer.typ` chooses between: the page
-// counter, which hides itself on single-page documents via the
-// reactive page counter (so it returns on its own when content grows),
-// and the right-aligned "last updated" line (`Last updated: …`), both
-// in body text.
+// The page footers standalone `alta()` (`sections/footer.typ`) and
+// the template's helpers (`footers.typ`) draw: the page counter, which
+// hides itself on single-page documents via the reactive page counter
+// (so it returns on its own when content grows), and the right-aligned
+// "last updated" line (`Last updated: …`), both in body text.
 
 #import "../context.typ": _theme
 #import "../util/values.typ": _fill-template
@@ -27,3 +27,9 @@
   _theme().separator.label
   value
 })
+
+// "last-modified (version)", the version only when asked for and set.
+#let _updated-line((last-modified, version: v, ..), version) = {
+  last-modified
+  if version and v != none { " (" + v + ")" }
+}
