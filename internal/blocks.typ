@@ -480,7 +480,11 @@
 /// - ratio (int, float): The left column's share, in (0, 1], as
 ///   `alta()`'s `column-ratio`; 1 stacks both in one column.
 /// -> content
-#let cv-columns(left, right, ratio: 0.65) = {
+#let cv-columns(
+  left,
+  right,
+  ratio: _default-preferences.column-ratio,
+) = {
   for (name, column) in (left: left, right: right) {
     _check-type(
       "cv-columns() " + name,

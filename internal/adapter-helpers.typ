@@ -15,7 +15,7 @@
 #import "data/cv-checks.typ": (
   _check-basics-location, _check-location, _location-text-rule,
 )
-#import "data/defaults.typ": _default-labels, maps-providers
+#import "data/defaults.typ": _default-labels, _default-preferences
 #import "data/options.typ": _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/sections.typ": _section-entries, _section-specs
@@ -35,7 +35,11 @@
 /// - months (array, auto): The twelve month names. `auto` is the
 ///   English; for the document's language, pass its names.
 /// -> str
-#let format-date(value, format: "long", months: auto) = {
+#let format-date(
+  value,
+  format: _default-preferences.date-format,
+  months: auto,
+) = {
   _check-preference("date-format", format, name: "format-date() format")
   _format-date(
     value,
@@ -86,7 +90,7 @@
 #let basics-contacts(
   basics,
   linked: true,
-  maps-provider: maps-providers.google,
+  maps-provider: _default-preferences.maps-provider,
   full-urls: false,
   icons: auto,
 ) = {
@@ -146,7 +150,10 @@
 /// - entry (dictionary): A `languages[]` entry.
 /// - max (int): The scale's top.
 /// -> int, float, none
-#let fluency-rating(entry, max: 5) = _entry-rating(
+#let fluency-rating(
+  entry,
+  max: _default-preferences.max-rating,
+) = _entry-rating(
   entry,
   "fluency",
   _fluency-terms,
