@@ -100,7 +100,7 @@
 
 // The label's rating as dots on a scale of `max` or, with no `value`,
 // the `fallback` text in their place.
-#let _rating-row(label, value, max: auto, fallback: none) = rating(
+#let _rating-row(label, value, max, fallback: none) = rating(
   label,
   if value != none { value } else { fallback },
   max: max,

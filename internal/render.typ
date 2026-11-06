@@ -52,16 +52,6 @@
   )
 }
 
-// For `show: _cv-styles.with(prefs)`: the CV preferences that style
-// what renders after them, the public `rating()`'s scale and
-// justification. Shared with the component gallery
-// (`tests/components.typ`), so it shows components as a CV does.
-#let _cv-styles(prefs, body) = {
-  _max-rating-state.update(prefs.max-rating)
-  show: _justify.with(prefs.justify)
-  body
-}
-
 // What `alta()` leaves for the content after it, in both forms: the
 // public `rating()`'s scale, and what the footer helpers print.
 #let _cv-marks(prefs, details) = {

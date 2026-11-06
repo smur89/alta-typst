@@ -3,8 +3,8 @@
 // `_read-cv` runs them; the options' are in `validation.typ`.
 
 #import "../util/checks.typ": (
-  _check, _check-rating, _check-rules, _check-type, _check-unknown-keys,
-  _list-rule, _prose-list, _quote, _require, _type-rule, _unknown,
+  _check-rating, _check-rules, _check-type, _check-unknown-keys, _list-rule,
+  _prose-list, _quote, _require, _type-rule, _unknown,
 )
 #import "../util/fields.typ": _field
 #import "../util/values.typ": _present, _present-str
