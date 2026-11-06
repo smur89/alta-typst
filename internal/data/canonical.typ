@@ -5,7 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
-#import "../design/theme.typ": _accent-roles, _treatment-names
+#import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _entry-type, _reference-usable
 
 // #239: the deprecated top-level homes of altacv's non-spec fields,
@@ -175,11 +175,10 @@
 
 // #239: a camelCase option name (`columnRatio`) reads as its
 // kebab-case one (`column-ratio`): the labels' and the preferences'
-// top-level keys, and the colour roles in `colours` and in a theme's
-// `colours`. Their values are untouched: section keys, type codes and
-// icon names are data. A name set both ways panics, as neither would
-// win on purpose. Option names start lowercase, so no key gains a
-// leading `-`.
+// top-level keys. Their values are untouched: section keys, type codes
+// and icon names are data. A name set both ways panics, as neither
+// would win on purpose. Option names start lowercase, so no key gains
+// a leading `-`.
 #let _kebab(name) = name.replace(regex("[A-Z]"), m => "-" + lower(m.text))
 #let _kebab-keys(name) = table => if type(table) != dictionary { table } else {
   _rekey(
@@ -189,17 +188,10 @@
     "sets an option both in camelCase and in kebab-case; keep the kebab-case one",
   )
 }
-#let _kebab-options(labels, preferences) = {
-  let colours(name) = t => _map-at(t, "colours", _kebab-keys(name + ".colours"))
-  (
-    _kebab-keys("labels")(labels),
-    _map-at(
-      colours("preferences")(_kebab-keys("preferences")(preferences)),
-      "theme",
-      colours("theme"),
-    ),
-  )
-}
+#let _kebab-options(labels, preferences) = (
+  _kebab-keys("labels")(labels),
+  _kebab-keys("preferences")(preferences),
+)
 
 // Matching is case-insensitive, so `Talks` and `talks` are one key.
 // `name` is the table's full path (`labels.publication-types`), for
@@ -281,26 +273,11 @@
   )
 }
 
-// #239: a theme's `treatment` names (`"italic"`) become their
-// functions. An unknown name passes through for validation to name.
-#let _canonical-treatments(overrides) = {
-  let theme = _dict-or-empty(overrides).at("theme", default: none)
-  let treatment = _dict-or-empty(theme).at("treatment", default: none)
-  if type(treatment) != dictionary { overrides } else {
-    let treatment = treatment
-      .pairs()
-      .map(((k, v)) => (k, _named(_treatment-names, v)))
-      .to-dict()
-    overrides + (theme: theme + (treatment: treatment))
-  }
-}
-
 // Runs before the merge over the defaults. #239: the deprecated
 // top-level `accent` becomes `colours` (`_fold-accent`), the string
-// alignments and treatment names become Typst's values, and the
-// free-text icons, then a set `labels.publication-icons`, sit beneath
-// the caller's `publication-icons`, all lowercased, so the merge sees
-// one table. `project-icons` and `profile-icons` are lowercased too.
+// alignments become Typst's values, and the free-text icons, then a
+// set `labels.publication-icons`, sit beneath the caller's
+// `publication-icons`, all lowercased, so the merge sees one table. `project-icons` and `profile-icons` are lowercased too.
 // #239: the string `page-footer: "auto"` becomes `auto`. A
 // non-dictionary (overall or as a table) passes through for
 // `_strict-merge` to reject.
@@ -320,8 +297,10 @@
 )
 
 #let _canonical-preferences(overrides, labels) = {
-  let overrides = _canonical-columns(_canonical-treatments(
-    _canonical-alignments(_fold-accent(overrides)),
+  let overrides = _canonical-columns(_canonical-alignments(
+    _fold-accent(
+      overrides,
+    ),
   ))
   let overrides = if (
     type(overrides) == dictionary

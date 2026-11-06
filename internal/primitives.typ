@@ -206,7 +206,7 @@
         dash: dash,
       ))
       show divider: set block(spacing: par.spacing)
-      _part("divider", std.divider())
+      std.divider()
     }
     v(gap * text.size)
   }

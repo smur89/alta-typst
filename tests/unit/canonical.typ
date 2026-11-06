@@ -98,9 +98,8 @@
   "2026-06-12T09:30:00",
 )
 
-// The camelCase names (#239) read as kebab-case: the preferences, the
-// labels, and the colour roles in `colours` and in a theme. Values are
-// data, so section keys keep their spelling.
+// The camelCase names (#239) read as kebab-case: the preferences and
+// the labels. Values are data, so section keys keep their spelling.
 #let merged(labels: (:), preferences: (:)) = _merge-options(
   labels,
   preferences,
@@ -117,18 +116,6 @@
   "P {current}",
 )
 #assert.eq(merged(labels: (focusAreas: "Focus")).labels.focus-areas, "Focus")
-#assert.eq(
-  merged(preferences: (colours: (headingRule: red))).prefs.colours.heading-rule,
-  red,
-)
-#assert.eq(
-  merged(preferences: (theme: (colours: (headingRule: red))))
-    .prefs
-    .theme
-    .colours
-    .heading-rule,
-  red,
-)
 
 // JSON Resume's camelCase fields read as kebab-case for rendering, at
 // any depth (#390); keys that are data (`identifiers` schemes, other

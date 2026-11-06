@@ -24,13 +24,11 @@
   )
 }
 
-// A treatment is a function; the deprecated names (#239) read as
-// theirs, and the rest of the treatments keep the defaults.
+// A treatment is a function, and the rest of the treatments keep the
+// defaults.
 #let treatment(t) = built((theme: (treatment: t))).treatment
 #assert.eq(treatment((link: strong)).link, strong)
-#assert.eq(treatment((link: "strong")).link, strong)
-#assert.eq(treatment((link: "upper")).owner, strong)
-#assert.eq((treatment((owner: "none")).owner)("ab"), "ab")
+#assert.eq(treatment((link: upper)).owner, strong)
 
 // The default preferences render the theme the state starts from
 // outside `alta()` (`context.typ` can't read the preferences), so the

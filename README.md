@@ -626,14 +626,13 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 
 | Key | Use instead |
 |---|---|
-| camelCase option names (`columnRatio`, `labels.pageNumber`, `colours.headingRule`) | The kebab-case name (`column-ratio`, `labels.page-number`, `colours.heading-rule`). Data stays JSON Resume's camelCase (`startDate`). |
+| camelCase option names (`columnRatio`, `labels.pageNumber`) | The kebab-case name (`column-ratio`, `labels.page-number`). Data stays JSON Resume's camelCase (`startDate`). |
 | The section key `"focusAreas"` in a column list | `"focus-areas"`. The data stays at `custom.altacv.focusAreas`. |
 | `accent` | `theme`, or `colours` for a custom colour. |
 | `references-available-on-request` | `references[].availableOnRequest`. |
 | `image-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |
 | `image-stack-order` | `image-position: top` or `bottom`. |
 | `header-text-align: "left"`, `"center"`, `"right"` | The alignments `left`, `center`, `right`. |
-| Treatment names (`theme.treatment.link: "emph"`) | The functions: `emph`, `strong`, `upper`; `"italic"` is `it => text(style: "italic", it)`, `"none"` is `it => it`. |
 | `group-certificates`, `show-pronouns` | Nothing: both are ignored. |
 
 ### Theme tokens
@@ -711,7 +710,6 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | `<alta-rating-label>` | text | A language's name beside its rating. |
 | `<alta-footer>` | text | The page footer. |
 | `<alta-section-rule>` | line | The line under a section's heading. |
-| `<alta-divider>` | line | Deprecated: the line between entries is Typst's `divider`, so target `divider` instead (`show divider: …`). Removed in the next major ([#239](https://github.com/smur89/alta-typst/issues/239)). |
 | `<alta-date-icon>`, `<alta-location-icon>` | marker | The icon before an entry's date or location (and in `term()`). |
 | `<alta-rating-full>`, `<alta-rating-half>`, `<alta-rating-empty>` | marker | A filled, half-filled or empty rating dot. |
 
