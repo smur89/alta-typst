@@ -41,10 +41,14 @@
   dictionary(lib.adapter).keys().sorted(),
   (
     "basics-contacts",
+    "custom",
+    "entries",
+    "entry-type",
     "fluency-rating",
     "format-date",
     "group-by-type",
     "labels",
-    "location-text",
+    "location-parts",
+    "preferences",
   ),
 )

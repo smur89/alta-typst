@@ -1,10 +1,13 @@
-// The JSON Resume mapping fed raw JSON Resume, as a copy of it is
-// (`resume(json("resume.json"))`), with none of `alta()`'s
-// canonicalisation: a project's `description`, JSON Resume's name for
-// its summary, still shows, as do the older `description` of work and
-// volunteer entries; a `summary` wins over it.
+// The JSON Resume mapping fed JSON Resume as a copy of it is, through
+// gairm-import's `parse` (`resume(parse(path("resume.json")))`), with
+// none of `alta()`'s canonicalisation: a project's `description`, JSON
+// Resume's deprecated alias of its summary, still shows, a `summary`
+// winning over it. A work entry's `description` is the company's, and
+// doesn't stand in for its summary; `alta()` still reads the older
+// exports' that way (#239), before the mapping sees the CV.
 
 #import "/lib.typ": altacv
+#import "@preview/gairm-import:0.10.1": parse
 #import "/adapter/json-resume.typ": resume
 
 #show: altacv
@@ -15,7 +18,7 @@
   it
 }
 
-#resume(json("/tests/fixtures/canonical_resume.json"))
+#resume(parse(path("/tests/fixtures/canonical_resume.json")))
 #context assert(
   [A small library for safe schema evolution.] in seen.get(),
   message: "the project's description is missing",
@@ -24,17 +27,15 @@
 #seen.update(())
 #resume((
   basics: (name: "Jane Doe"),
-  work: ((name: "Acme", position: "Engineer", description: "Ran payments."),),
-  volunteer: (
-    (
-      organization: "Dojo",
-      position: "Mentor",
-      description: "Old text.",
-      summary: "Taught Python.",
-    ),
+  work: (
+    (name: "Acme", position: "Engineer", description: "Payments company."),
+  ),
+  projects: (
+    (name: "P", description: "Old text.", summary: "A parser."),
+    (name: "Q", description: "A lexer."),
   ),
 ))
-#context assert.eq(seen.get(), ([Ran payments.], [Taught Python.]))
+#context assert.eq(seen.get(), ([A parser.], [A lexer.]))
 
 // JSON Resume requires no field, `basics` included: with none, the
 // name is the document's title and there's no contact bar or QR code.
@@ -62,4 +63,11 @@
   }
   #resume((basics: (name: "Jane Doe", summary: [Intro.<mine>])))
   #context assert.eq(labels.get().sorted(), ("mine", "part"))
+]
+
+// An empty photo (`bytes`, as `alta()` reads it) is no photo: the CV
+// renders, with no frame.
+#[
+  #resume((basics: (name: "Jane Doe", image: bytes(()))))
+  #context assert.eq(query(image).len(), 0)
 ]

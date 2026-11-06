@@ -1,6 +1,6 @@
 // `entry(location: ..)` as an array of parts, joined by the theme's
 // item separator as `alta()` joins a location's; the JSON Resume
-// mapping passes `adapter.location-text(..)` so, and its locations take
+// mapping passes `adapter.location-parts(..)` so, and its locations take
 // a theme's separator too.
 
 #import "/lib.typ": altacv, entry, themes

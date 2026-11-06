@@ -29,7 +29,7 @@
 )
 
 // `_section` with entries clustered under `====` subheadings, one per
-// `groups` key (see `_group-by`); `subheading(key, items)` gives each
+// `groups` key (`_type-groups`, as a dictionary); `subheading(key, items)` gives each
 // subheading's text.
 #let _grouped-section(
   title,

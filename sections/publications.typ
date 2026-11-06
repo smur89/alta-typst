@@ -5,20 +5,12 @@
 // Helpers shape the fields into data; `_bib-entry` lays them out.
 
 #import "../internal/util/fields.typ": _field, _string-at
-#import "../internal/util/values.typ": _group-by
 #import "../internal/data/cv.typ": (
-  _authors, _entry-type, _identifier-refs, _identifier-url, _identifiers,
+  _authors, _identifier-refs, _identifier-url, _identifiers, _type-groups,
 )
 #import "../internal/primitives.typ": _icon-heading
 #import "../internal/components/bibliography.typ": _bib-entry
 #import "../internal/components/frame.typ": _grouped-section
-
-// `type` arrives trimmed (`_canonical-cv`); lowercasing makes `Talk`
-// and `talk` share a subheading, and untyped entries join `article`.
-#let _type-code(pub) = {
-  let type = _entry-type(pub)
-  if type != none { lower(type) } else { "article" }
-}
 
 #let _render-publication(pub, (format-date, owners, ..)) = {
   let refs = _identifier-refs(_identifiers(pub))
@@ -47,7 +39,9 @@
   let headings = labels.publication-types
   _grouped-section(
     labels.publications,
-    _group-by(pubs, _type-code),
+    // Lowercased, so `Talk` and `talk` share a subheading; untyped
+    // entries join `article`.
+    _type-groups(pubs, key: lower, untyped: "article").to-dict(),
     (code, items) => {
       let group-icon = prefs.publication-icons.at(code, default: "file")
       // An unknown code's entries all share a string `type`, so print

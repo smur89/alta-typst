@@ -13,13 +13,13 @@
   "6 2024",
 )
 
-// location-text: the parts in display order, for the theme to join.
+// location-parts: the parts in display order, for the theme to join.
 #assert.eq(
-  adapter.location-text((city: "Cork", countryCode: "IE")),
+  adapter.location-parts((city: "Cork", countryCode: "IE")),
   ("Cork", "IE"),
 )
-#assert.eq(adapter.location-text("Dublin"), ("Dublin",))
-#assert.eq(adapter.location-text(none), ())
+#assert.eq(adapter.location-parts("Dublin"), ("Dublin",))
+#assert.eq(adapter.location-parts(none), ())
 
 // fluency-rating: a term on the scale, else `custom.altacv.rating`.
 #assert.eq(adapter.fluency-rating((language: "Irish", fluency: "Native")), 5)
@@ -34,7 +34,7 @@
 #assert.eq(adapter.fluency-rating((language: "X", fluency: "Some")), none)
 
 // group-by-type: `(type, items)` pairs in first-seen order, the
-// untyped under `none`, as `alta()` groups projects.
+// untyped under `none` by default.
 #assert.eq(
   adapter
     .group-by-type((
@@ -53,6 +53,29 @@
     .map(((type, items)) => (type, items.len())),
   (("talk", 2), (none, 1)),
 )
+// `untyped` names the untyped group, which a type of that name shares;
+// `key` maps a type to its group.
+#assert.eq(
+  adapter
+    .group-by-type(((type: "OSS"), (:), (type: "Other")), untyped: "Other")
+    .map(((type, items)) => (type, items.len())),
+  (("OSS", 1), ("Other", 2)),
+)
+#assert.eq(
+  adapter
+    .group-by-type(
+      ((type: "Talk"), (:), (type: "talk")),
+      key: lower,
+      untyped: "article",
+    )
+    .map(((type, items)) => (type, items.len())),
+  (("talk", 2), ("article", 1)),
+)
+
+// entry-type: trimmed, a blank or missing one `none`.
+#assert.eq(adapter.entry-type((type: " Talk ")), "Talk")
+#assert.eq(adapter.entry-type((type: " ")), none)
+#assert.eq(adapter.entry-type((:)), none)
 
 // basics-contacts: the details, a linebreak, then the profiles, as
 // cv-header takes them, linked per `linked`.
@@ -132,3 +155,55 @@
     assert.eq(ours.present, "I láthair")
   }
 ]
+
+// preferences: every key, `overrides` over alta()'s defaults, the
+// deprecated and camelCase forms read as alta() reads them.
+#let prefs = adapter.preferences()
+#assert.eq(prefs.column-ratio, 0.65)
+#assert.eq(prefs.left-column-sections, (
+  "work",
+  "volunteer",
+  "projects",
+  "publications",
+))
+#assert.eq(prefs.publication-icons.talk, "microphone")
+#assert.eq(prefs.maps-provider, maps-providers.google)
+// As alta() reads it: the default alignment unless set.
+#assert.eq(prefs.header-text-align, left)
+#assert.eq(
+  adapter.preferences(overrides: (headerTextAlign: "center")).header-text-align,
+  center,
+)
+#let ours = adapter.preferences(overrides: (
+  columnRatio: 0.7,
+  project-icons: (OSS: "github"),
+))
+#assert.eq(ours.column-ratio, 0.7)
+#assert.eq(ours.project-icons, (oss: "github"))
+#assert.eq(ours.max-rating, 5)
+
+// entries: a section's entries as alta() renders them, the ones it
+// skips left out; `focus-areas` from `custom.altacv`.
+#let cv = (
+  work: ((name: "A"), (position: "B")),
+  projects: ((name: "P"), (summary: "No name"), (name: "")),
+  skills: ((name: "Go", keywords: ("Channels",)), (name: "Empty")),
+  references: (
+    (name: "R", reference: "Great."),
+    (name: "S"),
+    (availableOnRequest: true),
+  ),
+  custom: (altacv: (focusAreas: ("Payments",))),
+)
+#assert.eq(adapter.entries(cv, "work").len(), 2)
+#assert.eq(adapter.entries(cv, "projects"), ((name: "P"),))
+#assert.eq(adapter.entries(cv, "skills").map(g => g.name), ("Go",))
+#assert.eq(adapter.entries(cv, "references").len(), 2)
+#assert.eq(adapter.entries(cv, "focus-areas"), ("Payments",))
+#assert.eq(adapter.entries(cv, "awards"), ())
+#assert.eq(adapter.entries((:), "focus-areas"), ())
+
+// custom: a field of `custom.altacv`, else the default.
+#assert.eq(adapter.custom((custom: (altacv: (rating: 3))), "rating"), 3)
+#assert.eq(adapter.custom((custom: (altacv: (:))), "url"), none)
+#assert.eq(adapter.custom((:), "focusAreas", default: ()), ())

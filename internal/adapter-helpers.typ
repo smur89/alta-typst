@@ -5,18 +5,20 @@
 // data exactly as `alta()` does. They take JSON Resume's field names
 // (`countryCode`), as the CV is written.
 
-#import "util/checks.typ": _check, _check-type
+#import "util/checks.typ": _check, _check-type, _enum-rule
 #import "util/dates.typ": _check-date-template, _format-date
 #import "data/contacts.typ": _contact-rows, _linked-contacts
 #import "data/cv.typ": (
-  _fluency-terms, _location-parts, _term-rating, _type-groups,
+  _altacv, _entry-type, _fluency-terms, _location-parts, _term-rating,
+  _type-groups,
 )
 #import "data/cv-checks.typ": (
   _check-basics-location, _check-location, _location-text-rule,
 )
 #import "data/defaults.typ": _default-labels, maps-providers
-#import "data/options.typ": _merge-options
+#import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _kebab-fields
+#import "data/sections.typ": _section-entries, _section-specs
 #import "data/validation.typ": _preference-rules
 #import "context.typ": _labels-state
 #import "design/icon-set.typ": _network-icons
@@ -54,10 +56,10 @@
 /// - location (str, dictionary, none): A location string, or the
 ///   `(city, region, countryCode, ..)` dictionary.
 /// -> array
-#let location-text(location) = {
+#let location-parts(location) = {
   _check-location(
     location,
-    "location-text() location",
+    "location-parts() location",
     rule: _location-text-rule,
   )
   _location-parts((location: _kebab-fields(location)))
@@ -155,16 +157,37 @@
   max,
 )
 
-/// Entries grouped by `type` as `alta()` groups projects: `(type,
-/// items)` pairs in the order each type first appears, the untyped (no
-/// `type`, or a blank one) under `none`. Pairs rather than a
-/// dictionary, as `none` can't be a dictionary key. `alta()` names the
-/// untyped projects' group from its labels; its publications go further,
-/// matching codes ignoring case and counting the untyped as `article`.
+/// One of altacv's own fields, from its `custom.altacv` namespace on
+/// the CV or an entry: `focusAreas`, a skill's or language's `rating`,
+/// an award's `url`.
+///
+/// - obj (dictionary): The CV, or one of its entries.
+/// - key (str): The field.
+/// - default (any): Its value when it's unset.
+/// -> any
+#let custom(obj, key, default: none) = _altacv(obj, key, default: default)
+
+/// An entry's `type` as `alta()` reads it: trimmed, or `none` when it's
+/// untyped (no `type`, or a blank one).
+///
+/// - entry (dictionary): A `projects[]` or `publications[]` entry.
+/// -> str, none
+#let entry-type(entry) = _entry-type(entry)
+
+/// Entries grouped by `type` (`entry-type`) as `alta()` groups them:
+/// `(group, items)` pairs in the order each group first appears.
+/// Pairs rather than a dictionary, as the untyped group may be `none`,
+/// which can't be a dictionary key. `alta()` groups projects with
+/// `untyped: labels.other-projects`, so a type named as the label
+/// shares the untyped group, and publications by code, with
+/// `key: lower, untyped: "article"`.
 ///
 /// - items (array): Entries with an optional `type`.
+/// - key (function): A typed entry's group, from its type: as written
+///   by default, `lower` to match types ignoring case.
+/// - untyped (any): The untyped entries' group, `none` by default.
 /// -> array
-#let group-by-type(items) = _type-groups(items)
+#let group-by-type(items, ..args) = _type-groups(items, ..args)
 
 /// The labels `alta()` renders with, in the document's language: its
 /// bundled translation over the English, the template's
@@ -187,3 +210,36 @@
     template: _labels-state.get(),
   ).labels
 )
+
+/// The preferences `alta()` renders with inside the template:
+/// `overrides` merged over its defaults and checked as
+/// `alta(preferences: ..)`'s are, so a mapping reads every key, set or
+/// not. Keys are `alta()`'s kebab-case preference names
+/// (`column-ratio`, `date-format`); a camelCase one reads as its
+/// kebab-case name. A document-level preference (`font`, `paper`, …)
+/// panics, naming the set rule that replaces it.
+///
+/// - overrides (dictionary): Preferences to override, as `alta()`'s
+///   `preferences:` takes them.
+/// -> dictionary
+#let preferences(overrides: (:)) = {
+  _check-template-preferences((:), overrides)
+  _merge-options((:), overrides).prefs
+}
+
+/// A section's entries as `alta()` renders them: the CV's own key's,
+/// or for `focus-areas`, `custom.altacv.focusAreas`; without the
+/// entries `alta()` skips, as having nothing to draw (a project,
+/// publication or certificate without its `name`, an award without its
+/// `title`, a language without its `language`, a skill or interest
+/// group without keywords, a reference with neither a quote nor
+/// `availableOnRequest`). `()` when the CV has none.
+///
+/// - cv (dictionary): The CV.
+/// - key (str): A section key, as the column preferences name them
+///   (`work`, `focus-areas`, …).
+/// -> array
+#let entries(cv, key) = {
+  _check("entries() key", key, _enum-rule(_section-specs.keys()))
+  _section-entries(cv, key)
+}

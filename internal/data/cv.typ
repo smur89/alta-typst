@@ -135,16 +135,23 @@
   if raw != none and raw.trim() != "" { raw.trim() }
 }
 
-// `items` grouped by `_entry-type`: `(type, items)` pairs in the order
-// each type first appears, the untyped under `none`. Pairs, not a
-// dictionary, as `none` can't be a dictionary key; a section that
-// names the untyped group keys it by its label instead
-// (`sections/projects.typ`).
-#let _type-groups(items) = (
-  items
-    .map(_entry-type)
-    .dedup()
-    .map(t => (t, items.filter(item => _entry-type(item) == t)))
+// `items` grouped by `_entry-type`: `(group, items)` pairs in the
+// order each group first appears. A typed item's group is `key(type)`
+// (`lower` matches types ignoring case), an untyped one's `untyped`,
+// which a type may share (projects' "Other"). Pairs, not a dictionary,
+// as `untyped` may be `none`, which can't be a key. The one grouping,
+// for the standalone sections and the public `adapter`.
+#let _type-groups(items, key: t => t, untyped: none) = items.fold(
+  (),
+  (acc, item) => {
+    let type = _entry-type(item)
+    let group = if type == none { untyped } else { key(type) }
+    let i = acc.position(((g, _)) => g == group)
+    if i == none { acc + ((group, (item,)),) } else {
+      let (_, members) = acc.at(i)
+      acc.slice(0, i) + ((group, members + (item,)),) + acc.slice(i + 1)
+    }
+  },
 )
 
 // A skill group's `level` as a rating on `prefs.max-rating`, per

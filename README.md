@@ -188,32 +188,40 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, maps-providers, publication, rating, skill-row
+#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, publication, rating, skill-row
 ```
 
 Then render your copy under the template, and edit it from there:
 
 ```typst
 #import "@preview/altacv:1.8.0": altacv
+#import "@preview/gairm-import:0.10.1": parse
 #import "json-resume.typ": resume
 
 #show: altacv
-#let cv = json("resume.json")
-#set document(title: cv.basics.name, author: cv.basics.name)
-#resume(cv)
+#set document(title: "Jane Doe", author: "Jane Doe")
+#resume(parse(path("resume.json")))
 ```
 <!-- x-release-please-end -->
 
-`resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences; a missing one reads `alta()`'s default. Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
+`resume(cv)` takes validated JSON Resume: [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse` checks a `resume.json` against the schema first, and `alta()` hands it the CV it has checked. The mapping reads the fields as the schema types them and doesn't check them again: a raw `json(..)` with a wrong-typed field is only tolerated through `alta()`, and fails inside `resume()` rather than naming the field.
+
+`resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences, merged over its defaults and checked as `alta()` checks them (`adapter.preferences`). Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
+
+Each section is a function of its own, `work(cv, ctx)`, `skills(cv, ctx)` and so on, and `sections` maps each column key (`left-column-sections`' `"work"`) to its function, so a change to one section stays in one place. `ctx` holds the resolved `labels` and `prefs`, and the `owners` set apart among publication authors.
 
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 
+- `adapter.custom(obj, key, default:)`: one of altacv's own fields from `custom.altacv`, on the CV or an entry.
+- `adapter.entries(cv, key)`: a section's entries as `alta()` renders them, without those it skips (a project without a name, a skill group without keywords, …); `focus-areas` reads `custom.altacv.focusAreas`.
 - `adapter.format-date(value, format:, months:)`: a JSON Resume date as `alta()` shows it (`"2024-06"` reads `"Jun 2024"`).
-- `adapter.location-text(location)`: a location's city, region and country code, for you to join.
+- `adapter.location-parts(location)`: a location's city, region and country code, for you to join.
 - `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
-- `adapter.group-by-type(items)`: entries grouped by `type`, in the order each first appears.
+- `adapter.entry-type(entry)`: a project's or publication's `type`, trimmed, or `none` when it's untyped.
+- `adapter.group-by-type(items, key:, untyped:)`: entries grouped by `type`, in the order each group first appears: a typed entry's group is `key(type)` (`lower` to match ignoring case), the untyped's `untyped`, which a type of that name shares. `alta()` groups projects with `untyped: labels.other-projects`, and publications with `key: lower, untyped: "article"`.
 - `adapter.labels(overrides:)`: the labels in the document's language, the template's over them and `overrides` over both, as `alta()` resolves them. Call it in `context`.
+- `adapter.preferences(overrides:)`: every preference, `overrides` merged over `alta()`'s defaults and checked, as `alta()` reads them.
 
 Two things changed in the template form when `alta()` moved onto the mapping. A multi-page CV can differ from before where a divider lands at the top of a page: the divider keeps its space there, its rule hidden, where `alta()` used to drop both. And a group heading's icon and the gap after it are in the heading's `em`, so the heading's text sits slightly further from its icon. Standalone `alta(cv)` is unchanged.
 
@@ -743,12 +751,16 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `skill-row(name, keywords, level: none, max: auto)` | A skill group's row of tags, with its level (a number or a rating term) as dots, or as text. |
 | `label-row(label, items)` | A labelled line: "Music: Trad, Jazz". |
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
+| `adapter.custom(obj, key, default:)` | One of altacv's fields from `custom.altacv`. |
+| `adapter.entries(cv, key)` | A section's entries as `alta()` renders them. |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |
-| `adapter.location-text(location)` | A location's parts, in display order. |
+| `adapter.location-parts(location)` | A location's parts, in display order. |
 | `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)` | The contact bar's records from `basics`, for `cv-header`. |
 | `adapter.fluency-rating(entry, max:)` | A language's rating, or `none`. |
-| `adapter.group-by-type(items)` | Entries grouped by `type`. |
+| `adapter.entry-type(entry)` | An entry's `type`, trimmed, or `none`. |
+| `adapter.group-by-type(items, key:, untyped:)` | Entries grouped by `type`. |
 | `adapter.labels(overrides:)` | The document language's labels as `alta()` resolves them, in `context`. |
+| `adapter.preferences(overrides:)` | Every preference, merged over `alta()`'s defaults and checked. |
 | `palettes` | Deprecated: the heading colours of the original six themes, `teal` to `charcoal`. Use `themes`. |
 
 <!-- x-release-please-start-version -->

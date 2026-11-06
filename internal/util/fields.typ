@@ -14,16 +14,19 @@
 #let _dict-or-empty(v) = if type(v) == dictionary { v } else { (:) }
 #let _array-or-empty(v) = if type(v) == array { v } else { () }
 
-// An array of text (strings or content), else `()`.
+// `v` when it's an array of text (strings or content), else `none`.
+#let _texts(v) = if (
+  type(v) == array and v.all(x => type(x) in (str, content))
+) { v }
+
+// A field's array of text, else `()`.
 #let _texts-at(obj, key) = {
-  let v = obj.at(key, default: none)
-  if type(v) == array and v.all(x => type(x) in (str, content)) { v } else {
-    ()
-  }
+  let v = _texts(obj.at(key, default: none))
+  if v != none { v } else { () }
 }
 
-#let _string-at(obj, key) = {
-  let v = obj.at(key, default: none)
-  if _present-str(v) { v }
-}
+// `v` when it's a non-empty string, else `none`.
+#let _string(v) = if _present-str(v) { v }
+
+#let _string-at(obj, key) = _string(obj.at(key, default: none))
 
