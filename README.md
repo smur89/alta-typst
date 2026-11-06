@@ -325,6 +325,8 @@ Invert the layout, side panel on the narrow left:
 ))
 ```
 
+**Justified text.** Typst's own: `#set par(justify: true)` justifies and hyphenates the running text (the summary, highlights, publications), after the show line or, standalone, before `alta()`. Rows of facts, keywords and tags stay ragged.
+
 Page size and margins are Typst's own: `#set page(paper: "us-letter", margin: (x: 1cm))` after the show line. For a footer with your name and page numbers on a document of more than one page, `#set page(footer: cv-footer())`; for the last-modified line, `cv-updated-footer()`, with `version: true` to add the version (in a CV written in markup, give it the date: `cv-updated-footer(date: "May 2026")`); or any content of your own. Standalone, these are the `paper`, `margin`, `page-footer`, `last-modified-footer` and `footer-version` preferences ([In the template](#in-the-template)).
 
 ### Photo, contact bar and QR code
@@ -593,7 +595,6 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 
 | Key | Default | Effect |
 |---|---|---|
-| `justify` | `false` | Justify and hyphenate running text (summaries, highlights, quotes). |
 | `date-format` | `"long"` | `"long"` (`Jun 2024`), `"short"` (`06/2024`), `"iso"` (unchanged), a [`datetime.display()`](https://typst.app/docs/reference/foundations/datetime/#definitions-display) pattern such as `"[day]/[month]/[year]"`, or a function `(year, month, day) => str`. |
 | `link-contact-info` | `true` | `false` to unlink the contact bar, or a dict keyed by `email`, `phone`, `location`, `url`, `profiles`. |
 | `print-full-urls` | `false` | Unlinked profiles show their URL (`github.com/jane`) in place of the username. |

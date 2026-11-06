@@ -1,9 +1,11 @@
-// `preferences.justify: true`: prose (the summary, highlights, focus
+// `set par(justify: true)` before `alta()`: prose (the summary, highlights, focus
 // areas) is justified and hyphenated. The contact bar, the wrapped
 // skill tag row, the long heading and the wrapped interests row stay
 // ragged.
 
 #import "../lib.typ": alta
+
+#set par(justify: true)
 
 #let profile(network, username) = (network: network, username: username)
 
@@ -59,5 +61,4 @@
       ),
     ),
   ),
-  preferences: (justify: true),
 )

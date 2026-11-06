@@ -32,10 +32,11 @@
   labels,
   _auto-page-footer("Jane Doe", labels.page-number),
 )
-// The CV preferences that style what renders after them, as `alta()`
-// sets them: the public `rating()`'s scale and justification.
+// What `alta()` sets for what renders after it: the public `rating()`'s
+// scale, and its prose ragged, as no `set par(justify: true)` asks
+// otherwise.
 #_max-rating-state.update(prefs.max-rating)
-#show: _justify.with(prefs.justify)
+#show: _justify.with(false)
 
 #let contacts = (
   (

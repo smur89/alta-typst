@@ -74,7 +74,7 @@
 )
 
 // A summary as a paragraph of prose: the paragraph labelled
-// `<alta-internal-prose>` for `justify` (`design/styles.typ`), its text the
+// `<alta-internal-prose>` for `_justify` (`design/styles.typ`), its text the
 // public `<alta-summary>` part.
 #let _prose(body, treatment: _as-is) = [#par(treatment(
   _part("summary", body),

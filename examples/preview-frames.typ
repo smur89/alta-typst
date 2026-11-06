@@ -297,12 +297,14 @@
         theme: themes.teal,
         photo-position: left,
         photo-shape: "rounded",
-        justify: true,
         column-ratio: 1,
         left-column-sections: ("education", "work", "projects"),
         right-column-sections: ("skills", "languages", "awards"),
       ),
-    wrap: in-ga,
+    wrap: body => in-ga({
+      set par(justify: true)
+      body
+    }),
   ),
 
   // ── Frame 9 ─ catppuccin + no image + right-aligned + narrow panel left

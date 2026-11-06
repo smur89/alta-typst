@@ -68,7 +68,6 @@
   // Rides the `last-modified-footer` line; no-op without it.
   footer-version: false,
   // Formatting and links.
-  justify: false,
   date-format: "long",
   link-contact-info: true,
   print-full-urls: false,

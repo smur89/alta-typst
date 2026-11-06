@@ -451,14 +451,10 @@
   let text-align = preferences.at("header-text-align", default: none)
   if text-align != none { align(text-align, header) } else { header }
 
-  // Below the header, the paragraphs justified per `justify`: the
-  // intro, summaries, highlights and publications, as `alta()`
-  // justifies them. An entry's rows of facts and keywords, and the
-  // skill and interest rows, set their own off; the languages, below.
-  // Without the preference, the caller's own `set par` stands.
-  set par(justify: preferences.at("justify", default: false)) if (
-    "justify" in preferences
-  )
+  // The prose (the intro, summaries, highlights and publications)
+  // takes the caller's `set par(justify: ..)`. An entry's rows of facts
+  // and keywords, and the skill and interest rows, set their own off;
+  // the languages, below.
 
   // The intro: `basics.summary`, in a block the template spaces from
   // the header and the columns (`show <alta-intro>: set block(..)`).
