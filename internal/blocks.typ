@@ -441,7 +441,8 @@
 /// tags, with an optional level: a number or a term such as "Expert"
 /// shows as dots, any other text as written.
 ///
-/// - name (content, str): The group's name.
+/// - name (content, str, none): The group's name; `none` leaves out
+///   the category tag.
 /// - keywords (array): Its keywords, each a tag.
 /// - level (int, float, str, content, none): Its level, after the name:
 ///   a number as that many dots, from 0 to `max` in steps of 0.5, as
@@ -502,7 +503,8 @@
 
 /// A labelled line: "Music: Trad, Jazz".
 ///
-/// - label (content, str): The label, in the emphasis colour.
+/// - label (content, str, none): The label, in the emphasis colour;
+///   `none` leaves the items alone.
 /// - items (array): The items, joined by the theme's separator.
 /// -> content
 #let label-row(label, items) = context block(

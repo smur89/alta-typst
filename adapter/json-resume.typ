@@ -207,7 +207,7 @@
   g => {
     let level = _field(g, "level")
     skill-row(
-      g.name,
+      _field(g, "name"),
       g.keywords,
       level: if ctx.prefs.skill-level-display == "text" {
         if level != none [#level]
@@ -309,7 +309,7 @@
       .enumerate()
       .map(((i, g)) => {
         set block(sticky: i < last and (i == 0 or i == last - 1))
-        label-row(g.name, g.keywords)
+        label-row(_field(g, "name"), g.keywords)
       })
       .join(),
   )
