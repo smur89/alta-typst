@@ -64,3 +64,10 @@
   #resume((basics: (name: "Jane Doe", summary: [Intro.<mine>])))
   #context assert.eq(labels.get().sorted(), ("mine", "part"))
 ]
+
+// An empty photo (`bytes`, as `alta()` reads it) is no photo: the CV
+// renders, with no frame.
+#[
+  #resume((basics: (name: "Jane Doe", image: bytes(()))))
+  #context assert.eq(query(image).len(), 0)
+]

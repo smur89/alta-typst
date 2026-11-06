@@ -39,11 +39,12 @@
 #import "../internal/primitives.typ": divider
 #import "../internal/adapter.typ" as adapter
 
-// A field's value, or `none` when it's absent: an empty string or
-// blank content counts as missing, so it leaves no empty line.
+// A field's value, or `none` when it's absent: an empty string, blank
+// content or empty `bytes` (a photo) counts as missing, so it leaves
+// no empty line or empty frame.
 #let _field(obj, key) = {
   let value = obj.at(key, default: none)
-  if value not in ("", []) { value }
+  if value not in ("", [], bytes(())) { value }
 }
 
 // A date as `alta()` shows it, per `date-format` and the months.
