@@ -10,7 +10,7 @@
   _auto-page-footer, _updated-footer, _updated-line,
 )
 #import "design/styles.typ": _part
-#import "context.typ": _labels
+#import "context.typ": _labels, _labels-state
 
 // What a footer prints of the CV: the standalone footer's input, and
 // the `<alta-cv>` marker's value that the template's helpers read.
@@ -37,18 +37,30 @@
 // What the template's footers print: the placed CV's `_cv-details`,
 // else, in a CV written in markup, the document's: its author (or
 // title) for the name and the labels in its language, with no date.
+// The CV's labels (its call's over its templates') hold where its
+// templates' layers do; under others (a nested
+// `altacv.with(labels: ..)` after it), the labels in effect there
+// replace them, the name and date still the CV's.
 #let _footer-details() = {
   let cv = _placed-cv()
-  if cv != none { return cv.value }
   let labels = _labels()
+  let label-details = (
+    page-number: labels.page-number,
+    last-modified-label: labels.last-modified,
+  )
+  if cv != none {
+    let (details, layers) = cv.value
+    return if layers == _labels-state.get() { details } else {
+      details + label-details
+    }
+  }
   (
     owner: if document.author != () { document.author.join(", ") } else {
       document.title
     },
     last-modified: none,
     version: none,
-    page-number: labels.page-number,
-    last-modified-label: labels.last-modified,
+    ..label-details,
   )
 }
 

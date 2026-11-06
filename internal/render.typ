@@ -59,10 +59,12 @@
 }
 
 // What `alta()` leaves for the content after it, in both forms: the
-// public `rating()`'s scale, and what the footer helpers print.
+// public `rating()`'s scale, and what the footer helpers print, with
+// the template label layers it resolved under (`layers`), in
+// `context`.
 #let _cv-marks(prefs, details) = {
   _max-rating-state.update(prefs.max-rating)
-  [#metadata(details)<alta-cv>]
+  [#metadata((details: details, layers: _labels-state.get()))<alta-cv>]
 }
 
 // The CV itself, from `_prepare`, as standalone `alta()` draws it with

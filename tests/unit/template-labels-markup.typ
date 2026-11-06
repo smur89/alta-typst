@@ -65,9 +65,29 @@
   assert.eq(labels.work, "Taithí Oibre")
 }
 
+// A nested template's labels end with its scope: an entry after it
+// reads the enclosing template's "Present" again. Each template's
+// `set page` starts a page, so the pages below count four.
+#let (outers, outer-rule) = count("Outer")
+#show "Outer": outer-rule
+#let (inners, inner-rule) = count("Inner")
+#show "Inner": inner-rule
+#[
+  #show: altacv.with(labels: (present: "Outer"))
+  #[
+    #show: altacv.with(labels: (present: "Inner"))
+    = Nested
+    #entry(title: "A", date: ("2021", none))
+  ]
+  = Enclosing
+  #entry(title: "B", date: ("2022", none))
+]
+
 #context {
   assert.eq(nows.final(), 1)
-  assert.eq(pages.final(), 2)
-  assert.eq(updated.final(), 2)
-  assert.eq(alts.final(), ("Ort", "Datum", "Ort", "Datum"))
+  assert.eq(outers.final(), 1)
+  assert.eq(inners.final(), 1)
+  assert.eq(pages.final(), 4)
+  assert.eq(updated.final(), 4)
+  assert.eq(alts.final(), ("Ort", "Datum", "Ort", "Datum", "Datum", "Datum"))
 }
