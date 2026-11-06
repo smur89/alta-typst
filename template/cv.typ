@@ -12,7 +12,11 @@
 // behind every frame of `examples/preview.webp` (via
 // `examples/_cv.typ`).
 
-#import "@preview/altacv:1.8.0": alta, altacv, avatar-placeholder // x-release-please-version
+// x-release-please-start-version
+#import "@preview/altacv:1.8.0": (
+  alta, alta-from-json, altacv, avatar-placeholder,
+)
+// x-release-please-end
 
 #let cv = (
   basics: (
@@ -176,3 +180,13 @@
 #show: altacv.with()
 
 #alta(cv, preferences: preferences)
+
+// To load the same CV from JSON Resume instead, replace the
+// `#alta(cv, ..)` line above with the one below. `resume.json`, beside
+// this file, holds it in the standard schema (https://jsonresume.org),
+// so any JSON Resume tool can write it. Loading it drops the portrait,
+// which is set here in Typst (`basics.image`).
+// #alta-from-json(path("resume.json"), preferences: preferences)
+//
+// More in the README: "Write the CV in markup" for sections of your
+// own, "Your own mapping" to change how a section is drawn.
