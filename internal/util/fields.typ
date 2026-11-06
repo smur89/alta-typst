@@ -14,6 +14,14 @@
 #let _dict-or-empty(v) = if type(v) == dictionary { v } else { (:) }
 #let _array-or-empty(v) = if type(v) == array { v } else { () }
 
+// An array of text (strings or content), else `()`.
+#let _texts-at(obj, key) = {
+  let v = obj.at(key, default: none)
+  if type(v) == array and v.all(x => type(x) in (str, content)) { v } else {
+    ()
+  }
+}
+
 #let _string-at(obj, key) = {
   let v = obj.at(key, default: none)
   if _present-str(v) { v }

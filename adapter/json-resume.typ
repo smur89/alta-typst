@@ -49,6 +49,15 @@
   if type(value) == str and value != "" { value }
 }
 
+// A field that's an array of text, else `()`: work's `keywords`,
+// which `alta()` reads leniently.
+#let _texts(obj, key) = {
+  let value = obj.at(key, default: none)
+  if type(value) == array and value.all(v => type(v) in (str, content)) {
+    value
+  } else { () }
+}
+
 // An entry's summary: its `summary`, else its `description`, the field
 // JSON Resume's projects use (and older exports' work and volunteer).
 #let _summary(entry) = {
@@ -178,7 +187,7 @@
     work: () => _section(
       labels.work,
       cv.at("work", default: ()),
-      e => role(e, "name", keywords: e.at("keywords", default: ())),
+      e => role(e, "name", keywords: _texts(e, "keywords")),
     ),
     volunteer: () => _section(
       labels.volunteer,
