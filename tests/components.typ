@@ -30,7 +30,7 @@
 #show: _standalone.with(
   prefs,
   labels,
-  _auto-page-footer("Jane Doe", labels.page-number),
+  _ => _auto-page-footer("Jane Doe", labels.page-number),
 )
 // What `alta()` sets for what renders after it: the public `rating()`'s
 // scale, and its prose ragged, as no `set par(justify: true)` asks

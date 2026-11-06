@@ -20,7 +20,7 @@
 #import "components/columns.typ": _columns
 #import "../sections/header.typ": _header
 #import "../sections/intro.typ": _intro
-#import "footers.typ": _cv-details
+#import "footers.typ": _cv-details, _footer-rule
 #import "../sections/footer.typ": _footer
 #import "../adapter/json-resume.typ": _resume
 
@@ -60,18 +60,17 @@
 
 // What `alta()` leaves for the content after it, in both forms: the
 // public `rating()`'s scale, and what the footer helpers print, with
-// the template label layers it resolved under (`layers`), in
-// `context`.
-#let _cv-marks(prefs, details) = {
+// the template `scope` it sits in (`altacv`'s, `none` standalone).
+#let _cv-marks(prefs, details, scope) = {
   _max-rating-state.update(prefs.max-rating)
-  [#metadata((details: details, layers: _labels-state.get()))<alta-cv>]
+  [#metadata((details: details, scope: scope))<alta-cv>]
 }
 
 // The CV itself, from `_prepare`, as standalone `alta()` draws it with
 // the section renderers. In `context`: its prose is justified as the
 // paragraphs around the `alta()` call are (`_justify`).
 #let _cv-content((cv, sections, ctx, details)) = {
-  _cv-marks(ctx.prefs, details)
+  _cv-marks(ctx.prefs, details, none)
   show: _justify.with(par.justify)
   _header(cv, ctx)
   _intro(cv, ctx)
@@ -89,7 +88,7 @@
 // from the public blocks, so what it draws is what a user's copy of
 // the mapping draws. At the next major (#239) `alta()` returns this
 // directly.
-#let _alta-content(cv, labels: (:), preferences: (:)) = context {
+#let _alta-content(cv, scope, labels: (:), preferences: (:)) = context {
   _check-template-preferences(labels, preferences)
   let (cv, sections, json-resume, ctx, details) = _prepare(
     cv,
@@ -100,7 +99,7 @@
   // container, where this may sit (`#block(alta(cv))`).
   [#metadata(_pdf-metadata(cv, sections, ctx.labels))<alta-internal-document>]
   // The mapping's prose takes the caller's `set par(justify: ..)`.
-  _cv-marks(ctx.prefs, details)
+  _cv-marks(ctx.prefs, details, scope)
   // The caller's labels over the template's for this CV's blocks too
   // (an entry's "Present", its alt text), which read `_labels-state`.
   _labels-state.update(layers => layers + (labels,))
@@ -115,7 +114,10 @@
   let prepared = _prepare(cv, labels, preferences)
   let (cv, sections, ctx, details) = prepared
   set document(.._pdf-metadata(cv, sections, ctx.labels))
-  show: _standalone.with(ctx.prefs, ctx.labels, _footer(details, ctx.prefs))
+  show: _standalone.with(ctx.prefs, ctx.labels, _footer.with(
+    details,
+    ctx.prefs,
+  ))
   // Standalone keeps today's levels: the sections one below the name.
   set heading(offset: 1)
   _cv-content(prepared)
@@ -145,6 +147,7 @@
     built,
     _default-preferences.body-size,
     _default-preferences.margin,
+    labels: labels,
   )
   show: _level-headings.with(built)
   // The mapping's intro, spaced as `alta()`'s: a paragraph's spacing,
@@ -157,11 +160,6 @@
   )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
-  show <alta-internal-cv>: it => _alta-content(
-    it.value.cv,
-    labels: it.value.labels,
-    preferences: it.value.preferences,
-  )
   // The first CV's PDF metadata (`_alta-content`): a `set document` in
   // a top-level `context` reaches the document, and one of the user's
   // own in `body` still wins.
@@ -169,14 +167,20 @@
     let info = query(<alta-internal-document>).at(0, default: none)
     if info != none { set document(..info.value) }
   }
-  // For the body only: content after a nested template reads the
-  // outer one's.
-  _labels-state.update(layers => layers + (labels,))
-  body
-  // Lands after the body's last content: a trailing `#pagebreak()`
-  // puts it on a blank page of its own, whose footer then reads the
-  // labels outside the template (as `_document`'s theme pop does).
-  _labels-state.update(layers => layers.slice(0, -1))
+  // The footer helpers' placeholders, drawn with this template's theme
+  // and labels (`footers.typ`); `scope` tells this template's CVs from
+  // others'.
+  context {
+    let scope = here()
+    show <alta-internal-footer>: _footer-rule(built, labels, scope)
+    show <alta-internal-cv>: it => _alta-content(
+      it.value.cv,
+      scope,
+      labels: it.value.labels,
+      preferences: it.value.preferences,
+    )
+    body
+  }
 }
 
 /// Renders a CV from a JSON Resume-style dictionary. On its own it

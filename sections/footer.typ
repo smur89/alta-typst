@@ -7,10 +7,10 @@
   _auto-page-footer, _updated-footer, _updated-line,
 )
 
-// From the CV's `_cv-details`. `page-footer` takes precedence;
-// `last-modified-footer` is sugar that applies only when `page-footer`
-// is `none`.
-#let _footer(details, prefs) = {
+// From the CV's `_cv-details` and the built `theme`. `page-footer`
+// takes precedence; `last-modified-footer` is sugar that applies only
+// when `page-footer` is `none`.
+#let _footer(details, prefs, theme) = {
   let page-footer = prefs.page-footer
   if page-footer != none {
     if page-footer == auto {
@@ -22,6 +22,7 @@
     _updated-footer(
       details.last-modified-label,
       _updated-line(details, prefs.footer-version),
+      theme.separator.label,
     )
   } else {
     none

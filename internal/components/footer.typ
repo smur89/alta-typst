@@ -4,7 +4,6 @@
 // (so it returns on its own when content grows), and the right-aligned
 // "last updated" line (`Last updated: …`), both in body text.
 
-#import "../context.typ": _theme
 #import "../util/values.typ": _fill-template
 
 #let _auto-page-footer(name, page-number) = context {
@@ -21,10 +20,11 @@
   )
 }
 
-// `label` and `value` joined by the theme's `separator.label`.
-#let _updated-footer(label, value) = align(right, context {
+// `label` and `value` joined by `separator` (a theme's
+// `separator.label`).
+#let _updated-footer(label, value, separator) = align(right, {
   label
-  _theme().separator.label
+  separator
   value
 })
 

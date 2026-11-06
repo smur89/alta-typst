@@ -4,6 +4,7 @@
 // Each string is counted per page through a show rule.
 
 #import "/lib.typ": altacv, cv-footer, cv-updated-footer
+#import "/tests/unit/_count.typ": count
 
 #set document(title: "Doc Title", author: "Jane Doe")
 #show: altacv
@@ -16,16 +17,6 @@
   footer: cv-footer(),
 )
 
-#let count(s) = {
-  let seen = state("seen-" + s, 0)
-  (
-    seen,
-    it => {
-      seen.update(n => n + 1)
-      it
-    },
-  )
-}
 #let (names, name-rule) = count("Jane Doe")
 #show "Jane Doe": name-rule
 #let (titles, title-rule) = count("Doc Title")
