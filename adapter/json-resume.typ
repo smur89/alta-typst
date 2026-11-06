@@ -355,8 +355,7 @@
 )
 
 // The header: `basics.image` framed when it's set; the QR code
-// `basics.url` when `auto`. Its text follows the alignment around it,
-// `header-text-align`'s when that's set.
+// `basics.url` when `auto`; its text aligned per `header-text-align`.
 #let header(cv, ctx) = {
   let prefs = ctx.prefs
   // JSON Resume requires no field, `basics` included.
@@ -383,8 +382,7 @@
     },
     uppercase: prefs.uppercase-name,
   )
-  let text-align = prefs.header-text-align
-  if text-align != none { align(text-align, header) } else { header }
+  align(prefs.header-text-align, header)
 }
 
 // The intro: `basics.summary`, in a block the template spaces from the

@@ -168,8 +168,8 @@
 ))
 #assert.eq(prefs.publication-icons.talk, "microphone")
 #assert.eq(prefs.maps-provider, maps-providers.google)
-// The header follows the alignment around it unless set.
-#assert.eq(prefs.header-text-align, none)
+// As alta() reads it: the default alignment unless set.
+#assert.eq(prefs.header-text-align, left)
 #assert.eq(
   adapter.preferences(overrides: (headerTextAlign: "center")).header-text-align,
   center,

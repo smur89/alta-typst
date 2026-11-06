@@ -221,7 +221,7 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 - `adapter.entry-type(entry)`: a project's or publication's `type`, trimmed, or `none` when it's untyped.
 - `adapter.group-by-type(items, key:, untyped:)`: entries grouped by `type`, in the order each group first appears: a typed entry's group is `key(type)` (`lower` to match ignoring case), the untyped's `untyped`, which a type of that name shares. `alta()` groups projects with `untyped: labels.other-projects`, and publications with `key: lower, untyped: "article"`.
 - `adapter.labels(overrides:)`: the labels in the document's language, the template's over them and `overrides` over both, as `alta()` resolves them. Call it in `context`.
-- `adapter.preferences(overrides:)`: every preference, `overrides` merged over `alta()`'s defaults and checked; `header-text-align` is `none` unless set, so the header follows the alignment around it.
+- `adapter.preferences(overrides:)`: every preference, `overrides` merged over `alta()`'s defaults and checked, as `alta()` reads them.
 
 Two things changed in the template form when `alta()` moved onto the mapping. A multi-page CV can differ from before where a divider lands at the top of a page: the divider keeps its space there, its rule hidden, where `alta()` used to drop both. And a group heading's icon and the gap after it are in the heading's `em`, so the heading's text sits slightly further from its icon. Standalone `alta(cv)` is unchanged.
 

@@ -16,7 +16,6 @@
   _check-basics-location, _check-location, _location-text-rule,
 )
 #import "data/defaults.typ": _default-labels, maps-providers
-#import "data/canonical.typ": _kebab-options
 #import "data/options.typ": _check-template-preferences, _merge-options
 #import "data/read.typ": _kebab-fields
 #import "data/sections.typ": _section-entries, _section-specs
@@ -223,19 +222,13 @@
 /// (`column-ratio`, `date-format`); a camelCase one reads as its
 /// kebab-case name. A document-level preference (`font`, `paper`, …)
 /// panics, naming the set rule that replaces it.
-/// `header-text-align` is `none` unless set: the header follows the
-/// alignment around it.
 ///
 /// - overrides (dictionary): Preferences to override, as `alta()`'s
 ///   `preferences:` takes them.
 /// -> dictionary
 #let preferences(overrides: (:)) = {
   _check-template-preferences((:), overrides)
-  let prefs = _merge-options((:), overrides).prefs
-  let (_, overrides) = _kebab-options((:), overrides)
-  if "header-text-align" in overrides { prefs } else {
-    prefs + (header-text-align: none)
-  }
+  _merge-options((:), overrides).prefs
 }
 
 /// A section's entries as `alta()` renders them: the CV's own key's,
