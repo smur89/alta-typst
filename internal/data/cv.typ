@@ -83,11 +83,18 @@
 // A period from `start` to `end` as `_date-span` sides, an absent
 // (`_present`) end reading `present` (`labels.present`); a fully
 // undated one has neither side, not a bare "Present".
-#let _period(start, end, format-date, present) = {
+#let _date-sides(start, end, format-date, present) = {
   let (start, end) = (start, end).map(v => if _present(v) { v })
   if start == none and end == none { return (none, none) }
   _date-span(start, end, format-date, open-end: present)
 }
+
+// A `start-date` / `end-date` entry's `_date-sides`.
+#let _entry-period(entry, ..args) = _date-sides(
+  entry.at("start-date", default: none),
+  entry.at("end-date", default: none),
+  ..args,
+)
 
 // Rating terms as fractions of the full scale, matched
 // case-insensitively: LinkedIn's `languages[].fluency` and the common

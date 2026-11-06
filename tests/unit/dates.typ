@@ -6,7 +6,7 @@
   _apply-date-template, _date-span, _format-date, _iso-datetime,
   _parse-iso-date,
 )
-#import "/internal/data/cv.typ": _period
+#import "/internal/data/cv.typ": _date-sides, _entry-period
 #import "/internal/data/defaults.typ": _default-labels
 #import "/internal/design/theme.typ": _default-theme
 #import "/internal/util/values.typ": _join-present
@@ -96,7 +96,7 @@
 #assert.eq(_format-date("Jan 2022", "long", months), "Jan 2022")
 #assert.eq(_format-date("", "long", months), "")
 
-// _date-span / _period: a range's two sides, an absent one
+// _date-span / _date-sides / _entry-period: a range's two sides, an absent one
 // `none`; a missing end of an entry's period reads `labels.present`,
 // and an undated entry has neither. Joined as `_range` would, a
 // missing side drops out with its dash.
@@ -109,7 +109,7 @@
 #assert.eq(_date-span(none, none, long), (none, none))
 #assert.eq(join-range(_date-span(none, none, long)), none)
 #assert.eq(
-  plain(join-range(_period("2020", none, long, labels.present))),
+  plain(join-range(_entry-period((start-date: "2020"), long, labels.present))),
   "2020 – " + labels.present,
 )
-#assert.eq(_period(none, "", long, labels.present), (none, none))
+#assert.eq(_date-sides(none, "", long, labels.present), (none, none))

@@ -4,8 +4,8 @@
 
 #import "data/defaults.typ": _default-preferences
 #import "data/cv.typ": (
-  _authors, _identifier-refs, _identifier-url, _identifiers, _owner-keys,
-  _period, _skill-levels, _term-rating,
+  _authors, _date-sides, _identifier-refs, _identifier-url, _identifiers,
+  _owner-keys, _skill-levels, _term-rating,
 )
 #import "design/icon-set.typ": _icon-glyphs, _network-icons
 #import "icons.typ": _check-icon
@@ -161,7 +161,7 @@
         // present sides.
         period: if type(date) == array {
           let (start, end) = date
-          _period(start, end, d => d, labels.present)
+          _date-sides(start, end, d => d, labels.present)
         } else { (date,) },
         location: if type(location) == array { location } else { (location,) },
         details: details,
