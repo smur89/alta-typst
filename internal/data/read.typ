@@ -4,7 +4,8 @@
 
 #import "../util/checks.typ": _check-type, _check-unknown-keys, _require
 #import "../util/fields.typ": _field
-#import "canonical.typ": _canonical-cv, _kebab, _map-at
+#import "../util/values.typ": _map-at
+#import "canonical.typ": _canonical-cv, _kebab
 #import "sections.typ": _cv-keys, _read-sections
 #import "cv-checks.typ": _check-root
 

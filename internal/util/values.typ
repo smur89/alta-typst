@@ -48,6 +48,14 @@
   acc + ((key): acc.at(key, default: ()) + (item,))
 })
 
+// `table` with `f` applied to its value at `key` when that's a `kind`
+// (`default` when `key` is absent); anything else, `table` included,
+// passes through for validation to name.
+#let _map-at(table, key, f, kind: dictionary, default: none) = {
+  let v = if type(table) == dictionary { table.at(key, default: default) }
+  if type(v) != kind { table } else { table + ((key): f(v)) }
+}
+
 #let _round-half(x) = calc.round(x * 2) / 2
 
 // `https://jane.dev/` → `jane.dev`.

@@ -8,6 +8,7 @@
   _array-or-empty, _dict-or-empty, _field, _string, _texts,
 )
 #import "../util/checks.typ": _check-type
+#import "../util/values.typ": _group-by, _map-at
 #import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _entry-type, _reference-usable
 
@@ -197,9 +198,7 @@
 // named with `name` (the table's path) and `why`, rather than letting
 // the last silently win.
 #let _rekey(table, f, name, why) = {
-  let sources = table
-    .keys()
-    .fold((:), (acc, k) => acc + ((f(k)): acc.at(f(k), default: ()) + (k,)))
+  let sources = _group-by(table.keys(), f)
   let clashes = sources.values().filter(ks => ks.len() > 1)
   if clashes.len() > 0 {
     panic(
@@ -211,13 +210,6 @@
     )
   }
   table.pairs().map(((k, v)) => (f(k), v)).to-dict()
-}
-
-// `table` with `f` applied to its value at `key` when that's a
-// dictionary; anything else passes through for validation to name.
-#let _map-at(table, key, f) = {
-  let v = _dict-or-empty(table).at(key, default: none)
-  if type(v) != dictionary { table } else { table + ((key): f(v)) }
 }
 
 // #239: a camelCase option name (`columnRatio`) reads as its
@@ -260,20 +252,19 @@
 
 // Runs before the merge over the defaults; a non-dictionary (overall
 // or as a table) passes through for `_strict-merge` to reject.
-#let _canonical-labels(overrides) = if type(overrides) != dictionary {
-  overrides
-} else {
-  let types = overrides.at("publication-types", default: (:))
-  if type(types) != dictionary { overrides } else {
-    let types = _lowercase-table(types, "labels.publication-types")
+#let _canonical-labels(overrides) = _map-at(
+  overrides,
+  "publication-types",
+  default: (:),
+  types => {
     // #239: a set `labels.articles` heads `article`, unless
     // `publication-types.article` is set too.
     let articles = if "articles" in overrides {
       (article: overrides.articles)
     } else { (:) }
-    overrides + (publication-types: articles + types)
-  }
-}
+    articles + _lowercase-table(types, "labels.publication-types")
+  },
+)
 
 // #239: the top-level `accent` colours the accent roles with one
 // colour (`_accent-roles`), as the internal `colours` preference that
@@ -338,15 +329,15 @@
 // `"focus-areas"`, as the section is named inside.
 #let _section-aliases = (focusAreas: "focus-areas")
 #let _canonical-columns(overrides) = (
-  ("left-column-sections", "right-column-sections").fold(overrides, (
-    acc,
-    key,
-  ) => {
-    let v = _dict-or-empty(acc).at(key, default: none)
-    if type(v) != array { acc } else {
-      acc + ((key): v.map(k => _named(_section-aliases, k)))
-    }
-  })
+  ("left-column-sections", "right-column-sections").fold(
+    overrides,
+    (acc, key) => _map-at(
+      acc,
+      key,
+      kind: array,
+      v => v.map(k => _named(_section-aliases, k)),
+    ),
+  )
 )
 
 #let _canonical-preferences(overrides, labels) = {
@@ -355,24 +346,19 @@
       overrides,
     ),
   ))
-  let overrides = if (
-    type(overrides) == dictionary
-      and overrides.at("page-footer", default: none) == "auto"
-  ) { overrides + (page-footer: auto) } else { overrides }
-  let lowercase-key(prefs, key) = {
-    let table = _dict-or-empty(prefs).at(key, default: none)
-    if type(table) != dictionary { prefs } else {
-      prefs + ((key): _lowercase-table(table, "preferences." + key))
-    }
-  }
+  let overrides = _map-at(overrides, "page-footer", kind: str, v => _named(
+    ("auto": auto),
+    v,
+  ))
   // `publication-icons` is lowercased with its deprecated sources below.
   let overrides = _preference-tables
     .filter(t => t != "publication-icons")
-    .fold(overrides, lowercase-key)
-  let icons = if type(overrides) == dictionary {
-    overrides.at("publication-icons", default: (:))
-  }
-  if type(icons) != dictionary { overrides } else {
+    .fold(overrides, (acc, key) => _map-at(
+      acc,
+      key,
+      t => _lowercase-table(t, "preferences." + key),
+    ))
+  _map-at(overrides, "publication-icons", default: (:), icons => {
     let label-icons = _dict-or-empty(labels).at(
       "publication-icons",
       default: none,
@@ -380,11 +366,10 @@
     let from-label = if type(label-icons) == dictionary {
       _lowercase-table(label-icons, "labels.publication-icons")
     } else { (:) }
-    let merged = (
+    (
       _legacy-publication-icons
         + from-label
         + _lowercase-table(icons, "preferences.publication-icons")
     )
-    overrides + (publication-icons: merged)
-  }
+  })
 }
