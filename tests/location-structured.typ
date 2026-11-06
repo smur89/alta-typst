@@ -15,6 +15,12 @@
 //   5. Full JSON Resume dict including `address` + `postalCode` —
 //      the postal fields are accepted but not displayed.
 //   6. All-empty dict — no location row rendered (no orphan icon).
+//   7. `work[].location` and `volunteer[].location` take the same
+//      string-or-dict form (1.5.0+), collapsed the same way on the term
+//      row. Entries: work in string form, a full dict, a city-only
+//      dict, a dict with postal fields (accepted, not displayed), an
+//      all-empty dict and an empty string (date only, no location
+//      icon), then a volunteer dict (the shared renderer covers it too).
 
 #import "../lib.typ": alta
 
@@ -85,5 +91,62 @@
     label: "no location row emitted",
     email: "empty@example.com",
     location: (city: "", region: "", countryCode: ""),
+  ),
+))
+
+#pagebreak()
+
+#alta((
+  basics: (name: "Jane Doe", email: "jane@example.com"),
+  work: (
+    (
+      name: "String Form",
+      position: "Engineer",
+      startDate: "2024",
+      location: "Dublin, Ireland",
+    ),
+    (
+      name: "Full Dict",
+      position: "Engineer",
+      startDate: "2023",
+      location: (city: "Dublin", region: "Leinster", countryCode: "IE"),
+    ),
+    (
+      name: "City Only",
+      position: "Engineer",
+      startDate: "2022",
+      location: (city: "Tokyo"),
+    ),
+    (
+      name: "Postal Fields Ignored",
+      position: "Engineer",
+      startDate: "2021",
+      location: (
+        address: "1 Example Street",
+        postalCode: "D02 XY00",
+        city: "Dublin",
+        countryCode: "IE",
+      ),
+    ),
+    (
+      name: "All Empty Dict",
+      position: "Engineer",
+      startDate: "2020",
+      location: (city: "", region: "", countryCode: ""),
+    ),
+    (
+      name: "Empty String",
+      position: "Engineer",
+      startDate: "2019",
+      location: "",
+    ),
+  ),
+  volunteer: (
+    (
+      organization: "Coding Club",
+      position: "Mentor",
+      startDate: "2018",
+      location: (city: "Berlin", countryCode: "DE"),
+    ),
   ),
 ))

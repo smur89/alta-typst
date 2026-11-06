@@ -1,4 +1,4 @@
-// expect: uppercase-name must be a bool
+// expect: uppercase-name must be a bool, got: 1
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

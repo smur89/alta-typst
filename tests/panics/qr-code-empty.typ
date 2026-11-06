@@ -1,4 +1,4 @@
-// expect: qr-code must be `none`, `auto`, or a non-empty URL string
+// expect: qr-code must be `none`, `auto`, or a non-empty URL string, got: ""
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

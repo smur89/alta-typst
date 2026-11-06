@@ -1,4 +1,4 @@
-// expect: labels.page-number must contain {current}
+// expect: labels.page-number must contain {current}. Got: "Page"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))

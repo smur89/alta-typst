@@ -1,4 +1,4 @@
-// expect: labels.publication-types has keys that collide after lowercasing
+// expect: labels.publication-types has keys that collide after lowercasing (matching is case-insensitive): "Talk" and "talk"
 #import "/lib.typ": alta
 
 #let cv = (basics: (name: "Jane Doe"))
