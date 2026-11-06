@@ -126,8 +126,11 @@
   set grid(column-gutter: built.column-gutter)
   // The intro under the header (the JSON Resume mapping's
   // `<alta-intro>`): a paragraph's spacing, and the theme's `intro`
-  // spacing on top, as `alta()` spaces it. A `show <alta-intro>: set
-  // block(..)` after the template wins.
+  // spacing on top, as `alta()` spaces it. A show-set rule, so a
+  // `show <alta-intro>: set block(..)` after the template wins; it
+  // can't read a later `set par(spacing: ..)`, which needs context,
+  // and a `set` inside a show transform doesn't reach the block's own
+  // spacing.
   show <alta-intro>: set block(
     above: built.par.spacing + built.intro.above * 1em,
     below: built.par.spacing + built.intro.below * 1em,

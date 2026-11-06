@@ -6,7 +6,9 @@
 
 #import "../design/styles.typ": _inline, _part
 #import "../context.typ": _max-rating-state, _theme
-#import "../util/checks.typ": _check, _check-rating, _positive-int-rule
+#import "../util/checks.typ": (
+  _check, _check-rating, _check-type, _positive-int-rule,
+)
 
 #let _half-fill(accent, border) = gradient.linear(
   (accent, 0%),
@@ -61,23 +63,31 @@
 
 /// A label with a row of rating dots at the right edge: filled,
 /// half-filled, then empty. A text value takes the dots' place, the row
-/// as tall as the dots', as `alta()` shows a fluency it can't rate.
+/// as tall as the dots', as `alta()` shows a fluency it can't rate;
+/// `none` leaves the label alone on its row.
 ///
 /// - label (content, str): The row's label.
-/// - value (int, float, str, content): The rating, from 0 to `max`, in
-///   steps of 0.5; or a text (`"Conversational"`) shown as written.
+/// - value (int, float, str, content, none): The rating, from 0 to
+///   `max`, in steps of 0.5; or a text (`"Conversational"`) shown as
+///   written.
 /// - max (auto, int): The dots in the row; `auto` is the enclosing
 ///   `alta()`'s `preferences.max-rating`.
 /// -> content
-#let rating(label, value, max: auto) = context {
-  if type(value) in (str, content) {
-    _label-row(_theme(), label, value)
-  } else {
+#let rating(label, value, max: auto) = {
+  _check-type(
+    "rating value",
+    value,
+    (int, float, str, content, type(none)),
+    "a number, a string, content or none",
+  )
+  context if type(value) in (int, float) {
     let max-rating = if max == auto { _max-rating-state.get() } else { max }
     // The state is validated as `max-rating`; an explicit `max` isn't.
     _check("rating() max", max-rating, _positive-int-rule)
     _check-rating("rating value", value, max-rating)
     _label-row(_theme(), label, _rating-dots(value, max-rating))
+  } else {
+    _label-row(_theme(), label, value)
   }
 }
 
