@@ -6,7 +6,7 @@
 
 #import "/.template-src.typ": cv, preferences
 #import "/lib.typ": alta, alta-from-json, altacv
-#import "/internal/blocks.typ": _plain
+#import "/tests/unit/_plain.typ": plain
 
 #show: altacv
 // Every run of text the CV renders, wherever it sits: in a paragraph,
@@ -107,7 +107,7 @@
 // here. The dict's summary is content where the JSON's is a string,
 // so the description compares as words.
 #context {
-  let words(it) = _plain(it).split().join(" ")
+  let words(it) = plain(it).split().join(" ")
   let (dict, json) = query(<alta-internal-document>).map(m => {
     let info = m.value
     info + (description: words(info.description))

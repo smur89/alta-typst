@@ -4,7 +4,6 @@
 // takes the dots' place.
 
 #import "/lib.typ": altacv, label-row, publication, rating, skill-row
-#import "/internal/blocks.typ": _plain
 
 #set document(author: "Jane Doe")
 #show: altacv
@@ -41,23 +40,28 @@
 // Matched trimmed and ignoring case, as `alta()` matches its owner.
 #publication(title: "A", authors: ("A. N. Other", " jane doe "))[]
 #context assert.eq(owners.get(), ([jane doe],))
-// Content's text, as an owner is matched and a photo's alt reads:
-// a gap or a line break is a space, a negative kern nothing.
-#assert.eq(_plain([Jane#h(0.3em)Doe]), "Jane Doe")
-#assert.eq(_plain([Jane#h(1fr)Doe]), "Jane Doe")
-#assert.eq(_plain([Jane#linebreak()Doe]), "Jane Doe")
-#assert.eq(_plain([T#h(-0.1em)eX]), "TeX")
+// An author given as content is matched, and drawn, as its text: a
+// gap or a line break is a space, a negative kern nothing.
 #publication(title: "B", authors: ([Jane#h(0.3em)Doe],))[]
 #context assert.eq(owners.get(), ([jane doe], [Jane Doe]))
+#publication(
+  title: "B2",
+  authors: ([Jane#h(1fr)Doe], [Jane#linebreak()Doe], [T#h(-0.1em)eX]),
+  owners: ("Jane Doe", "TeX"),
+)[]
+#context assert.eq(
+  owners.get().slice(2),
+  ([Jane Doe], [Jane Doe], [TeX]),
+)
 // `owners` replaces the document's author, matched the same way.
 #publication(
   title: "C",
   authors: ("Jane Doe", "J. Doe", "Alex Roe"),
   owners: (" j. doe", "ALEX ROE"),
 )[]
-#context assert.eq(owners.get(), ([jane doe], [Jane Doe], [J. Doe], [Alex Roe]))
+#context assert.eq(owners.get().slice(5), ([J. Doe], [Alex Roe]))
 #publication(title: "D", authors: ("Jane Doe",), owners: ())
-#context assert.eq(owners.get().len(), 4)
+#context assert.eq(owners.get().len(), 7)
 
 = Skills
 #skill-row("Typst", ("Markup",), level: "Expert")

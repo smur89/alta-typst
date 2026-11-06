@@ -3,7 +3,7 @@
 // contact rows.
 
 #import "/lib.typ": adapter, altacv, contact, cv-header, entry
-#import "/internal/blocks.typ": _plain
+#import "/tests/unit/_plain.typ": plain
 
 #set document(title: "Jane Doe")
 #show: altacv
@@ -15,7 +15,7 @@
 }
 #let summaries = state("summaries", ())
 #show <alta-summary>: it => {
-  summaries.update(xs => xs + (_plain(it),))
+  summaries.update(xs => xs + (plain(it),))
   it
 }
 // The theme's separators, as `alta()` joins a period and fact groups.
