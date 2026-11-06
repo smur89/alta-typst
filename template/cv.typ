@@ -12,7 +12,11 @@
 // behind every frame of `examples/preview.webp` (via
 // `examples/_cv.typ`).
 
-#import "@preview/altacv:1.8.0": alta, altacv, avatar-placeholder // x-release-please-version
+// x-release-please-start-version
+#import "@preview/altacv:1.8.0": (
+  alta, alta-from-json, altacv, avatar-placeholder,
+)
+// x-release-please-end
 
 #let cv = (
   basics: (
@@ -176,3 +180,14 @@
 #show: altacv.with()
 
 #alta(cv, preferences: preferences)
+
+// Or load the same CV from JSON Resume: `resume.json`, beside this
+// file, holds it in the standard schema (https://jsonresume.org), so
+// any JSON Resume tool can write it. It has no photo: the one above is
+// set in Typst (`basics.image`).
+// #alta-from-json(path("resume.json"), preferences: preferences)
+//
+// To go further: write sections of your own in markup after the CV,
+// or copy the mapping `alta()` draws with and change how a section
+// looks. The README covers both ("Write the CV in markup", "Your own
+// mapping").
