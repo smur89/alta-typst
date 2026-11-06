@@ -16,7 +16,7 @@
 #import "presets/phosphor.typ"
 #import "presets/catppuccin.typ"
 
-/// The built-in themes for `preferences.theme`.
+/// The built-in themes, for `altacv.with(theme: ..)`.
 /// -> dictionary
 #let themes = (
   teal: teal.theme,

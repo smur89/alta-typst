@@ -4,7 +4,6 @@
 // preferences, with the `maps-providers` presets for `maps-provider`.
 
 #import "../design/icon-set.typ": _network-icons, _publication-icons
-#import "../design/presets.typ": themes
 #import "sections.typ": _keys-for-column
 
 #let _default-labels = toml("labels-en.toml")
@@ -39,9 +38,8 @@
   // `auto`: the theme's.
   font: auto,
   body-size: 10pt,
-  // Renders as the theme state's default does (`tests/unit/colours.typ`
-  // checks).
-  theme: themes.teal,
+  // Internal: the deprecated `accent`'s roles over the default theme
+  // (`_fold-accent`). A caller's `colours` panics (`_merge-options`).
   colours: (:),
   publication-icons: _publication-icons,
   project-icons: (:),

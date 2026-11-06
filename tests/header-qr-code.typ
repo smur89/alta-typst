@@ -12,7 +12,7 @@
 //      sides with the header text filling the middle column.
 //   4. QR + photo with `photo-position: left` — confirms the QR
 //      follows the photo and ends up on the right.
-//   5. QR themed by a custom `colours.accent` — exercises the
+//   5. QR under a theme with its own accent — exercises the
 //      `fill: accent` path through the QR helper.
 //   6. QR alongside a centred photo — QR pins the top-left corner
 //      next to the photo (top row), with the centred-header text in a
@@ -25,7 +25,7 @@
 //      case: photo + QR share the top row (photo centred page-wise,
 //      QR top-left), text sits flush-left in a row below.
 
-#import "../lib.typ": alta
+#import "../lib.typ": alta, altacv, themes
 
 #alta(
   (
@@ -85,17 +85,24 @@
 
 #pagebreak()
 
-#alta(
-  (
-    basics: (
-      name: "Accent-Themed QR",
-      label: "QR inherits preferences.colours.accent",
-      email: "qr@example.com",
-      url: "https://example.com/cv",
+// The theme's accent, through the template.
+#[
+  #show: altacv.with(
+    theme: themes.teal
+      + (colours: (..themes.teal.colours, accent: rgb("#1976D2"))),
+  )
+  #alta(
+    (
+      basics: (
+        name: "Accent-Themed QR",
+        label: "QR inherits the theme's accent",
+        email: "qr@example.com",
+        url: "https://example.com/cv",
+      ),
     ),
-  ),
-  preferences: (qr-code: auto, colours: (accent: rgb("#1976D2"))),
-)
+    preferences: (qr-code: auto),
+  )
+]
 
 #pagebreak()
 

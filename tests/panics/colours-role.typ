@@ -1,5 +1,4 @@
-// expect: colours.heading must be a colour
-#import "/lib.typ": alta
+// expect: theme.colours.heading must be a colour
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (colours: (heading: "red")))
+#show: altacv.with(theme: (colours: (heading: "red")))

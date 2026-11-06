@@ -5,6 +5,7 @@
 // legacy form in the next major then touches only this module.
 
 #import "../util/fields.typ": _dict-or-empty, _field, _string-at
+#import "../util/checks.typ": _check-type
 #import "../design/theme.typ": _accent-roles
 #import "cv.typ": _altacv-ns, _entry-type, _reference-usable
 
@@ -229,20 +230,18 @@
 }
 
 // #239: the top-level `accent` colours the accent roles with one
-// colour (`_accent-roles`), beneath the caller's `colours`.
-// It's dropped even when `colours` isn't a dictionary, so the check
-// names `colours` rather than an unknown `accent`; a non-dictionary
+// colour (`_accent-roles`), as the internal `colours` preference that
+// overrides standalone `alta()`'s theme (`_token-prefs`). A caller
+// can't set `colours` (`_merge-options`). A non-dictionary
 // `preferences` passes through for `_strict-merge` to reject.
 #let _fold-accent(overrides) = {
   if type(overrides) != dictionary or "accent" not in overrides {
     overrides
   } else {
-    let colours = overrides.at("colours", default: (:))
-    let folded = if type(colours) == dictionary {
-      _accent-roles(overrides.accent) + colours
-    } else { colours }
+    let accent = overrides.accent
+    _check-type("accent", accent, (color,), "a colour (e.g. rgb(\"#1A3A6C\"))")
     let rest = overrides.pairs().filter(((k, _)) => k != "accent").to-dict()
-    rest + (colours: folded)
+    rest + (colours: _accent-roles(accent))
   }
 }
 
@@ -282,7 +281,7 @@
 }
 
 // Runs before the merge over the defaults. #239: the deprecated
-// top-level `accent` becomes `colours` (`_fold-accent`), the string
+// top-level `accent` becomes the internal `colours` (`_fold-accent`), the string
 // alignments become Typst's values, and the free-text icons, then a
 // set `labels.publication-icons`, sit beneath the caller's
 // `publication-icons`, all lowercased, so the merge sees one table. `project-icons` and `profile-icons` are lowercased too.

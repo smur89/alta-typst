@@ -246,11 +246,11 @@ Set only the keys you want to change. Option names are kebab-case (`column-ratio
 ```
 <!-- x-release-please-end -->
 
-Settings layer in order: the theme, then your `set` and `show` rules after the show line, which win over it. Standalone `alta()` takes the theme, font, paper and footer as preferences instead ([In the template](#in-the-template) maps each).
+Settings layer in order: the theme, then your `set` and `show` rules after the show line, which win over it. Standalone `alta()` takes the font, paper and footer as preferences instead ([In the template](#in-the-template) maps each), and the default theme: a theme is the template's.
 
 ### Themes and colours
 
-The template's `theme` picks the look (`preferences.theme` standalone). The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
+The template's `theme` picks the look; standalone `alta()` renders the default theme. The built-in themes are `themes.teal` (the default), `navy`, `crimson`, `forest`, `plum`, `charcoal`, `altacv`, `rust`, `bauhaus`, `riso`, `phosphor` and `catppuccin`.
 
 To recolour a role, set it over the theme's colours:
 
@@ -258,7 +258,6 @@ To recolour a role, set it over the theme's colours:
 #show: altacv.with(theme: themes.altacv + (colours: (..themes.altacv.colours, body: black)))
 ```
 
-Standalone, `preferences.colours` does the same: `#alta(cv, preferences: (theme: themes.altacv, colours: (body: black)))`.
 
 | Role | Colours |
 |---|---|
@@ -554,8 +553,6 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 
 | Key | Default | Effect |
 |---|---|---|
-| `theme` | `themes.teal` | The theme: see [Themes and colours](#themes-and-colours). |
-| `colours` | `(:)` | Colour roles over the theme's. |
 | `font` | `auto` | Font family or fallback array, over the theme's (Lato by default). |
 | `body-size` | `10pt` | Base text size, an absolute length. Everything else scales from it. |
 | `publication-icons` | built-ins | Icon per `publications[].type`, from the [icon set](#exports); merged over the built-ins (`article` → `newspaper`, `book` and `thesis` → `book`, `talk` → `microphone`, others `file`). |
@@ -605,12 +602,10 @@ Values are FontAwesome glyph names from [fontawesome.com/search](https://fontawe
 
 #### In the template
 
-Inside `#show: altacv.with(..)`, the document-level preferences are the template's argument or your own rules after the show line; passed to `alta()` there, they panic, naming the replacement.
+Inside `#show: altacv.with(..)`, the document-level preferences are the template's argument or your own rules after the show line; passed to `alta()` there, they panic, naming the replacement. The theme has no preference: it is the template's `theme` (see [Themes and colours](#themes-and-colours)), and `theme` or `colours` passed to `alta()` panic, standalone too.
 
 | Standalone preference | In the template |
 |---|---|
-| `theme` | `altacv.with(theme: ..)` |
-| `colours` | Theme tokens: `altacv.with(theme: themes.teal + (colours: (..themes.teal.colours, accent: ..)))` |
 | `font` | `set text(font: ..)` |
 | `body-size` | `set text(size: ..)` |
 | `paper` | `set page(paper: ..)` |
@@ -629,7 +624,7 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 |---|---|
 | camelCase option names (`columnRatio`, `labels.pageNumber`) | The kebab-case name (`column-ratio`, `labels.page-number`). Data stays JSON Resume's camelCase (`startDate`). |
 | The section key `"focusAreas"` in a column list | `"focus-areas"`. The data stays at `custom.altacv.focusAreas`. |
-| `accent` | `theme`, or `colours` for a custom colour. |
+| `accent` | The template's theme: `#show: altacv.with(theme: themes.navy)`, or a colour of your own over one, `themes.teal + (colours: (..themes.teal.colours, accent: ..))`. Standalone, it colours the accent, headings, their rules and the name. |
 | `references-available-on-request` | `references[].availableOnRequest`. |
 | `imagePosition`, `imageSize` | `photo-position`, `photo-size`. |
 | `photo-position: "left"`, `"right"`, `"center"` | The alignments `left`, `right`, and `top` (or `bottom`) for `"center"`. |

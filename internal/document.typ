@@ -32,7 +32,8 @@
 // heading rules, then the preferences that stand in for a user's set
 // rules after it.
 #let _standalone(prefs, labels, footer, body) = {
-  let theme = _theme-for(prefs.theme, _token-prefs(prefs))
+  // The default theme, under `font` and the deprecated `accent`.
+  let theme = _theme-for((:), _token-prefs(prefs))
   show: _document.with(theme, prefs.body-size, prefs.margin, scoped: false)
   show: _label-headings.with(theme)
   // `text.lang` unless the deprecated `labels.lang` is set; drop with

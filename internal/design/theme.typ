@@ -64,7 +64,7 @@
   ),
   // To embolden within a role.
   font-weight: (regular: "regular", bold: "bold"),
-  // The colour roles (`preferences.colours`): the default theme's
+  // The colour roles (a theme's `colours`): the default theme's
   // (`presets/teal.typ`). `emphasis` and `body` follow Bootstrap's
   // roles.
   colours: teal.theme.colours,

@@ -2,10 +2,11 @@
 // through and check its colours against the name, the tagline, the
 // heading and its rule, the language-rating dots, the skill-tag
 // fills and the organisation line all at once. Then a page setting
-// `colours` over a theme, to confirm it changes only the roles it
+// one colour over a theme, to confirm it changes only the role it
 // names, and one adding a show rule on a part over both, which wins.
+// Each page's theme is a scoped `altacv`.
 
-#import "../lib.typ": alta, themes
+#import "../lib.typ": alta, altacv, themes
 
 #let sample(name, theme-key) = (
   basics: (
@@ -27,29 +28,32 @@
 )
 
 #for key in themes.keys() {
-  alta(sample("Theme " + key, key), preferences: (theme: themes.at(key)))
+  [
+    #show: altacv.with(theme: themes.at(key))
+    #alta(sample("Theme " + key, key))
+  ]
   pagebreak()
 }
 
 // A theme as the default, with one role changed.
-#alta(
-  sample("Theme navy, gold rule", "navy"),
-  preferences: (
-    theme: themes.navy,
-    colours: (heading-rule: rgb("#E7D192")),
-  ),
-)
+#[
+  #show: altacv.with(
+    theme: themes.navy
+      + (colours: (..themes.navy.colours, heading-rule: rgb("#E7D192"))),
+  )
+  #alta(sample("Theme navy, gold rule", "navy"))
+]
 #pagebreak()
 
 // A theme, a role over it, and a show rule over both: the body turns
 // black, the section titles navy, the rules stay gold.
-#{
-  show <alta-section-title>: set text(fill: themes.navy.colours.heading)
-  alta(
-    sample("Theme altacv, black body, navy titles", "altacv"),
-    preferences: (theme: themes.altacv, colours: (body: black)),
+#[
+  #show: altacv.with(
+    theme: themes.altacv + (colours: (..themes.altacv.colours, body: black)),
   )
-}
+  #show <alta-section-title>: set text(fill: themes.navy.colours.heading)
+  #alta(sample("Theme altacv, black body, navy titles", "altacv"))
+]
 
 #pagebreak()
 
@@ -57,6 +61,13 @@
 // typeface, a smaller headline and ` | ` between facts (education's
 // area and score). Everything else, colours included, is the default
 // theme's.
+#show: altacv.with(
+  theme: (
+    font: "Libertinus Serif",
+    type: (headline: (size: 1.2)),
+    separator: (facts: " | "),
+  ),
+)
 #alta(
   (
     basics: (
@@ -80,13 +91,6 @@
         startDate: "2018",
         endDate: "2019",
       ),
-    ),
-  ),
-  preferences: (
-    theme: (
-      font: "Libertinus Serif",
-      type: (headline: (size: 1.2)),
-      separator: (facts: " | "),
     ),
   ),
 )

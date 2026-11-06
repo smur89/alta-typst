@@ -1,5 +1,4 @@
 // expect: theme.stroke-width.thin must be a positive number
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (stroke-width: (thin: -1))))
+#show: altacv.with(theme: (stroke-width: (thin: -1)))

@@ -245,15 +245,13 @@
 }
 
 // A theme is `_tokens` overrides, any of them, and so are the
-// preferences that override it (`_token-prefs`: `font`, `colours`).
+// preferences that override standalone `alta()`'s (`_token-prefs`:
+// `font`, and the deprecated `accent` as `colours`).
 #let _check-theme(theme) = {
   _check-type("theme", theme, (dictionary,), "a theme (e.g. themes.altacv)")
   _check-tokens(theme, _tokens, "theme")
 }
-#let _validate-theme(prefs) = {
-  _check-theme(prefs.theme)
-  _check-tokens(_token-prefs(prefs), _tokens, "")
-}
+#let _validate-theme(prefs) = _check-tokens(_token-prefs(prefs), _tokens, "")
 
 // `section-keys` is passed in, not imported: `data/sections.typ`
 // imports this module, through `canonical.typ`.

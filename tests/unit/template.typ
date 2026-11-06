@@ -4,13 +4,13 @@
 // Standalone `alta()`'s theme isn't: content after it reads it, as it
 // did before the template.
 
-#import "/lib.typ": alta, altacv, themes
+#import "/lib.typ": alta, altacv, palettes, themes
 #import "/internal/context.typ": _theme
 
 #let accent() = _theme().colours.accent
 
-#alta((basics: (name: "Jane Doe")), preferences: (theme: themes.navy))
-#context assert.eq(accent(), themes.navy.colours.accent)
+#alta((basics: (name: "Jane Doe")), preferences: (accent: palettes.navy))
+#context assert.eq(accent(), palettes.navy)
 
 #show: altacv.with(theme: themes.teal)
 #context assert.eq(accent(), themes.teal.colours.accent)

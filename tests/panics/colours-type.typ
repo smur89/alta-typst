@@ -1,5 +1,4 @@
-// expect: colours must be a dictionary
-#import "/lib.typ": alta
+// expect: theme.colours must be a dictionary
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (colours: red))
+#show: altacv.with(theme: (colours: red))

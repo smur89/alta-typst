@@ -1,5 +1,4 @@
 // expect: theme.type.headline.weight must be a font weight
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (type: (headline: (weight: "heavyy")))))
+#show: altacv.with(theme: (type: (headline: (weight: "heavyy"))))

@@ -4,7 +4,12 @@
 // centred `bottom` with the text `center`, and `datetime` dates, a
 // full date showing its day, beside a year-month string.
 
-#import "../lib.typ": alta
+#import "../lib.typ": alta, altacv, cv-updated-footer
+
+#show: altacv.with(
+  theme: (treatment: (link: upper, owner: underline, preamble: strong)),
+)
+#set page(footer: cv-updated-footer())
 
 #alta(
   (
@@ -42,9 +47,5 @@
   preferences: (
     photo-position: bottom,
     header-text-align: center,
-    last-modified-footer: true,
-    theme: (
-      treatment: (link: upper, owner: underline, preamble: strong),
-    ),
   ),
 )

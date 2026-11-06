@@ -1,5 +1,4 @@
 // expect: theme.treatment.link must be
-#import "/lib.typ": alta
+#import "/lib.typ": altacv
 
-#let cv = (basics: (name: "Jane Doe"))
-#alta(cv, preferences: (theme: (treatment: (link: "bold"))))
+#show: altacv.with(theme: (treatment: (link: "bold")))
