@@ -703,7 +703,7 @@ Show-rule targets for [restyling](#restyling-parts). They are public API and cha
 | `<alta-date>` | text | An entry's date or date range. |
 | `<alta-location>` | text | An entry's location. |
 | `<alta-summary>` | text | A summary: the CV's, the objective, or an entry's. |
-| `<alta-intro>` | block | Inside the template, the block around the CV's summary under the header; the template spaces it, and `show <alta-intro>: set block(above: .., below: ..)` after the show line respaces it. |
+| `<alta-intro>` | block | Inside the template, the block around the CV's summary under the header; the template spaces it (a paragraph's `spacing`, plus the theme's intro spacing as `inset`), and `show <alta-intro>: set block(spacing: .., inset: ..)` after the show line respaces it. |
 | `<alta-pill>` | text | A skill pill's text (its box is the theme's). |
 | `<alta-pill-label>` | text | A skill group's label pill. |
 | `<alta-keyword>` | text | One of an entry's keywords: a work or project keyword, an education's course. |

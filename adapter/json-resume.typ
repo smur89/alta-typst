@@ -49,6 +49,13 @@
   if type(value) == str and value != "" { value }
 }
 
+// An entry's summary: its `summary`, else its `description`, the field
+// JSON Resume's projects use (and older exports' work and volunteer).
+#let _summary(entry) = {
+  let summary = _field(entry, "summary")
+  if summary != none { summary } else { _field(entry, "description") }
+}
+
 // One of altacv's own fields, in the entry's `custom.altacv`.
 #let _altacv(obj, key, default: none) = {
   let custom = obj.at("custom", default: none)
@@ -127,7 +134,7 @@
     org-url: _field(e, "url"),
     date: period(e),
     location: location(e),
-    summary: _field(e, "summary"),
+    summary: _summary(e),
     keywords: keywords,
     bullets(e),
   )
@@ -138,7 +145,7 @@
     org: _field(p, "entity"),
     roles: p.at("roles", default: ()),
     date: period(p),
-    summary: _field(p, "summary"),
+    summary: _summary(p),
     keywords: p.at("keywords", default: ()),
     bullets(p),
   )

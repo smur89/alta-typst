@@ -135,11 +135,13 @@
     _default-preferences.margin,
   )
   show: _level-headings.with(built)
-  // The mapping's intro, spaced as `alta()`'s; a later
-  // `show <alta-intro>: set block(..)` wins.
+  // The mapping's intro, spaced as `alta()`'s: a paragraph's spacing,
+  // which merges with its neighbours', and the theme's `intro` inside
+  // it, which adds to it; a later `show <alta-intro>: set block(..)`
+  // wins.
   show <alta-intro>: set block(
-    above: built.par.spacing + built.intro.above * 1em,
-    below: built.par.spacing + built.intro.below * 1em,
+    spacing: built.par.spacing,
+    inset: (top: built.intro.above * 1em, bottom: built.intro.below * 1em),
   )
   // Picks `alta()`'s template form: the CV alone, from its metadata.
   show <alta-internal-standalone>: none
