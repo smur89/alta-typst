@@ -204,7 +204,7 @@ Then render your copy under the template, and edit it from there:
 ```
 <!-- x-release-please-end -->
 
-`resume(cv, labels: auto, preferences: (:))` takes `alta()`'s kebab-case labels and preferences; a missing one reads `alta()`'s default, and the labels are the document language's under the template's (`altacv.with(labels: ..)`). The blocks read the template's labels themselves (an `entry`'s "Present", its alt text), so set those there rather than in `resume`'s `labels`. The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
+`resume(cv, preferences: (:))` takes `alta()`'s kebab-case preferences; a missing one reads `alta()`'s default. Its labels are the document language's under the template's: set them with `#show: altacv.with(labels: ..)`, which the blocks read too (an `entry`'s "Present", its alt text). The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder.
 
 The mapping reads the CV with the `adapter` helpers, the same readers `alta()` uses, so your copy reads the data as `alta()` does:
 

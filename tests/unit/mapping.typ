@@ -1,13 +1,13 @@
 // The JSON Resume mapping (`adapter/json-resume.typ`) through the
 // blocks' overrides: the name from `basics.name` with no document
 // title, aligned per `header-text-align`; the labels in the document's
-// language under the caller's; the owners from the CV; a skill's
+// language under the template's; the owners from the CV; a skill's
 // numeric rating; and a fluency it can't rate shown as text.
 
 #import "/lib.typ": altacv
 #import "/adapter/json-resume.typ": resume
 
-#show: altacv
+#show: altacv.with(labels: (skills: "Buanna"))
 #set text(lang: "ga")
 
 #let names = state("names", ())
@@ -47,7 +47,6 @@
     ),
     languages: ((language: "French", fluency: "Conversational"),),
   ),
-  labels: (skills: "Buanna"),
   preferences: (owner-names: ("J. Doe",), max-rating: 3),
 )
 

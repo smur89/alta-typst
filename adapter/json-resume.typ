@@ -19,7 +19,9 @@
 //   #set document(title: cv.basics.name, author: cv.basics.name)
 //   #resume(cv)
 //
-// The `set document` is only the PDF's metadata. In your copy, a bare
+// Labels come from the template, `#show: altacv.with(labels: ..)`,
+// which the blocks read too. The `set document` is only the PDF's
+// metadata. In your copy, a bare
 // `basics.image` path resolves from your copy's file.
 //
 // The names below are the public API (`lib.typ` re-exports exactly
@@ -485,22 +487,19 @@
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema (camelCase
 ///   fields) plus altacv's `custom.altacv` extensions.
-/// - labels (auto, dictionary): Display strings, by `alta()`'s
-///   kebab-case label keys (`work`, `other-projects`,
-///   `publication-types`, …), over the document language's and the
-///   template's (`adapter.labels()`); `auto` is those alone. The blocks
-///   read the template's themselves (`entry`'s "Present", the alt
-///   text): set those with `altacv.with(labels: ..)`.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …); a missing key
 ///   reads alta's default.
 ///
-/// The name is `basics.name`, else the document's title; the owners
+/// The labels are the resolved ones (`adapter.labels()`), as the
+/// blocks read them: the document language's, under the template's
+/// (`altacv.with(labels: ..)`) and, through `alta(cv, labels: ..)`,
+/// that call's. The name is `basics.name`, else the document's title; the owners
 /// set apart among publication authors are it and `owner-names`, else
 /// the document's author.
 /// -> content
-#let resume(cv, labels: auto, preferences: (:)) = context _resume(
+#let resume(cv, preferences: (:)) = context _resume(
   cv,
-  adapter.labels(overrides: if labels == auto { (:) } else { labels }),
+  adapter.labels(),
   preferences,
 )
