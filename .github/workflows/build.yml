@@ -40,12 +40,14 @@ jobs:
           persist-credentials: false
 
       # In the image the fixtures are committed from, so the drift check
-      # compares like with like. Rendering the fixtures doubles as their
-      # compile check (`test-fixtures`). `-B`: checkout mtimes could make
-      # the tracked PDFs look fresh. `-k`: report every failure. `-j4
-      # -O`: four cores, each check's log kept together.
-      - name: Render test fixtures, compile examples + template, run panic and unit checks
-        run: make in-image TARGETS='-k -B -j4 -O test-pdfs test-compile test-panics test-unit'
+      # compares like with like. `test-pdfs` renders the fixtures for
+      # that check; `test` (the same as `make test` locally) compiles them
+      # again against the PDF standards and fails on a warning, which the
+      # plain render doesn't. `-B`: checkout mtimes could make the
+      # tracked PDFs look fresh. `-k`: report every failure. `-j4 -O`:
+      # four cores, each check's log kept together.
+      - name: Render test fixtures, run make test
+        run: make in-image TARGETS='-k -B -j4 -O test-pdfs test'
 
       - name: Verify examples/tests/*.pdf are in sync
         run: make check-drift DRIFT_PATHS='examples/tests/*.pdf' DRIFT_FIX='make docker-pdfs'

@@ -266,9 +266,8 @@ $(PANIC_CHECKS): check/panic/%:
 	  exit 1; \
 	fi
 
-# Every check CI's lint job runs, so a green `make test` locally means
-# it will pass too. CI renders the fixtures with `test-pdfs` instead of
-# `test-fixtures`, which would compile them a second time.
+# Every check CI's lint job runs; CI also renders the fixtures with
+# `test-pdfs` for its drift check.
 test: test-compile test-fixtures test-panics test-unit ## compile examples, fixtures and template; run panic and unit checks
 
 # The examples and the `typst init` starter (via `$(TEMPLATE_SRC)`, as
