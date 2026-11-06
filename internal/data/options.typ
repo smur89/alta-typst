@@ -29,12 +29,13 @@
 
 // The one label resolver: the English defaults, the bundled
 // translation for `lang` (if any), then each layer of overrides in
-// turn, kebab-cased, canonicalised and merged; validated. The layers
-// are the templates' (`altacv.with(labels: ..)`, outermost first),
-// then a call's (`alta(cv, labels: ..)`), so a later layer wins. The
-// bundled labels ship checked (`tests/unit/labels.typ`), so with no
-// overrides there's nothing to check: `lang` is then `text.lang`,
-// which Typst has checked.
+// turn, kebab-cased, canonicalised and merged. The layers are the
+// templates' (`altacv.with(labels: ..)`, outermost first), then a
+// call's (`alta(cv, labels: ..)`), so a later layer wins. Also the
+// read path (`_labels()`, the footers), so it checks nothing: each
+// layer is checked where it's set (`_template-labels`,
+// `_merge-options`), and the bundled labels ship checked
+// (`tests/unit/labels.typ`).
 #let _resolve-labels(lang, ..layers) = {
   // A non-string `labels.lang` has no translation; validation names it.
   let translation = if type(lang) == str {
@@ -52,7 +53,6 @@
       tables: _label-tables,
     ),
   )
-  if layers.any(layer => layer != (:)) { _validate-labels(merged) }
   merged
 }
 
@@ -154,13 +154,21 @@
     ..template,
     labels,
   )
+  // The template's layers were checked where set; with no labels of
+  // its own, `lang` is `text.lang`, which Typst has checked.
+  if labels != (:) { _validate-labels(merged-labels) }
+  let overrides = _canonical-preferences(preferences, labels)
   let merged-preferences = _strict-merge(
     _default-preferences,
-    _canonical-preferences(preferences, labels),
+    overrides,
     "preferences",
     tables: _preference-tables,
   )
-  _validate-preferences(merged-preferences)
+  // Only what the caller set, merged: the defaults pass their rules
+  // (`tests/unit/validation.typ`).
+  _validate-preferences(
+    merged-preferences.pairs().filter(((k, _)) => k in overrides).to-dict(),
+  )
   (labels: merged-labels, prefs: merged-preferences)
 }
 
@@ -170,6 +178,6 @@
 #let _template-labels(labels) = {
   let labels = _kebab-keys("labels")(labels)
   _check-template-labels(labels, _template-label-replacements.keys())
-  let _ = _resolve-labels("en", labels)
+  _validate-labels(_resolve-labels("en", labels))
   labels
 }

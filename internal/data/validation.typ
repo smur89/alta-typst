@@ -172,7 +172,8 @@
   }
 }
 
-// The merged preferences, but for the icon tables (`_preference-rules`).
+// `prefs`, but for the icon tables, checked before their merge
+// (`_preference-rules`).
 #let _validate-preferences(prefs) = for (key, v) in prefs {
   if key not in _preference-tables { _check-preference(key, v) }
 }
