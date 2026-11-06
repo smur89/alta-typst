@@ -1,0 +1,4 @@
+# Renders are committed: never diff or merge them as text.
+*.pdf binary
+*.png binary
+*.webp binary
