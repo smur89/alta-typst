@@ -1,10 +1,11 @@
-// JSON Resume import: the strict schema plus altacv's extensions,
-// added as optional fields so a canonical `resume.json` still
-// validates. They take the deprecated top-level forms
-// (`_canonical-cv` lifts them into `custom.altacv`) until gairm-import
-// accepts `custom` (#217). `alta-from-json` lives in `render.typ`, as it composes `alta`.
+// JSON Resume import: the strict JSON Resume 1.7.0 schema, whose
+// `custom` objects carry altacv's extensions (`custom.altacv`), plus
+// the deprecated forms of three of them as optional fields, so a
+// `resume.json` still using them validates (`_canonical-cv` lifts them
+// into `custom.altacv`) until #239 removes them. `alta-from-json`
+// lives in `render.typ`, as it composes `alta`.
 
-#import "@preview/gairm-import:0.9.0": (
+#import "@preview/gairm-import:0.10.1": (
   add-field, array-of, content-type, lens, number-type, parse as _parse,
   resume-schema-strict, str-type,
 )
@@ -14,7 +15,6 @@
   s = add-field(s, lens(()), "focusAreas", array-of(content-type))
   s = add-field(s, lens(("languages", "items")), "rating", number-type)
   s = add-field(s, lens(("awards", "items")), "url", str-type)
-  s = add-field(s, lens(("publications", "items")), "type", str-type)
   s
 }
 
@@ -22,8 +22,7 @@
 /// altacv's extensions) and returns the CV dictionary `alta` takes.
 /// Panics on an invalid document, naming the field.
 ///
-/// - data (path, str, dictionary): The `resume.json`, as
-///   `path("resume.json")`, a path string from the project root
-///   (`"/resume.json"`), or an already-decoded dictionary.
+/// - data (path, dictionary): The `resume.json`, as
+///   `path("resume.json")`, or an already-decoded dictionary.
 /// -> dictionary
 #let from-json-resume(data) = _parse(data, schema: _altacv-schema)

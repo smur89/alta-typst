@@ -206,7 +206,7 @@
 /// Renders a CV from a `resume.json`, validated against the JSON Resume
 /// schema first: `alta(from-json-resume(data), ..)`.
 ///
-/// - data (path, str, dictionary): The `resume.json`, as for
+/// - data (path, dictionary): The `resume.json`, as for
 ///   `from-json-resume`.
 /// - ..rest (arguments): `labels:` and `preferences:`, as for `alta`.
 /// -> content
