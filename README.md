@@ -149,7 +149,7 @@ Your own `set` and `show` rules go between the two lines and win. Only `basics.n
 
 #cv-header(
   tagline: "Senior Software Engineer",
-  contacts: (contact("email", "jane@example.com", link: "mailto:jane@example.com"),),
+  contacts: (contact("email", "jane@example.com", url: "mailto:jane@example.com"),),
 )
 
 #cv-columns(
@@ -210,7 +210,7 @@ The mapping reads the CV with the `adapter` helpers, the same readers `alta()` u
 
 - `adapter.format-date(value, format:, months:)`: a JSON Resume date as `alta()` shows it (`"2024-06"` reads `"Jun 2024"`).
 - `adapter.location-text(location)`: a location's city, region and country code, for you to join.
-- `adapter.basics-contacts(basics, link:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
+- `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)`: the contact bar's records from `basics`, for `cv-header(contacts: ..)`.
 - `adapter.fluency-rating(entry, max:)`: a language's rating from its `custom.altacv.rating` or its `fluency` term, else `none`.
 - `adapter.group-by-type(items)`: entries grouped by `type`, in the order each first appears.
 - `adapter.labels(overrides:)`: the labels in the document's language, `overrides` over them, as `alta()` resolves them. Call it in `context`.
@@ -737,7 +737,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `divider()` | The dashed rule between entries: Typst's `divider`, in the theme's look. |
 | `styled-link(content, dest: none)` | Text in the entry-title style, linked when `dest` is set. |
 | `cv-header(name: auto, tagline:, objective:, contacts:, photo:, photo-position:, photo-size: auto, photo-shape: auto, qr:, uppercase:)` | The header of a CV written in markup: the name (the document's title by default), a tagline, an objective, the contact bar, a photo and a QR code, its text aligned as the content around it (`#align(center, cv-header(..))`). |
-| `contact(icon, value, link: none, alt: auto)` | One contact-bar entry for `cv-header`. |
+| `contact(icon, value, url: none, alt: auto)` | One contact-bar entry for `cv-header`. |
 | `entry(title:, url:, org:, org-url:, subtitle:, roles:, date:, location:, details:, summary:, keywords-lead:, keywords:, body)` | An entry under a section or group heading, with the divider between entries. The body (its highlights or other prose) is optional. `date` takes a `(start, end)` pair, an open end reading "Present"; `location` an array of parts, joined by the theme's item separator. |
 | `publication(title:, url:, authors:, owners: auto, source:, citation: (:), date:, identifiers:, body)` | A publication as a bibliography item, with a required `title` and an optional body, its summary; the `owners` (the document's author by default) are set apart among the authors, and the `citation` (`volume`, `issue`, `pages`) follows the source in the theme's citation style. |
 | `cv-columns(left, right, ratio: 0.65)` | The CV's two columns with the theme's gutter, the left taking `ratio`; one column when `right` is `none` or the ratio is 1. |
@@ -746,7 +746,7 @@ Everything the package exports. The building blocks from `icon` to `styled-link`
 | `adapter` | A module of the readers `alta()` maps a CV with, for [your own mapping](#your-own-mapping): |
 | `adapter.format-date(value, format:, months:)` | A JSON Resume date as `alta()` shows it. |
 | `adapter.location-text(location)` | A location's parts, in display order. |
-| `adapter.basics-contacts(basics, link:, maps-provider:, full-urls:, icons:)` | The contact bar's records from `basics`, for `cv-header`. |
+| `adapter.basics-contacts(basics, linked:, maps-provider:, full-urls:, icons:)` | The contact bar's records from `basics`, for `cv-header`. |
 | `adapter.fluency-rating(entry, max:)` | A language's rating, or `none`. |
 | `adapter.group-by-type(items)` | Entries grouped by `type`. |
 | `adapter.labels(overrides:)` | The document language's labels as `alta()` resolves them, in `context`. |

@@ -18,9 +18,9 @@
   tagline: "Senior Software Engineer",
   objective: [Building reliable distributed systems for small teams.],
   contacts: (
-    contact("email", "jane@example.com", link: "mailto:jane@example.com"),
+    contact("email", "jane@example.com", url: "mailto:jane@example.com"),
     contact("location", "Dublin, Ireland"),
-    contact("github", "janedoe", link: "https://github.com/janedoe"),
+    contact("github", "janedoe", url: "https://github.com/janedoe"),
   ),
   photo: image(avatar-placeholder),
   qr: "https://example.com",

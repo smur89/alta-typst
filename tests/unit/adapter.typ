@@ -55,7 +55,7 @@
 )
 
 // basics-contacts: the details, a linebreak, then the profiles, as
-// cv-header takes them, linked per `link`.
+// cv-header takes them, linked per `linked`.
 #let basics = (
   email: "j@d.ie",
   location: (city: "Cork"),
@@ -80,7 +80,7 @@
 #assert.eq(records.map(c => c.alt), (auto, auto, "GitHub"))
 #assert.eq(
   adapter
-    .basics-contacts(basics, link: (profiles: false), full-urls: true)
+    .basics-contacts(basics, linked: (profiles: false), full-urls: true)
     .last()
     .value,
   "github.com/jd",

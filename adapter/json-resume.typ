@@ -430,7 +430,7 @@
     contacts: adapter
       .basics-contacts(
         basics,
-        link: preferences.at("link-contact-info", default: true),
+        linked: preferences.at("link-contact-info", default: true),
         maps-provider: preferences.at(
           "maps-provider",
           default: maps-providers.google,

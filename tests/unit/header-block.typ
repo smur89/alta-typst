@@ -28,9 +28,9 @@
 #cv-header(
   tagline: "Engineer",
   contacts: (
-    contact("email", "j@d.ie", link: "mailto:j@d.ie"),
+    contact("email", "j@d.ie", url: "mailto:j@d.ie"),
     contact("phone", "+353 1 234 5678"),
-    contact("link", "example.com", link: "https://example.com"),
+    contact("link", "example.com", url: "https://example.com"),
     contact("location", "Dublin"),
     contact("github", "sean"),
     contact("email", "s@d.ie", alt: "Work email"),

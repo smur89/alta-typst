@@ -211,20 +211,20 @@
 /// - icon (str): A key of the icon set (`icon()`'s names: `"email"`,
 ///   `"phone"`, `"github"`, …).
 /// - value (content, str): The text shown.
-/// - link (str, none): Where it links (`mailto:…`, a URL).
+/// - url (str, none): Where it links (`mailto:…`, a URL).
 /// - alt (str, none, auto): Read aloud before it. `auto` reads as
 ///   `alta()`'s contacts do: a profile network's icon (`"github"`) its
 ///   name, `"location"` the localised word for it, and the rest
 ///   (`"email"`, `"phone"`, `"link"`), whose text says what it is,
 ///   nothing.
 /// -> dictionary
-#let contact(icon, value, link: none, alt: auto) = {
+#let contact(icon, value, url: none, alt: auto) = {
   // `icon()`'s check, so an unknown name panics the same way.
   _check-icon("contact() icon", icon)
   // `_contact-bar`'s record; `icon` resolves an `auto` alt in context
   // (`cv-header`, `_contact-alt`), where the document's language is
   // known.
-  (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: link, alt: alt)
+  (icon: icon, glyph: _icon-glyphs.at(icon), value: value, url: url, alt: alt)
 }
 
 /// The CV's header: your name (rendered with Typst's `title`

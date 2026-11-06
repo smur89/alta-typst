@@ -73,7 +73,7 @@
 /// so read elsewhere, `alt` may be `auto`.
 ///
 /// - basics (dictionary): The CV's `basics`.
-/// - link (bool, dictionary): As `preferences.link-contact-info`:
+/// - linked (bool, dictionary): As `preferences.link-contact-info`:
 ///   whether to link every channel, or a bool per channel (`email`,
 ///   `phone`, `location`, `url`, `profiles`).
 /// - maps-provider (str, none): The map a location links to: a
@@ -85,14 +85,14 @@
 /// -> array
 #let basics-contacts(
   basics,
-  link: true,
+  linked: true,
   maps-provider: maps-providers.google,
   full-urls: false,
   icons: auto,
 ) = {
   _check-type(
-    "basics-contacts() link",
-    link,
+    "basics-contacts() linked",
+    linked,
     (bool, dictionary),
     "a bool or a dict",
   )
@@ -128,7 +128,7 @@
   let rows = _contact-rows(_linked-contacts(
     _kebab-fields(basics),
     (
-      link-contact-info: link,
+      link-contact-info: linked,
       maps-provider: maps-provider,
       print-full-urls: full-urls,
       profile-icons: profile-icons,
