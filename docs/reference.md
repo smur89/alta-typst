@@ -50,7 +50,7 @@ altacv reads four optional fields the JSON Resume schema has no place for, from 
 | `name` | Required. The name, in capitals unless `uppercase-name: false`. |
 | `label` | The tagline under the name. |
 | `summary` | The introduction under the header. |
-| `image` | The photo: a `path(..)`, which resolves from your file, or bytes; a string resolves inside the package. Non-square images are cropped from the centre. |
+| `image` | The photo: a `path(..)`, which resolves from your file, or bytes; a string resolves inside the package (deprecated: it will be an error). Non-square images are cropped from the centre. |
 | `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qr-code: auto` encodes. |
 | `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`. |
 | `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
@@ -371,4 +371,5 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | The top-level `focusAreas`, `languages[].rating` and `awards[].url` | `custom.altacv.focusAreas`, `.rating` and `.url` ([extensions](#extensions)), which win when both are set. |
 | `description` in `work`, `volunteer` and `projects` | `summary`, which wins. |
 | Plural free-text publication types (`"Talks"`) | The type code (`"talk"`). |
+| A string `basics.image` (it resolves inside the package, not from your file) | `path("photo.jpg")`, or bytes. In a `resume.json`, drop `image` and set the photo in Typst. |
 | A publication type with no heading in `labels.publication-types`, printed as written | Its heading in `labels.publication-types`: `(poster: "Posters")`. |
