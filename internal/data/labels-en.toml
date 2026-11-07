@@ -63,7 +63,8 @@ months = [
 ]
 
 # Subheadings for `publications[].type` codes (untyped counts as
-# `article`), matched case-insensitively; other types print as given.
+# `article`), matched case-insensitively; other types print as given
+# (deprecated: give each its heading here).
 # Overrides merge key by key.
 [publication-types]
 article = "Articles"
