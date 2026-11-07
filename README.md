@@ -25,7 +25,7 @@
 - **Every string translatable**, month names included. The labels follow `set text(lang: ..)`, with English and [Irish](internal/data/labels-ga.toml) built in.
 - **Print- and archive-ready.** PDF metadata comes from your data, and the output compiles as PDF/A and PDF/UA-1.
 
-The full example, every section in use, over two pages ([source](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-full.typ) <!-- x-release-please-version -->, [PDF](examples/example_full.pdf)):
+The full example, every section in use, over two pages ([source](https://github.com/smur89/alta-typst/blob/v1.9.0/examples/example-full.typ) <!-- x-release-please-version -->, [PDF](examples/example_full.pdf)):
 
 | Page 1 | Page 2 |
 | :---: | :---: |
@@ -52,7 +52,7 @@ This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`t
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, altacv
+#import "@preview/altacv:1.9.0": alta, altacv
 
 #let cv = (
   basics: (
@@ -87,8 +87,8 @@ Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/g
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, altacv
-#import "@preview/gairm-import:0.10.1": parse
+#import "@preview/altacv:1.9.0": alta, altacv
+#import "@preview/gairm-import:1.9.0": parse
 
 #show: altacv.with()
 
@@ -157,7 +157,7 @@ The contact bar shows `basics.email`, `phone`, `location`, `url` and `profiles`,
 
 ### Labels and language
 
-Every string the template prints is a label, and the labels follow the document's language, set with Typst's own rule after the show line: `#set text(lang: "ga")`. The language also drives hyphenation, smart quotes and the PDF's language tag. English and Irish are built in ([a CV in Irish](https://github.com/smur89/alta-typst/blob/v1.8.0/examples/example-ga.typ) <!-- x-release-please-version -->); any other language keeps the English labels. Override any of them for the whole document with the template's `labels`:
+Every string the template prints is a label, and the labels follow the document's language, set with Typst's own rule after the show line: `#set text(lang: "ga")`. The language also drives hyphenation, smart quotes and the PDF's language tag. English and Irish are built in ([a CV in Irish](https://github.com/smur89/alta-typst/blob/v1.9.0/examples/example-ga.typ) <!-- x-release-please-version -->); any other language keeps the English labels. Override any of them for the whole document with the template's `labels`:
 
 ```typst
 #show: altacv.with(labels: (
@@ -203,7 +203,7 @@ The blocks `alta()` draws with are public, so a CV can be written as a Typst doc
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": altacv, contact, cv-columns, cv-header, entry, skill-row
+#import "@preview/altacv:1.9.0": altacv, contact, cv-columns, cv-header, entry, skill-row
 
 #set document(title: "Jane Doe", author: "Jane Doe")
 #show: altacv.with()
@@ -228,7 +228,7 @@ The blocks `alta()` draws with are public, so a CV can be written as a Typst doc
 ```
 <!-- x-release-please-end -->
 
-The structure is Typst's own: the name is the document's `title`, `=` headings are sections, `==` headings are groups, and entries sit below them. `cv-columns` lays out the columns with the theme's gutter; a plain `grid` works too. The blocks are `cv-header`, `contact`, `entry`, `publication`, `skill-row`, `rating`, `label-row`, `tag` and `cv-columns`, each with a doc comment your editor shows on hover, and listed with their arguments in the [reference](docs/reference.md#blocks). [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way. A few things to know:
+The structure is Typst's own: the name is the document's `title`, `=` headings are sections, `==` headings are groups, and entries sit below them. `cv-columns` lays out the columns with the theme's gutter; a plain `grid` works too. The blocks are `cv-header`, `contact`, `entry`, `publication`, `skill-row`, `rating`, `label-row`, `tag` and `cv-columns`, each with a doc comment your editor shows on hover, and listed with their arguments in the [reference](docs/reference.md#blocks). [`tests/markup.typ`](https://github.com/smur89/alta-typst/blob/v1.9.0/tests/markup.typ) <!-- x-release-please-version --> is a complete CV written this way. A few things to know:
 
 - An `entry` needs a `=` or `==` heading before it; one right after `#alta(cv)` continues its last section. It doesn't break across pages, so split long prose over several entries.
 - Group headings carry no icon unless you add one: `== #icon("microphone") Talks`.
@@ -238,16 +238,16 @@ The structure is Typst's own: the name is the document's `title`, `=` headings a
 
 ### Your own mapping
 
-Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](https://github.com/smur89/alta-typst/blob/v1.8.0/adapter/json-resume.typ) <!-- x-release-please-version -->, a mapping from JSON Resume onto the public blocks, written to be copied. To change how a section is drawn beyond what the preferences and show rules reach, copy it into your project as `json-resume.typ`, replace its `#import` lines with one, edit it, and render your copy under the template:
+Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](https://github.com/smur89/alta-typst/blob/v1.9.0/adapter/json-resume.typ) <!-- x-release-please-version -->, a mapping from JSON Resume onto the public blocks, written to be copied. To change how a section is drawn beyond what the preferences and show rules reach, copy it into your project as `json-resume.typ`, replace its `#import` lines with one, edit it, and render your copy under the template:
 
 <!-- x-release-please-start-version -->
 ```typst
 // json-resume.typ, your copy: its imports become
-#import "@preview/altacv:1.8.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, publication, rating, skill-row
+#import "@preview/altacv:1.9.0": adapter, cv-columns, cv-header, divider, entry, icon, label-row, publication, rating, skill-row
 
 // cv.typ
-#import "@preview/altacv:1.8.0": altacv
-#import "@preview/gairm-import:0.10.1": parse
+#import "@preview/altacv:1.9.0": altacv
+#import "@preview/gairm-import:1.9.0": parse
 #import "json-resume.typ": resume
 
 #show: altacv

@@ -2,14 +2,14 @@
 //
 // Every field and option is documented in the package reference:
 // x-release-please-start-version
-//   https://github.com/smur89/alta-typst/blob/v1.8.0/docs/reference.md
+//   https://github.com/smur89/alta-typst/blob/v1.9.0/docs/reference.md
 // x-release-please-end
 //
 // Every field below is optional except `basics.name`. Sections with
 // empty input are skipped, so deleting an entry is enough to hide it.
 
 // x-release-please-start-version
-#import "@preview/altacv:1.8.0": alta, altacv, avatar-placeholder
+#import "@preview/altacv:1.9.0": alta, altacv, avatar-placeholder
 // x-release-please-end
 
 #let cv = (
