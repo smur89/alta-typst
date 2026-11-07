@@ -64,8 +64,8 @@
 /// Its heading sits one level below the section or group before it, and
 /// the theme's divider separates it from the entry before it in the
 /// same section or group. It needs a section (`=`) or group (`==`)
-/// heading before it. One right after `#alta(cv)` continues `alta()`'s
-/// last section, after a divider, so start your own with `= ...`.
+/// heading before it; one right after `#alta(cv)` continues that CV's
+/// last section, so start your own with `= ...`.
 /// An entry doesn't break across pages: it moves to the next whole,
 /// and one taller than a page overflows it, so split long prose over
 /// several entries.
@@ -80,17 +80,18 @@
 ///   fact separator: `(("Manager", "Acme"), ("2024",))`.
 /// - roles (array): Further roles, after the organisation.
 /// - date (content, str, array, none): At the right edge. Content or
-///   a string shows as written; a `(start, end)` pair as `alta()`
-///   shows a period: the two joined by the theme's range separator, a
-///   `none` end reading the labels' "Present" (`altacv.with(labels:
-///   ..)`'s, over the document language's), a `none`
-///   start leaving the end alone; `(none, none)` shows nothing.
+///   a string shows as written; a `(start, end)` pair as a period: the
+///   two joined by the theme's range separator, a `none` end reading
+///   the labels' "Present" (`altacv.with(labels: ..)`'s, over the
+///   document language's), a `none` start leaving the end alone;
+///   `(none, none)` shows nothing.
 /// - location (content, str, array, none): Under the date. An array of
 ///   parts (a city, a region, a country code) is joined by the theme's
-///   item separator, as `alta()` joins a location's parts.
+///   item separator.
 /// - details (array): Short facts after the roles (a credential ID).
-/// - summary (content, str, none): A short summary, set apart (italic
-///   by default) before the body, as `alta()` sets a `summary`.
+/// - summary (content, str, none): A short summary, set apart before
+///   the body in the theme's `preamble` treatment (italic by
+///   default).
 /// - keywords-lead (array): A line of its own above the keywords
 ///   (education's area and score), so it doesn't read as one of them:
 ///   groups of facts, as `subtitle` takes.
@@ -212,11 +213,10 @@
 ///   `"phone"`, `"github"`, …).
 /// - value (content, str): The text shown.
 /// - url (str, none): Where it links (`mailto:…`, a URL).
-/// - alt (str, none, auto): Read aloud before it. `auto` reads as
-///   `alta()`'s contacts do: a profile network's icon (`"github"`) its
-///   name, `"location"` the localised word for it, and the rest
-///   (`"email"`, `"phone"`, `"link"`), whose text says what it is,
-///   nothing.
+/// - alt (str, none, auto): Read aloud before it. `auto` reads a
+///   profile network's icon (`"github"`) as its name, `"location"` as
+///   the localised word for it, and nothing for the rest (`"email"`,
+///   `"phone"`, `"link"`), whose text says what it is.
 /// -> dictionary
 #let contact(icon, value, url: none, alt: auto) = {
   // `icon()`'s check, so an unknown name panics the same way.
@@ -237,17 +237,15 @@
 /// - tagline (content, str, none): Under the name.
 /// - objective (content, str, none): A short goal, under the tagline.
 /// - contacts (array): `contact(..)` entries, wrapping as one row of
-///   the contact bar. A `linebreak()` among them starts a new row, as
-///   `alta()` sets its profiles under the other details
-///   (`adapter.basics-contacts` returns them so).
+///   the contact bar. A `linebreak()` among them starts a new row
+///   (`adapter.basics-contacts` puts one before the profiles).
 /// - photo (content, none): The photo: content, typically an
 ///   `image(..)`, loaded in your file, so its path is yours.
 /// - photo-position (alignment): `left`, `right`, `top` or `bottom`.
 /// - photo-size (auto, length, ratio, relative): The photo's side.
-///   `auto` is `alta()`'s default `photo-size`.
+///   `auto` is the `photo-size` preference's default, `6em`.
 /// - photo-shape (auto, str): The photo's frame: `"circle"`,
-///   `"rounded"` or `"square"`. `auto` is `alta()`'s default
-///   `photo-shape`.
+///   `"rounded"` or `"square"`. `auto` is `"circle"`.
 /// - qr (str, none): A URL to encode as a QR code, opposite the photo.
 /// - uppercase (bool): Set the name in capitals.
 /// -> content
@@ -339,16 +337,16 @@
 /// A publication, as a bibliography item: the title (linked), the
 /// authors (yours set apart: the document's author), the source and
 /// date, and persistent identifiers. Consecutive publications stack
-/// as `alta()`'s do, so a group of them reads as one list.
+/// closely, so a group of them reads as one list.
 ///
 /// - title (content, str): The title; required.
 /// - url (str, none): Its link; with none, the first linkable
-///   identifier's (DOI, then arXiv, then PMID), as `alta()` links.
+///   identifier's (DOI, then arXiv, then PMID).
 /// - authors (array): Author names (strings or content, shown as
 ///   their text), in order. The one matching an owner, ignoring case
 ///   and surrounding spaces, is set apart.
 /// - owners (auto, array): The names to set apart among the authors,
-///   as `alta()` sets apart the CV's name and `owner-names`. `auto` is
+///   in the theme's `owner` treatment (bold by default). `auto` is
 ///   the document's author (`#set document(author: ..)`).
 /// - source (content, str, none): The publisher or venue.
 /// - citation (dictionary): Where in the source: `volume`, `issue`
@@ -441,12 +439,12 @@
 ///   the category tag.
 /// - keywords (array): Its keywords, each a tag.
 /// - level (int, float, str, content, none): Its level, after the name:
-///   a number as that many dots, from 0 to `max` in steps of 0.5, as
-///   `alta()` shows a `custom.altacv.rating`; a rating term
-///   (`"Beginner"`, `"Intermediate"`, `"Advanced"`, `"Expert"`, …) as
-///   its share of `max` dots; anything else as written.
+///   a number as that many dots, from 0 to `max` in steps of 0.5; a
+///   rating term (`"Beginner"`, `"Intermediate"`, `"Advanced"`,
+///   `"Expert"`, …) as its share of `max` dots; anything else as
+///   written.
 /// - max (auto, int): The dots in the row; `auto` is `rating()`'s: the
-///   enclosing `alta()`'s `preferences.max-rating`, else 5.
+///   `max-rating` of the last `alta()` before it, else 5.
 /// -> content
 #let skill-row(name, keywords, level: none, max: auto) = {
   let row(max) = {
@@ -471,14 +469,14 @@
 }
 
 /// The CV's columns: `left` beside `right`, the left taking `ratio` of
-/// the width the theme's column gutter leaves, as `alta()` lays out
-/// its column sections. A plain `grid` works too.
+/// the width the theme's column gutter leaves. A plain `grid` works
+/// too.
 ///
 /// - left (content, str, none): The left column.
 /// - right (content, str, none): The right column; `none` puts `left`
 ///   alone, full width.
-/// - ratio (int, float): The left column's share, in (0, 1], as
-///   `alta()`'s `column-ratio`; 1 stacks both in one column.
+/// - ratio (int, float): The left column's share, in (0, 1]; 1 stacks
+///   both in one column, `left` first.
 /// -> content
 #let cv-columns(
   left,
@@ -501,11 +499,14 @@
   } else { _columns((left,), (right,), ratio) }
 }
 
-/// A labelled line: "Music: Trad, Jazz".
+/// A labelled line: "Music: Trad, Jazz". The label in the theme's
+/// `label` treatment (bold by default), then the theme's label
+/// separator and the items.
 ///
 /// - label (content, str, none): The label, in the emphasis colour;
 ///   `none` leaves the items alone.
-/// - items (array): The items, joined by the theme's separator.
+/// - items (array): The items, joined by the theme's item
+///   separator.
 /// -> content
 #let label-row(label, items) = context block(
   // Rows stack a line apart, as `alta()`'s rows of one paragraph do.

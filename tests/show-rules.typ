@@ -1,7 +1,7 @@
 // A user's show rules, written before `alta()`, restyling one part at
 // a time: the name (the level-1 heading) and section headings (level-2
 // headings) in a serif over the sans body, and a rule for every label
-// in the README's Restyling parts table, lines included. The labels
+// in docs/reference.md's Part labels table, lines included. The labels
 // override the template's own settings, colour included, which a rule
 // on `heading` can't. Icons keep the theme's colour, except the date
 // and location icons, and the rating dots, which a rule can recolour

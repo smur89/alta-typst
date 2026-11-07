@@ -17,6 +17,10 @@
         },
         {
           "type": "generic",
+          "path": "docs/reference.md"
+        },
+        {
+          "type": "generic",
           "path": "template/cv.typ"
         }
       ]

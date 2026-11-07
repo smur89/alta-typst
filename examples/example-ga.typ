@@ -7,7 +7,7 @@
 // Build locally with:
 //   typst compile --root .. example-ga.typ example-ga.pdf
 
-#import "../lib.typ": alta
+#import "../lib.typ": alta, altacv
 
 #let cv = (
   basics: (
@@ -95,5 +95,6 @@
   ),
 )
 
+#show: altacv
 #set text(lang: "ga")
 #alta(cv)

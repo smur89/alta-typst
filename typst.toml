@@ -15,9 +15,10 @@ compiler = "0.15.0"
 # in the typst/packages directory so the README's local links resolve
 # on Universe, but `exclude` keeps them out of the compiler bundle so
 # `#import "@preview/altacv:..."` doesn't pull a megabyte of WebP /
-# PDF / PNG that the renderer never touches. CONTRIBUTING.md, linked
-# from the README too, is documentation the renderer never reads.
-exclude = ["/examples/**", "/CONTRIBUTING.md"]
+# PDF / PNG that the renderer never touches. CONTRIBUTING.md and
+# docs/ (the reference), linked from the README too, are documentation
+# the renderer never reads.
+exclude = ["/examples/**", "/docs/**", "/CONTRIBUTING.md"]
 
 # `typst init @preview/altacv` copies the contents of `template/` into
 # the user's project as a working starter. `entrypoint` is the file
