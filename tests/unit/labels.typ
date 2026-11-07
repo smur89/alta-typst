@@ -1,11 +1,12 @@
-// Unit checks for how the labels resolve, through `_merge-options`,
-// the sequence `alta()` runs: the document's language picks a bundled
-// translation over the English, the caller's labels go over both, and
-// the deprecated `labels.lang` wins over the document's language.
-// Inside the template, the template's labels (`altacv.with(labels:
-// ..)`, its layers) sit between the translation and the caller's.
+// How the labels resolve, read through `adapter.labels()`, which
+// merges them as `alta()` does: the document's language picks a
+// bundled translation over the English, the caller's labels go over
+// both, and the deprecated `labels.lang` wins over the document's
+// language. Inside the template, the template's labels
+// (`altacv.with(labels: ..)`, its layers) sit between the translation
+// and the caller's.
 
-#import "/internal/data/options.typ": _merge-options
+#import "/lib.typ": adapter, altacv
 #import "/internal/data/canonical.typ": _label-tables
 #import "/internal/data/defaults.typ": _default-labels, _translations
 #import "/internal/data/validation.typ": _strict-merge, _validate-labels
@@ -23,57 +24,65 @@
   ))
 }
 
-#let labels(overrides: (:), ..options) = (
-  _merge-options(overrides, (:), ..options).labels
-)
-
 // English by default.
-#assert.eq(labels().work, "Experience")
-#assert.eq(labels().lang, "en")
+#context {
+  assert.eq(adapter.labels().work, "Experience")
+  assert.eq(adapter.labels().lang, "en")
+}
 
-// A bundled translation, with the English for any key it leaves out.
-#let ga = labels(lang: "ga")
-#assert.eq(ga.work, "Taithí Oibre")
-#assert.eq(ga.months.first(), "Ean")
-#assert.eq(ga.lang, "ga")
-#assert.eq(ga.publication-types.book, "Books")
+// A bundled translation, with the English for any key it leaves out;
+// the caller's labels over it.
+#[
+  #set text(lang: "ga")
+  #context {
+    let ga = adapter.labels()
+    assert.eq(ga.work, "Taithí Oibre")
+    assert.eq(ga.months.first(), "Ean")
+    assert.eq(ga.lang, "ga")
+    assert.eq(ga.publication-types.book, "Books")
+    let ga-work = adapter.labels(overrides: (work: "Obair"))
+    assert.eq(ga-work.work, "Obair")
+    assert.eq(ga-work.skills, "Scileanna")
+    // The deprecated `labels.lang` wins over the document's language,
+    // and picks the translation (#239).
+    assert.eq(adapter.labels(overrides: (lang: "en")).work, "Experience")
+  }
+]
 
 // A language with no translation keeps the English labels, and its
-// own code.
-#assert.eq(labels(lang: "de").work, "Experience")
-#assert.eq(labels(lang: "de").lang, "de")
-
-// The caller's labels go over the translation.
-#let ga-work = labels(lang: "ga", overrides: (work: "Obair"))
-#assert.eq(ga-work.work, "Obair")
-#assert.eq(ga-work.skills, "Scileanna")
-
-// The deprecated `labels.lang` wins over the document's language, and
-// picks the translation (#239).
-#assert.eq(labels(lang: "de", overrides: (lang: "ga")).work, "Taithí Oibre")
-#assert.eq(labels(lang: "ga", overrides: (lang: "en")).work, "Experience")
+// own code; `labels.lang` still picks one.
+#[
+  #set text(lang: "de")
+  #context {
+    assert.eq(adapter.labels().work, "Experience")
+    assert.eq(adapter.labels().lang, "de")
+    assert.eq(adapter.labels(overrides: (lang: "ga")).work, "Taithí Oibre")
+  }
+]
 
 // The template's labels over the translation, the caller's over the
-// template's; an inner template's over an outer's.
-#let layered = labels(
-  lang: "ga",
-  template: ((present: "Jetzt", work: "Arbeit"), (work: "Job")),
-  overrides: (present: "Now"),
-)
-#assert.eq(layered.present, "Now")
-#assert.eq(layered.work, "Job")
-#assert.eq(layered.skills, "Scileanna")
-// A template's `publication-types` entry merges entry by entry, as a
-// caller's does.
-#let types = labels(
-  template: ((publication-types: (Talk: "Vorträge")),),
-  overrides: (publication-types: (book: "Bücher")),
-).publication-types
-#assert.eq(
-  (types.talk, types.book, types.article),
-  (
-    "Vorträge",
-    "Bücher",
-    "Articles",
-  ),
-)
+// template's; an inner template's over an outer's. A template's
+// `publication-types` entry merges entry by entry, as a caller's does.
+#[
+  #set text(lang: "ga")
+  #show: altacv.with(labels: (
+    present: "Jetzt",
+    work: "Arbeit",
+    publication-types: (Talk: "Vorträge"),
+  ))
+  #show: altacv.with(labels: (work: "Job"))
+  #context {
+    let layered = adapter.labels(overrides: (
+      present: "Now",
+      publication-types: (book: "Bücher"),
+    ))
+    assert.eq(layered.present, "Now")
+    assert.eq(layered.work, "Job")
+    assert.eq(layered.skills, "Scileanna")
+    let types = layered.publication-types
+    assert.eq(
+      (types.talk, types.book, types.article),
+      ("Vorträge", "Bücher", "Ailt"),
+    )
+  }
+]

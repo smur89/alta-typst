@@ -1,17 +1,15 @@
 // The fields 1.8.0 read leniently, a value of the wrong type reading
-// as absent, still read so in the template: `alta()` drops them
-// (`_canonical-cv`) before its mapping, which takes JSON Resume's
-// types, sees the CV. Standalone `alta()`'s work keywords are in
-// work-keywords.typ.
+// as absent rather than failing. Work keywords, which 1.8.0 drew none
+// of, through standalone `alta()` and then the template; the rest in
+// the template, where `alta()` drops them (`_canonical-cv`) before
+// its mapping, which takes JSON Resume's types, sees the CV.
 
-#import "/lib.typ": alta, altacv
+#import "/lib.typ": adapter, alta, altacv
 #import "/internal/data/canonical.typ": _canonical-cv
-#import "/internal/data/options.typ": _merge-options
 
-#show: altacv
-
-// Only an array of text draws work keywords.
-#alta((
+// Only an array of text draws work keywords: those drawn so far.
+#let keywords() = query(selector(<alta-keyword>).before(here())).len()
+#let work = (
   basics: (name: "Jane Doe"),
   work: (
     (name: "A", keywords: ("Go", "Rust")),
@@ -19,8 +17,14 @@
     (name: "C", keywords: ("Go", 5)),
     (name: "D", keywords: (Go: 1)),
   ),
-))
-#context assert.eq(query(<alta-keyword>).len(), 2)
+)
+#alta(work)
+#context assert.eq(keywords(), 2)
+#pagebreak()
+
+#show: altacv
+#alta(work)
+#context assert.eq(keywords(), 4)
 
 // A publication's or project's `type`, a citation part, an author or
 // an identifier, and a reference's attribution or flag, of the wrong
@@ -37,7 +41,7 @@
 #let kept = (
   _canonical-cv(
     (basics: (name: "Jane Doe"), publications: (paper,)),
-    _merge-options((:), (:)).prefs,
+    adapter.preferences(),
   )
     .publications
     .first()
@@ -51,6 +55,7 @@
   seen.update(xs => xs + (it,))
   it
 }
+#metadata(none)<lenient>
 #alta((
   basics: (name: "Jane Doe"),
   projects: ((name: "P", type: 3),),
@@ -69,7 +74,7 @@
 // publication the articles' (an icon, then the text); the entries'
 // titles are text alone.
 #context assert.eq(
-  query(heading.where(level: 2))
+  query(selector(heading.where(level: 2)).after(<lenient>))
     .filter(h => h.body.has("children"))
     .map(h => h.body.children.last()),
   ([Articles],),

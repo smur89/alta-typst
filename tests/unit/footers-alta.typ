@@ -1,6 +1,7 @@
 // The footer helpers after `alta(cv)`: the CV's name and
 // `meta.lastModified` over the document's author, with `labels` as
-// `alta()` merged them; a `date:` replaces the CV's.
+// `alta()` merged them, and `meta.version` only with `version: true`;
+// a `date:` replaces the CV's.
 
 #import "/lib.typ": alta, altacv, cv-footer, cv-updated-footer
 #import "/tests/unit/_count.typ": count
@@ -10,6 +11,7 @@
 #set page(
   header: {
     cv-updated-footer(version: true)
+    cv-updated-footer()
     cv-updated-footer(date: "Nov 2026")
   },
   footer: cv-footer(),
@@ -19,8 +21,11 @@
 #show "Doc Author": author-rule
 #let (pages, page-rule) = count("Sheet")
 #show "Sheet": page-rule
-#let (cv-dates, cv-date-rule) = count("Edited: 2025-06 (v2)")
-#show "Edited: 2025-06 (v2)": cv-date-rule
+// Apart, as a string's rule hides the text it matches from another's.
+#let (cv-dates, cv-date-rule) = count("Edited: 2025-06")
+#show "Edited: 2025-06": cv-date-rule
+#let (versions, version-rule) = count(" (v2)")
+#show " (v2)": version-rule
 #let (dates, date-rule) = count("Edited: Nov 2026")
 #show "Edited: Nov 2026": date-rule
 
@@ -37,6 +42,9 @@
 #context {
   assert.eq(authors.final(), 0)
   assert.eq(pages.final(), 2)
-  assert.eq(cv-dates.final(), 2)
+  // The CV's date with and without `version: true`, the version once,
+  // on each page.
+  assert.eq(cv-dates.final(), 4)
+  assert.eq(versions.final(), 2)
   assert.eq(dates.final(), 2)
 }

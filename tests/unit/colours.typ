@@ -1,11 +1,13 @@
 // Unit checks for how a theme resolves: the template's
 // (`altacv.with(theme: ..)`: `_checked-theme`, then `_theme-for`), and
 // standalone `alta()`'s, the default theme under `preferences.font` and
-// the deprecated `accent` (`_merge-options`, `_token-prefs`).
+// the deprecated `accent` (`_merge-options`, `_token-prefs`): `font`
+// is standalone `alta()`'s alone, so not one `adapter.preferences`
+// takes.
 
+#import "/lib.typ": palettes, themes
 #import "/internal/data/options.typ": _merge-options
 #import "/internal/design/theme-checks.typ": _checked-theme
-#import "/internal/design/presets.typ": palettes, themes
 #import "/internal/design/theme.typ": (
   _contrast, _default-theme, _theme-for, _token-prefs, _tokens,
 )

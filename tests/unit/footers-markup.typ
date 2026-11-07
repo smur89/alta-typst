@@ -1,6 +1,7 @@
 // The footer helpers in a CV written in markup, with no `alta()` to
 // read: the name from `document.author`, the labels in the document's
-// language, and `cv-updated-footer` printing only with a `date:`.
+// language, and `cv-updated-footer` printing only with a `date:`, and
+// with no version to append for `version: true`.
 // Each string is counted per page through a show rule.
 
 #import "/lib.typ": altacv, cv-footer, cv-updated-footer
@@ -27,6 +28,8 @@
 #show "Nuashonraithe": updated-rule
 #let (dates, date-rule) = count("Samhain 2026")
 #show "Samhain 2026": date-rule
+#let (versions, version-rule) = count("(")
+#show "(": version-rule
 
 = Taithí
 #pagebreak()
@@ -38,4 +41,5 @@
   assert.eq(pages.final(), 2)
   assert.eq(updated.final(), 2)
   assert.eq(dates.final(), 2)
+  assert.eq(versions.final(), 0)
 }

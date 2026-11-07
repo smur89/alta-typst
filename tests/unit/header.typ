@@ -1,88 +1,13 @@
-// Unit checks for the header's data stages: the contact entries in
-// internal/data/contacts.typ, and sections/header.typ's image and QR
-// URL resolution.
+// The header: sections/header.typ's image and QR URL resolution,
+// and the `cv-header` block. The document's title is the name, set
+// once as Typst's `title` element (a mapping's `name:` is in
+// header-name.typ); the photo frames the user's image, at `alta()`'s
+// size and shape unless given; contacts' alt text reads as `alta()`'s
+// does; the text follows the surrounding alignment. The contact entries
+// `alta()` draws are `adapter.basics-contacts`'s, in adapter.typ.
 
-#import "/internal/util/values.typ": _display-url, _url-encode
-#import "/internal/data/options.typ": _merge-options
-#import "/internal/data/contacts.typ": (
-  _contact-entries, _contact-rows, _linked-contacts, _profile-entry,
-  _resolve-link-config,
-)
+#import "/lib.typ": altacv, avatar-placeholder, contact, cv-header
 #import "/sections/header.typ": _header-image, _resolve-qr-url
-
-// _url-encode: RFC 3986 unreserved set kept, everything else
-// percent-encoded by UTF-8 byte.
-#assert.eq(_url-encode("AZaz09-._~"), "AZaz09-._~")
-#assert.eq(_url-encode("Cork, Ireland"), "Cork%2C%20Ireland")
-#assert.eq(_url-encode("Zürich"), "Z%C3%BCrich")
-#assert.eq(_url-encode("京都"), "%E4%BA%AC%E9%83%BD")
-
-// _resolve-link-config: a bool fans out to every channel; a dict
-// overrides on top of all-true.
-#assert.eq(
-  _resolve-link-config(false),
-  (email: false, phone: false, location: false, url: false, profiles: false),
-)
-#assert.eq(
-  _resolve-link-config((phone: false)),
-  (email: true, phone: false, location: true, url: true, profiles: true),
-)
-
-// _contact-entries: display order, dialable `tel:` URI, maps link,
-// empty fields skipped.
-#let entries = _contact-entries(
-  (
-    email: "jane@example.com",
-    phone: "+353 (21) 123-4567",
-    location: (city: "Cork", country-code: "IE"),
-    url: "",
-  ),
-  "https://maps.example/?q={q}",
-)
-#assert.eq(entries.map(e => e.channel), ("email", "phone", "location"))
-#assert.eq(entries.at(0).url, "mailto:jane@example.com")
-#assert.eq(entries.at(1).url, "tel:+353211234567")
-#assert.eq(entries.at(1).value, "+353 (21) 123-4567")
-#assert.eq(entries.at(2).url, "https://maps.example/?q=Cork%2C%20IE")
-#assert.eq(
-  _contact-entries((location: "Cork"), none).first().url,
-  none,
-)
-#assert.eq(
-  _contact-entries((location: "Cork"), none, location-alt: "Location")
-    .first()
-    .alt,
-  "Location",
-)
-
-// _profile-entry: aliases resolve, `alt` keeps the user's spelling,
-// a profile without `url` shows the username unlinked, one without a
-// `username` shows its URL without the scheme but links the full URL.
-#let x = _profile-entry((network: "X", username: "jane"))
-#assert.eq((x.glyph, x.alt, x.value, x.url), ("twitter", "X", "jane", none))
-#let gh = _profile-entry((network: "GitHub", url: "https://github.com/jane"))
-#assert.eq(
-  (gh.glyph, gh.value, gh.url),
-  ("github", "github.com/jane", "https://github.com/jane"),
-)
-
-// _profile-entry with `profile-icons`: the network as written wins
-// over its alias's key, which still covers the alias when the network
-// itself is unmapped.
-#let glyph(network, icons) = {
-  _profile-entry(
-    (network: network, username: "jane"),
-    profile-icons: icons,
-  ).glyph
-}
-#assert.eq(glyph("Kaggle", (kaggle: "kaggle")), "kaggle")
-#assert.eq(glyph("X", (x: "x-twitter", twitter: "twitter")), "x-twitter")
-#assert.eq(glyph("X", (twitter: "square-twitter")), "square-twitter")
-
-// _display-url: scheme and trailing slash dropped, the rest kept.
-#assert.eq(_display-url("https://jane.dev/"), "jane.dev")
-#assert.eq(_display-url("http://x.io/a/b?q=1"), "x.io/a/b?q=1")
-#assert.eq(_display-url("jane.dev"), "jane.dev")
 
 // _resolve-qr-url: none stays off, a string is used verbatim, auto
 // reads basics.url.
@@ -93,38 +18,109 @@
   "https://b.example",
 )
 
-// _linked-contacts: a `url` only where `link-contact-info` links the
-// channel. _header-image: an empty string path is absent.
-#let basics = (name: "Jane", email: "j@x.io", url: "https://x.io")
-#let prefs = _merge-options((:), (link-contact-info: (email: false))).prefs
-#assert.eq(
-  _linked-contacts(basics, prefs).map(c => c.url),
-  (none, "https://x.io"),
-)
-
-// print-full-urls: an unlinked profile shows its URL, scheme dropped, in
-// place of its username; a linked one, the email (not a web channel)
-// and a profile without a `url` keep their value.
-#let profiles = (
-  (network: "GitHub", username: "jane", url: "https://github.com/jane"),
-  (network: "Link", username: "jane"),
-)
-#let values(link) = _linked-contacts(
-  basics + (profiles: profiles),
-  _merge-options((:), (link-contact-info: link, print-full-urls: true)).prefs,
-).map(c => c.value)
-#assert.eq(values(false), ("j@x.io", "x.io", "github.com/jane", "jane"))
-#assert.eq(values(true), ("j@x.io", "x.io", "jane", "jane"))
+// _header-image: an empty string path is absent.
 #assert.eq(_header-image(""), none)
 #assert.eq(_header-image(none), none)
 
-// _contact-rows: details first, then profiles; an empty group drops out.
-#let c(channel) = (channel: channel)
-#assert.eq(
-  _contact-rows((c("email"), c("url"), c("profiles"))).map(r => r.map(
-    x => x.channel,
-  )),
-  (("email", "url"), ("profiles",)),
+#set document(title: [Seán O'Neil])
+#show: altacv
+
+#let titles = state("titles", ())
+#show title: it => {
+  titles.update(ts => ts + (it.body,))
+  it
+}
+// Each image's fit and alt, as set rules resolve them.
+#let images = state("images", ())
+#show image: it => {
+  images.update(xs => xs + ((it.fit, it.alt),))
+  it
+}
+// The alt text of each contact icon that has one.
+#let alts = state("alts", ())
+#show figure: it => {
+  alts.update(xs => xs + (it.alt,))
+  it
+}
+
+#cv-header(
+  tagline: "Engineer",
+  contacts: (
+    contact("email", "j@d.ie", url: "mailto:j@d.ie"),
+    contact("phone", "+353 1 234 5678"),
+    contact("link", "example.com", url: "https://example.com"),
+    contact("location", "Dublin"),
+    contact("github", "sean"),
+    contact("email", "s@d.ie", alt: "Work email"),
+  ),
+  photo: image(avatar-placeholder),
 )
-#assert.eq(_contact-rows((c("profiles"),)).len(), 1)
-#assert.eq(_contact-rows(()), ())
+#metadata(none)<first>
+
+// One title, the name; `uppercase` wraps it in `upper`.
+#context assert.eq(
+  titles.at(locate(<first>)),
+  (upper([Seán O'Neil]),),
+)
+// A bare image is framed (`cover`) and reads the name, apostrophe kept.
+#context assert.eq(
+  images.at(locate(<first>)),
+  (("cover", "Seán O'Neil"),),
+)
+// Email, phone and a homepage read nothing; a location the localised
+// word, a profile its network; an explicit alt wins.
+#context assert.eq(
+  alts.at(locate(<first>)),
+  ("Location", "github", "Work email"),
+)
+
+// The user's own fit and alt win over the photo's.
+#cv-header(photo: image(avatar-placeholder, fit: "contain", alt: "Me"))
+#metadata(none)<second>
+#context assert.eq(
+  images.at(locate(<second>)).at(-1),
+  ("contain", "Me"),
+)
+
+// The location's alt follows the document's language.
+#[
+  #set text(lang: "ga")
+  #cv-header(contacts: (contact("location", "Baile Átha Cliath"),))
+  #metadata(none)<third>
+]
+#context assert.eq(alts.at(locate(<third>)).at(-1), "Suíomh")
+
+// The photo's frame: the clipping box's width and corner radius.
+#let frames = state("frames", ())
+#show box: it => {
+  if it.clip { frames.update(fs => fs + ((it.width, it.radius),)) }
+  it
+}
+
+// `auto` is `alta()`'s default `photo-size` and `photo-shape`.
+#cv-header(name: "A", photo: image(avatar-placeholder))
+#cv-header(
+  name: "B",
+  photo: image(avatar-placeholder),
+  photo-size: 3em,
+  photo-shape: "square",
+)
+#metadata(none)<framed>
+#context assert.eq(frames.at(locate(<framed>)).slice(-2), (
+  (0% + 6em, 50% + 0pt),
+  (0% + 3em, 0% + 0pt),
+))
+
+// The name's left edge, by where the header sits: `start` by default,
+// as `left` was, and the surrounding `align`'s otherwise.
+#cv-header(name: "Jane Doe")
+#align(left, cv-header(name: "Jane Doe"))
+#align(center, cv-header(name: "Jane Doe"))
+#align(right, cv-header(name: "Jane Doe"))
+#context {
+  let (default, left, centre, right) = query(<alta-name>)
+    .slice(-4)
+    .map(t => t.location().position().x)
+  assert.eq(default, left)
+  assert(left < centre and centre < right)
+}
