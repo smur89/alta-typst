@@ -50,7 +50,7 @@ altacv reads four optional fields the JSON Resume schema has no place for, from 
 | `name` | Required. The name, in capitals unless `uppercase-name: false`. |
 | `label` | The tagline under the name. |
 | `summary` | The introduction under the header. |
-| `image` | The photo: a `path(..)`, which resolves from your file, or bytes; a string resolves inside the package. Non-square images are cropped from the centre. |
+| `image` | The photo: a `path(..)`, which resolves from your file, or bytes; a string resolves inside the package (deprecated: it will be an error). Non-square images are cropped from the centre. |
 | `email`, `phone`, `url` | Contact bar entries. `url` shows without its scheme (`jane.dev`) and is what `qr-code: auto` encodes. |
 | `location` | A string, or a dict `{address, postalCode, city, region, countryCode}`, shown as `city, region, countryCode`. |
 | `profiles` | `{network, username, url}` entries in the contact bar, with the network's icon (see [Profile networks](#profile-networks)). |
@@ -87,7 +87,7 @@ An entry without its title field (`name` for projects and certificates, `title` 
 | `authors` | Author list. The CV owner's entry, matching `basics.name` or any of `owner-names` (ignoring case), is set apart. |
 | `publisher`, `volume`, `issue`, `pages` | The citation: `ACM 12(3), 45–67`. Hyphens in `pages` become an en dash. |
 | `identifiers` | Persistent IDs keyed by scheme: `DOI 10.1000/182 · arXiv 2101.00001`. `doi`, `arxiv` and `pmid` are linked; others print as given. |
-| `type` | Groups publications under a heading per type, each with its icon (`publication-icons`). `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publication-types`); any other type is headed as written unless you add it there. Untyped entries are articles. |
+| `type` | Groups publications under a heading per type, each with its icon (`publication-icons`). `article`, `book`, `patent`, `thesis` and `talk` have built-in headings (`labels.publication-types`); any other type is headed as written unless you add it there (deprecated: give it a heading in `labels.publication-types`). Untyped entries are articles. |
 
 **Skills** are `{name, level, keywords}` groups: the name as a category tag, then the keywords as tags. A `level` of `Beginner`, `Novice`, `Intermediate`, `Advanced`, `Expert` or `Master` (any case) shows as dots, scaled to `max-rating`; any other level shows as text. `skill-level-display` forces `"rating"` (a level that doesn't map then panics) or `"text"`. Groups with no keywords are skipped.
 
@@ -242,7 +242,7 @@ Every string the template prints. The defaults are [`internal/data/labels-en.tom
 | `page-number` | `"Page {current} / {total}"` (`{total}` optional) |
 | `document-title` | `"{name} — CV"`, the PDF title |
 | `months` | `("Jan", "Feb", …, "Dec")`, exactly twelve |
-| `publication-types` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")`, merged entry by entry; other types print as given |
+| `publication-types` | `(article: "Articles", book: "Books", patent: "Patents", thesis: "Theses", talk: "Talks")`, merged entry by entry; other types print as given (deprecated) |
 
 `page-number` and `document-title` are templates, so a translation can reorder them (`"Seite {current} von {total}"`). A missing required or unknown placeholder panics.
 
@@ -371,3 +371,5 @@ Still accepted; removed in the next major release ([#239](https://github.com/smu
 | The top-level `focusAreas`, `languages[].rating` and `awards[].url` | `custom.altacv.focusAreas`, `.rating` and `.url` ([extensions](#extensions)), which win when both are set. |
 | `description` in `work`, `volunteer` and `projects` | `summary`, which wins. |
 | Plural free-text publication types (`"Talks"`) | The type code (`"talk"`). |
+| A string `basics.image` (it resolves inside the package, not from your file) | `path("photo.jpg")`, or bytes. In a `resume.json`, drop `image` and set the photo in Typst. |
+| A publication type with no heading in `labels.publication-types`, printed as written | Its heading in `labels.publication-types`: `(poster: "Posters")`. |
