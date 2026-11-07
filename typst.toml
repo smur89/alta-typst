@@ -1,6 +1,6 @@
 [package]
 name = "altacv"
-version = "1.8.0"
+version = "1.9.0"
 entrypoint = "lib.typ"
 authors = ["Shane Murphy <@smur89>"]
 license = "MIT"
