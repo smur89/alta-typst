@@ -211,10 +211,10 @@ jobs:
       - name: Rebuild cv.pdf + cv.png + example_full.pdf + thumbnail.png at the tag
         run: make docker-release-artifacts
 
-      # File list: the Makefile's PACKAGE_FILES. The `examples/*`
-      # entries ship only so README links resolve on Universe (typst.toml
-      # `exclude`s them from the compiler bundle); a README link to a
-      # file not listed there will 404 on Universe.
+      # File list: the Makefile's PACKAGE_FILES. The `examples/*` and
+      # `docs/*` entries ship only so README links resolve on Universe
+      # (typst.toml `exclude`s them from the compiler bundle); a README
+      # link to a file not listed there will 404 on Universe.
       - name: Build package tarball
         env:
           VERSION: ${{ needs.release-please.outputs.version }}

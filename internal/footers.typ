@@ -128,7 +128,7 @@
 
 /// A page footer for `set page(footer: ..)` inside the altacv template:
 /// your name on the left, the page number (`labels.page-number`) on the
-/// right, on documents of more than one page. The name is `alta()`'s
+/// right, on documents of more than one page. The name is the CV's
 /// `basics.name`; in a CV written in markup, the document's author
 /// (`set document(author: ..)`), else its title. It counts pages with
 /// Typst's page counter, so a `counter(page).update(..)` that restarts
@@ -142,7 +142,7 @@
 ///
 /// - version (bool): Append `(meta.version)`.
 /// - date (str, content, none): The date shown, as written, in place
-///   of `alta()`'s `meta.lastModified`.
+///   of the CV's `meta.lastModified`.
 /// -> content
 #let cv-updated-footer(version: false, date: none) = {
   _check-type(

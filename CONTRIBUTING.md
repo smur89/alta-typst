@@ -16,13 +16,16 @@ Security issues should be reported privately per [`SECURITY.md`](SECURITY.md) in
 [ARCHITECTURE.md](ARCHITECTURE.md) explains the layers, what each may import, and how a render flows; keep new code to it.
 
 ```text
-lib.typ           # public entry — re-exports only (`alta()` is in internal/render.typ)
-internal/         # wiring (the registry, render-time context) and the shared primitives and icons
+lib.typ           # public entry — re-exports only (`altacv` and `alta()` are in internal/render.typ)
+adapter/          # the JSON Resume mapping `alta()` draws with in the template, written to be copied
+internal/         # the render pipeline, the markup blocks, the footers, the `adapter` helpers, render-time context, primitives and icons
 internal/util/    # generic helpers: field reads, joins, checks, date formatting
 internal/data/    # reading and checking the CV, labels and preferences, and their defaults
 internal/design/  # the theme and its checks, document-wide styles, built-in themes and palettes, the icon set
-internal/components/ # the layout components sections map onto
-sections/         # one renderer per part of the CV: the header, then each section
+internal/components/ # the layout components the sections and blocks map onto
+sections/         # standalone `alta()`'s renderers, one per part of the CV (removed in the next major, #239)
+template/         # the `typst init` starter; cv.typ is also the demo behind examples/cv.png, thumbnail.png and the preview frames
+docs/             # reference.md, the full reference the README links to
 assets/           # in-package raster/SVG resources (e.g. avatar-placeholder)
 examples/         # example CVs + shared `_dates.typ` / `_cv.typ` helpers
 tests/            # fixtures — CI renders each into examples/tests/*.pdf
@@ -33,7 +36,7 @@ tests/unit/       # `assert` checks of the side-effect-free helpers (dates, fiel
 
 Each `internal/**/*.typ` and `sections/*.typ` opens with a docstring describing its responsibility — `grep -nE '^//' internal/*.typ internal/*/*.typ sections/*.typ` for a quick directory.
 
-Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); option names (preferences, labels, colour roles, theme tokens) are kebab-case too (`column-ratio`), while [JSON Resume](https://jsonresume.org/schema/)'s data keeps its camelCase (`startDate`) as input. `data/` checks it under those names, so a message names what the caller wrote; `_read-cv` then maps them to kebab-case (`_kebab-fields`), which everything that renders reads (`start-date`), and section keys are kebab-case (`"focus-areas"`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API (`alta`, `alta-from-json`, `from-json-resume`, `avatar-placeholder`, `themes`, `palettes`, `maps-providers`, `icon`, `name`, `term`, `tag`, `divider`, `rating`, `styled-link`, the markup blocks, and the `adapter` module, whose `internal/adapter.typ` likewise imports only its helpers). `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
+Identifiers and `.typ` file names are kebab-case, matching Typst's standard library (`from-unicode`, `hanging-indent`); a leading `_` marks a shared helper rather than a document (`examples/_cv.typ`), and shipped assets keep their published names (`examples/example_full.pdf`); option names (preferences, labels, colour roles, theme tokens) are kebab-case too (`column-ratio`), while [JSON Resume](https://jsonresume.org/schema/)'s data keeps its camelCase (`startDate`) as input. `data/` checks it under those names, so a message names what the caller wrote; the template's mapping (`adapter/json-resume.typ`) reads the checked CV in camelCase, and `_read-cv` maps it to kebab-case (`_kebab-fields`) for the standalone renderers (`start-date`). Section keys are kebab-case (`"focus-areas"`). A top-level name that `lib.typ` doesn't re-export starts with `_` (`_page-header`); any module may import it, within the layers in [ARCHITECTURE.md](ARCHITECTURE.md). Only what `lib.typ` re-exports is part of the public API: the template `altacv`, `alta`, the footers `cv-footer` and `cv-updated-footer`, `themes`, `maps-providers`, `avatar-placeholder`, `icon`, the blocks (`cv-header`, `contact`, `entry`, `publication`, `skill-row`, `rating`, `label-row`, `tag`, `divider`, `cv-columns`), the `adapter` module, whose `internal/adapter.typ` likewise imports only its helpers, and the deprecated `alta-from-json`, `from-json-resume`, `name`, `term`, `styled-link` and `palettes`. [docs/reference.md](docs/reference.md#exports) documents each. `lib.typ` imports nothing but what it re-exports: Typst re-exports every name a module imports, so anything else would leak into a user's `#import "@preview/altacv:…": *` (`tests/unit/api.typ` pins the exported names). Internal code calls the merged preferences `prefs`; `preferences` is the caller-facing parameter. Cross-file imports use relative paths (`#import "../internal/context.typ": ...` from `sections/`).
 
 ## Design conventions
 
@@ -41,18 +44,18 @@ Three rules decide what a change may add. Reviews hold new work to them.
 
 ### The data is JSON Resume, whichever way it arrives
 
-The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec fields only, in the spec's shape, read only in the sections the spec gives them to (`work[].keywords` is in the spec; `volunteer[].keywords` isn't, so it doesn't render). Both ways in, an inline dict through `alta()` and a `resume.json` through `alta-from-json` (validated by [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import)), take the same data: there are no dict-only features.
+The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec fields only, in the spec's shape, read only in the sections the spec gives them to (`work[].keywords` is in the spec; `volunteer[].keywords` isn't, so it doesn't render). Both ways in, an inline dict and a `resume.json` through [`@preview/gairm-import`](https://typst.app/universe/package/gairm-import)'s `parse`, take the same data: there are no dict-only features.
 
-- **No new non-spec fields.** The `custom.altacv` [extensions](README.md#extensions) predate this rule; don't add to them.
+- **No new non-spec fields.** The `custom.altacv` [extensions](docs/reference.md#extensions) predate this rule; don't add to them.
 - **Typst-only values are conveniences over a spec value**, never a field of their own: markup (`[Led the *platform* team]`) where the spec has a string, a `path()` or bytes where it has a URL.
-- **Parity gates a release.** A field `alta()` renders ships only in a release whose pinned gairm-import schema (`internal/data/json-resume.typ`) accepts it, so the README never documents a route-specific gap.
+- **Parity gates a release.** A field `alta()` renders ships only in a release whose pinned gairm-import schema (`internal/data/json-resume.typ`) accepts it, so the docs never document a route-specific gap.
 
 ### New looks go through parts and theme tokens
 
 The default look is opinionated (only skills are tags). A new alternative look is opt-in through parts and theme tokens, not a new preference. The look preferences from 1.8.0, such as `uppercase-name` and `photo-size`, predate this rule; keep them, but don't extend the pattern. Preferences are for layout and behaviour: which column a section takes, `date-format`, `maps-provider`, `owner-names`.
 
-- **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the README's [Part labels](README.md#part-labels).
-- **A replacement rule's `it` is opaque.** The README promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
+- **A part per element a user may restyle or replace, and a paragraph part per row that lays such elements out**, labelled with `_part` (see [ARCHITECTURE.md](ARCHITECTURE.md#layers)): each keyword is `<alta-keyword>`, and the line they sit on `<alta-keywords>`, so one rule replaces a keyword and another spaces the row. A layout need a show rule can reach through a paragraph part doesn't get a token. Parts are public API, listed with their kind in the reference's [Part labels](docs/reference.md#part-labels).
+- **A replacement rule's `it` is opaque.** The reference promises a part's kind, not its element: use `it` whole (`tag(it)`), and keep a part's value free to be text, a sequence or a `context`.
 - **A theme token for any value the default fixes**: a separator, size or treatment (`separator.keywords`, `treatment.link: emph`). A token holds a value, never a choice of component: not `keywords: "tags"`.
 
 ### Work with Typst, not around it
@@ -62,11 +65,11 @@ A Typst user should be able to style a CV the way they style any document. Where
 - **A setting Typst already has is Typst's, not a preference**: the language is `set text(lang: ..)`, which also picks the labels. The preferences from 1.8.0 that duplicate one (`paper`, `margin`, `font`, `body-size`) predate this rule ([#376](https://github.com/smur89/alta-typst/issues/376)); don't add more.
 - **An element Typst already has is restyled through that element, not a part**: the list bullet through `show list`, the line between entries through `show divider`. A part label is for what Typst has no element for.
 - **Typst's own values where they exist**: an alignment, a function or a `datetime`, not a name in a string. The string options from 1.8.0 (`photo-position`, `header-text-align`) predate this rule ([#377](https://github.com/smur89/alta-typst/issues/377)).
-- **Moving to Typst's way doesn't break a CV.** The old form keeps working, rewritten in `internal/data/canonical.typ` where it needs one, the README marks it deprecated, and its removal is listed in [#239](https://github.com/smur89/alta-typst/issues/239) for the next major.
+- **Moving to Typst's way doesn't break a CV.** The old form keeps working, rewritten in `internal/data/canonical.typ` where it needs one, the reference lists it as deprecated, and its removal is listed in [#239](https://github.com/smur89/alta-typst/issues/239) for the next major.
 
 ## Development loop
 
-Install Typst at the version CI uses — the `FROM ghcr.io/typst/typst:<version>` line in the `Dockerfile`. Two fonts must also be available on the system font path: **Lato** (the default body font, override via `preferences.font`) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
+Install Typst at the version CI uses — the `FROM ghcr.io/typst/typst:<version>` line in the `Dockerfile`. Two fonts must also be available on the system font path: **Lato** (the default theme's font) and the desktop **FontAwesome** set (read by [`@preview/fontawesome`](https://typst.app/universe/package/fontawesome) for icons — without it, icons render as tofu).
 
 On macOS, one block sets up everything Homebrew can provide:
 
@@ -77,7 +80,7 @@ brew install --cask font-lato font-fontawesome
 
 `pngquant` compresses the committed PNG renders (the thumbnail, the gallery pages) and `webp`'s `img2webp` builds the README's animated preview (`make preview-webp`); `make check` needs neither.
 
-Linux / Windows / manual install paths: see the [Requirements section in the README](README.md#requirements). Run `typst fonts` to confirm both are visible to Typst.
+Linux / Windows / manual install paths: see the [Quick start in the README](README.md#quick-start). Run `typst fonts` to confirm both are visible to Typst.
 
 Most everyday tasks go through the `Makefile`; `make help` lists every target. The ones you'll use most:
 
@@ -161,7 +164,7 @@ A `chore:` line drops a PR from the notes entirely.
 This is the most common shape of contribution. A user can already draw any network with `preferences.profile-icons`; a built-in entry saves everyone the mapping. Two changes:
 
 1. Add a row to `_network-icons` in `internal/design/icon-set.typ`. Use the lowercase key (`_profile-network` in `internal/data/cv.typ` lowercases the network before the lookup) and map it to the canonical FontAwesome glyph name — browse [fontawesome.com/search](https://fontawesome.com/search) to find the right one (e.g. `"linkedin"`, `"x-twitter"`, `"github"`). `@preview/fontawesome` handles the brand-vs-solid font selection automatically.
-2. Add the canonical capitalised name to the supported-networks list in `README.md` (under "Profile networks").
+2. Add the canonical capitalised name to the supported-networks list in `docs/reference.md` (under "Profile networks").
 
 `feat:` commit. The icon will render automatically wherever a `basics.profiles` entry uses the new network. If the new icon is a utility / Free Solid glyph rather than a brand mark (e.g. a generic globe-style fallback), also add the lowercase key to `_solid-names` in `internal/design/icon-set.typ` so `fa-icon` is called with `solid: true`.
 
@@ -169,7 +172,7 @@ This is the most common shape of contribution. A user can already draw any netwo
 
 Check the [design conventions](#design-conventions) first: a new field must be in the [JSON Resume spec](https://jsonresume.org/schema/), and a new look is a part or a theme token, not a preference.
 
-For a **new section**: add the renderer under `sections/<name>.typ`, add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `fields`, a type rule per field its renderer draws; `keep`, when some entries shouldn't render; `check`, for checks that need more than a type, in `internal/data/cv-checks.typ`) and its renderer to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` are the checked entries `keep` let through and `ctx` is `(labels, prefs, format-date, owner)`, usually destructured as `(labels, format-date, ..)`), and add the heading to `internal/data/labels-en.toml`. For a **new part**: label it with `_part`, add its row to the README's [Part labels](README.md#part-labels) table and a rule for it to `tests/show-rules.typ`; a recipe the README documents for it (`tests/keyword-pills.typ`) gets a fixture. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule or checker in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, and read it from `ctx.prefs`. Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/awards.typ` is a small self-contained example.
+For a **new section**: add its spec to `_section-specs` in `internal/data/sections.typ` (column; `read` / `items` when it isn't a plain entry array; `fields`, a type rule per field it draws; `keep`, when some entries shouldn't render; `check`, for checks that need more than a type, in `internal/data/cv-checks.typ`); draw it in the mapping, `adapter/json-resume.typ`, as a function `(cv, ctx)` added to its `sections` dict (`ctx` is `(labels, prefs, owners)`; read the entries with `adapter.entries(cv, key)` and draw them with the public blocks only, so the mapping stays copyable; a unit test pins its keys to `_section-specs`); add the standalone renderer under `sections/<name>.typ` and to `_renderers` in `internal/registry.typ` (every renderer takes `(entries, ctx)`, where `entries` are the checked entries `keep` let through and `ctx` is `(labels, prefs, format-date, owner, owners)`, usually destructured as `(labels, format-date, ..)`); add the heading to `internal/data/labels-en.toml`; and document its fields in `docs/reference.md`. For a **new part**: label it with `_part`, add its row to the reference's [Part labels](docs/reference.md#part-labels) table and a rule for it to `tests/show-rules.typ`; a recipe the reference documents for it (`tests/keyword-pills.typ`) gets a fixture. For a **new preference**: add it to `_default-preferences` in `internal/data/defaults.typ`, give it a rule or checker in `_preference-rules` (`internal/data/validation.typ`; `tests/unit/validation.typ` fails until you do) with a `tests/panics/` fixture, read it from `ctx.prefs`, and add its row to the reference's [Preferences](docs/reference.md#preferences). Deprecating an input shape? Rewrite it into the current one in `internal/data/canonical.typ` rather than in a renderer. A new component, or a new variant of one, gets an entry in the component gallery (`tests/components.typ`). Any change to the data shape or the rendered surface should also add a fixture under `tests/` exercising it — `tests/awards.typ` is a small self-contained example.
 
 The `tests/` suite doubles as a regression guard: `make test-pdfs` regenerates `examples/tests/*.pdf` from each fixture, and CI fails the lint job if the rendered output drifts from the committed PDF. After making a change that intentionally affects output, run `make docker-pdfs` (see [Regenerating PDF fixtures](#regenerating-pdf-fixtures-docker)) and commit the updated PDFs alongside your source change.
 

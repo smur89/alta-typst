@@ -63,15 +63,14 @@
 
 /// A label with a row of rating dots at the right edge: filled,
 /// half-filled, then empty. A text value takes the dots' place, the row
-/// as tall as the dots', as `alta()` shows a fluency it can't rate;
-/// `none` leaves the label alone on its row.
+/// as tall as the dots'; `none` leaves the label alone on its row.
 ///
 /// - label (content, str): The row's label.
 /// - value (int, float, str, content, none): The rating, from 0 to
 ///   `max`, in steps of 0.5; or a text (`"Conversational"`) shown as
 ///   written.
-/// - max (auto, int): The dots in the row; `auto` is the enclosing
-///   `alta()`'s `preferences.max-rating`.
+/// - max (auto, int): The dots in the row; `auto` is the
+///   `max-rating` of the last `alta()` before it, else 5.
 /// -> content
 #let rating(label, value, max: auto) = {
   // An explicit `max` is checked whatever the value; `auto` reads the

@@ -131,7 +131,8 @@
 /// `set text(lang: ..)`, `show heading: ..`).
 ///
 /// - theme (dictionary): A built-in theme (`themes.teal`, …) or theme
-///   tokens over it. See the README's Theme tokens.
+///   tokens over the default one. See docs/reference.md's Theme
+///   tokens.
 /// - labels (dictionary): Display strings to override for everything
 ///   the template draws: `alta()`'s CVs, the markup blocks (`entry`'s
 ///   "Present", the date and location alt text) and the footers. The
@@ -184,23 +185,25 @@
   }
 }
 
-/// Renders a CV from a JSON Resume-style dictionary. On its own it
-/// applies the template itself. Inside `#show: altacv.with(..)` it emits
-/// only the CV, and document-level preferences (theme, colours, font,
-/// sizes, paper, margin, footers) panic, naming the template argument or
-/// set rule that replaces each. Every input is checked before anything
+/// Draws a CV from a JSON Resume dictionary, under
+/// `#show: altacv.with(..)`. Every input is checked before anything
 /// renders. The labels follow the document's language:
 /// `#set text(lang: "ga")` before `alta()` renders them in Irish.
+/// Inside the template, the document-level preferences (`font`,
+/// `body-size`, `paper`, `margin`, the footers) panic, naming the set
+/// rule that replaces each. On its own, without the template, it
+/// applies one itself: deprecated (#239), add `#show: altacv` above
+/// it.
 ///
 /// - cv (dictionary): The CV, in the JSON Resume schema plus altacv's
 ///   `custom.altacv` extensions. Unknown keys and wrong types panic,
 ///   naming the field.
-/// - labels (dictionary): Display strings to override, merged over the
-///   defaults for the document's language (`text.lang`). See the
-///   README's Labels section.
-/// - preferences (dictionary): Settings to override (colours, font,
-///   columns, …), merged over the defaults. See the README's
-///   Preferences tables.
+/// - labels (dictionary): Display strings to override for this CV,
+///   merged over the template's and the defaults for the document's
+///   language (`text.lang`). See docs/reference.md's Labels.
+/// - preferences (dictionary): Settings to override (the columns, the
+///   date format, the photo, …), merged over the defaults. See
+///   docs/reference.md's Preferences.
 /// -> content
 #let alta(
   cv,
@@ -228,7 +231,9 @@
 // positionals (`alta-from-json(p, my-prefs)`) panic with a
 // wrapper-aware message rather than an `alta`-level one.
 /// Renders a CV from a `resume.json`, validated against the JSON Resume
-/// schema first: `alta(from-json-resume(data), ..)`.
+/// schema first: `alta(from-json-resume(data), ..)`. Deprecated
+/// (#239): `alta(parse(path("resume.json")), ..)`, with gairm-import's
+/// `parse`.
 ///
 /// - data (path, dictionary): The `resume.json`, as for
 ///   `from-json-resume`.
