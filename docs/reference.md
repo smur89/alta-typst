@@ -281,7 +281,7 @@ A replacement rule's `it` is the part as content, whatever builds it (text, a se
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, altacv, tag
+#import "@preview/altacv:1.9.0": alta, altacv, tag
 
 #show: altacv.with(theme: (separator: (keywords: "")))
 #show <alta-keyword>: it => tag(it)
@@ -296,7 +296,7 @@ Every export has a doc comment, shown on hover in Tinymist and other Typst edito
 
 <!-- x-release-please-start-version -->
 ```typst
-#import "@preview/altacv:1.8.0": alta, altacv, entry, tag, themes
+#import "@preview/altacv:1.9.0": alta, altacv, entry, tag, themes
 ```
 <!-- x-release-please-end -->
 
