@@ -140,7 +140,7 @@ jobs:
       contents: read
     env:
       # Pinned so a checker update can't flip the verdict on the same source.
-      PCHECK_IMAGE: ghcr.io/typst/package-check:0.6.0
+      PCHECK_IMAGE: ghcr.io/typst/package-check:0.7.0
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
