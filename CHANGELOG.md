@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/smur89/alta-typst/compare/v1.9.0...v1.9.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency gairm-import to v0.12.0 ([#420](https://github.com/smur89/alta-typst/issues/420)) ([f7f4aab](https://github.com/smur89/alta-typst/commit/f7f4aab940e01d96f2b71da192c5988e478697db))
+
 ## [1.9.0](https://github.com/smur89/alta-typst/compare/v1.8.0...v1.9.0) (2026-11-07)
 
 
