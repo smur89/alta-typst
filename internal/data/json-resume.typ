@@ -5,7 +5,7 @@
 // into `custom.altacv`) until #239 removes them. `alta-from-json`
 // lives in `render.typ`, as it composes `alta`.
 
-#import "@preview/gairm-import:0.10.1": (
+#import "@preview/gairm-import:0.12.0": (
   add-field, array-of, content-type, lens, number-type, parse as _parse,
   resume-schema-strict, str-type,
 )
