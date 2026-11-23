@@ -176,13 +176,15 @@
 #alta(cv, preferences: preferences)
 
 // To load the same CV from JSON Resume instead, replace the
-// `#alta(cv, ..)` line above with the two below. `resume.json`, beside
+// `#alta(cv, ..)` line above with the three below. `resume.json`, beside
 // this file, holds it in the standard schema (https://jsonresume.org),
-// so any JSON Resume tool can write it. Loading it drops the photo,
-// which is set here in Typst (`basics.image`): the README's "A
+// so any JSON Resume tool can write it; `parse` checks it against
+// `resume.schema.json`. Loading it drops the
+// photo, which is set here in Typst (`basics.image`): the README's "A
 // `resume.json`" shows how to keep one.
-// #import "@preview/gairm-import:0.10.1": parse
-// #alta(parse(path("resume.json")), preferences: preferences)
+// #import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
+// #let schema = schema-from-json-schema(json("resume.schema.json"))
+// #alta(parse(schema, path("resume.json")), preferences: preferences)
 //
 // More in the README's "Beyond the data": the CV in markup, for
 // sections of your own, and your own mapping, to change how a section

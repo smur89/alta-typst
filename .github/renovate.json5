@@ -43,6 +43,15 @@
       datasourceTemplate: 'github-releases',
       extractVersionTemplate: '^v(?<version>.+)$',
     },
+    {
+      description: "gairm-import pins the typst manager misses: docs, comments, and from-json-resume's nested import.",
+      customType: 'regex',
+      managerFilePatterns: ['/^README\\.md$/', '/^template/cv\\.typ$/', '/^adapter/json-resume\\.typ$/', '/^internal/data/json-resume\\.typ$/'],
+      matchStrings: ['@preview/gairm-import:(?<currentValue>\\d+\\.\\d+\\.\\d+)'],
+      depNameTemplate: 'gairm-import',
+      packageNameTemplate: 'preview/gairm-import',
+      datasourceTemplate: 'typst',
+    },
   ],
 
   // Dependabot ran Sunday 22:00. Renovate schedules are windows (hour
@@ -73,7 +82,7 @@
       // ungrouped: each bump can change rendered output (and so the committed
       // PDF fixtures), which is easier to review and regenerate per package.
       description: 'Typst package bumps change shipped code: release them as fixes.',
-      matchManagers: ['typst'],
+      matchDatasources: ['typst'],
       semanticCommitType: 'fix',
     },
     {

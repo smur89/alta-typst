@@ -83,23 +83,28 @@ This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`t
 
 ### A `resume.json`
 
-Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse`, which checks it against the [schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits:
+Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse`, which checks it against the [schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits. `typst init` puts that schema beside `resume.json` as `resume.schema.json`; in an existing project, save [JSON Resume 1.7.0's](https://unpkg.com/@jsonresume/schema@1.7.0/schema.json) there:
 
 <!-- x-release-please-start-version -->
 ```typst
 #import "@preview/altacv:1.9.0": alta, altacv
-#import "@preview/gairm-import:1.9.0": parse
+```
+<!-- x-release-please-end -->
+```typst
+#import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 
 #show: altacv.with()
 
-#alta(parse(path("resume.json")))
+#let schema = schema-from-json-schema(json("resume.schema.json"))
+#alta(parse(schema, path("resume.json")))
 ```
-<!-- x-release-please-end -->
+
+JSON Resume's schema leaves its objects open, so a misspelt key such as `positon` in a `work` entry is ignored rather than reported; gairm-import's [stricter JSON Resume](https://github.com/smur89/gairm-import/blob/v1.0.0/REFERENCE.md#a-stricter-json-resume) closes them.
 
 Both routes take the same data: anything the dict holds, altacv's [extensions](docs/reference.md#extensions) included, a `resume.json` can too. Typst can't load a photo from a JSON string (a bare path resolves inside the package), so set it from your own file:
 
 ```typst
-#let cv = parse(path("resume.json"))
+#let cv = parse(schema, path("resume.json"))
 #alta(cv + (basics: cv.basics + (image: path("photo.jpg"))))
 ```
 
@@ -247,14 +252,18 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 
 // cv.typ
 #import "@preview/altacv:1.9.0": altacv
-#import "@preview/gairm-import:1.9.0": parse
+```
+<!-- x-release-please-end -->
+```typst
+// cv.typ, continued
+#import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "json-resume.typ": resume
 
 #show: altacv
 #set document(title: "Jane Doe", author: "Jane Doe")
-#resume(parse(path("resume.json")))
+#let schema = schema-from-json-schema(json("resume.schema.json"))
+#resume(parse(schema, path("resume.json")))
 ```
-<!-- x-release-please-end -->
 
 `resume(cv, preferences: (:))` takes validated JSON Resume: `parse`'s output, or a CV `alta()` has checked. It doesn't check the fields again, so a wrong-typed field fails inside the mapping rather than naming itself. Its preferences are `alta()`'s, merged and checked the same way, and its labels are the template's. The `set document` fills the PDF's metadata, which `alta()` does for you. A bare `basics.image` path resolves from your copy's folder. Each section is a function of its own, `work(cv, ctx)` and so on, where `ctx` holds the resolved `labels` and `prefs` and the `owners` set apart among publication authors, and `sections` maps each column key to one. The mapping reads the CV with the [`adapter`](docs/reference.md#adapter) helpers, the readers `alta()` uses, so your copy reads the data as `alta()` does.
 
@@ -281,8 +290,8 @@ In the template the name is Typst's `title` and sections are level-1 headings, w
 
 | Deprecated | Use instead |
 |---|---|
-| `alta-from-json(path("resume.json"), ..)` | `alta(parse(path("resume.json")), ..)`, with gairm-import's `parse` ([A `resume.json`](#a-resumejson)) |
-| `from-json-resume(data)` | gairm-import's `parse(data)` |
+| `alta-from-json(path("resume.json"), ..)` | `alta(parse(schema, path("resume.json")), ..)`, with gairm-import's `parse` and the JSON Resume schema ([A `resume.json`](#a-resumejson)) |
+| `from-json-resume(data)` | gairm-import's `parse(schema, data)` |
 | `name(body)` | `entry(org: ..)` |
 | `term(period, location: ..)` | `entry(date: .., location: ..)` |
 | `styled-link(content, dest: ..)` | `entry(title: .., url: ..)` |

@@ -1,5 +1,5 @@
 // The JSON Resume mapping fed JSON Resume as a copy of it is, through
-// gairm-import's `parse` (`resume(parse(path("resume.json")))`), with
+// gairm-import's `parse` (`resume(parse(schema, path("resume.json")))`), with
 // none of `alta()`'s canonicalisation: a project's `description`, JSON
 // Resume's deprecated alias of its summary, still shows, a `summary`
 // winning over it. A work entry's `description` is the company's, and
@@ -7,7 +7,7 @@
 // exports' that way (#239), before the mapping sees the CV.
 
 #import "/lib.typ": altacv
-#import "@preview/gairm-import:0.10.1": parse
+#import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "/adapter/json-resume.typ": resume
 
 #show: altacv
@@ -18,7 +18,8 @@
   it
 }
 
-#resume(parse(path("/tests/fixtures/canonical_resume.json")))
+#let schema = schema-from-json-schema(json("/template/resume.schema.json"))
+#resume(parse(schema, path("/tests/fixtures/canonical_resume.json")))
 #context assert(
   [A small library for safe schema evolution.] in seen.get(),
   message: "the project's description is missing",

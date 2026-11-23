@@ -1,11 +1,15 @@
 // Pins the contract that an unmodified resume.json on the current
 // JSON Resume schema (no altacv extensions, free-text fluency) parses
-// and renders without edits. Checking the schema is gairm-import's job.
+// and renders without edits through gairm-import's `parse`.
 
+#import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "../internal/data/json-resume.typ": from-json-resume
 #import "../lib.typ": alta
 
-#let resume = from-json-resume(path("fixtures/canonical_resume.json"))
+#let resume = parse(
+  schema-from-json-schema(json("/template/resume.schema.json")),
+  path("fixtures/canonical_resume.json"),
+)
 
 // Extension fields explicitly absent (not just empty) — pins
 // "vanilla resume.json works without edits".
