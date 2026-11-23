@@ -48,7 +48,7 @@ The `cv` dict is the [JSON Resume schema](https://jsonresume.org/schema/): spec 
 
 - **No new non-spec fields.** The `custom.altacv` [extensions](docs/reference.md#extensions) predate this rule; don't add to them.
 - **Typst-only values are conveniences over a spec value**, never a field of their own: markup (`[Led the *platform* team]`) where the spec has a string, a `path()` or bytes where it has a URL.
-- **Parity gates a release.** A field `alta()` renders ships only in a release whose vendored JSON Resume schema (`template/resume.schema.json`, which `typst init` gives users and `internal/data/json-resume.typ` builds on) accepts it, so the docs never document a route-specific gap. The schema moves to a newer JSON Resume release in a change of its own.
+- **Parity gates a release.** A field `alta()` renders ships only in a release whose vendored JSON Resume schema (`template/resume.schema.json`) accepts it, so the docs never document a route-specific gap. The schema moves to a newer JSON Resume release in a change of its own, which also updates the version in the README's link to it and in `internal/data/json-resume.typ`'s header.
 
 ### New looks go through parts and theme tokens
 

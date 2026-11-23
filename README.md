@@ -99,6 +99,8 @@ Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/g
 #alta(parse(schema, path("resume.json")))
 ```
 
+JSON Resume's schema leaves its objects open, so a misspelt key such as `positon` in a `work` entry is ignored rather than reported; gairm-import's [stricter JSON Resume](https://github.com/smur89/gairm-import/blob/v1.0.0/REFERENCE.md#a-stricter-json-resume) closes them.
+
 Both routes take the same data: anything the dict holds, altacv's [extensions](docs/reference.md#extensions) included, a `resume.json` can too. Typst can't load a photo from a JSON string (a bare path resolves inside the package), so set it from your own file:
 
 ```typst

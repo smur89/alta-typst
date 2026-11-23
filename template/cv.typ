@@ -176,7 +176,7 @@
 #alta(cv, preferences: preferences)
 
 // To load the same CV from JSON Resume instead, replace the
-// `#alta(cv, ..)` line above with the two below. `resume.json`, beside
+// `#alta(cv, ..)` line above with the three below. `resume.json`, beside
 // this file, holds it in the standard schema (https://jsonresume.org),
 // so any JSON Resume tool can write it, and `resume.schema.json` is
 // that schema, which `parse` checks it against. Loading it drops the

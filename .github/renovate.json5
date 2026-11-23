@@ -82,7 +82,7 @@
       // ungrouped: each bump can change rendered output (and so the committed
       // PDF fixtures), which is easier to review and regenerate per package.
       description: 'Typst package bumps change shipped code: release them as fixes.',
-      matchManagers: ['typst'],
+      matchDatasources: ['typst'],
       semanticCommitType: 'fix',
     },
     {

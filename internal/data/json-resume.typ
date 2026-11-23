@@ -1,19 +1,16 @@
-// JSON Resume import: the strict JSON Resume 1.7.0 schema, whose
-// `custom` objects carry altacv's extensions (`custom.altacv`), plus
-// the deprecated forms of three of them as optional fields, so a
-// `resume.json` still using them validates (`_canonical-cv` lifts them
-// into `custom.altacv`) until #239 removes them. `alta-from-json`
-// lives in `render.typ`, as it composes `alta`.
-//
-// The schema is JSON Resume's own `schema.json`, vendored at 1.7.0 as
-// `template/resume.schema.json`, the copy `typst init` gives users for
-// gairm-import's `parse` (#418), made strict as gairm-import's
-// REFERENCE.md "A stricter JSON Resume" shows. Both go with
-// `from-json-resume` (#239).
+// JSON Resume import: the strict JSON Resume 1.7.0 schema, vendored as
+// `template/resume.schema.json` (the copy `typst init` gives users for
+// gairm-import's `parse`, #418) and made strict as gairm-import's
+// REFERENCE.md "A stricter JSON Resume" shows. Its `custom` objects
+// carry altacv's extensions (`custom.altacv`); the deprecated forms of
+// three of them are optional fields, so a `resume.json` still using
+// them validates (`_canonical-cv` lifts them into `custom.altacv`)
+// until #239 removes them. `alta-from-json` lives in `render.typ`, as
+// it composes `alta`.
 
 #import "@preview/gairm-import:1.0.0": (
   add-field, array-of, markup, number, parse as _parse, schema-from-json-schema,
-  schema-put, string,
+  string,
 )
 
 // Closes every object that declares its properties, so a misspelt key
@@ -23,15 +20,12 @@
   let js = js.pairs().map(((k, v)) => (k, _close(v))).to-dict()
   if (
     "properties" in js and js.at("additionalProperties", default: true) == true
-  ) {
-    js.additionalProperties = false
-  }
-  js
+  ) { js + (additionalProperties: false) } else { js }
 } else if type(js) == array { js.map(_close) } else { js }
 
-// Functions, so only a JSON import pays for the schema; Typst caches
+// A function, so only a JSON import pays for the schema; Typst caches
 // the call.
-#let _strict-json() = {
+#let _altacv-schema() = {
   let js = _close(json("/template/resume.schema.json"))
   // A full date, checked as one, or the year and month JSON Resume
   // also allows.
@@ -41,46 +35,22 @@
       (type: "string", pattern: "^[0-9]{4}(-(0[1-9]|1[0-2]))?$"),
     ),
   )
-  js
-}
-
-// The free-text fields, taken as Typst `content`. Kept by hand, and
-// removed with `from-json-resume` (#239).
-#let _markup-paths = (
-  ("objective",),
-  ("basics", "summary"),
-  ("work", "items", "summary"),
-  ("work", "items", "highlights", "items"),
-  ("volunteer", "items", "summary"),
-  ("volunteer", "items", "highlights", "items"),
-  ("education", "items", "summary"),
-  ("awards", "items", "summary"),
-  ("certificates", "items", "summary"),
-  ("publications", "items", "summary"),
-  ("references", "items", "reference"),
-  ("projects", "items", "summary"),
-  ("projects", "items", "description"),
-  ("projects", "items", "highlights", "items"),
-)
-
-#let _altacv-schema() = {
-  let s = _markup-paths.fold(
-    schema-from-json-schema(_strict-json()),
-    (s, at) => schema-put(s, at, markup()),
-  )
   (
     (("focusAreas",), array-of(markup())),
     (("languages", "items", "rating"), number()),
     (("awards", "items", "url"), string()),
-  ).fold(s, (s, (at, field)) => add-field(s, at, field))
+  ).fold(schema-from-json-schema(js), (s, (at, field)) => add-field(
+    s,
+    at,
+    field,
+  ))
 }
 
 /// Validates a `resume.json` against the JSON Resume schema (plus
 /// altacv's extensions) and returns the CV dictionary `alta` takes.
 /// Panics on an invalid document, naming the field. Deprecated (#239):
-/// gairm-import's `parse`, with the JSON Resume schema `typst init`
-/// copies beside `resume.json`:
-/// `parse(schema-from-json-schema(json("resume.schema.json")), path("resume.json"))`.
+/// gairm-import's `parse` with the JSON Resume schema, as the README's
+/// "A `resume.json`" shows.
 ///
 /// - data (path, dictionary): The `resume.json`, as
 ///   `path("resume.json")`, or an already-decoded dictionary.
