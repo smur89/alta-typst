@@ -43,6 +43,15 @@
       datasourceTemplate: 'github-releases',
       extractVersionTemplate: '^v(?<version>.+)$',
     },
+    {
+      description: "The gairm-import pins in docs and comments, which the typst manager doesn't read, so they move in the same PR as the import.",
+      customType: 'regex',
+      managerFilePatterns: ['/^README\\.md$/', '/^template/cv\\.typ$/', '/^adapter/json-resume\\.typ$/'],
+      matchStrings: ['@preview/gairm-import:(?<currentValue>\\d+\\.\\d+\\.\\d+)'],
+      depNameTemplate: 'gairm-import',
+      packageNameTemplate: 'preview/gairm-import',
+      datasourceTemplate: 'typst',
+    },
   ],
 
   // Dependabot ran Sunday 22:00. Renovate schedules are windows (hour

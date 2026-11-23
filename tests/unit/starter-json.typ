@@ -1,9 +1,8 @@
 // The starter's two forms, `cv.typ`'s dict and `resume.json`, are
 // one CV: `alta()` of the dict (its photo removed: JSON has none)
 // and `alta` of the file, through gairm-import's `parse` as `cv.typ`'s
-// comment shows, render the same text, with its
-// parts at the same places, so an edit to one without the other fails
-// here.
+// comment shows, render the same text, with its parts at the same
+// places, so an edit to one without the other fails here.
 
 #import "/.template-src.typ": cv, preferences
 #import "/lib.typ": alta, altacv

@@ -6,9 +6,9 @@
 // It takes validated JSON Resume: `alta()`'s checked CV, or
 // gairm-import's `parse(..)` of a `resume.json`, checked against the
 // JSON Resume schema (`resume.schema.json`, which `typst init` copies
-// beside `resume.json`). It reads JSON
-// Resume's camelCase fields (`startDate`) and altacv's extensions under
-// `custom.altacv` as the schema types them, without checking them.
+// beside `resume.json`). It reads JSON Resume's camelCase fields
+// (`startDate`) and altacv's extensions under `custom.altacv` as the
+// schema types them, without checking them.
 //
 // To adapt it, copy this file into your project, replace the imports
 // below with one
@@ -451,9 +451,9 @@
 /// - cv (dictionary): The CV, validated JSON Resume (camelCase fields)
 ///   plus altacv's `custom.altacv` extensions: gairm-import's
 ///   `parse(schema, path("resume.json"))`, or the CV `alta()` has
-///   checked. Its
-///   field types aren't checked again here, so a wrong-typed field
-///   fails inside the mapping rather than naming itself.
+///   checked. Its field types aren't checked again here, so a
+///   wrong-typed field fails inside the mapping rather than naming
+///   itself.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
 ///   preference keys (`column-ratio`, `date-format`, …), merged over
 ///   its defaults and checked (`adapter.preferences()`).

@@ -7,9 +7,9 @@
 //
 // The schema is JSON Resume's own `schema.json`, vendored at 1.7.0 as
 // `template/resume.schema.json`, the copy `typst init` gives users for
-// gairm-import's `parse` (#418). It is made strict as gairm-import's
-// REFERENCE.md "A stricter JSON Resume" shows, which is what
-// gairm-import 0.13.0's `resume-schema-strict` did.
+// gairm-import's `parse` (#418), made strict as gairm-import's
+// REFERENCE.md "A stricter JSON Resume" shows. Both go with
+// `from-json-resume` (#239).
 
 #import "@preview/gairm-import:1.0.0": (
   add-field, array-of, markup, number, parse as _parse, schema-from-json-schema,
@@ -29,7 +29,9 @@
   js
 } else if type(js) == array { js.map(_close) } else { js }
 
-#let _strict-json = {
+// Functions, so only a JSON import pays for the schema; Typst caches
+// the call.
+#let _strict-json() = {
   let js = _close(json("/template/resume.schema.json"))
   // A full date, checked as one, or the year and month JSON Resume
   // also allows.
@@ -42,7 +44,8 @@
   js
 }
 
-// The free-text fields, taken as Typst `content`.
+// The free-text fields, taken as Typst `content`. Kept by hand, and
+// removed with `from-json-resume` (#239).
 #let _markup-paths = (
   ("objective",),
   ("basics", "summary"),
@@ -60,17 +63,17 @@
   ("projects", "items", "highlights", "items"),
 )
 
-#let _altacv-schema = (
-  (("focusAreas",), array-of(markup())),
-  (("languages", "items", "rating"), number()),
-  (("awards", "items", "url"), string()),
-).fold(
-  _markup-paths.fold(
-    schema-from-json-schema(_strict-json),
+#let _altacv-schema() = {
+  let s = _markup-paths.fold(
+    schema-from-json-schema(_strict-json()),
     (s, at) => schema-put(s, at, markup()),
-  ),
-  (s, (at, field)) => add-field(s, at, field),
-)
+  )
+  (
+    (("focusAreas",), array-of(markup())),
+    (("languages", "items", "rating"), number()),
+    (("awards", "items", "url"), string()),
+  ).fold(s, (s, (at, field)) => add-field(s, at, field))
+}
 
 /// Validates a `resume.json` against the JSON Resume schema (plus
 /// altacv's extensions) and returns the CV dictionary `alta` takes.
@@ -82,4 +85,4 @@
 /// - data (path, dictionary): The `resume.json`, as
 ///   `path("resume.json")`, or an already-decoded dictionary.
 /// -> dictionary
-#let from-json-resume(data) = _parse(_altacv-schema, data)
+#let from-json-resume(data) = _parse(_altacv-schema(), data)

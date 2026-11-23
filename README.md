@@ -83,7 +83,7 @@ This copies [`template/cv.typ`](template/cv.typ), a complete example CV, and [`t
 
 ### A `resume.json`
 
-Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse`, which checks it against the [schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits. `typst init` puts that schema beside `resume.json` as `resume.schema.json`; in an existing project, save [altacv's copy](https://github.com/smur89/alta-typst/blob/v1.9.0/template/resume.schema.json) <!-- x-release-please-version --> there:
+Load a JSON Resume file with [gairm-import](https://typst.app/universe/package/gairm-import)'s `parse`, which checks it against the [schema](https://jsonresume.org/schema/) first, so a vanilla `resume.json` works without edits. `typst init` puts that schema beside `resume.json` as `resume.schema.json`; in an existing project, save [JSON Resume 1.7.0's](https://unpkg.com/@jsonresume/schema@1.7.0/schema.json) there:
 
 <!-- x-release-please-start-version -->
 ```typst
@@ -253,6 +253,7 @@ Inside the template, `alta(cv)` draws the CV with [`adapter/json-resume.typ`](ht
 ```
 <!-- x-release-please-end -->
 ```typst
+// cv.typ, continued
 #import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "json-resume.typ": resume
 
