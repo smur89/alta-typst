@@ -1,11 +1,13 @@
 // The starter's two forms, `cv.typ`'s dict and `resume.json`, are
 // one CV: `alta()` of the dict (its photo removed: JSON has none)
-// and `alta-from-json` of the file render the same text, with its
+// and `alta` of the file, through gairm-import's `parse` as `cv.typ`'s
+// comment shows, render the same text, with its
 // parts at the same places, so an edit to one without the other fails
 // here.
 
 #import "/.template-src.typ": cv, preferences
-#import "/lib.typ": alta, alta-from-json, altacv
+#import "/lib.typ": alta, altacv
+#import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "/tests/unit/_plain.typ": plain
 
 #show: altacv
@@ -17,7 +19,8 @@
 #alta(cv + (basics: cv.basics + (image: none)), preferences: preferences)
 #pagebreak()
 #metadata("json")<starter-form>
-#alta-from-json(path("/template/resume.json"), preferences: preferences)
+#let schema = schema-from-json-schema(json("/template/resume.schema.json"))
+#alta(parse(schema, path("/template/resume.json")), preferences: preferences)
 
 // Where the CV's parts sit: its headings (sections, groups and entry
 // titles), paragraphs, lists and links, and the header's and each

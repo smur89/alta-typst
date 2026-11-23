@@ -232,8 +232,9 @@
 // wrapper-aware message rather than an `alta`-level one.
 /// Renders a CV from a `resume.json`, validated against the JSON Resume
 /// schema first: `alta(from-json-resume(data), ..)`. Deprecated
-/// (#239): `alta(parse(path("resume.json")), ..)`, with gairm-import's
-/// `parse`.
+/// (#239): `alta(parse(schema, path("resume.json")), ..)`, with
+/// gairm-import's `parse` and `schema-from-json-schema` of the JSON
+/// Resume schema `typst init` copies beside `resume.json`.
 ///
 /// - data (path, dictionary): The `resume.json`, as for
 ///   `from-json-resume`.

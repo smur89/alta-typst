@@ -4,7 +4,9 @@
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
 // It takes validated JSON Resume: `alta()`'s checked CV, or
-// gairm-import's `parse(..)` of a `resume.json`. It reads JSON
+// gairm-import's `parse(..)` of a `resume.json`, checked against the
+// JSON Resume schema (`resume.schema.json`, which `typst init` copies
+// beside `resume.json`). It reads JSON
 // Resume's camelCase fields (`startDate`) and altacv's extensions under
 // `custom.altacv` as the schema types them, without checking them.
 //
@@ -16,11 +18,12 @@
 // and edit what it draws. Then, in your CV:
 //
 //   #import "@preview/altacv:<version>": altacv
-//   #import "@preview/gairm-import:0.10.1": parse
+//   #import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 //   #import "json-resume.typ": resume
 //   #show: altacv
 //   #set document(title: "Jane Doe", author: "Jane Doe")
-//   #resume(parse(path("resume.json")))
+//   #let schema = schema-from-json-schema(json("resume.schema.json"))
+//   #resume(parse(schema, path("resume.json")))
 //
 // Labels come from the template, `#show: altacv.with(labels: ..)`,
 // which the blocks read too. The `set document` is only the PDF's
@@ -447,7 +450,8 @@
 ///
 /// - cv (dictionary): The CV, validated JSON Resume (camelCase fields)
 ///   plus altacv's `custom.altacv` extensions: gairm-import's
-///   `parse(path("resume.json"))`, or the CV `alta()` has checked. Its
+///   `parse(schema, path("resume.json"))`, or the CV `alta()` has
+///   checked. Its
 ///   field types aren't checked again here, so a wrong-typed field
 ///   fails inside the mapping rather than naming itself.
 /// - preferences (dictionary): Settings, by `alta()`'s kebab-case
