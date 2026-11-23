@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0](https://github.com/smur89/alta-typst/compare/v1.9.0...v1.10.0) (2026-11-23)
+
+
+### Features
+
+* ship JSON Resume's schema with the template, for gairm-import 1.0's `parse`, which takes the schema first ([#418](https://github.com/smur89/alta-typst/issues/418)) ([a7bbb76](https://github.com/smur89/alta-typst/commit/a7bbb762b6cf112d3ca72356f4d9f7e7ea95bbaa))
+
+
+### Bug Fixes
+
+* **deps:** update dependency gairm-import to v0.12.0 ([#420](https://github.com/smur89/alta-typst/issues/420)) ([f7f4aab](https://github.com/smur89/alta-typst/commit/f7f4aab940e01d96f2b71da192c5988e478697db))
+* **deps:** update dependency gairm-import to v0.13.0 ([#422](https://github.com/smur89/alta-typst/issues/422)) ([054ca9d](https://github.com/smur89/alta-typst/commit/054ca9dbda2b59b60bcd3ddd3dc8c3a53d1f7b03))
+* **deps:** update dependency gairm-import to v1.0.0 ([a7bbb76](https://github.com/smur89/alta-typst/commit/a7bbb762b6cf112d3ca72356f4d9f7e7ea95bbaa))
+
 ## [1.9.0](https://github.com/smur89/alta-typst/compare/v1.8.0...v1.9.0) (2026-11-07)
 
 
