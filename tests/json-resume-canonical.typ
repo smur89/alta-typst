@@ -1,7 +1,6 @@
 // Pins the contract that an unmodified resume.json on the current
 // JSON Resume schema (no altacv extensions, free-text fluency) parses
-// and renders without edits, through gairm-import's `parse` as the
-// README shows.
+// and renders without edits through gairm-import's `parse`.
 
 #import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
 #import "../internal/data/json-resume.typ": from-json-resume

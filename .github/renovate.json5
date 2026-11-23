@@ -44,9 +44,9 @@
       extractVersionTemplate: '^v(?<version>.+)$',
     },
     {
-      description: "The gairm-import pins in docs and comments, which the typst manager doesn't read, so they move in the same PR as the import.",
+      description: "gairm-import pins the typst manager misses: docs, comments, and from-json-resume's nested import.",
       customType: 'regex',
-      managerFilePatterns: ['/^README\\.md$/', '/^template/cv\\.typ$/', '/^adapter/json-resume\\.typ$/'],
+      managerFilePatterns: ['/^README\\.md$/', '/^template/cv\\.typ$/', '/^adapter/json-resume\\.typ$/', '/^internal/data/json-resume\\.typ$/'],
       matchStrings: ['@preview/gairm-import:(?<currentValue>\\d+\\.\\d+\\.\\d+)'],
       depNameTemplate: 'gairm-import',
       packageNameTemplate: 'preview/gairm-import',

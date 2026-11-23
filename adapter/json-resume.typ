@@ -4,11 +4,9 @@
 // `#show: altacv.with(..)`, written to be read and copied (#370).
 //
 // It takes validated JSON Resume: `alta()`'s checked CV, or
-// gairm-import's `parse(..)` of a `resume.json`, checked against the
-// JSON Resume schema (`resume.schema.json`, which `typst init` copies
-// beside `resume.json`). It reads JSON Resume's camelCase fields
-// (`startDate`) and altacv's extensions under `custom.altacv` as the
-// schema types them, without checking them.
+// gairm-import's `parse(..)` of a `resume.json`. It reads JSON
+// Resume's camelCase fields (`startDate`) and altacv's extensions under
+// `custom.altacv` as the schema types them, without checking them.
 //
 // To adapt it, copy this file into your project, replace the imports
 // below with one

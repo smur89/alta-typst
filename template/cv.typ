@@ -178,8 +178,8 @@
 // To load the same CV from JSON Resume instead, replace the
 // `#alta(cv, ..)` line above with the three below. `resume.json`, beside
 // this file, holds it in the standard schema (https://jsonresume.org),
-// so any JSON Resume tool can write it, and `resume.schema.json` is
-// that schema, which `parse` checks it against. Loading it drops the
+// so any JSON Resume tool can write it; `parse` checks it against
+// `resume.schema.json`. Loading it drops the
 // photo, which is set here in Typst (`basics.image`): the README's "A
 // `resume.json`" shows how to keep one.
 // #import "@preview/gairm-import:1.0.0": parse, schema-from-json-schema
